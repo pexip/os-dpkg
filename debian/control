@@ -1,9 +1,10 @@
 Source: dpkg
 Section: admin
 Priority: required
-Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Maintainer: Pexip AS <packaging@pexip.com>
+XSBC-Pexip-Original-Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 XSBC-Original-Maintainer: Dpkg Developers <debian-dpkg@lists.debian.org>
-Uploaders: Guillem Jover <guillem@debian.org>, Raphaël Hertzog <hertzog@debian.org>
+XSBC-Pexip-Original-Uploaders: Guillem Jover <guillem@debian.org>, Raphaël Hertzog <hertzog@debian.org>
 Origin: debian
 Bugs: debbugs://bugs.debian.org
 Homepage: http://wiki.debian.org/Teams/Dpkg
@@ -16,6 +17,7 @@ Build-Depends: debhelper (>= 7), pkg-config, flex,
  libselinux1-dev (>= 1.28-4) [linux-any],
  libncursesw5-dev,
  libtimedate-perl, libio-string-perl
+XS-Pexip-Upstream: http://archive.ubuntu.com/ubuntu/ precise
 
 Package: libdpkg-dev
 Section: libdevel
