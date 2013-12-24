@@ -1,0 +1,64 @@
+.\"*******************************************************************
+.\"
+.\" This file was generated with po4a. Translate the source file.
+.\"
+.\"*******************************************************************
+.TH deb\-split 5 07\-04\-2011 "Projet Debian" Debian
+.SH NOM
+deb\-split \- formatage de paquets binaires Debian en plusieurs parties
+.SH SYNOPSIS
+\fInom\-du\-fichier.deb\fP
+.SH DESCRIPTION
+Le format \fB.deb\fP en parties multiples (multi\-part) permet de découper de
+gros paquets en petites parties pour faciliter leur transport sur des
+supports de faible capacité.
+.SH FORMAT
+Le fichier est une archive \fBar\fP avec un numéro magique de
+\fB!<arch>.\fP. Les noms de fichiers peuvent comporter un caractère
+«\ /\ » final (depuis dpkg 1.15.6).
+.PP
+Le premier membre est appelé \fBdebians\-split\fP et contient un ensemble de
+lignes, séparées par des retours à la ligne. Actuellement, huit lignes sont
+présentes\ :
+.IP \(bu 4
+Numéro de version du format, \fB2.1\fP au moment de la rédaction de cette page
+de manuel.
+.IP \(bu
+Nom du paquet
+.IP \(bu
+Version du paquet
+.IP \(bu
+Somme de contrôle MD5 du paquet
+.IP \(bu
+Taille totale du paquet
+.IP \(bu
+Taille maximale d'un membre
+.IP \(bu
+Numéro du membre courant, suivi d'une barre oblique (/) et du nombre total
+de membres (par exemple \(oq1/10\(cq).
+.IP \(bu
+Architecture du paquet (depuis dpkg 1.16.1)
+.PP
+Les programmes qui lisent des archives en parties multiples doivent
+autoriser la présence de lignes supplémentaires (et les ignorer si elles
+existent).
+.PP
+Si le numéro de version majeur a changé, cela signifie qu'une modification
+incompatible a été effectuée, et le programme doit alors s'arrêter. Si ce
+n'est pas le cas, le programme doit être en mesure de poursuivre
+correctement, à moins qu'il ne rencontre un membre non reconnu dans
+l'archive (excepté à la fin de cette dernière), comme décrit ci\-dessous.
+.PP
+The second, last required member is named \fBdata.\fP\fIN\fP, where \fIN\fP denotes
+the part number. It contains the raw part data.
+.PP
+These members must occur in this exact order. Current implementations should
+ignore any additional members after \fBdata.\fP\fIN\fP.  Further members may be
+defined in the future, and (if possible) will be placed after these two.
+.SH "VOIR AUSSI"
+\fBdeb\fP(5), \fBdpkg\-split\fP(1).
+.SH TRADUCTION
+Ariel VARDI <ariel.vardi@freesbee.fr>, 2002.
+Philippe Batailler, 2006.
+Nicolas François, 2006.
+Veuillez signaler toute erreur à <debian\-l10n\-french@lists.debian.org>.

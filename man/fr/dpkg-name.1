@@ -1,0 +1,104 @@
+.\" This is an -*- nroff -*- source file.
+.\" dpkg-name and this manpage are Copyright Â© 1995,1996 by Erick Branderhorst.
+.\"
+.\" This is free software; see the GNU General Public Licence version 2
+.\" or later for copying conditions.  There is NO warranty.
+.\"*******************************************************************
+.\"
+.\" This file was generated with po4a. Translate the source file.
+.\"
+.\"*******************************************************************
+.TH dpkg\-name 1 2011\-08\-14 "Projet Debian" "Utilitaires de dpkg"
+.SH NOM
+dpkg\-name \- redonne aux paquets Debian leur nom complet
+.
+.SH SYNOPSIS
+\fBdpkg\-name\fP [\fIoption\fP...] [\fB\-\-\fP] \fIfile\fP...
+.
+.SH DESCRIPTION
+.PP
+This manual page documents the \fBdpkg\-name\fP program which provides an easy
+way to rename \fBDebian\fP packages into their full package names. A full
+package name consists of
+\fIpackage\fP\fB_\fP\fIversion\fP\fB_\fP\fIarchitecture\fP\fB.\fP\fIpackage\-type\fP as specified
+in the control file of the package. The \fIversion\fP part of the filename
+consists of the upstream version information optionally followed by a hyphen
+and the revision information. The \fIpackage\-type\fP part comes from that field
+if present or fallbacks to \fBdeb\fP.
+.
+.SH OPTIONS
+.TP 
+\fB\-a\fP, \fB\-\-no\-architecture\fP
+Le nom du fichier n'aura pas l'information sur l'architecture.
+.TP 
+\fB\-k\fP, \fB\-\-symlink\fP
+Faire un lien symbolique plutôt qu'une création de fichier.
+.TP 
+\fB\-o\fP, \fB\-\-overwrite\fP
+Remplace des fichiers existants s'ils ont le même nom que le fichier de
+destination.
+.TP 
+\fB\-s\fP, \fB\-\-subdir\fP [\fIrep\fP]
+Files will be moved into a subdirectory. If the directory given as argument
+exists the files will be moved into that directory otherwise the name of the
+target directory is extracted from the section field in the control part of
+the package. The target directory will be
+`unstable/binary\-\fIarchitecture\fP/\fIsection\fP'. If the section is not found in
+the control, then `no\-section' is assumed, and in this case, as well as for
+sections `non\-free' and `contrib' the target directory is
+`\fIsection\fP/binary\-\fIarchitecture\fP'. The section field isn't required so a
+lot of packages will find their way to the `no\-section' area. Use this
+option with care, it's messy.
+.TP 
+\fB\-c\fP, \fB\-\-create\-dir\fP
+On peut utiliser cette option avec l'option \-s. Quand un répertoire cible
+n'est pas trouvé, il est créé automatiquement.  \fBUtilisez cette option avec
+soin.\fP
+.TP 
+\fB\-h\fP, \fB\-\-help\fP
+Affiche un message d'aide puis quitte.
+.TP 
+\fB\-v\fP, \fB\-\-version\fP
+Affiche le numéro de version puis quitte.
+.
+.SH EXEMPLES
+.TP 
+\fBdpkg\-name bar\-foo.deb\fP
+Le nom du fichier «\ bar\-foo.deb\ » devient «\ bar\-foo_1.0\-2_i386.deb\ » ou
+quelque chose de similaire suivant les renseignements que contient la partie
+de contrôle de «\ bar\-foo.deb\ ».
+.TP 
+\fBfind /root/debian/ \-name \(aq*.deb\(aq | xargs \-n 1 dpkg\-name \-a\fP
+Cette commande redonne leur nom complet à tous les fichiers qui se trouvent
+dans le répertoire /root/debian et ses sous\-répertoires et qui possèdent une
+extension «\ deb\ », mais supprime l'information sur l'architecture.
+.TP 
+\fBfind \-name \(aq*.deb\(aq | xargs \-n 1 dpkg\-name \-a \-o \-s \-c\fP
+\fBNe faites pas ça\ !\fP L'archive sera complètement gâchée par des paquets qui
+ne possèdent pas d'informations sur la section. \fBNe faites pas ça\ !\fP
+.TP 
+\fBdpkg \-\-build debian\-tmp && dpkg\-name \-o \-s .. debian\-tmp.deb\fP
+On peut se servir de cette commande lors de la construction d'un nouveau
+paquet.
+.
+.SH BOGUES
+Some packages don't follow the name structure
+\fIpackage\fP\fB_\fP\fIversion\fP\fB_\fP\fIarchitecture\fP\fB.deb\fP.  Packages renamed by
+dpkg\-name will follow this structure. Generally this will have no impact on
+how packages are installed by \fBdselect\fP(1)/\fBdpkg\fP(1), but other
+installation tools might depend on this naming structure.
+.
+.SH "VOIR AUSSI"
+\fBdeb\fP(5), \fBdeb\-control\fP(5), \fBdpkg\fP(1), \fBdpkg\-deb\fP(1), \fBfind\fP(1),
+\fBxargs\fP(1).
+.
+.SH AUTEUR
+Copyright \(co 1995,1996 Erick Branderhorst
+.sp
+Ce programme est un logiciel libre\ ; voyez la «\ GNU General Public Licence\ »
+version 2 ou supérieure pour le copyright. Il n'y a PAS de garantie.
+.SH TRADUCTION
+Ariel VARDI <ariel.vardi@freesbee.fr>, 2002.
+Philippe Batailler, 2006.
+Nicolas François, 2006.
+Veuillez signaler toute erreur à <debian\-l10n\-french@lists.debian.org>.
