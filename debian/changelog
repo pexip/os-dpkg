@@ -1,8 +1,18 @@
-dpkg (1.16.1.2ubuntu7.2pexip1) pexip; urgency=low
+dpkg (1.16.1.2ubuntu7.3pexip1) pexip; urgency=low
 
   * Prepare Pexip packaging
 
- -- John-Mark Bell <jmb@pexip.com>  Tue, 24 Dec 2013 14:48:35 +0000
+ -- John-Mark Bell <jmb@pexip.com>  Mon, 28 Apr 2014 14:52:58 +0100
+
+dpkg (1.16.1.2ubuntu7.3) precise-security; urgency=medium
+
+  * SECURITY UPDATE: directory traversal in dpkg-source
+    - scripts/Dpkg/Source/Patch.pm: correctly parse C-style diff
+      filenames.
+    - Patch thanks to Guillem Jover <guillem@debian.org>
+    - CVE-2014-0471
+
+ -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Wed, 23 Apr 2014 19:50:50 -0400
 
 dpkg (1.16.1.2ubuntu7.2) precise; urgency=low
 
