@@ -1,3 +1,13 @@
+dpkg (1.16.1.2ubuntu7.4) precise-security; urgency=medium
+
+  * SECURITY UPDATE: directory traversal in dpkg-source
+    - scripts/Dpkg/Source/Patch.pm: outright reject C-style filenames in
+      patches
+    - a12eb58959d0a10584a428f4a3103a49204c410f
+    - CVE-2014-0471
+
+ -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Thu, 01 May 2014 08:04:51 -0400
+
 dpkg (1.16.1.2ubuntu7.3) precise-security; urgency=medium
 
   * SECURITY UPDATE: directory traversal in dpkg-source
