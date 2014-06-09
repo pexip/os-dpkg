@@ -1,3 +1,14 @@
+dpkg (1.16.1.2ubuntu7.5) precise-security; urgency=medium
+
+  * SECURITY UPDATE: arbitrary file modification via dpkg-source
+    - scripts/Dpkg/Source/Patch.pm: Use a better regex for patch header
+      parsing
+    - 5348cbc981a65c3c9b05bb4d13553bda930c2d78
+    - CVE-2014-3864
+    - CVE-2014-3865
+
+ -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Mon, 09 Jun 2014 13:00:47 -0400
+
 dpkg (1.16.1.2ubuntu7.4) precise-security; urgency=medium
 
   * SECURITY UPDATE: directory traversal in dpkg-source

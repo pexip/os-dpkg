@@ -387,7 +387,7 @@ sub analyze {
     while (defined($_) || not eof($self)) {
 	my (%path, %fn);
 	# skip comments leading up to patch (if any)
-	until (/^--- /) {
+	until (/^(?:--- |\+\+\+ |@@ -)/) {
 	    last HUNK if not defined($_ = getline($self));
 	}
 	$diff_count++;
