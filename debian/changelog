@@ -1,3 +1,13 @@
+dpkg (1.16.1.2ubuntu7.5pexip2) pexip; urgency=low
+
+  * SECURITY UPDATE: format string vulnerabilities in parse_error_msg
+    - lib/dpkg/parsehelp.c: Escape user-controlled data for use in
+      error format strings
+    - 446f11df6302716c2a1f993761ee54ecb44d42bb
+    - CVE-2014-8625
+
+ -- John-Mark Bell <jmb@pexip.com>  Sat, 07 Mar 2015 19:43:12 +0000
+
 dpkg (1.16.1.2ubuntu7.5pexip1) pexip; urgency=low
 
   * Prepare Pexip packaging

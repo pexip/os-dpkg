@@ -44,12 +44,13 @@ parse_error_msg(struct parsedb_state *ps, const char *fmt)
   str_escape_fmt(filename, ps->filename, sizeof(filename));
 
   if (ps->pkg && ps->pkg->set && ps->pkg->set->name) {
+    char pkgname[256];
     enum pkg_describe_opts pdo = pdo_foreign;
     if (ps->flags & pdb_recordavailable)
       pdo |= pdo_avail;
+    str_escape_fmt(pkgname, pkg_describe(ps->pkg, pdo), sizeof(pkgname));
     sprintf(msg, _("parsing file '%.255s' near line %d package '%.255s':\n"
-                   " %.255s"), filename, ps->lno,
-                 pkg_describe(ps->pkg, pdo), fmt);
+                   " %.255s"), filename, ps->lno, pkgname, fmt);
   } else
     sprintf(msg, _("parsing file '%.255s' near line %d:\n"
                    " %.255s"), filename, ps->lno, fmt);
