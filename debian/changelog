@@ -1,3 +1,14 @@
+dpkg (1.16.1.2ubuntu7.6) precise-security; urgency=medium
+
+  * SECURITY UPDATE: OpenPGP Armor Header Line parsing issue
+    - scripts/Dpkg/Control/{Hash,Package}.pm: adjust parsing logic.
+    - scripts/Makefile.*, scripts/t/700_Dpkg_Control.t,
+      scripts/t/700_Dpkg_Control/*: added bunch of tests.
+    - Patch thanks to Guillem Jover
+    - CVE-2015-0840
+
+ -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Thu, 09 Apr 2015 09:22:25 -0400
+
 dpkg (1.16.1.2ubuntu7.5) precise-security; urgency=medium
 
   * SECURITY UPDATE: arbitrary file modification via dpkg-source
