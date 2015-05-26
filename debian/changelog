@@ -1,3 +1,20 @@
+dpkg (1.16.1.2ubuntu7.6pexip1) pexip; urgency=low
+
+  * New upstream release
+
+ -- John-Mark Bell <jmb@pexip.com>  Tue, 26 May 2015 10:46:33 +0100
+
+dpkg (1.16.1.2ubuntu7.6) precise-security; urgency=medium
+
+  * SECURITY UPDATE: OpenPGP Armor Header Line parsing issue
+    - scripts/Dpkg/Control/{Hash,Package}.pm: adjust parsing logic.
+    - scripts/Makefile.*, scripts/t/700_Dpkg_Control.t,
+      scripts/t/700_Dpkg_Control/*: added bunch of tests.
+    - Patch thanks to Guillem Jover
+    - CVE-2015-0840
+
+ -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Thu, 09 Apr 2015 09:22:25 -0400
+
 dpkg (1.16.1.2ubuntu7.5pexip2) pexip; urgency=low
 
   * SECURITY UPDATE: format string vulnerabilities in parse_error_msg

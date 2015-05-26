@@ -105,6 +105,7 @@ sub new {
     my $self = \{
         'in_order' => [],
         'out_order' => [],
+        'is_pgp_signed' => 0,
         'allow_pgp' => 0,
         'allow_duplicate' => 0,
         'drop_empty' => 0,
@@ -159,21 +160,29 @@ sub parse {
     my ($self, $fh, $desc) = @_;
 
     my $paraborder = 1;
+    my $parabody = 0;
     my $cf; # Current field
     my $expect_pgp_sig = 0;
+
     while (<$fh>) {
-	s/\s*\n$//;
-	next if (m/^$/ and $paraborder);
+	chomp;
+	next if m/^\s*$/ and $paraborder;
 	next if (m/^#/);
 	$paraborder = 0;
 	if (m/^(\S+?)\s*:\s*(.*)$/) {
-	    if (exists $self->{$1}) {
+	    $parabody = 1;
+	    if ($1 =~ m/^-/) {
+		syntaxerror($desc, _g('field cannot start with a hyphen'));
+	    }
+	    my ($name, $value) = ($1, $2);
+	    if (exists $self->{$name}) {
 		unless ($$self->{'allow_duplicate'}) {
-		    syntaxerr($desc, sprintf(_g("duplicate field %s found"), $1));
+		    syntaxerr($desc, sprintf(_g("duplicate field %s found"), $name));
 		}
 	    }
-	    $self->{$1} = $2;
-	    $cf = $1;
+	    $value =~ s/\s*$//;
+	    $self->{$name} = $value;
+	    $cf = $name;
 	} elsif (m/^\s(\s*\S.*)$/) {
 	    my $line = $1;
 	    unless (defined($cf)) {
@@ -182,36 +191,43 @@ sub parse {
 	    if ($line =~ /^\.+$/) {
 		$line = substr $line, 1;
 	    }
+	    $line =~ s/\s*$//;
 	    $self->{$cf} .= "\n$line";
-	} elsif (m/^-----BEGIN PGP SIGNED MESSAGE/) {
+	} elsif (m/^-----BEGIN PGP SIGNED MESSAGE-----[\r\t ]*$/) {
 	    $expect_pgp_sig = 1;
-	    if ($$self->{'allow_pgp'}) {
+	    if ($$self->{'allow_pgp'} and not $parabody) {
 		# Skip PGP headers
 		while (<$fh>) {
-		    last if m/^$/;
+		    last if m/^\s*$/;
 		}
 	    } else {
 		syntaxerr($desc, _g("PGP signature not allowed here"));
 	    }
-	} elsif (m/^$/ || ($expect_pgp_sig && m/^-----BEGIN PGP SIGNATURE/)) {
+	} elsif (m/^\s*$/ ||
+	         ($expect_pgp_sig && m/^-----BEGIN PGP SIGNATURE-----[\r\t ]*$/)) {
 	    if ($expect_pgp_sig) {
 		# Skip empty lines
 		$_ = <$fh> while defined($_) && $_ =~ /^\s*$/;
-		length($_) ||
+		unless (length $_) {
                     syntaxerr($desc, _g("expected PGP signature, found EOF " .
                                         "after blank line"));
-		s/\n$//;
-		unless (m/^-----BEGIN PGP SIGNATURE/) {
+		}
+		chomp;
+		unless (m/^-----BEGIN PGP SIGNATURE-----[\r\t ]*$/) {
 		    syntaxerr($desc, sprintf(_g("expected PGP signature, " .
                                                 "found something else \`%s'"), $_));
                 }
 		# Skip PGP signature
 		while (<$fh>) {
-		    last if m/^-----END PGP SIGNATURE/;
+		    chomp;
+		    last if m/^-----END PGP SIGNATURE-----[\r\t ]*$/;
 		}
 		unless (defined($_)) {
                     syntaxerr($desc, _g("unfinished PGP signature"));
                 }
+		# This does not mean the signature is correct, that needs to
+		# be verified by gnupg.
+		$$self->{'is_pgp_signed'} = 1;
 	    }
 	    last; # Finished parsing one block
 	} else {
@@ -219,6 +235,11 @@ sub parse {
                       _g("line with unknown format (not field-colon-value)"));
 	}
     }
+
+    if ($expect_pgp_sig and not $$self->{'is_pgp_signed'}) {
+	syntaxerror($desc, _g('unfinished PGP signature'));
+    }
+
     return defined($cf);
 }
 
