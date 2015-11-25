@@ -4,7 +4,7 @@
  *
  * Copyright © 2007 Canonical Ltd
  * Written by Ian Jackson <ian@chiark.greenend.org.uk>
- * Copyright © 2008-2011 Guillem Jover <guillem@debian.org>
+ * Copyright © 2008-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,14 +17,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 #include <compat.h>
 
+#include <string.h>
+
 #include <dpkg/dpkg.h>
 #include <dpkg/dpkg-db.h>
+#include <dpkg/pkg.h>
 #include <dpkg/pkg-list.h>
 #include <dpkg/dlist.h>
 #include <dpkg/triglib.h>
@@ -40,7 +43,7 @@ trig_note_pend_core(struct pkginfo *pend, const char *trig)
 	struct trigpend *tp;
 
 	for (tp = pend->trigpend_head; tp; tp = tp->next)
-		if (!strcmp(tp->name, trig))
+		if (strcmp(tp->name, trig) == 0)
 			return false;
 
 	tp = nfmalloc(sizeof(*tp));
@@ -63,8 +66,10 @@ trig_note_pend(struct pkginfo *pend, const char *trig)
 	if (!trig_note_pend_core(pend, trig))
 		return false;
 
-	pend->status = pend->trigaw.head ? stat_triggersawaited :
-	               stat_triggerspending;
+	if (pend->trigaw.head)
+		pkg_set_status(pend, PKG_STAT_TRIGGERSAWAITED);
+	else
+		pkg_set_status(pend, PKG_STAT_TRIGGERSPENDING);
 
 	return true;
 }

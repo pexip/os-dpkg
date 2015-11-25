@@ -1,9 +1,26 @@
+.\" dpkg manual page - dpkg-vendor(1)
+.\"
+.\" Copyright Â© 2009 RaphaÃ«l Hertzog <hertzog@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dpkg\-vendor 1 2011\-07\-04 "Projekt Debiana" "u¿ytki dpkg"
+.TH dpkg\-vendor 1 2011\-11\-10 "Projekt Debian" "u¿ytki dpkg"
 .SH NAZWA
 dpkg\-vendor \- odczytuje informacjê o twórcach dystrybucji
 .
@@ -18,12 +35,12 @@ zawiera informacje dotycz±ce aktualnego twórcy.
 .SH POLECENIA
 .TP 
 \fB\-\-is\fP\fI twórca\fP
-Exits with \fB0\fP if the current vendor is \fIvendor\fP. Otherwise exits with
-non\-zero.
+Koñczy siê zwracaj±c \fB0\fP je¶li aktualny twórca to \fItwórca\fP. W przeciwnym
+wypadku koñczy siê zwracaj±c warto¶æ ró¿n± od zera.
 .TP 
 \fB\-\-derives\-from\fP\fI twórca\fP
 Exits with \fB0\fP if the current vendor distribution is a derivative of
-\fIvendor\fP, otherwise exits with non\-zero. It uses the "Parent" field to
+\fIvendor\fP, otherwise exits with non\-zero. It uses the \fBParent\fP field to
 browse all ancestors of the current vendor.
 .TP 
 \fB\-\-query\fP\fI pole\fP
@@ -39,8 +56,8 @@ Wy¶wietla informacjê o wersji i pomy¶lnie koñczy dzia³anie.
 .SH OPCJE
 .TP 
 \fB\-\-vendor\fP\fI twórca\fP
-Assumes the current vendor is \fIvendor\fP instead of discovering it with the
-\fBDEB_VENDOR\fP environment variable or \fB/etc/dpkg/origins/default\fP.
+Przyjmuje, ¿e aktualnym twórc± jest \fItwórca\fP, zamiast okre¶lania tego przez
+zmienn± ¶rodowiska \fBDEB_VENDOR\fP lub odczyt z \fB/etc/dpkg/origins/default\fP.
 .
 .SH ¦RODOWISKO
 .TP 
@@ -48,14 +65,9 @@ Assumes the current vendor is \fIvendor\fP instead of discovering it with the
 Ustawienie okre¶laj±ce aktualnego twórcê. Je¶li nie jest ustawione, aktualny
 twórca zostanie okre¶lony poprzez odczytanie z \fB/etc/dpkg/origins/default\fP.
 .
-.SH AUTOR
-Copyright \(co 2009 Rapha\[:e]l Hertzog
-.sp
-Niniejszy program jest oprogramowaniem wolnym, sprawd¼ Powszechn± Licencjê
-Publiczn± GNU w wersji drugiej lub pó¼niejszej, by dowiedzieæ siê o
-warunkach dystrybucji. Brak JAKIEJKOLWIEK gwarancji.
-
-.SH "T£UMACZE"
+.SH "ZOBACZ TAK¯E"
+\fBdeb\-origin\fP(5).
+.SH T£UMACZE
 Piotr Roszatycki <dexter@debian.org>, 1999
 .br
 Bartosz Feñski <fenio@debian.org>, 2004-2005
@@ -63,3 +75,5 @@ Bartosz Feñski <fenio@debian.org>, 2004-2005
 Robert Luberda <robert@debian.org>, 2006-2008
 .br
 Wiktor Wandachowicz <siryes@gmail.com>, 2008
+.br
+Micha³ Ku³ach <michal.kulach@gmail.com>, 2012

@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -48,8 +48,10 @@ updateavailable(const char *const *argv)
     if (sourcefile) badusage(_("--%s takes no arguments"),cipaction->olong);
     break;
   case act_avreplace: case act_avmerge:
-    if (!sourcefile || argv[1])
-      badusage(_("--%s needs exactly one Packages-file argument"),
+    if (sourcefile == NULL)
+      sourcefile = "-";
+    else if (sourcefile && argv[1])
+      badusage(_("--%s takes at most one Packages-file argument"),
                cipaction->olong);
     break;
   default:
@@ -82,12 +84,11 @@ updateavailable(const char *const *argv)
   availfile = dpkg_db_get_path(AVAILFILE);
 
   if (cipaction->arg_int == act_avmerge)
-    parsedb(availfile, pdb_recordavailable | pdb_rejectstatus | pdb_lax_parser,
-            NULL);
+    parsedb(availfile, pdb_parse_available, NULL);
 
   if (cipaction->arg_int != act_avclear)
     count += parsedb(sourcefile,
-		     pdb_recordavailable | pdb_rejectstatus | pdb_ignoreolder,
+                     pdb_parse_available | pdb_ignoreolder | pdb_dash_is_stdin,
                      NULL);
 
   if (!f_noact) {
@@ -112,7 +113,7 @@ forgetold(const char *const *argv)
   if (*argv)
     badusage(_("--%s takes no arguments"), cipaction->olong);
 
-  warning(_("obsolete '--%s' option, unavailable packages are automatically cleaned up."),
+  warning(_("obsolete '--%s' option; unavailable packages are automatically cleaned up"),
           cipaction->olong);
 
   return 0;

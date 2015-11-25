@@ -3,7 +3,7 @@
  * path.c - path handling functions
  *
  * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
- * Copyright © 2008-2011 Guillem Jover <guillem@debian.org>
+ * Copyright © 2008-2012 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -27,6 +27,7 @@
 #include <stdio.h>
 
 #include <dpkg/dpkg.h>
+#include <dpkg/string.h>
 #include <dpkg/path.h>
 
 /**
@@ -43,7 +44,7 @@ path_trim_slash_slashdot(char *path)
 {
 	char *end;
 
-	if (!path || !*path)
+	if (str_is_unset(path))
 		return 0;
 
 	for (end = path + strlen(path) - 1; end - path >= 1; end--) {
@@ -105,12 +106,8 @@ path_make_temp_template(const char *suffix)
 	char *template;
 
 	tmpdir = getenv("TMPDIR");
-#ifdef P_tmpdir
 	if (!tmpdir)
 		tmpdir = P_tmpdir;
-#endif
-	if (!tmpdir)
-		tmpdir = "/tmp";
 
 	m_asprintf(&template, "%s/%s.XXXXXX", tmpdir, suffix);
 

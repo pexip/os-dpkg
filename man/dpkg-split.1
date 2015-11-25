@@ -1,4 +1,21 @@
-.\" Authors: Ian Jackson
+.\" dpkg manual page - dpkg-split(1)
+.\"
+.\" Copyright © 1995-1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
+.\" Copyright © 2011 Guillem Jover <guillem@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
+.
 .TH dpkg\-split 1 "2011-07-04" "Debian Project" "dpkg utilities"
 .SH NAME
 dpkg\-split \- Debian package archive split/join tool
@@ -124,7 +141,7 @@ If no
 is specified then the queue is cleared completely; if any are
 specified then only parts of the relevant package(s) are deleted.
 .TP
-.BR \-h ", " \-\-help
+.BR \-? ", " \-\-help
 Show the usage message and exit.
 .TP
 .BR \-\-version
@@ -196,13 +213,6 @@ Some kind of trouble happened, such as a system
 call failure, a file that looked like a package part file but was
 corrupted, a usage error or some other problem.
 .
-.SH BUGS
-Full details of the packages in the queue are impossible to get
-without digging into the queue directory yourself.
-
-There is no easy way to test whether a file that may be a binary
-package part is one.
-.
 .SH FILES
 .TP
 .I /var/lib/dpkg/parts
@@ -214,14 +224,15 @@ The filenames used in this directory are in a format internal to
 and are unlikely to be useful to other programs, and in any case the
 filename format should not be relied upon.
 .
-.SH "SEE ALSO"
+.SH BUGS
+Full details of the packages in the queue are impossible to get
+without digging into the queue directory yourself.
+
+There is no easy way to test whether a file that may be a binary
+package part is one.
+.
+.SH SEE ALSO
 .BR deb (5),
 .BR deb\-control (5),
 .BR dpkg\-deb (1),
 .BR dpkg (1).
-.
-.SH AUTHOR
-Copyright \(co 1995-1996 Ian Jackson
-.sp
-This is free software; see the GNU General Public Licence version 2 or
-later for copying conditions. There is NO WARRANTY.

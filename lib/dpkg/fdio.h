@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef LIBDPKG_FDIO_H
@@ -27,8 +27,19 @@
 
 DPKG_BEGIN_DECLS
 
+/**
+ * @defgroup fdio File descriptor I/O
+ * @ingroup dpkg-internal
+ * @{
+ */
+
 ssize_t fd_read(int fd, void *buf, size_t len);
 ssize_t fd_write(int fd, const void *buf, size_t len);
+
+int
+fd_allocate_size(int fd, off_t offset, off_t len);
+
+/** @} */
 
 DPKG_END_DECLS
 

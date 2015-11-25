@@ -10,6 +10,7 @@ dist_man_MANS = \
 	deb-symbols.5 \
 	deb-triggers.5 \
 	deb-old.5 \
+	deb-origin.5 \
 	deb-override.5 \
 	deb-extra-override.5 \
 	deb.5 \
@@ -39,18 +40,18 @@ dist_man_MANS = \
 	dpkg.1 \
 	dpkg.cfg.5
 
-if WITH_DSELECT
+if BUILD_DSELECT
 dist_man_MANS += \
 	dselect.1 \
 	dselect.cfg.5
 endif
 
-if WITH_START_STOP_DAEMON
+if BUILD_START_STOP_DAEMON
 dist_man_MANS += \
 	start-stop-daemon.8
 endif
 
-if WITH_UPDATE_ALTERNATIVES
+if BUILD_UPDATE_ALTERNATIVES
 dist_man_MANS += \
 	update-alternatives.8
 endif
@@ -68,11 +69,14 @@ LINGUAS_DIST = `sed -ne 's/^.*\[po4a_langs\] \(.*\)$$/\1/p' $(srcdir)/po/po4a.cf
 LINGUAS ?= $(LINGUAS_DIST)
 
 
-PO4A_V = $(PO4A_V_$(V))
-PO4A_V_ = $(PO4A_V_$(AM_DEFAULT_VERBOSITY))
+PO4A_V = $(PO4A_V_@AM_V@)
+PO4A_V_ = $(PO4A_V_@AM_DEFAULT_V@)
 PO4A_V_0 = @echo "  PO4A   $@";
 
-PO4A_OPTS = --previous --srcdir $(srcdir) --destdir $(CURDIR) --no-backups
+PO4A_OPTS = --previous --srcdir $(srcdir) --destdir $(CURDIR) --no-backups \
+            --package-name dpkg-man --package-version $(PACKAGE_VERSION) \
+            --copyright-holder "$(PACKAGE_COPYRIGHT_HOLDER)" \
+            --msgid-bugs-address $(PACKAGE_BUGREPORT)
 
 all-local: all-local-@USE_PO4A@
 
@@ -139,6 +143,6 @@ dist-hook: man.stamp
 	for lang in $(LINGUAS_DIST); do \
 		cp $(srcdir)/po/$$lang.po $(distdir)/po; \
 		cp $(srcdir)/po/$$lang.add $(distdir)/po; \
-		$(mkdir_p) $(distdir)/$$lang; \
+		$(MKDIR_P) $(distdir)/$$lang; \
 		cp -r $(srcdir)/$$lang $(distdir)/; \
 	done

@@ -1,9 +1,30 @@
+.\" dselect manual page - dselect(1)
+.\"
+.\" Copyright Â© 1995 Juho Vuori <javuori@cc.helsinki.fi>
+.\" Copyright Â© 2000 Josip Rodin
+.\" Copyright Â© 2001 Joost Kooij
+.\" Copyright Â© 2001 Wichert Akkerman <wakkerma@debian.org>
+.\" Copyright Â© 2010-2014 Guillem Jover <guillem@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dselect 1 2011\-08\-14 Debianprojektet Debian
+.TH dselect 1 2014\-08\-11 Debianprojektet Debian
 .SH NAMN
 dselect \- Debians pakethanteringsskal
 .
@@ -57,7 +78,7 @@ Slå på felsökningsläge. Felsökningsinformation lagras i \fIfil\fP.
 Slår på expertläge, dvs. visar inte hjälpmeddelanden som kanske kan vara
 irriterande.
 .TP 
-\fB\-\-colour\fP|\fB\-\-color\fP \fIskärmdel\fP:[\fIförgrund\fP],[\fIbakgrund\fP][\fI:attr\fP[\fI+attr+..\fP]]
+\fB\-\-colour\fP|\fB\-\-color\fP \fIskärmdel:\fP[\fIförgrund\fP],[\fIbakgrund\fP][\fI:attr\fP[\fI+attr+...\fP]]
 Ställer in skärmfärger. Detta fungerar bara om din skärm kan visa
 färger. Flaggan kan användas flera gånger (och fungerar bäst i
 \fIdselect.cfg\fP). Varje användning ändrar färgen (och kanske andra attribut)
@@ -103,11 +124,11 @@ Används för att visa frågor.
 \fBhelpscreen\fP
 Färg på hjälpskärmar.
 .RE
-.P
+.IP
 Efter skärmdelen följer ett kolon och färgangivelsen. Du kan ange antingen
 förgrundsfärgen, bakgrundsfärgen eller båda två, vilka kommer att ersätta de
 inkompilerade färgerna. Använd de normala curses\-namnen för färgerna.
-.P
+.IP
 Du kan även ange ytterligare ett kolon efter färgangivelsen och där ge
 attribut. Detta är en lista med ett eller flera attribut, avdelade med
 plustecken ("+"). Tillgängliga attribut är (alla fungerar inte på alla
@@ -181,7 +202,7 @@ köra installationen på nytt. I de flesta fall kommer problemet försvinna
 eller lösas. Om problemet kvarstår eller den installation som genomfördes
 var felaktig, ber vi dig undersöka orsaken och omständigheterna och
 rapportera ett fel i Debians felrapporteringssystem. Instruktioner om hur du
-gör det finns på http://bugs.debian.org/ eller genom att läsa
+gör det finns på https://bugs.debian.org/ eller genom att läsa
 dokumentationen för \fBbug\fP(1) eller \fBreportbug\fP(1), om dessa är
 installerade.
 .sp
@@ -206,7 +227,7 @@ Avslutar \fBdselect\fP
 Avslutar dselect med felkod noll (lyckat).
 .sp
 .
-.SH Paketvalshantering
+.SH "HANTERING AV PAKETVAL"
 .sp
 .SS Introduktion
 .sp
@@ -258,11 +279,13 @@ pakethanteringssystem, vilket inbegriper paket installerade på systemet och
 paket kända från databasen över tillgängliga paket.
 .sp
 För varje paket visar listan paketets status, prioritet, avdelning,
-installerade och tillgängliga versioner, paketets namn och dess korta
-beskrivning, allt på en rad. Genom att trycka på tangenten \fB"V"\fP slås
-visningen av den installerade och den aktiva versionen på och av. Genom att
-trycka på tangenten \fB"v"\fP växlas paketstatusvisningen mellan ordrik och
-förkortad, med den förkortade visningen som förval.
+installerade och tillgängliga arkitekturer, installerade och tillgängliga
+versioner, paketets namn och dess korta beskrivning, allt på en rad. Genom
+att trycka på knappen \fB"A"\fP slås visningen av installerade och tillgängliga
+arkitekturer på och av. Genom att trycka på tangenten \fB"V"\fP slås visningen
+av den installerade och den aktiva versionen på och av. Genom att trycka på
+tangenten \fB"v"\fP växlas paketstatusvisningen mellan ordrik och förkortad,
+med den förkortade visningen som förval.
 .sp
 Den förkortade statusindikeringen består av fyra delar: en felflagga, vilken
 normalt skall vara blank, aktuell status, senast vald status och nu vald
@@ -430,13 +453,5 @@ inte trasig, utan även mycket flexiblare än de inbyggda åtkomstmetoderna.
 .
 .SH "SE ÄVEN"
 \fBdpkg\fP(1), \fBapt\-get\fP(8), \fBsources.list\fP(5), \fBdeb\fP(5).
-.
-.SH FÖRFATTARE
-\fBdselect\fP skrevs av Ian Jackson (ijackson@gnu.ai.mit.edu). En komplett
-lista över bidragslämnare får du med "dselect \-\-version".
-.br
-Manualsidan skrevs av Juho Vuori <javuori@cc.helsinki.fi>, Josip
-Rodin och Joost Kooij.
-
-.SH "ÖVERSÄTTNING"
+.SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

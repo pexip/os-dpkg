@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef LIBDPKG_FILE_H
@@ -29,10 +29,21 @@
 
 DPKG_BEGIN_DECLS
 
+/**
+ * @defgroup file File handling
+ * @ingroup dpkg-internal
+ * @{
+ */
+
 struct file_stat {
 	uid_t uid;
 	gid_t gid;
 	mode_t mode;
+
+	/* Used by dpkg-statoverride when parsing the database to preserve the
+	 * user and group names in case the system does not know about them. */
+	char *uname;
+	char *gname;
 };
 
 void file_copy_perms(const char *src, const char *dst);
@@ -46,6 +57,9 @@ bool file_is_locked(int lockfd, const char *filename);
 void file_lock(int *lockfd, enum file_lock_flags flags, const char *filename,
                const char *desc);
 void file_unlock(int fd, const char *desc);
+void file_show(const char *filename);
+
+/** @} */
 
 DPKG_END_DECLS
 

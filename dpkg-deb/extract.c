@@ -3,6 +3,7 @@
  * extract.c - extracting archives
  *
  * Copyright © 1994,1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 2006-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -47,6 +48,7 @@
 #include <dpkg/command.h>
 #include <dpkg/compress.h>
 #include <dpkg/ar.h>
+#include <dpkg/deb-version.h>
 #include <dpkg/options.h>
 
 #include "dpkg-deb.h"
@@ -60,7 +62,7 @@ static void movecontrolfiles(const char *thing) {
   if (pid == 0) {
     command_shell(buf, _("shell command to move files"));
   }
-  subproc_wait_check(pid, _("shell command to move files"), 0);
+  subproc_reap(pid, _("shell command to move files"), 0);
 }
 
 static void DPKG_ATTR_NORET
@@ -86,7 +88,7 @@ read_line(int fd, char *buf, size_t min_size, size_t max_size)
     if (r <= 0)
       return r;
 
-    nl = strchr(buf + line_size, '\n');
+    nl = memchr(buf + line_size, '\n', r);
     line_size += r;
 
     if (nl != NULL) {
@@ -102,11 +104,13 @@ read_line(int fd, char *buf, size_t min_size, size_t max_size)
 }
 
 void
-extracthalf(const char *debar, const char *dir, const char *taroption,
-            int admininfo)
+extracthalf(const char *debar, const char *dir,
+            enum dpkg_tar_options taroption, int admininfo)
 {
+  struct dpkg_error err;
+  const char *errstr;
   char versionbuf[40];
-  float versionnum;
+  struct deb_version version;
   off_t ctrllennum, memberlen = 0;
   ssize_t r;
   int dummy;
@@ -116,9 +120,9 @@ extracthalf(const char *debar, const char *dir, const char *taroption,
   int arfd;
   struct stat stab;
   char nlc;
-  int adminmember;
-  bool oldformat, header_done;
-  struct compressor *decompressor = &compressor_gzip;
+  int adminmember = -1;
+  bool header_done;
+  enum compressor_type decompressor = COMPRESSOR_TYPE_GZIP;
 
   arfd = open(debar, O_RDONLY);
   if (arfd < 0)
@@ -130,9 +134,7 @@ extracthalf(const char *debar, const char *dir, const char *taroption,
   if (r < 0)
     read_fail(r, debar, _("archive magic version number"));
 
-  if (!strcmp(versionbuf, DPKG_AR_MAGIC)) {
-    oldformat = false;
-
+  if (strcmp(versionbuf, DPKG_AR_MAGIC) == 0) {
     ctrllennum= 0;
     header_done = false;
     for (;;) {
@@ -144,12 +146,11 @@ extracthalf(const char *debar, const char *dir, const char *taroption,
 
       dpkg_ar_normalize_name(&arh);
 
-      if (memcmp(arh.ar_fmag,ARFMAG,sizeof(arh.ar_fmag)))
+      if (dpkg_ar_member_is_illegal(&arh))
         ohshit(_("file '%.250s' is corrupt - bad archive header magic"), debar);
       memberlen = dpkg_ar_member_get_size(debar, &arh);
       if (!header_done) {
         char *infobuf;
-        char *cur;
 
         if (strncmp(arh.ar_name, DEBMAGIC, sizeof(arh.ar_name)) != 0)
           ohshit(_("file `%.250s' is not a debian binary archive (try dpkg-split?)"),debar);
@@ -158,41 +159,56 @@ extracthalf(const char *debar, const char *dir, const char *taroption,
         if (r != (memberlen + (memberlen & 1)))
           read_fail(r, debar, _("archive information header member"));
         infobuf[memberlen] = '\0';
-        cur= strchr(infobuf,'\n');
-        if (!cur) ohshit(_("archive has no newlines in header"));
-        *cur = '\0';
-        cur= strchr(infobuf,'.');
-        if (!cur) ohshit(_("archive has no dot in version number"));
-        *cur = '\0';
-        if (strcmp(infobuf,"2"))
-          ohshit(_("archive version %.250s not understood, get newer dpkg-deb"), infobuf);
-        *cur= '.';
-        strncpy(versionbuf,infobuf,sizeof(versionbuf));
-        versionbuf[sizeof(versionbuf) - 1] = '\0';
+
+        if (strchr(infobuf, '\n') == NULL)
+          ohshit(_("archive has no newlines in header"));
+        errstr = deb_version_parse(&version, infobuf);
+        if (errstr)
+          ohshit(_("archive has invalid format version: %s"), errstr);
+        if (version.major != 2)
+          ohshit(_("archive is format version %d.%d; get a newer dpkg-deb"),
+                 version.major, version.minor);
+
         free(infobuf);
 
         header_done = true;
       } else if (arh.ar_name[0] == '_') {
         /* Members with ‘_’ are noncritical, and if we don't understand
          * them we skip them. */
-        fd_skip(arfd, memberlen + (memberlen & 1),
-                _("skipped archive member data from %s"), debar);
+        if (fd_skip(arfd, memberlen + (memberlen & 1), &err) < 0)
+          ohshit(_("cannot skip archive member from '%s': %s"), debar, err.str);
       } else {
-	if (strncmp(arh.ar_name, ADMINMEMBER, sizeof(arh.ar_name)) == 0)
+        if (strncmp(arh.ar_name, ADMINMEMBER, strlen(ADMINMEMBER)) == 0) {
+          const char *extension = arh.ar_name + strlen(ADMINMEMBER);
+
 	  adminmember = 1;
-	else {
-	  adminmember = -1;
+          decompressor = compressor_find_by_extension(extension);
+          if (decompressor != COMPRESSOR_TYPE_NONE &&
+              decompressor != COMPRESSOR_TYPE_GZIP &&
+              decompressor != COMPRESSOR_TYPE_XZ)
+            ohshit(_("archive '%s' uses unknown compression for member '%.*s', "
+                     "giving up"),
+                   debar, (int)sizeof(arh.ar_name), arh.ar_name);
+        } else {
+          if (adminmember != 1)
+            ohshit(_("archive '%s' has premature member '%.*s' before '%s', "
+                     "giving up"),
+                   debar, (int)sizeof(arh.ar_name), arh.ar_name, ADMINMEMBER);
 
 	  if (strncmp(arh.ar_name, DATAMEMBER, strlen(DATAMEMBER)) == 0) {
 	    const char *extension = arh.ar_name + strlen(DATAMEMBER);
 
 	    adminmember= 0;
 	    decompressor = compressor_find_by_extension(extension);
-	  }
-
-          if (adminmember == -1 || decompressor == NULL)
-            ohshit(_("archive '%.250s' contains not understood data member %.*s, giving up"),
-                   debar, (int)sizeof(arh.ar_name), arh.ar_name);
+            if (decompressor == COMPRESSOR_TYPE_UNKNOWN)
+              ohshit(_("archive '%s' uses unknown compression for member '%.*s', "
+                       "giving up"),
+                     debar, (int)sizeof(arh.ar_name), arh.ar_name);
+          } else {
+            ohshit(_("archive '%s' has premature member '%.*s' before '%s', "
+                     "giving up"),
+                   debar, (int)sizeof(arh.ar_name), arh.ar_name, DATAMEMBER);
+          }
         }
         if (adminmember == 1) {
           if (ctrllennum != 0)
@@ -201,8 +217,8 @@ extracthalf(const char *debar, const char *dir, const char *taroption,
           ctrllennum= memberlen;
         }
         if (!adminmember != !admininfo) {
-          fd_skip(arfd, memberlen + (memberlen & 1),
-                  _("skipped archive member data from %s"), debar);
+          if (fd_skip(arfd, memberlen + (memberlen & 1), &err) < 0)
+            ohshit(_("cannot skip archive member from '%s': %s"), debar, err.str);
         } else {
           /* Yes! - found it. */
           break;
@@ -211,21 +227,23 @@ extracthalf(const char *debar, const char *dir, const char *taroption,
     }
 
     if (admininfo >= 2) {
-      printf(_(" new debian package, version %s.\n"
-               " size %jd bytes: control archive= %jd bytes.\n"),
-             versionbuf, (intmax_t)stab.st_size, (intmax_t)ctrllennum);
+      printf(_(" new debian package, version %d.%d.\n"
+               " size %jd bytes: control archive=%jd bytes.\n"),
+             version.major, version.minor,
+             (intmax_t)stab.st_size, (intmax_t)ctrllennum);
       m_output(stdout, _("<standard output>"));
     }
-  } else if (!strncmp(versionbuf,"0.93",4) &&
-             sscanf(versionbuf,"%f%c%d",&versionnum,&nlc,&dummy) == 2 &&
-             nlc == '\n') {
+  } else if (strncmp(versionbuf, "0.93", 4) == 0) {
     char ctrllenbuf[40];
-    int l = 0;
+    int l;
 
-    oldformat = true;
     l = strlen(versionbuf);
-    if (l && versionbuf[l - 1] == '\n')
-      versionbuf[l - 1] = '\0';
+
+    if (strchr(versionbuf, '\n') == NULL)
+      ohshit(_("archive has no newlines in header"));
+    errstr = deb_version_parse(&version, versionbuf);
+    if (errstr)
+      ohshit(_("archive has invalid format version: %s"), errstr);
 
     r = read_line(arfd, ctrllenbuf, 1, sizeof(ctrllenbuf) - 1);
     if (r < 0)
@@ -238,22 +256,23 @@ extracthalf(const char *debar, const char *dir, const char *taroption,
       memberlen = ctrllennum;
     } else {
       memberlen = stab.st_size - ctrllennum - strlen(ctrllenbuf) - l;
-      fd_skip(arfd, ctrllennum,
-              _("skipped archive control member data from %s"), debar);
+      if (fd_skip(arfd, ctrllennum, &err) < 0)
+        ohshit(_("cannot skip archive control member from '%s': %s"), debar,
+               err.str);
     }
 
     if (admininfo >= 2) {
-      printf(_(" old debian package, version %s.\n"
-               " size %jd bytes: control archive= %jd, main archive= %jd.\n"),
-             versionbuf, (intmax_t)stab.st_size, (intmax_t)ctrllennum,
+      printf(_(" old debian package, version %d.%d.\n"
+               " size %jd bytes: control archive=%jd, main archive=%jd.\n"),
+             version.major, version.minor,
+             (intmax_t)stab.st_size, (intmax_t)ctrllennum,
              (intmax_t)(stab.st_size - ctrllennum - strlen(ctrllenbuf) - l));
       m_output(stdout, _("<standard output>"));
     }
   } else {
-    if (!strncmp(versionbuf,"!<arch>",7)) {
-      fprintf(stderr,
-              _("dpkg-deb: file looks like it might be an archive which has been\n"
-                "dpkg-deb:    corrupted by being downloaded in ASCII mode\n"));
+    if (strncmp(versionbuf, "!<arch>", 7) == 0) {
+      notice(_("file looks like it might be an archive which has been\n"
+               " corrupted by being downloaded in ASCII mode"));
     }
 
     ohshit(_("`%.255s' is not a debian format archive"),debar);
@@ -263,9 +282,11 @@ extracthalf(const char *debar, const char *dir, const char *taroption,
   c1 = subproc_fork();
   if (!c1) {
     close(p1[0]);
-    fd_fd_copy(arfd, p1[1], memberlen, _("failed to write to pipe in copy"));
+    if (fd_fd_copy(arfd, p1[1], memberlen, &err) < 0)
+      ohshit(_("cannot copy archive member from '%s' to decompressor pipe: %s"),
+             debar, err.str);
     if (close(p1[1]))
-      ohshite(_("failed to close pipe in copy"));
+      ohshite(_("cannot close decompressor pipe"));
     exit(0);
   }
   close(p1[1]);
@@ -281,7 +302,8 @@ extracthalf(const char *debar, const char *dir, const char *taroption,
   if (!c2) {
     if (taroption)
       close(p2[0]);
-    decompress_filter(decompressor, p1[0], p2_out, _("data"));
+    decompress_filter(decompressor, p1[0], p2_out,
+                      _("decompressing archive member"));
     exit(0);
   }
   close(p1[0]);
@@ -291,11 +313,29 @@ extracthalf(const char *debar, const char *dir, const char *taroption,
   if (taroption) {
     c3 = subproc_fork();
     if (!c3) {
-      char buffer[30+2];
-      if (strlen(taroption) > 30)
-        internerr("taroption is too long '%s'", taroption);
-      strcpy(buffer, taroption);
-      strcat(buffer, "f");
+      struct command cmd;
+
+      command_init(&cmd, TAR, "tar");
+      command_add_arg(&cmd, "tar");
+
+      if ((taroption & DPKG_TAR_LIST) && (taroption & DPKG_TAR_EXTRACT))
+        command_add_arg(&cmd, "-xv");
+      else if (taroption & DPKG_TAR_EXTRACT)
+        command_add_arg(&cmd, "-x");
+      else if (taroption & DPKG_TAR_LIST)
+        command_add_arg(&cmd, "-tv");
+      else
+        internerr("unknown or missing tar action '%d'", taroption);
+
+      if (taroption & DPKG_TAR_PERMS)
+        command_add_arg(&cmd, "-p");
+      if (taroption & DPKG_TAR_NOMTIME)
+        command_add_arg(&cmd, "-m");
+
+      command_add_arg(&cmd, "-f");
+      command_add_arg(&cmd, "-");
+      command_add_arg(&cmd, "--warning=no-timestamp");
+
       m_dup2(p2[0],0);
       close(p2[0]);
 
@@ -313,43 +353,42 @@ extracthalf(const char *debar, const char *dir, const char *taroption,
         }
       }
 
-      execlp(TAR, "tar", buffer, "-", "--warning=no-timestamp", NULL);
-      ohshite(_("unable to execute %s (%s)"), "tar", TAR);
+      command_exec(&cmd);
     }
     close(p2[0]);
-    subproc_wait_check(c3, "tar", 0);
+    subproc_reap(c3, "tar", 0);
   }
 
-  subproc_wait_check(c2, _("<decompress>"), PROCPIPE);
+  subproc_reap(c2, _("<decompress>"), SUBPROC_NOPIPE);
   if (c1 != -1)
-    subproc_wait_check(c1, _("paste"), 0);
-  if (oldformat && admininfo) {
-    if (versionnum == 0.931F) {
+    subproc_reap(c1, _("paste"), 0);
+  if (version.major == 0 && admininfo) {
+    /* Handle the version as a float to preserve the behaviour of old code,
+     * because even if the format is defined to be padded by 0's that might
+     * not have been always true for really ancient versions... */
+    while (version.minor && (version.minor % 10) == 0)
+      version.minor /= 10;
+
+    if (version.minor ==  931)
       movecontrolfiles(OLDOLDDEBDIR);
-    } else if (versionnum == 0.932F || versionnum == 0.933F) {
+    else if (version.minor == 932 || version.minor == 933)
       movecontrolfiles(OLDDEBDIR);
-    }
   }
 }
 
-static int
-controlextractvextract(int admin, const char *taroptions,
-                       const char *const *argv)
+int
+do_ctrltarfile(const char *const *argv)
 {
-  const char *debar, *dir;
+  const char *debar;
 
-  if (!(debar= *argv++))
-    badusage(_("--%s needs a .deb filename argument"),cipaction->olong);
-  dir = *argv++;
-  if (!dir) {
-    if (admin)
-      dir = EXTRACTCONTROLDIR;
-    else ohshit(_("--%s needs a target directory.\n"
-                "Perhaps you should be using dpkg --install ?"),cipaction->olong);
-  } else if (*argv) {
-    badusage(_("--%s takes at most two arguments (.deb and directory)"),cipaction->olong);
-  }
-  extracthalf(debar, dir, taroptions, admin);
+  debar = *argv++;
+  if (debar == NULL)
+    badusage(_("--%s needs a .deb filename argument"), cipaction->olong);
+  if (*argv)
+    badusage(_("--%s takes only one argument (.deb filename)"),
+             cipaction->olong);
+
+  extracthalf(debar, NULL, DPKG_TAR_PASSTHROUGH, 1);
 
   return 0;
 }
@@ -359,11 +398,12 @@ do_fsystarfile(const char *const *argv)
 {
   const char *debar;
 
-  if (!(debar= *argv++))
+  debar = *argv++;
+  if (debar == NULL)
     badusage(_("--%s needs a .deb filename argument"),cipaction->olong);
   if (*argv)
     badusage(_("--%s takes only one argument (.deb filename)"),cipaction->olong);
-  extracthalf(debar, NULL, NULL, 0);
+  extracthalf(debar, NULL, DPKG_TAR_PASSTHROUGH, 0);
 
   return 0;
 }
@@ -371,16 +411,50 @@ do_fsystarfile(const char *const *argv)
 int
 do_control(const char *const *argv)
 {
-  return controlextractvextract(1, "x", argv);
+  const char *debar, *dir;
+
+  debar = *argv++;
+  if (debar == NULL)
+    badusage(_("--%s needs a .deb filename argument"), cipaction->olong);
+
+  dir = *argv++;
+  if (dir == NULL)
+    dir = EXTRACTCONTROLDIR;
+  else if (*argv)
+    badusage(_("--%s takes at most two arguments (.deb and directory)"),
+             cipaction->olong);
+
+  extracthalf(debar, dir, DPKG_TAR_EXTRACT, 1);
+
+  return 0;
 }
 
 int
 do_extract(const char *const *argv)
 {
+  const char *debar, *dir;
+  enum dpkg_tar_options options = DPKG_TAR_EXTRACT | DPKG_TAR_PERMS;
+
   if (opt_verbose)
-    return controlextractvextract(0, "xpv", argv);
-  else
-    return controlextractvextract(0, "xp", argv);
+    options |= DPKG_TAR_LIST;
+
+  debar = *argv++;
+  if (debar == NULL)
+    badusage(_("--%s needs .deb filename and directory arguments"),
+             cipaction->olong);
+
+  dir = *argv++;
+  if (dir == NULL)
+    badusage(_("--%s needs a target directory.\n"
+               "Perhaps you should be using dpkg --install ?"),
+             cipaction->olong);
+  else if (*argv)
+    badusage(_("--%s takes at most two arguments (.deb and directory)"),
+             cipaction->olong);
+
+  extracthalf(debar, dir, options, 0);
+
+  return 0;
 }
 
 int
@@ -394,12 +468,14 @@ do_vextract(const char *const *argv)
 int
 do_raw_extract(const char *const *argv)
 {
+  enum dpkg_tar_options data_options;
   const char *debar, *dir;
   char *control_dir;
 
   debar = *argv++;
   if (debar == NULL)
-    badusage(_("--%s needs a .deb filename argument"), cipaction->olong);
+    badusage(_("--%s needs .deb filename and directory arguments"),
+             cipaction->olong);
 
   dir = *argv++;
   if (dir == NULL)
@@ -412,11 +488,12 @@ do_raw_extract(const char *const *argv)
 
   m_asprintf(&control_dir, "%s/%s", dir, EXTRACTCONTROLDIR);
 
+  data_options = DPKG_TAR_EXTRACT | DPKG_TAR_PERMS;
   if (opt_verbose)
-    extracthalf(debar, dir, "xpv", 0);
-  else
-    extracthalf(debar, dir, "xp", 0);
-  extracthalf(debar, control_dir, "x", 1);
+    data_options |= DPKG_TAR_LIST;
+
+  extracthalf(debar, dir, data_options, 0);
+  extracthalf(debar, control_dir, DPKG_TAR_EXTRACT, 1);
 
   free(control_dir);
 

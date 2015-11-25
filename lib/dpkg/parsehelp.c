@@ -3,8 +3,7 @@
  * parsehelp.c - helpful routines for parsing and writing
  *
  * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
- * Copyright © 2011 Linaro Limited
- * Copyright © 2011 Raphaël Hertzog <hertzog@debian.org>
+ * Copyright © 2006-2012 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +16,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 #include <compat.h>
 
+#include <errno.h>
 #include <ctype.h>
+#include <limits.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -43,13 +44,13 @@ parse_error_msg(struct parsedb_state *ps, const char *fmt)
 
   str_escape_fmt(filename, ps->filename, sizeof(filename));
 
-  if (ps->pkg && ps->pkg->set && ps->pkg->set->name) {
-    enum pkg_describe_opts pdo = pdo_foreign;
-    if (ps->flags & pdb_recordavailable)
-      pdo |= pdo_avail;
+  if (ps->pkg && ps->pkg->set->name) {
+    char pkgname[256];
+
+    str_escape_fmt(pkgname, pkgbin_name(ps->pkg, ps->pkgbin, pnaw_nonambig),
+                   sizeof(pkgname));
     sprintf(msg, _("parsing file '%.255s' near line %d package '%.255s':\n"
-                   " %.255s"), filename, ps->lno,
-                 pkg_describe(ps->pkg, pdo), fmt);
+                   " %.255s"), filename, ps->lno, pkgname, fmt);
   } else
     sprintf(msg, _("parsing file '%.255s' near line %d:\n"
                    " %.255s"), filename, ps->lno, fmt);
@@ -76,60 +77,32 @@ parse_warn(struct parsedb_state *ps, const char *fmt, ...)
   va_end(args);
 }
 
-const struct namevalue booleaninfos[] = {
-  NAMEVALUE_DEF("no",  false),
-  NAMEVALUE_DEF("yes", true),
-  { .name = NULL }
-};
+const struct fieldinfo *
+find_field_info(const struct fieldinfo *fields, const char *fieldname)
+{
+  const struct fieldinfo *field;
 
-const struct namevalue multiarchinfos[] = {
-  NAMEVALUE_DEF("no",      multiarch_no),
-  NAMEVALUE_DEF("same",    multiarch_same),
-  NAMEVALUE_DEF("allowed", multiarch_allowed),
-  NAMEVALUE_DEF("foreign", multiarch_foreign),
-  { .name = NULL }
-};
+  for (field = fields; field->name; field++)
+    if (strcasecmp(field->name, fieldname) == 0)
+      return field;
 
-const struct namevalue priorityinfos[] = {
-  NAMEVALUE_DEF("required",                      pri_required),
-  NAMEVALUE_DEF("important",                     pri_important),
-  NAMEVALUE_DEF("standard",                      pri_standard),
-  NAMEVALUE_DEF("optional",                      pri_optional),
-  NAMEVALUE_DEF("extra",                         pri_extra),
-  NAMEVALUE_FALLBACK_DEF("this is a bug - please report", pri_other),
-  NAMEVALUE_DEF("unknown",                       pri_unknown),
-  { .name = NULL }
-};
+  return NULL;
+}
 
-const struct namevalue statusinfos[] = {
-  NAMEVALUE_DEF("not-installed",    stat_notinstalled),
-  NAMEVALUE_DEF("config-files",     stat_configfiles),
-  NAMEVALUE_DEF("half-installed",   stat_halfinstalled),
-  NAMEVALUE_DEF("unpacked",         stat_unpacked),
-  NAMEVALUE_DEF("half-configured",  stat_halfconfigured),
-  NAMEVALUE_DEF("triggers-awaited", stat_triggersawaited),
-  NAMEVALUE_DEF("triggers-pending", stat_triggerspending),
-  NAMEVALUE_DEF("installed",        stat_installed),
-  { .name = NULL }
-};
+const struct arbitraryfield *
+find_arbfield_info(const struct arbitraryfield *arbs, const char *fieldname)
+{
+  const struct arbitraryfield *arbfield;
 
-const struct namevalue eflaginfos[] = {
-  NAMEVALUE_DEF("ok",        eflag_ok),
-  NAMEVALUE_DEF("reinstreq", eflag_reinstreq),
-  { .name = NULL }
-};
+  for (arbfield = arbs; arbfield; arbfield = arbfield->next)
+    if (strcasecmp(arbfield->name, fieldname) == 0)
+      return arbfield;
 
-const struct namevalue wantinfos[] = {
-  NAMEVALUE_DEF("unknown",   want_unknown),
-  NAMEVALUE_DEF("install",   want_install),
-  NAMEVALUE_DEF("hold",      want_hold),
-  NAMEVALUE_DEF("deinstall", want_deinstall),
-  NAMEVALUE_DEF("purge",     want_purge),
-  { .name = NULL }
-};
+  return NULL;
+}
 
 const char *
-pkg_name_is_illegal(const char *p, const char **ep)
+pkg_name_is_illegal(const char *p)
 {
   /* FIXME: _ is deprecated, remove sometime. */
   static const char alsoallowed[] = "-+._";
@@ -142,10 +115,7 @@ pkg_name_is_illegal(const char *p, const char **ep)
   while ((c = *p++) != '\0')
     if (!isalnum(c) && !strchr(alsoallowed,c)) break;
   if (!c) return NULL;
-  if (isspace(c) && ep) {
-    while (isspace(*p)) p++;
-    *ep= p; return NULL;
-  }
+
   snprintf(buf, sizeof(buf), _(
 	   "character `%c' not allowed (only letters, digits and characters `%s')"),
 	   c, alsoallowed);
@@ -154,7 +124,7 @@ pkg_name_is_illegal(const char *p, const char **ep)
 
 void varbufversion
 (struct varbuf *vb,
- const struct versionrevision *version,
+ const struct dpkg_version *version,
  enum versiondisplayepochwhen vdew)
 {
   switch (vdew) {
@@ -166,21 +136,21 @@ void varbufversion
         (!version->revision || !strchr(version->revision,':'))) break;
     /* Fall through. */
   case vdew_always:
-    varbuf_printf(vb, "%lu:", version->epoch);
+    varbuf_printf(vb, "%u:", version->epoch);
     break;
   default:
     internerr("unknown versiondisplayepochwhen '%d'", vdew);
   }
   if (version->version)
     varbuf_add_str(vb, version->version);
-  if (version->revision && *version->revision) {
+  if (str_is_set(version->revision)) {
     varbuf_add_char(vb, '-');
     varbuf_add_str(vb, version->revision);
   }
 }
 
 const char *versiondescribe
-(const struct versionrevision *version,
+(const struct dpkg_version *version,
  enum versiondisplayepochwhen vdew)
 {
   static struct varbuf bufs[10];
@@ -188,93 +158,13 @@ const char *versiondescribe
 
   struct varbuf *vb;
 
-  if (!informativeversion(version))
+  if (!dpkg_version_is_informative(version))
     return C_("version", "<none>");
 
   vb= &bufs[bufnum]; bufnum++; if (bufnum == 10) bufnum= 0;
   varbuf_reset(vb);
   varbufversion(vb,version,vdew);
   varbuf_end_str(vb);
-
-  return vb->buf;
-}
-
-/**
- * Add a string representation of the package to a varbuf.
- *
- * Works exactly like pkg_describe() but acts on the varbuf
- * instead of returning a string. It does not add a NUL termination
- * character to the varbuf.
- *
- * @param vb  The varbuf struct to modify.
- * @param pkg The package to consider.
- * @param pdo When to display the architecture qualifier.
- */
-void
-varbuf_pkg(struct varbuf *vb, const struct pkginfo *pkg,
-           enum pkg_describe_opts pdo)
-{
-  const struct pkgbin *pbin = &pkg->installed;
-  bool print_arch = false;
-
-  if (pdo & pdo_avail)
-    pbin = &pkg->available;
-
-  varbuf_add_str(vb, pkg->set->name);
-
-  if (pdo & pdo_always) {
-    print_arch = true;
-  } else if ((pdo & pdo_ma_same) && pbin->multiarch == multiarch_same) {
-    print_arch = true;
-  } else if ((pdo & pdo_foreign) && pbin->arch->type != arch_native &&
-             pbin->arch->type != arch_all && pbin->arch->type != arch_none) {
-    print_arch = true;
-  }
-
-  if (print_arch) {
-    varbuf_add_char(vb, ':');
-    varbuf_add_str(vb, pbin->arch->name);
-  }
-}
-
-/**
- * Return a string representation of the package.
- *
- * The returned string must not be freed, it's always reused by
- * the function as part of a round robin of varbuf (so that you can
- * invoke the function up to 10 times before the reference becomes
- * invalid).
- *
- * If you need to keep the returned value, you should thus make a copy of
- * it.
- *
- * The pdo parameter should be one of pdo_foreign (print arch for foreign
- * packages only), pdo_always (always print arch), pdo_never (never print
- * arch) or pdo_ma_same (print arch for Multi-Arch: same packages and
- * non-native packages). It can be combined with pdo_avail if you want to
- * consider the architecture information from pkg->available instead of
- * pkg->installed.
- *
- * @param pkg The package to consider.
- * @param pdo When to display the architecture qualifier.
- *
- * @return The string representation.
- */
-const char *
-pkg_describe(const struct pkginfo *pkg, enum pkg_describe_opts pdo)
-{
-  static struct varbuf bufs[10];
-  static int bufnum = 0;
-
-  struct varbuf *vb;
-
-  vb = &bufs[bufnum++];
-  if (bufnum == 10)
-    bufnum = 0;
-
-  varbuf_reset(vb);
-  varbuf_pkg(vb, pkg, pdo);
-  varbuf_add_char(vb, '\0');
 
   return vb->buf;
 }
@@ -292,19 +182,19 @@ pkg_describe(const struct pkginfo *pkg, enum pkg_describe_opts pdo)
  * @retval -1 On failure, and err is set accordingly.
  */
 int
-parseversion(struct versionrevision *rversion, const char *string,
+parseversion(struct dpkg_version *rversion, const char *string,
              struct dpkg_error *err)
 {
   char *hyphen, *colon, *eepochcolon;
   const char *end, *ptr;
-  unsigned long epoch;
-
-  if (!*string)
-    return dpkg_put_error(err, _("version string is empty"));
 
   /* Trim leading and trailing space. */
   while (*string && isblank(*string))
     string++;
+
+  if (!*string)
+    return dpkg_put_error(err, _("version string is empty"));
+
   /* String now points to the first non-whitespace char. */
   end = string;
   /* Find either the end of the string, or a whitespace char. */
@@ -319,9 +209,16 @@ parseversion(struct versionrevision *rversion, const char *string,
 
   colon= strchr(string,':');
   if (colon) {
-    epoch= strtoul(string,&eepochcolon,10);
+    long epoch;
+
+    errno = 0;
+    epoch = strtol(string, &eepochcolon, 10);
     if (colon != eepochcolon)
       return dpkg_put_error(err, _("epoch in version is not number"));
+    if (epoch < 0)
+      return dpkg_put_error(err, _("epoch in version is negative"));
+    if (epoch > INT_MAX || errno == ERANGE)
+      return dpkg_put_error(err, _("epoch in version is too big"));
     if (!*++colon)
       return dpkg_put_error(err, _("nothing after colon in version number"));
     string= colon;
@@ -363,7 +260,7 @@ parseversion(struct versionrevision *rversion, const char *string,
  * @param fmt The error format string.
  */
 void
-parse_db_version(struct parsedb_state *ps, struct versionrevision *version,
+parse_db_version(struct parsedb_state *ps, struct dpkg_version *version,
                  const char *value, const char *fmt, ...)
 {
   struct dpkg_error err;
@@ -377,7 +274,7 @@ parse_db_version(struct parsedb_state *ps, struct versionrevision *version,
   vsnprintf(buf, sizeof(buf), fmt, args);
   va_end(args);
 
-  if (err.type == DPKG_MSG_WARN && (ps->flags & pdb_lax_parser))
+  if (err.type == DPKG_MSG_WARN && (ps->flags & pdb_lax_version_parser))
     parse_warn(ps, "%s: %.250s", buf, err.str);
   else
     parse_error(ps, "%s: %.250s", buf, err.str);

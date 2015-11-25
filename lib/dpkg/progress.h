@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef LIBDPKG_PROGRESS_H
@@ -26,6 +26,12 @@
 #include <dpkg/macros.h>
 
 DPKG_BEGIN_DECLS
+
+/**
+ * @defgroup progress Progress reporting
+ * @ingroup dpkg-internal
+ * @{
+ */
 
 struct progress {
 	const char *text;
@@ -40,6 +46,8 @@ struct progress {
 void progress_init(struct progress *progress, const char *text, int max);
 void progress_step(struct progress *progress);
 void progress_done(struct progress *progress);
+
+/** @} */
 
 DPKG_END_DECLS
 

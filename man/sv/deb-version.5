@@ -1,13 +1,28 @@
-.\" Includes text from the Debian Policy probably by Ian Jackson and others
-.\" The copyright given below is that of the whole policy, but probably
-.\" incomplete.
-.\" Conversion to roff by Frank Lichtenheld
+.\" dpkg manual page - deb-version(5)
+.\"
+.\" Copyright Â© 1996-1998 Ian Jackson and Christian Schwarz
+.\"   for parts of the text reused from the Debian Policy
+.\" Copyright Â© 2007 Frank Lichtenheld <djpig@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH deb\-version 5 2011\-08\-14 Debianprojektet Debian
+.TH deb\-version 5 2013\-04\-02 Debianprojektet Debian
 .SH NAMN
 deb\-version \- Format på versionsnummer för Debianpaket
 .
@@ -93,18 +108,11 @@ versionsnumreringsmetoden ändras. Det är \fBinte\fP tänkt att hantera
 versionsnummer som innehåller strängar av bokstäver som
 pakethanteringssystemet inte kan tolka (till exempel "ALPHA" eller "Pre\-"),
 eller dumma sorteringsordningar.
-.SH VARNINGAR
+.SH ANTECKNINGAR
 Tildetecknets och dess speciella sorteringsegenskaper introducerades i dpkg
-version 1.10 och vissa delar av dpkg\-dev fick inte stöd för det förrän
+1.10 och vissa delar av dpkg\-byggskripten fick inte stöd för det förrän
 senare i 1.10.x\-serien.
 .SH "SE ÄVEN"
 \fBdeb\-control\fP(5), \fBdeb\fP(5), \fBdpkg\fP(1)
-.SH FÖRFATTARE
-Upphovsrättsskyddat © 1996,1997,1998 Ian Jackson och Christian Schwarz
-.br
-Upphovsrättsskyddat © 2007 Frank Lichtenheld
-.sp
-Detta är fri programvara; se GNU General Public License version 2 eller
-senare för kopieringsvillkor. Det finns INGEN GARANTI.
-.SH "ÖVERSÄTTNING"
+.SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

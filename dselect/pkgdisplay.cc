@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -38,7 +38,7 @@ const char
 			    N_("hold"),
 			    N_("remove"),
 			    N_("purge"),
-			    0 },
+			    nullptr },
 
   /* TRANSLATORS: The space is a trick to work around gettext which uses
    * the empty string to store information about the translation. DO NOT
@@ -46,7 +46,7 @@ const char
    * a single space. */
   *const eflagstrings[]=   { N_(" "),
 			     N_("REINSTALL"),
-			     0 },
+			     nullptr },
 
   *const statusstrings[]= { N_("not installed"),
 			    N_("removed (configs remain)"),
@@ -56,7 +56,7 @@ const char
 			    N_("awaiting trigger processing"),
 			    N_("triggered"),
 			    N_("installed"),
-			    0 },
+			    nullptr },
 
   *const prioritystrings[]=  { N_("Required"),
 			       N_("Important"),
@@ -65,7 +65,7 @@ const char
 			       N_("Extra"),
 			       N_("!Bug!"),
 			       N_("Unclassified"),
-			       0 },
+			       nullptr },
 
   *const relatestrings[]= { N_("suggests"),
 			    N_("recommends"),
@@ -76,7 +76,7 @@ const char
 			    N_("provides"),
 			    N_("replaces"),
 			    N_("enhances"),
-			    0 },
+			    nullptr },
 
   *const priorityabbrevs[]=  { N_("Req"),
 			       N_("Imp"),
@@ -132,61 +132,60 @@ static int maximumstring(const char *const *array) {
 void packagelist::setwidths() {
   debug(dbg_general, "packagelist[%p]::setwidths()", this);
 
+  col_cur_x = 0;
+
   if (verbose) {
-    status_hold_width= 9;
-    status_status_width= maximumstring(statusstrings);
-    status_want_width= maximumstring(wantstrings);
-    status_width= status_hold_width+status_status_width+status_want_width*2+3;
-    priority_width= 8;
-    package_width= 16;
+    add_column(col_status_hold, _("Error"), 9);
+    add_column(col_status_status, _("Installed?"), maximumstring(statusstrings));
+    add_column(col_status_old_want, _("Old mark"), maximumstring(wantstrings));
+    add_column(col_status_new_want, _("Marked for"), maximumstring(wantstrings));
   } else {
-    status_width= 4;
-    priority_width= 3;
-    package_width= 12;
-  }
-  section_width= 8;
-
-  gap_width= 1;
-
-  if (sortorder == so_section) {
-    section_column= status_width + gap_width;
-    priority_column= section_column + section_width + gap_width;
-    package_column= priority_column + priority_width + gap_width;
-  } else {
-    priority_column= status_width + gap_width;
-    section_column= priority_column + priority_width + gap_width;
-    package_column= section_column + section_width + gap_width;
+    add_column(col_status, _("EIOM"), 4);
   }
 
-  int versiondescriptioncolumn= package_column + package_width + gap_width;
+  if (sortorder == so_section)
+    add_column(col_section, _("Section"), 8);
+  add_column(col_priority, _("Priority"), verbose ? 8 : 3);
+  if (sortorder != so_section)
+    add_column(col_section, _("Section"), 8);
+
+  add_column(col_package, _("Package"), verbose ? 16 : 12);
+
+  switch (archdisplayopt) {
+  case ado_none:
+    col_archinstalled.blank();
+    col_archavailable.blank();
+    break;
+  case ado_available:
+    col_archinstalled.blank();
+    add_column(col_archavailable, _("Avail.arch"), verbose ? 14 : 10);
+    break;
+  case ado_both:
+    add_column(col_archinstalled, _("Inst.arch"), verbose ? 14 : 10);
+    add_column(col_archavailable, _("Avail.arch"), verbose ? 14 : 10);
+    break;
+  default:
+    internerr("unknown archdisplayopt %d", archdisplayopt);
+  }
 
   switch (versiondisplayopt) {
   case vdo_none:
-    versioninstalled_column= versioninstalled_width= 0;
-    versionavailable_column= versionavailable_width= 0;
-    description_column= versiondescriptioncolumn;
+    col_versioninstalled.blank();
+    col_versionavailable.blank();
     break;
   case vdo_available:
-    versioninstalled_column= versioninstalled_width= 0;
-    versionavailable_column= versiondescriptioncolumn;
-    versionavailable_width= 11;
-    description_column= versionavailable_column + versionavailable_width + gap_width;
+    col_versioninstalled.blank();
+    add_column(col_versionavailable, _("Avail.ver"), 11);
     break;
   case vdo_both:
-    versioninstalled_column= versiondescriptioncolumn;
-    versioninstalled_width= 11;
-    versionavailable_column= versioninstalled_column + versioninstalled_width +gap_width;
-    versionavailable_width= versioninstalled_width;
-    description_column= versionavailable_column + versionavailable_width + gap_width;
+    add_column(col_versioninstalled, _("Inst.ver"), 11);
+    add_column(col_versionavailable, _("Avail.ver"), 11);
     break;
   default:
-    internerr("unknown versiondisplayopt in setwidths");
+    internerr("unknown versiondisplayopt %d", versiondisplayopt);
   }
 
-  total_width= TOTAL_LIST_WIDTH;
-  if (total_width < COLS)
-    total_width= COLS;
-  description_width= total_width - description_column;
+  end_column(col_description, _("Description"));
 }
 
 void packagelist::redrawtitle() {
@@ -196,7 +195,8 @@ void packagelist::redrawtitle() {
     mywerase(titlewin);
     mvwaddnstr(titlewin,0,0,
                recursive ?  _("dselect - recursive package listing") :
-               !readwrite ? _("dselect - inspection of package states") :
+               modstatdb_get_status() == msdbrw_readonly ?
+                            _("dselect - inspection of package states") :
                             _("dselect - main package listing"),
                xmax);
     getyx(titlewin,y,x);
@@ -214,7 +214,7 @@ void packagelist::redrawtitle() {
           waddnstr(titlewin, _(" (status, section)"), xmax-x);
           break;
         default:
-          internerr("bad statsort in redrawtitle/so_section");
+          internerr("bad statsort %d on so_section", statsortorder);
         }
         break;
       case so_priority:
@@ -229,7 +229,7 @@ void packagelist::redrawtitle() {
           waddnstr(titlewin, _(" (status, priority)"), xmax-x);
           break;
         default:
-          internerr("bad statsort in redrawtitle/so_priority");
+          internerr("bad statsort %d on so_priority", statsortorder);
         }
         break;
       case so_alpha:
@@ -244,21 +244,24 @@ void packagelist::redrawtitle() {
           waddnstr(titlewin, _(" (by status)"), xmax-x);
           break;
         default:
-          internerr("bad statsort in redrawtitle/so_priority");
+          internerr("bad statsort %d on so_priority", statsortorder);
         }
-        break;
-        waddnstr(titlewin, _(" (alphabetically)"), xmax-x);
         break;
       case so_unsorted:
         break;
       default:
-        internerr("bad sort in redrawtitle");
+        internerr("bad sort %d", sortorder);
       }
     }
-    const char *helpstring= readwrite ? (verbose ? _(" mark:+/=/- terse:v help:?")
-                                                 : _(" mark:+/=/- verbose:v help:?"))
-                                      : (verbose ? _(" terse:v help:?")
-                                                 : _(" verbose:v help:?"));
+    const char *helpstring;
+
+    if (modstatdb_get_status() == msdbrw_write)
+      helpstring = (verbose ? _(" mark:+/=/- terse:v help:?")
+                            : _(" mark:+/=/- verbose:v help:?"));
+    else
+      helpstring = (verbose ? _(" terse:v help:?")
+                            : _(" verbose:v help:?"));
+
     int l= strlen(helpstring);
     getyx(titlewin,y,x);
     if (xmax-l > 0) {

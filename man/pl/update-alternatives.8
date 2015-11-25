@@ -1,22 +1,39 @@
-.\" update\-alternatives.8
-.\" This man page is copyright 1997 Charles Briscoe-Smith
-.\" This is free documentation; you can redistribute it and/or modify
-.\" it under the terms of the GNU General Public License as published
-.\" by the Free Software Foundation; either version 2 of the License, or
-.\" (at your option) any later version.  There is NO WARRANTY.  You can
-.\" find the GNU GPL in /usr/share/common-licenses/GPL on any Debian system.
+.\" dpkg manual page - update-alternatives(8)
+.\"
+.\" Copyright Â© 1997-1998 Charles Briscoe-Smith
+.\" Copyright Â© 1999 Ben Collins <bcollins@debian.org>
+.\" Copyright Â© 2000 Wichert Akkerman <wakkerma@debian.org>
+.\" Copyright Â© 2003 Adam Heath <doogie@debian.org>
+.\" Copyright Â© 2005 Scott James Remnant <scott@netsplit.com>
+.\" Copyright Â© 2006-2012 Guillem Jover <guillem@debian.org>
+.\" Copyright Â© 2008 Pierre Habouzit <madcoder@debian.org>
+.\" Copyright Â© 2009-2011 RaphaÃ«l Hertzog <hertzog@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH update\-alternatives 8 2011\-08\-14 "Projekt Debiana" "programy pomocnicze dpkg"
+.TH update\-alternatives 8 2012\-07\-31 "Projekt Debian" "programy pomocnicze dpkg"
 .SH NAZWA
 update\-alternatives \- zarz±dzanie dowi±zaniami symbolicznymi okre¶laj±cymi
 domy¶lne polecenia
 .
 .SH SK£ADNIA
-\fBupdate\-alternatives\fP [\fIoption\fP...] \fIcommand\fP
+\fBupdate\-alternatives\fP [\fIopcja\fP...] \fIpolecenie\fP
 .
 .SH OPIS
 \fBupdate\-alternatives\fP tworzy, usuwa, wy¶wietla informacje o dowi±zaniach
@@ -48,11 +65,11 @@ dlatego, ¿eby zmiany wprowadzane przez administratora systemu by³y
 ograniczone do katalogu \fI/etc\fP: standard FHS wymienia powody, aby tak
 zrobiæ.
 .PP
-Kiedy pakiet dostarczaj±cy pliku o okre¶lonej funkcjonalno¶ci jest
-instalowany, zmieniany lub usuwany, wywo³ywany jest program
-\fBupdate\-alternatives\fP, aby zaktualizowaæ informacje o tym pliku w systemie
-alternatyw. \fBupdate\-alternatives\fP jest zazwyczaj wywo³ywany ze skryptów
-\fBpostinst\fP (configure) lub \fBprerm\fP (install) w pakietach Debiana.
+When each package providing a file with a particular functionality is
+installed, changed or removed, \fBupdate\-alternatives\fP is called to update
+information about that file in the alternatives system.
+\fBupdate\-alternatives\fP is usually called from the \fBpostinst\fP (configure) or
+\fBprerm\fP (remove and deconfigure) scripts in Debian packages.
 .PP
 Czêsto u¿yteczne jest, aby pewna liczba alternatyw by³a zsynchronizowana,
 tak ¿eby by³a zmieniana jako grupa. Na przyk³ad je¿eli jest zainstalowane
@@ -79,16 +96,16 @@ Z ka¿d± alternatyw± skojarzony jest \fIpriorytet\fP. Je¿eli grupa dowi±zañ jest
 w trybie automatycznym, to wybran± alternatyw± bêdzie ta, która ma najwy¿szy
 priorytet.
 .PP
-When using the \fB\-\-config\fP option, \fBupdate\-alternatives\fP will list all of
-the choices for the link group of which given \fIname\fP is the master
-alternative name. The current choice is marked with a '*'.  You will then be
-prompted for your choice regarding this link group.  Depending on the choice
-made, the link group might no longer be in \fIauto\fP mode. You will need to
-use the \fB\-\-auto\fP option in order to return to the automatic mode (or you
-can rerun \fB\-\-config\fP and select the entry marked as automatic).
+\fBupdate\-alternatives\fP u¿yte z opcj± \fB\-\-config\fP wy¶wietli listê wszystkich
+alternatyw dla grupy dowi±zañ, dla której podana \fInazwa\fP jest nazw±
+g³ównego dowi±zania. Bie¿±ca alternatywa bêdzie oznaczona znakiem
+"*". U¿ytkownik zostanie poproszony o wybór alternatywy, która bêdzie
+u¿ywana dla tej grupy dowi±zañ. Po dokonaniu zmiany grupa dowi±zañ nie
+bêdzie ju¿ w trybie \fIautomatycznym\fP. Aby przywróciæ tryb automatyczny,
+nale¿y u¿yæ opcji \fB\-\-auto\fP (lub ponownie uruchomiæ \fB\-\-config\fP i wybraæ
+pozycjê oznaczon± jako automatyczn±).
 .PP
-If you want to configure non\-interactively you can use the \fB\-\-set\fP option
-instead (see below).
+Aby skonfigurowaæ nieinteraktywnie, mo¿na u¿yæ opcji \fB\-\-set\fP (patrz ni¿ej).
 .PP
 Ró¿ne pakiety dostarczaj±ce tych samych plików powinny \fBwspó³pracowaæ\fP ze
 sob± w tym zakresie. Oznacza to, ¿e u¿ywanie programu \fBupdate\-alternatives\fP
@@ -162,8 +179,9 @@ zainstalowanych alternatyw w tej grupie, to dowi±zania symboliczne bêd±
 zaktualizowane tak, ¿eby prowadzi³y do nowo dodanych alternatyw.
 .TP 
 \fB\-\-set\fP \fInazwa ¶cie¿ka\fP
-Set the program \fIpath\fP as alternative for \fIname.\fP This is equivalent to
-\fB\-\-config\fP but is non\-interactive and thus scriptable.
+Ustawia program \fI¶cie¿ka\fP jako alternatywê dla \fInazwy\fP. Jest to
+nieinteraktywny, a wiêc mo¿liwy do u¿ycia w skryptach, odpowiednik opcji
+\fB\-\-config\fP.
 .TP 
 \fB\-\-remove\fP \fInazwa ¶cie¿ka\fP
 Usuwa alternatywê i wszystkie dowi±zania podrzêdne z ni±
@@ -223,7 +241,7 @@ Wy¶wietla wszystkie cele w grupie dowi±zañ.
 .TP 
 \fB\-\-config\fP \fInazwa\fP
 Wy¶wietla dostêpne alternatywy w grupie dowi±zañ i pozwala u¿ytkownikowi
-interakcyjnie wybraæ, której nale¿y u¿yæ. Grupa dowi±zañ zostanie
+interaktywnie wybraæ, której nale¿y u¿yæ. Grupa dowi±zañ zostanie
 odpowiednio zaktualizowana.
 .TP 
 \fB\-\-help\fP
@@ -241,12 +259,13 @@ Okre¶la katalog alternatyw, je¿eli ma byæ inny ni¿ domy¶lny.
 Okre¶la katalog administracyjny, je¿eli ma byæ inny ni¿ domy¶lny.
 .TP 
 \fB\-\-log\fP\fI plik\fP
-Specifies the log file, when this is to be different from the default
+Okre¶la plik dziennika, je¿eli ma byæ inny ni¿ domy¶lny
 (/var/log/alternatives.log).
 .TP 
 \fB\-\-force\fP
-Let \fBupdate\-alternatives\fP replace or drop any real file that is installed
-where an alternative link has to be installed or removed.
+Zezwala \fBupdate\-alternatives\fP na zastêpowanie lub pomijanie istniej±cych
+rzeczywistych plików tam, gdzie powinno byæ zainstalowane lub usuwane
+dowi±zanie alternatywy.
 .TP 
 \fB\-\-skip\-auto\fP
 Pomija pytania o konfiguracjê alternatyw, które s± w³a¶ciwie skonfigurowane
@@ -259,20 +278,6 @@ Podaje wiêcej informacji o przebiegu wykonywania \fBupdate\-alternatives\fP.
 \fB\-\-quiet\fP
 Nie wy¶wietla ¿adnych komentarzy, chyba ¿e wyst±pi b³±d.
 .
-.SH ¦RODOWISKO
-.TP 
-\fBDPKG_ADMINDIR\fP
-If set and the \fB\-\-admindir\fP option has not been specified, it will be used
-as the base administrative directory.
-.
-.SH PLIKI
-.TP 
-\fI/etc/alternatives/\fP
-Domy¶lny katalog alternatyw. Mo¿na go zmieniæ opcj± \fB\-altdir\fP.
-.TP 
-\fI/var/lib/dpkg/alternatives/\fP
-Domy¶lny katalog administracyjny. Mo¿na go zmieniæ opcj± \fB\-admindir\fP.
-.
 .SH "KOD WYJ¦CIA"
 .TP 
 \fB0\fP
@@ -282,78 +287,103 @@ Akcja zakoñczy³a siê powodzeniem.
 Wyst±pi³y problemy podczas przetwarzania linii poleceñ lub wykonywania
 akcji.
 .
-.SH "FORMAT ZAPYTANIA"
-The \fBupdate\-alternatives \-\-query\fP format is using an RFC822\-like flat
-format. It's made of \fIn\fP + 1 blocks where \fIn\fP is the number of
-alternatives available in the queried link group. The first block contains
-the following fields:
+.SH ¦RODOWISKO
 .TP 
-\fBLink:\fP\fI link\fP
+\fBDPKG_ADMINDIR\fP
+Je¶li ustawione oraz nie podano opcji \fB\-\-admindir\fP, to bêdzie u¿yte jako
+bazowy katalog administracyjny.
+.
+.SH PLIKI
+.TP 
+\fI/etc/alternatives/\fP
+Domy¶lny katalog alternatyw. Mo¿na go zmieniæ opcj± \fB\-altdir\fP.
+.TP 
+\fI/var/lib/dpkg/alternatives/\fP
+Domy¶lny katalog administracyjny. Mo¿na go zmieniæ opcj± \fB\-admindir\fP.
+.
+.SH "FORMAT ZAPYTANIA"
+Wynik polecenia \fBupdate\-alternatives\fP \fB\-\-query\fP u¿ywa formatu podobnego do
+p³askiego formatu RFC822. Sk³ada siê z \fIn\fP + 1 bloków, gdzie \fIn\fP jest
+liczb± alternatyw dostêpnych w grupie dowi±zañ, do której odnosi siê
+zapytanie. Pierwszy blok zawiera nastêpuj±ce pola:
+.TP 
+\fBName:\fP\fI nazwa\fP
+Nazwa alternatywy w katalogu alternatyw.
+.TP 
+\fBLink:\fP\fI dowi±zanie\fP
 Nazwa ogólna alternatywy.
+.TP 
+\fBSlaves:\fP\fI lista\-alternatyw\-podrzêdnych\fP
+Gdy to pole jest obecne, \fBnastêpne\fP wiersze zawieraj± wszystkie podrzêdne
+dowi±zania zwi±zane z g³ównym dowi±zaniem alternatywy. W ka¿dym wierszu
+podana jest jedna podrzêdna alternatywa. Ka¿dy wiersz zawiera jedn± spacjê,
+ogóln± nazwê alternatywy podrzêdnej, kolejn± spacjê i w koñcu ¶cie¿kê do
+dowi±zania podrzêdnego.
 .TP 
 \fBStatus:\fP\fI status\fP
 Status alternatywy (\fBauto\fP lub \fBmanual\fP).
 .TP 
-\fBBest:\fP\fI best\-choice\fP
+\fBBest:\fP\fI najlepszy wybór\fP
 ¦cie¿ka najlepszej alternatywy dla tej grupy dowi±zañ. Nie jest wy¶wietlana,
 je¶li nie ma dostêpnych ¿adnych alternatyw.
 .TP 
-\fBValue:\fP\fI currently\-selected\-alternative\fP
+\fBValue:\fP\fI aktualnie wybrana alternatywa\fP
 ¦cie¿ka aktualnie wybranej alternatywy. Mo¿e równie¿ przyjmowaæ specjaln±
 warto¶æ \fBnone\fP \- jest ona u¿ywana je¶li dowi±zanie nie istnieje.
 .TP 
 .TP 
 Inne bloki opisuj± dostêpne alternatywy w grupie dowi±zañ, do której odnosi siê zapytanie:
 .TP 
-\fBAlternative:\fP\fI path\-of\-this\-alternative\fP
+\fBAlternative:\fP\fI ¶cie¿ka\-alternatywy\fP
 ¦cie¿ka do alternatywy opisywanej w tym bloku.
 .TP 
-\fBPriority:\fP\fI priority\-value\fP
+\fBPriority:\fP\fI warto¶æ\-priorytetu\fP
 Warto¶æ priorytetu alternatywy.
 .TP 
-\fBSlaves:\fP\fI list\-of\-slaves\fP
-Gdy obecny jest ten nag³ówek, \fBnastêpne\fP linie zawieraj± wszystkie
-podrzêdne alternatywy zwi±zane z g³ównym dowi±zaniem alternatywy. W ka¿dej
-linii podana jest jedna podrzêdna alternatywa. Ka¿da linia zawiera jedn±
-spacjê, ogóln± nazwê alternatywy podrzêdnej, kolejn± spacjê i w koñcu
-¶cie¿kê do alternatywy podrzêdnej.
+\fBSlaves:\fP\fI lista\-alternatyw\-podrzêdnych\fP
+When this field is present, the \fBnext\fP lines hold all slave alternatives
+associated to the master link of the alternative. There is one slave per
+line. Each line contains one space, the generic name of the slave
+alternative, another space, and the path to the slave alternative.
 .
 .TP 
 \fBPrzyk³ad\fP
 .nf
 $ update\-alternatives \-\-query editor
-Link: editor
+Name: editor
+Link: /usr/bin/editor
+Slaves:
+ editor.1.gz /usr/share/man/man1/editor.1.gz
+ editor.fr.1.gz /usr/share/man/fr/man1/editor.1.gz
+ editor.it.1.gz /usr/share/man/it/man1/editor.1.gz
+ editor.pl.1.gz /usr/share/man/pl/man1/editor.1.gz
+ editor.ru.1.gz /usr/share/man/ru/man1/editor.1.gz
 Status: auto
-Best: /usr/bin/vim.gtk
-Value: /usr/bin/vim.gtk
+Best: /usr/bin/vim.basic
+Value: /usr/bin/vim.basic
 
 Alternative: /bin/ed
 Priority: \-100
 Slaves:
  editor.1.gz /usr/share/man/man1/ed.1.gz
 
-Alternative: /usr/bin/vim.gtk
+Alternative: /usr/bin/vim.basic
 Priority: 50
 Slaves:
  editor.1.gz /usr/share/man/man1/vim.1.gz
- editor.ru.1.gz /usr/share/man/ru/man1/vim.1.gz
- editor.pl.ISO8859\-2.1.gz /usr/share/man/pl.ISO8859\-2/man1/vim.1.gz
- editor.it.ISO8859\-1.1.gz /usr/share/man/it.ISO8859\-1/man1/vim.1.gz
- editor.pl.UTF\-8.1.gz /usr/share/man/pl.UTF\-8/man1/vim.1.gz
- editor.it.1.gz /usr/share/man/it/man1/vim.1.gz
- editor.fr.UTF\-8.1.gz /usr/share/man/fr.UTF\-8/man1/vim.1.gz
  editor.fr.1.gz /usr/share/man/fr/man1/vim.1.gz
- editor.it.UTF\-8.1.gz /usr/share/man/it.UTF\-8/man1/vim.1.gz
+ editor.it.1.gz /usr/share/man/it/man1/vim.1.gz
  editor.pl.1.gz /usr/share/man/pl/man1/vim.1.gz
- editor.fr.ISO8859\-1.1.gz /usr/share/man/fr.ISO8859\-1/man1/vim.1.gz
+ editor.ru.1.gz /usr/share/man/ru/man1/vim.1.gz
 .fi
 .
 .SH DIAGNOSTYKA
-With \fB\-\-verbose\fP \fBupdate\-alternatives\fP chatters incessantly about its
-activities on its standard output channel.  If problems occur,
-\fBupdate\-alternatives\fP outputs error messages on its standard error channel
-and returns an exit status of 2.  These diagnostics should be
-self\-explanatory; if you do not find them so, please report this as a bug.
+Po podaniu \fB\-\-verbose\fP, \fBupdate\-alternatives\fP wypisuje nieustannie
+informacje o podejmowanych dzia³aniach na swoim standardowym wyj¶ciu. Je¿eli
+wyst±pi b³±d, \fBupdate\-alternatives\fP wy¶wietla komunikaty b³êdów na
+standardowym wyj¶ciu b³êdów i koñczy dzia³anie z kodem wyj¶cia 2. Wypisywana
+diagnostyka powinna wszystko wyja¶niaæ, je¿eli tak nie jest, proszê zg³osiæ
+to jako b³±d.
 .
 .SH PRZYK£ADY
 Istnieje klika pakietów, które dostarczaj± edytora tekstu kompatybilnego z
@@ -361,8 +391,8 @@ edytorem \fBvi\fP, na przyk³ad \fBnvi\fP i \fBvim\fP. To, który pakiet bêdzie
 u¿ywany, kontrolowane jest przez grupê dowi±zañ \fBvi\fP, zawieraj±c±
 dowi±zania do samego programu i odpowiadaj±cych mu stron podrêcznika.
 .PP
-To display the available packages which provide \fBvi\fP and the current
-setting for it, use the \fB\-\-display\fP action:
+Aby wy¶wietliæ listê dostêpnych pakietów, które dostarczaj± \fBvi\fP oraz jego
+bie¿±ce ustawienie, nale¿y u¿yæ akcji \fB\-\-display\fP:
 .RS
 .PP
 \fBupdate\-alternatives \-\-display vi\fP
@@ -382,32 +412,9 @@ jako u¿ytkownik root wykonaæ:
 \fBupdate\-alternatives \-\-auto vi\fP
 .RE
 .
-.SH B£ÊDY
-W razie znalezienia b³êdu, prosimy o jego zg³oszenie, u¿ywaj±c systemu
-¶ledzenia b³êdów Debiana.
-.PP
-Rozbie¿no¶ci pomiêdzy dzia³aniem \fBupdate\-alternatives\fP a t± stron±
-podrêcznika stanowi± albo b³±d w implementacji, albo w dokumentacji. W razie
-znalezienia jakichkolwiek rozbie¿no¶ci, prosimy o ich zg³oszenie.
-.
-.SH AUTORZY
-Copyright \(co 1995 Ian Jackson
-.br
-Copyright \(co 2009 Rapha\[:e]l Hertzog
-.sp
-Niniejszy program jest oprogramowaniem wolnym, sprawd¼ Powszechn± Licencjê
-Publiczn± GNU w wersji drugiej lub pó¼niejszej, by dowiedzieæ siê o
-warunkach dystrybucji. Brak JAKIEJKOLWIEK gwarancji.
-.PP
-Copyright tej strony podrêcznika: 1997,1998 Charles Briscoe\-Smith i inni.
-.sp
-To jest wolna dokumentacja, sprawd¼ Powszechn± Licencjê Publiczn± GNU w
-wersji drugiej lub pó¼niejszej, by dowiedzieæ siê o warunkach
-dystrybucji. Brak JAKIEJKOLWIEK gwarancji.
-.
 .SH "ZOBACZ TAK¯E"
 \fBln\fP(1), FHS \- standard hierarchii systemu plików.
-.SH "T£UMACZE"
+.SH T£UMACZE
 Piotr Roszatycki <dexter@debian.org>, 1999
 .br
 Bartosz Feñski <fenio@debian.org>, 2004-2005
@@ -415,3 +422,5 @@ Bartosz Feñski <fenio@debian.org>, 2004-2005
 Robert Luberda <robert@debian.org>, 2006-2008
 .br
 Wiktor Wandachowicz <siryes@gmail.com>, 2008
+.br
+Micha³ Ku³ach <michal.kulach@gmail.com>, 2012

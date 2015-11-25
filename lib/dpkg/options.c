@@ -17,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -25,6 +25,7 @@
 
 #include <errno.h>
 #include <ctype.h>
+#include <limits.h>
 #include <string.h>
 #include <dirent.h>
 #include <stdarg.h>
@@ -63,8 +64,10 @@ config_error(const char *file_name, int line_num, const char *fmt, ...)
   ohshit(_("configuration error: %s:%d: %s"), file_name, line_num, buf);
 }
 
-void myfileopt(const char* fn, const struct cmdinfo* cmdinfos) {
-  FILE* file;
+static void
+dpkg_options_load_file(const char *fn, const struct cmdinfo *cmdinfos)
+{
+  FILE *file;
   int line_num = 0;
   char linebuf[MAX_CONFIG_LINE];
 
@@ -78,7 +81,7 @@ void myfileopt(const char* fn, const struct cmdinfo* cmdinfos) {
   }
 
   while (fgets(linebuf, sizeof(linebuf), file)) {
-    char* opt;
+    char *opt;
     const struct cmdinfo *cip;
     int l;
 
@@ -104,10 +107,11 @@ void myfileopt(const char* fn, const struct cmdinfo* cmdinfos) {
 
     for (cip=cmdinfos; cip->olong || cip->oshort; cip++) {
       if (!cip->olong) continue;
-      if (!strcmp(cip->olong,linebuf)) break;
+      if (strcmp(cip->olong, linebuf) == 0)
+        break;
       l=strlen(cip->olong);
       if ((cip->takesvalue==2) && (linebuf[l]=='-') &&
-	  !opt && !strncmp(linebuf,cip->olong,l)) {
+          !opt && strncmp(linebuf, cip->olong, l) == 0) {
 	opt=linebuf+l+1;
 	break;
       }
@@ -153,7 +157,7 @@ valid_config_filename(const struct dirent *dent)
 }
 
 static void
-load_config_dir(const char *prog, const struct cmdinfo* cmdinfos)
+dpkg_options_load_dir(const char *prog, const struct cmdinfo *cmdinfos)
 {
   char *dirname;
   struct dirent **dlist;
@@ -174,7 +178,7 @@ load_config_dir(const char *prog, const struct cmdinfo* cmdinfos)
     char *filename;
 
     m_asprintf(&filename, "%s/%s", dirname, dlist[i]->d_name);
-    myfileopt(filename, cmdinfos);
+    dpkg_options_load_file(filename, cmdinfos);
 
     free(dlist[i]);
     free(filename);
@@ -184,25 +188,28 @@ load_config_dir(const char *prog, const struct cmdinfo* cmdinfos)
   free(dlist);
 }
 
-void loadcfgfile(const char *prog, const struct cmdinfo* cmdinfos) {
+void
+dpkg_options_load(const char *prog, const struct cmdinfo *cmdinfos)
+{
   char *home, *file;
 
-  load_config_dir(prog, cmdinfos);
+  dpkg_options_load_dir(prog, cmdinfos);
 
   m_asprintf(&file, "%s/%s.cfg", CONFIGDIR, prog);
-  myfileopt(file, cmdinfos);
+  dpkg_options_load_file(file, cmdinfos);
   free(file);
 
-  if ((home = getenv("HOME")) != NULL) {
+  home = getenv("HOME");
+  if (home != NULL) {
     m_asprintf(&file, "%s/.%s.cfg", home, prog);
-    myfileopt(file, cmdinfos);
+    dpkg_options_load_file(file, cmdinfos);
     free(file);
   }
 }
 
 void
-myopt(const char *const **argvp, const struct cmdinfo *cmdinfos,
-      const char *help_str)
+dpkg_options_parse(const char *const **argvp, const struct cmdinfo *cmdinfos,
+                   const char *help_str)
 {
   const struct cmdinfo *cip;
   const char *p, *value;
@@ -213,16 +220,18 @@ myopt(const char *const **argvp, const struct cmdinfo *cmdinfos,
   ++(*argvp);
   while ((p= **argvp) && *p == '-') {
     ++(*argvp);
-    if (!strcmp(p,"--")) break;
+    if (strcmp(p, "--") == 0)
+      break;
     if (*++p == '-') {
       ++p; value=NULL;
       for (cip= cmdinfos;
            cip->olong || cip->oshort;
            cip++) {
         if (!cip->olong) continue;
-        if (!strcmp(p,cip->olong)) break;
+        if (strcmp(p, cip->olong) == 0)
+          break;
         l= strlen(cip->olong);
-        if (!strncmp(p,cip->olong,l) &&
+        if (strncmp(p, cip->olong, l) == 0 &&
             (p[l]== ((cip->takesvalue==2) ? '-' : '='))) { value=p+l+1; break; }
       }
       if (!cip->olong) badusage(_("unknown option --%s"),p);
@@ -263,6 +272,20 @@ myopt(const char *const **argvp, const struct cmdinfo *cmdinfos,
       }
     }
   }
+}
+
+long
+dpkg_options_parse_arg_int(const struct cmdinfo *cmd, const char *str)
+{
+  long value;
+  char *end;
+
+  errno = 0;
+  value = strtol(str, &end, 0);
+  if (str == end || *end || value < 0 || value > INT_MAX || errno != 0)
+    badusage(_("invalid integer for --%s: `%.250s'"), cmd->olong, str);
+
+  return value;
 }
 
 void

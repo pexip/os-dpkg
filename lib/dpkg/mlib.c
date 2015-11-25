@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -32,47 +32,55 @@
 #include <dpkg/i18n.h>
 #include <dpkg/dpkg.h>
 
-void *m_malloc(size_t amount) {
-#ifdef MDEBUG
-  unsigned short *r2, x;
-#endif
-  void *r;
+static inline void *
+must_alloc(void *ptr)
+{
+  if (ptr)
+    return ptr;
 
   onerr_abort++;
-  r= malloc(amount);
-  if (r == NULL)
-    ohshite(_("malloc failed (%zu bytes)"), amount);
-  onerr_abort--;
+  ohshite(_("failed to allocate memory"));
+}
+
+void *m_malloc(size_t amount) {
+#ifdef MDEBUG
+  unsigned short *ptr_canary, canary;
+#endif
+  void *ptr;
+
+  ptr = must_alloc(malloc(amount));
 
 #ifdef MDEBUG
-  r2= r; x= (unsigned short)amount ^ 0xf000;
-  while (amount >= 2) { *r2++= x; amount -= 2; }
+  ptr_canary = ptr;
+  canary = (unsigned short)amount ^ 0xf000;
+  while (amount >= 2) {
+    *ptr_canary++ = canary;
+    amount -= 2;
+  }
 #endif
-  return r;
+  return ptr;
+}
+
+void *
+m_calloc(size_t size)
+{
+  return must_alloc(calloc(1, size));
 }
 
 void *m_realloc(void *r, size_t amount) {
-  onerr_abort++;
-  r= realloc(r,amount);
-  if (r == NULL)
-    ohshite(_("realloc failed (%zu bytes)"), amount);
-  onerr_abort--;
-
-  return r;
+  return must_alloc(realloc(r, amount));
 }
 
 char *
 m_strdup(const char *str)
 {
-  char *new_str;
+  return must_alloc(strdup(str));
+}
 
-  onerr_abort++;
-  new_str = strdup(str);
-  if (!new_str)
-    ohshite(_("failed to allocate memory"));
-  onerr_abort--;
-
-  return new_str;
+char *
+m_strndup(const char *str, size_t n)
+{
+  return must_alloc(strndup(str, n));
 }
 
 int
@@ -117,10 +125,13 @@ m_output(FILE *f, const char *name)
     ohshite(_("error writing to '%s'"), name);
 }
 
-void setcloexec(int fd, const char* fn) {
+void
+setcloexec(int fd, const char *fn)
+{
   int f;
 
-  if ((f=fcntl(fd, F_GETFD))==-1)
+  f = fcntl(fd, F_GETFD);
+  if (f == -1)
     ohshite(_("unable to read filedescriptor flags for %.250s"),fn);
   if (fcntl(fd, F_SETFD, (f|FD_CLOEXEC))==-1)
     ohshite(_("unable to set close-on-exec flag for %.250s"),fn);

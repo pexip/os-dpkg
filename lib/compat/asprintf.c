@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -22,7 +22,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#ifndef HAVE_ASPRINTF
+#include "compat.h"
+
 int
 asprintf(char **strp, char const *fmt, ...)
 {
@@ -35,4 +36,3 @@ asprintf(char **strp, char const *fmt, ...)
 
 	return n;
 }
-#endif

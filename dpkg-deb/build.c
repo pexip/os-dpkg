@@ -4,6 +4,7 @@
  *
  * Copyright © 1994,1995 Ian Jackson <ian@chiark.greenend.org.uk>
  * Copyright © 2000,2001 Wichert Akkerman <wakkerma@debian.org>
+ * Copyright © 2007-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -57,8 +58,8 @@
  */
 struct file_info {
   struct file_info *next;
-  struct stat	st;
-  char*	fn;
+  struct stat st;
+  char *fn;
 };
 
 static struct file_info *
@@ -108,7 +109,7 @@ file_info_get(const char *root, int fd)
   root_len = varbuf_printf(&fn, "%s/", root);
 
   while (1) {
-    int	res;
+    int res;
 
     varbuf_grow(&fn, 1);
     res = fd_read(fd, (fn.buf + fn.used), 1);
@@ -120,8 +121,6 @@ file_info_get(const char *root, int fd)
       break;
 
     varbuf_trunc(&fn, fn.used + 1);
-    if (fn.used >= MAXFILENAME)
-      ohshit(_("file name '%.50s...' is too long"), fn.buf + root_len);
   }
 
   fi = file_info_new(fn.buf + root_len);
@@ -164,6 +163,55 @@ file_info_list_free(struct file_info *fi)
     fl=fi; fi=fi->next;
     file_info_free(fl);
   }
+}
+
+static void
+file_treewalk_feed(const char *dir, int fd_out)
+{
+  int pipefd[2];
+  pid_t pid;
+  struct file_info *fi;
+  struct file_info *symlist = NULL;
+  struct file_info *symlist_end = NULL;
+
+  m_pipe(pipefd);
+
+  pid = subproc_fork();
+  if (pid == 0) {
+    m_dup2(pipefd[1], 1);
+    close(pipefd[0]);
+    close(pipefd[1]);
+
+    if (chdir(dir))
+      ohshite(_("failed to chdir to `%.255s'"), dir);
+
+    execlp(FIND, "find", ".", "-path", "./" BUILDCONTROLDIR, "-prune", "-o",
+           "-print0", NULL);
+    ohshite(_("unable to execute %s (%s)"), "find", FIND);
+  }
+  close(pipefd[1]);
+
+  /* We need to reorder the files so we can make sure that symlinks
+   * will not appear before their target. */
+  while ((fi = file_info_get(dir, pipefd[0])) != NULL) {
+    if (S_ISLNK(fi->st.st_mode)) {
+      file_info_list_append(&symlist, &symlist_end, fi);
+    } else {
+      if (fd_write(fd_out, fi->fn, strlen(fi->fn) + 1) < 0)
+        ohshite(_("failed to write filename to tar pipe (%s)"),
+                _("data member"));
+      file_info_free(fi);
+    }
+  }
+
+  close(pipefd[0]);
+  subproc_reap(pid, "find", 0);
+
+  for (fi = symlist; fi; fi = fi->next)
+    if (fd_write(fd_out, fi->fn, strlen(fi->fn) + 1) < 0)
+      ohshite(_("failed to write filename to tar pipe (%s)"), _("data member"));
+
+  file_info_list_free(symlist);
 }
 
 static const char *const maintainerscripts[] = {
@@ -245,15 +293,9 @@ check_conffiles(const char *dir)
     if (!n)
       ohshite(_("empty string from fgets reading conffiles"));
 
-    if (conffilename[n - 1] != '\n') {
-      int c;
-
-      warning(_("conffile name '%.50s...' is too long, or missing final newline"),
-              conffilename);
-      while ((c = getc(cf)) != EOF && c != '\n');
-
-      continue;
-    }
+    if (conffilename[n - 1] != '\n')
+      ohshit(_("conffile name '%s' is too long, or missing final newline"),
+             conffilename);
 
     conffilename[n - 1] = '\0';
     varbuf_reset(&controlfile);
@@ -288,35 +330,6 @@ check_conffiles(const char *dir)
   fclose(cf);
 }
 
-static const char *arbitrary_fields[] = {
-  "Built-Using",
-  "Package-Type",
-  "Subarchitecture",
-  "Kernel-Version",
-  "Installer-Menu-Item",
-  "Homepage",
-  "Tag",
-  NULL
-};
-
-static const char private_prefix[] = "Private-";
-
-static bool
-known_arbitrary_field(const struct arbitraryfield *field)
-{
-  const char **known;
-
-  /* Always accept fields starting with a private field prefix. */
-  if (strncasecmp(field->name, private_prefix, strlen(private_prefix)) == 0)
-    return true;
-
-  for (known = arbitrary_fields; *known; known++)
-    if (strcasecmp(field->name, *known) == 0)
-      return true;
-
-  return false;
-}
-
 /**
  * Perform some sanity checks on the to-be-built package.
  *
@@ -326,27 +339,19 @@ static struct pkginfo *
 check_new_pkg(const char *dir)
 {
   struct pkginfo *pkg;
-  struct arbitraryfield *field;
   char *controlfile;
   int warns;
 
   /* Start by reading in the control file so we can check its contents. */
   m_asprintf(&controlfile, "%s/%s/%s", dir, BUILDCONTROLDIR, CONTROLFILE);
-  parsedb(controlfile, pdb_recordavailable | pdb_rejectstatus, &pkg);
+  parsedb(controlfile, pdb_parse_binary, &pkg);
 
   if (strspn(pkg->set->name, "abcdefghijklmnopqrstuvwxyz0123456789+-.") !=
       strlen(pkg->set->name))
     ohshit(_("package name has characters that aren't lowercase alphanums or `-+.'"));
-  if (pkg->priority == pri_other)
+  if (pkg->priority == PKG_PRIO_OTHER)
     warning(_("'%s' contains user-defined Priority value '%s'"),
             controlfile, pkg->otherpriority);
-  for (field = pkg->available.arbs; field; field = field->next) {
-    if (known_arbitrary_field(field))
-      continue;
-
-    warning(_("'%s' contains user-defined field '%s'"), controlfile,
-            field->name);
-  }
 
   free(controlfile);
 
@@ -355,8 +360,8 @@ check_new_pkg(const char *dir)
 
   warns = warning_get_count();
   if (warns)
-    warning(P_("ignoring %d warning about the control file(s)\n",
-               "ignoring %d warnings about the control file(s)\n", warns),
+    warning(P_("ignoring %d warning about the control file(s)",
+               "ignoring %d warnings about the control file(s)", warns),
             warns);
 
   return pkg;
@@ -374,7 +379,7 @@ pkg_get_pathname(const char *dir, struct pkginfo *pkg)
   const char *versionstring, *arch_sep;
 
   versionstring = versiondescribe(&pkg->available.version, vdew_never);
-  arch_sep = pkg->available.arch->type == arch_none ? "" : "_";
+  arch_sep = pkg->available.arch->type == DPKG_ARCH_NONE ? "" : "_";
   m_asprintf(&path, "%s/%s_%s%s%s%s", dir, pkg->set->name, versionstring,
              arch_sep, pkg->available.arch->name, DEBEXT);
 
@@ -387,15 +392,14 @@ pkg_get_pathname(const char *dir, struct pkginfo *pkg)
 int
 do_build(const char *const *argv)
 {
+  struct compress_params control_compress_params;
+  struct dpkg_error err;
   const char *debar, *dir;
   bool subdir;
   char *tfbuf;
   int arfd;
-  int p1[2], p2[2], p3[2], gzfd;
-  pid_t c1,c2,c3;
-  struct file_info *fi;
-  struct file_info *symlist = NULL;
-  struct file_info *symlist_end = NULL;
+  int p1[2], p2[2], gzfd;
+  pid_t c1, c2;
 
   /* Decode our arguments. */
   dir = *argv++;
@@ -406,7 +410,8 @@ do_build(const char *const *argv)
   if (debar != NULL) {
     struct stat debarstab;
 
-    if (*argv) badusage(_("--build takes at most two arguments"));
+    if (*argv)
+      badusage(_("--%s takes at most two arguments"), cipaction->olong);
 
     if (stat(debar, &debarstab)) {
       if (errno != ENOENT)
@@ -428,7 +433,7 @@ do_build(const char *const *argv)
   if (nocheckflag) {
     if (subdir)
       ohshit(_("target is directory - cannot skip control file check"));
-    warning(_("not checking contents of control area."));
+    warning(_("not checking contents of control area"));
     printf(_("dpkg-deb: building an unknown package in '%s'.\n"), debar);
   } else {
     struct pkginfo *pkg;
@@ -437,7 +442,7 @@ do_build(const char *const *argv)
     if (subdir)
       debar = pkg_get_pathname(debar, pkg);
     printf(_("dpkg-deb: building package `%s' in `%s'.\n"),
-           pkg_describe(pkg, pdo_foreign | pdo_avail), debar);
+           pkg->set->name, debar);
   }
   m_output(stdout, _("<standard output>"));
 
@@ -472,22 +477,30 @@ do_build(const char *const *argv)
            tfbuf);
   free(tfbuf);
 
-  /* And run gzip to compress our control archive. */
+  /* And run the compressor on our control archive. */
+  if (opt_uniform_compression) {
+    control_compress_params = compress_params;
+  } else {
+    control_compress_params.type = COMPRESSOR_TYPE_GZIP;
+    control_compress_params.strategy = COMPRESSOR_STRATEGY_NONE;
+    control_compress_params.level = -1;
+  }
+
   c2 = subproc_fork();
   if (!c2) {
-    compress_filter(&compressor_gzip, p1[0], gzfd, 9, _("control member"));
+    compress_filter(&control_compress_params, p1[0], gzfd, _("compressing control member"));
     exit(0);
   }
   close(p1[0]);
-  subproc_wait_check(c2, "gzip -9c", 0);
-  subproc_wait_check(c1, "tar -cf", 0);
+  subproc_reap(c2, "gzip -9c", 0);
+  subproc_reap(c1, "tar -cf", 0);
 
   if (lseek(gzfd, 0, SEEK_SET))
     ohshite(_("failed to rewind temporary file (%s)"), _("control member"));
 
   /* We have our first file for the ar-archive. Write a header for it
    * to the package and insert it. */
-  if (oldformatflag) {
+  if (deb_format.major == 0) {
     struct stat controlstab;
     char versionbuf[40];
 
@@ -497,23 +510,32 @@ do_build(const char *const *argv)
             (intmax_t)controlstab.st_size);
     if (fd_write(arfd, versionbuf, strlen(versionbuf)) < 0)
       ohshite(_("error writing `%s'"), debar);
-    fd_fd_copy(gzfd, arfd, -1, _("control member"));
-  } else {
+    if (fd_fd_copy(gzfd, arfd, -1, &err) < 0)
+      ohshit(_("cannot copy '%s' into archive '%s': %s"), _("control member"),
+             debar, err.str);
+  } else if (deb_format.major == 2) {
     const char deb_magic[] = ARCHIVEVERSION "\n";
+    char adminmember[16 + 1];
+
+    sprintf(adminmember, "%s%s", ADMINMEMBER,
+            compressor_get_extension(control_compress_params.type));
 
     dpkg_ar_put_magic(debar, arfd);
     dpkg_ar_member_put_mem(debar, arfd, DEBMAGIC, deb_magic, strlen(deb_magic));
-    dpkg_ar_member_put_file(debar, arfd, ADMINMEMBER, gzfd, -1);
+    dpkg_ar_member_put_file(debar, arfd, adminmember, gzfd, -1);
+  } else {
+    internerr("unknown deb format version %d.%d", deb_format.major, deb_format.minor);
   }
+
   close(gzfd);
 
   /* Control is done, now we need to archive the data. */
-  if (oldformatflag) {
+  if (deb_format.major == 0) {
     /* In old format, the data member is just concatenated after the
      * control member, so we do not need a temporary file and can use
      * the compression file descriptor. */
     gzfd = arfd;
-  } else {
+  } else if (deb_format.major == 2) {
     /* Start by creating a new temporary file. Immediately unlink the
      * temporary file so others can't mess with it. */
     tfbuf = path_make_temp_template("dpkg-deb");
@@ -525,6 +547,8 @@ do_build(const char *const *argv)
       ohshit(_("failed to unlink temporary file (%s), %s"), _("data member"),
              tfbuf);
     free(tfbuf);
+  } else {
+    internerr("unknown deb format version %d.%d", deb_format.major, deb_format.minor);
   }
   /* Fork off a tar. We will feed it a list of filenames on stdin later. */
   m_pipe(p1);
@@ -535,7 +559,8 @@ do_build(const char *const *argv)
     m_dup2(p2[1],1); close(p2[0]); close(p2[1]);
     if (chdir(dir))
       ohshite(_("failed to chdir to `%.255s'"), dir);
-    execlp(TAR, "tar", "-cf", "-", "--format=gnu", "--null", "-T", "-", "--no-recursion", NULL);
+    execlp(TAR, "tar", "-cf", "-", "--format=gnu", "--null", "--no-unquote",
+                       "-T", "-", "--no-recursion", NULL);
     ohshite(_("unable to execute %s (%s)"), "tar -cf", TAR);
   }
   close(p1[0]);
@@ -544,56 +569,32 @@ do_build(const char *const *argv)
   c2 = subproc_fork();
   if (!c2) {
     close(p1[1]);
-    compress_filter(compressor, p2[0], gzfd, compress_level, _("data member"));
+    compress_filter(&compress_params, p2[0], gzfd, _("compressing data member"));
     exit(0);
   }
   close(p2[0]);
 
-  /* All the pipes are set, now lets run find, and start feeding
+  /* All the pipes are set, now lets walk the tree, and start feeding
    * filenames to tar. */
-  m_pipe(p3);
-  c3 = subproc_fork();
-  if (!c3) {
-    m_dup2(p3[1],1); close(p3[0]); close(p3[1]);
-    if (chdir(dir))
-      ohshite(_("failed to chdir to `%.255s'"), dir);
-    execlp(FIND, "find", ".", "-path", "./" BUILDCONTROLDIR, "-prune", "-o",
-           "-print0", NULL);
-    ohshite(_("unable to execute %s (%s)"), "find", FIND);
-  }
-  close(p3[1]);
-  /* We need to reorder the files so we can make sure that symlinks
-   * will not appear before their target. */
-  while ((fi = file_info_get(dir, p3[0])) != NULL)
-    if (S_ISLNK(fi->st.st_mode))
-      file_info_list_append(&symlist, &symlist_end, fi);
-    else {
-      if (fd_write(p1[1], fi->fn, strlen(fi->fn) + 1) < 0)
-        ohshite(_("failed to write filename to tar pipe (%s)"),
-                _("data member"));
-      file_info_free(fi);
-    }
-  close(p3[0]);
-  subproc_wait_check(c3, "find", 0);
+  file_treewalk_feed(dir, p1[1]);
 
-  for (fi= symlist;fi;fi= fi->next)
-    if (fd_write(p1[1], fi->fn, strlen(fi->fn) + 1) < 0)
-      ohshite(_("failed to write filename to tar pipe (%s)"), _("data member"));
   /* All done, clean up wait for tar and gzip to finish their job. */
   close(p1[1]);
-  file_info_list_free(symlist);
-  subproc_wait_check(c2, _("<compress> from tar -cf"), 0);
-  subproc_wait_check(c1, "tar -cf", 0);
+  subproc_reap(c2, _("<compress> from tar -cf"), 0);
+  subproc_reap(c1, "tar -cf", 0);
   /* Okay, we have data.tar as well now, add it to the ar wrapper. */
-  if (!oldformatflag) {
+  if (deb_format.major == 2) {
     char datamember[16 + 1];
 
-    sprintf(datamember, "%s%s", DATAMEMBER, compressor->extension);
+    sprintf(datamember, "%s%s", DATAMEMBER,
+            compressor_get_extension(compress_params.type));
 
     if (lseek(gzfd, 0, SEEK_SET))
       ohshite(_("failed to rewind temporary file (%s)"), _("data member"));
 
     dpkg_ar_member_put_file(debar, arfd, datamember, gzfd, -1);
+
+    close(gzfd);
   }
   if (fsync(arfd))
     ohshite(_("unable to sync file '%s'"), debar);

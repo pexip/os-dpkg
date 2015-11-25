@@ -2,7 +2,7 @@
  * libdpkg - Debian packaging suite library routines
  * t-path.c - test path handling code
  *
- * Copyright © 2009 Guillem Jover <guillem@debian.org>
+ * Copyright © 2009-2012 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -32,7 +32,7 @@
  * meaningful line numbers from assert. */
 #define test_trim_eq_ref(p, ref) \
 do { \
-	char *t = strdup((p)); \
+	char *t = test_alloc(strdup((p))); \
 	path_trim_slash_slashdot(t); \
 	test_str(t, ==, (ref)); \
 	free(t); \
@@ -41,6 +41,7 @@ do { \
 static void
 test_path_trim(void)
 {
+	test_trim_eq_ref("/a", "/a");
 	test_trim_eq_ref("./././.", ".");
 	test_trim_eq_ref("./././", ".");
 	test_trim_eq_ref("./.", ".");
@@ -122,10 +123,13 @@ test_path_quote(void)
 	char *dst;
 	size_t len;
 
+	/* Test 0 length. */
+	dst = NULL;
+	path_quote_filename(dst, src_7_bit, 0);
+
 	/* Test no quoting. */
 	len = strlen(src_7_bit) + 1;
-	dst = malloc(len);
-	test_fail(dst == NULL);
+	dst = test_alloc(malloc(len));
 
 	path_quote_filename(dst, src_7_bit, len);
 	test_str(dst, ==, src_7_bit);
@@ -133,8 +137,7 @@ test_path_quote(void)
 
 	/* Test no quoting with limit. */
 	len = strlen(src_7_bit_trim) + 1;
-	dst = malloc(len);
-	test_fail(dst == NULL);
+	dst = test_alloc(malloc(len));
 
 	path_quote_filename(dst, src_7_bit, len);
 	test_str(dst, ==, src_7_bit_trim);
@@ -142,8 +145,7 @@ test_path_quote(void)
 
 	/* Test normal quoting. */
 	len = strlen(src_8_bit) * 2 + 1;
-	dst = malloc(len);
-	test_fail(dst == NULL);
+	dst = test_alloc(malloc(len));
 
 	path_quote_filename(dst, src_8_bit, len);
 	test_pass(strstr(dst, "end") != NULL);
@@ -152,8 +154,7 @@ test_path_quote(void)
 
 	/* Test normal quoting with limit. */
 	len = strlen(src_8_bit_end) + 1 + 2;
-	dst = malloc(len);
-	test_fail(dst == NULL);
+	dst = test_alloc(malloc(len));
 
 	path_quote_filename(dst, src_8_bit_end, len);
 	test_str(dst, ==, "text ");
@@ -161,8 +162,7 @@ test_path_quote(void)
 
 	/* Test backslash quoting with limit. */
 	len = strlen(src_bs_end) + 1;
-	dst = malloc(len);
-	test_fail(dst == NULL);
+	dst = test_alloc(malloc(len));
 
 	path_quote_filename(dst, src_bs_end, len);
 	test_str(dst, ==, "text ");
@@ -172,6 +172,8 @@ test_path_quote(void)
 static void
 test(void)
 {
+	test_plan(41);
+
 	test_path_trim();
 	test_path_skip();
 	test_path_basename();

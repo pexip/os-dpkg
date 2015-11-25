@@ -1,6 +1,25 @@
-.\" Author: Raul Miller
-.\" Includes text from the debian Guidelines by Ian Jackson, Ian Murdock
-.TH deb\-control 5 "2011-08-14" "Debian Project" "Debian"
+.\" dpkg manual page - deb-control(5)
+.\"
+.\" Copyright © 1995 Raul Miller, Ian Jackson, Ian Murdock
+.\" Copyright © 1999 Ben Collins <bcollins@debian.org>
+.\" Copyright © 2000 Wichert Akkerman <wakkerma@debian.org>
+.\" Copyright © 2007-2011, 2013 Guillem Jover <guillem@debian.org>
+.\" Copyright © 2008-2012 Raphaël Hertzog <hertzog@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
+.
+.TH deb\-control 5 "2013-12-20" "Debian Project" "Debian"
 .SH NAME
 deb\-control \- Debian packages' master control file format
 .
@@ -99,7 +118,7 @@ The upstream project home page \fIurl\fP.
 List of tags describing the qualities of the package. The description and
 list of supported tags can be found in the \fBdebtags\fP package.
 .TP
-.BR Multi\-Arch: " \fBsame\fP|\fBforeign\fP|\fBallowed\fP"
+.BR Multi\-Arch: " \fBsame\fP|\fBforeign\fP|\fBallowed\fP|\fBno\fP"
 This field is used to indicate how this package should behave on a multi-arch
 installations. The value \fBsame\fP means that the package is co-installable
 with itself, but it must not be used to satisfy the dependency of any package
@@ -107,22 +126,20 @@ of a different architecture from itself. The value \fBforeign\fP means that
 the package is not co-installable with itself, but should be allowed to
 satisfy the dependency of a package of a different arch from itself. The
 value \fBallowed\fP allows reverse-dependencies to indicate in their
-Depends field that they need a package from a foreign architecture, but
-has no effect otherwise. This field should not be present in packages
-with the \fBArchitecture: all\fP field.
+Depends field that they accept a package from a foreign architecture, but
+has no effect otherwise.
+The value \fBno\fP is the default when the field is omitted, in which case
+adding the field with an explicit \fBno\fP value is generally not needed.
 .TP
 .BI Source: " source-name"
 The name of the source package that this binary package came from, if
 different than the name of the package itself.
 
 .TP
-.PD 0
 .BI Subarchitecture: " value"
-.TP
-.PD 0
+.TQ
 .BI Kernel\-Version: " value"
-.TP
-.PD
+.TQ
 .BI Installer\-Menu\-Item: " value"
 These fields are used by the debian\-installer and are usually not needed.
 See /usr/share/doc/debian\-installer/devel/modules.txt from the

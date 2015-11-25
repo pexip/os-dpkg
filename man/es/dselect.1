@@ -1,24 +1,45 @@
+.\" dselect manual page - dselect(1)
+.\"
+.\" Copyright Â© 1995 Juho Vuori <javuori@cc.helsinki.fi>
+.\" Copyright Â© 2000 Josip Rodin
+.\" Copyright Â© 2001 Joost Kooij
+.\" Copyright Â© 2001 Wichert Akkerman <wakkerma@debian.org>
+.\" Copyright Â© 2010-2014 Guillem Jover <guillem@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH dselect 1 2011\-08\-14 "Proyecto Debian" Debian
+.TH dselect 1 2014\-08\-11 "Proyecto Debian" Debian
 .SH NOMBRE
 dselect \- Interfaz para la gestión de paquetes de Debian
 .
 .SH SINOPSIS
-\fBdselect\fP [\fIoption\fP...] [\fIaction\fP]
+\fBdselect\fP [\fIopción\fP...] [\fIacción\fP]
 .
 .SH DESCRIPCIÓN
 \fBdselect\fP
 es una de las principales interfaces para la gestión de paquetes en un
 sistema Debian GNU/Linux. El menú principal de \fBdselect\fP permite al
 administrador del sistema:
- \- Actualizar la lista de paquetes disponibles
- \- Ver el estado de los paquetes instalados y disponibles
- \- Alterar selecciones de paquetes y gestionar las dependencias
- \- Instalar paquetes nuevos o actualizarlos a nuevas versiones
+ \- Actualizar la lista de paquetes disponibles.
+ \- Ver el estado de los paquetes instalados y disponibles.
+ \- Alterar selecciones de paquetes y gestionar las dependencias.
+ \- Instalar paquetes nuevos o actualizarlos a nuevas versiones.
 .PP
 \fBdselect\fP funciona como una interfaz de \fBdpkg(8)\fP, la herramienta de bajo
 nivel de manipulación de paquetes de Debian. Ofrece una pantalla completa de
@@ -31,18 +52,18 @@ repositorios de paquetes pueden ser archivos públicos en servidores a través
 de Internet, servidores de archivo locales o bien discos ópticos. El método
 de acceso recomendado es \fIapt\fP, proporcionado por el paquete \fBapt\fP.
 .PP
-Normally \fBdselect\fP is invoked without parameters. An interactive menu is
-presented, offering the user a list of actions. If an action is given as
-argument, then that action is started immediately. Several command line
-parameters are still available to modify the running behaviour of \fBdselect\fP
-or show additional information about the program.
+Habitualmente, \fBdselect\fP se ejecuta sin parámetros. Se presenta un menú
+interactivo que ofrece al usuario una lista de acciones. Si se da una acción
+como argumento se ejecutará inmediatamente. Hay muchas órdenes disponibles
+para modificar el comportamiento de \fBdselect\fP o también para mostrar
+información adicional acerca del programa.
 .
 .SH OPCIONES
 All options can be specified both on the command line and in the \fBdselect\fP
 configuration file \fI/etc/dpkg/dselect.cfg\fP or the files on the
 configuration directory \fI/etc/dpkg/dselect.cfg.d/\fP. Each line in the
 configuration file is either an option (exactly the same as the command line
-option but without leading dashes) or a comment (if it starts with a \fB#\fP).
+option but without leading hyphens) or a comment (if it starts with a \fB#\fP).
 .br
 .TP 
 \fB\-\-admindir\fP\fI directorio\fP
@@ -50,16 +71,16 @@ Cambia el directorio donde se ubican los ficheros de dpkg \fIstatus\fP,
 \fIavailable\fP y otros. Es \fI/var/lib/dpkg\fP por omisión y en condiciones
 normales no se  debería cambiar.
 .TP 
-\fB\-\-debug\fP\fI file \fP|\fI \fP\fB\-D\fP\fIfile\fP
-Turn on debugging. Debugging information is sent to \fIfile\fP.
+\fB\-\-debug\fP\fI fichero \fP|\fI \fP\fB\-D\fP\fIfichero\fP
+Activa la depuración de fallos. Esta información se envía al \fIfichero\fP.
 .TP 
 \fB\-\-expert\fP
 Activa el modo experto. Por ejemplo, no muestra mensajes de ayuda
 posiblemente molestos.
 .TP 
-\fB\-\-colour\fP|\fB\-\-color\fP \fIparte\-de\-pantalla:\fP[\fIprimer\-plano\fP],[\fIfondo\fP][\fI:attr\fP[\fI+attr+..\fP]]
+\fB\-\-colour\fP|\fB\-\-color\fP \fIparte\-de\-pantalla:\fP[\fIprimer\-plano\fP],[\fIfondo\fP][\fI:attr\fP[\fI+attr+...\fP]]
 Configura los colores de la pantalla. Esto sólo funciona si su equipo es
-capaz de mostrar colores. Puede usar esta opción cuantas veces desee (es
+capaz de mostrar colores. Puede utilizar esta opción cuantas veces desee (es
 mejor usarla en \fIdselect.cfg\fP). Cada uso cambia el color (y opcionalmente,
 otros atributos) de una parte de la pantalla. Estas partes de la pantalla
 (desde arriba hacia abajo) son:
@@ -103,12 +124,12 @@ Se usa para mostrar líneas de consulta.
 \fBhelpscreen\fP
 Color de las pantallas de ayuda.
 .RE
-.P
+.IP
 A continuación de la parte de la pantalla aparecen dos puntos y la
 definición del color. Puede definir el color del primer plano, el color de
-fondo, o ambos evitando los colores predefinidos. Se deben usar nombres
+fondo, o ambos evitando los colores predefinidos. Se deben utilizar nombres
 estándar de colores de la biblioteca curses.
-.P
+.IP
 Opcionalmente, a continuación de la especificación de colores hay otros dos
 puntos, y la especificación de los atributos. Ésta es una lista de uno o más
 atributos, separados por un signo de suma «+». Los atributos disponibles
@@ -122,17 +143,18 @@ Muestra un breve texto de ayuda y cierra con éxito.
 Muestra la información de versión del programa y cierra con éxito.
 .
 .SH ACCIONES
-When \fBdselect\fP is started it can perform the following actions, either
-directly if it was specified on the command line or by prompting the user
-with a menu of available actions if running interactively:
+Cuando \fBdselect\fP se inicia puede realizar las siguientes acciones, bien de
+forma directa si se define en la línea de órdenes, o presentando al usuario
+un menú con las opciones disponibles cuando se ejecuta de forma interactiva:
 .SS access
 Selección y configuración de un método de acceso para acceder a los
 repositorios de paquetes.
 .sp
-By default, \fBdselect\fP provides several methods such as \fIcdrom\fP,
-\fImulti_cd\fP, \fInfs\fP, \fImulti_nfs\fP, \fIharddisk\fP, \fImounted\fP, \fImulti_mount\fP,
-\fIfloppy\fP or \fIftp\fP, but other packages may provide additional methods,
-eg. the \fIapt\fP access method provided by the \fBapt\fP package.
+Por omisión, \fBdselect\fP ofrece varios métodos tales como \fIcdrom\fP,
+\fImulti_cd\fP, \fInfs\fP, \fImulti_nfs\fP, \fIharddisk\fP (disco duro), \fImounted\fP,
+\fImulti_mount\fP, \fIfloppy\fP (disquete) o \fIftp\fP, aunque otros paquetes
+proporcionan otros adicionales. Por ejemplo, el método de acceso \fIapt\fP que
+el paquete \fBapt\fP proporciona.
 .sp
 El uso del método de acceso vía \fIapt\fP es altamente recomendado.
 .sp
@@ -187,7 +209,7 @@ desaparecerán o bien se resolverán. Si el problema persiste o la instalación
 se ejecutó de forma incorrecta, le rogamos investigue las causas y
 circunstancias del problema, y remita un informe de fallos al sistema de
 seguimiento de fallos de Debian. Puede encontrar las instrucciones
-correspondientes en «http://bugs.debian.org/», o bien leyendo la
+correspondientes en «https://bugs.debian.org/», o bien leyendo la
 documentación de los programas \fBbug(1)\fP o \fBreportbug(1)\fP, si es que están
 instalados.
 .sp
@@ -213,7 +235,7 @@ Salir de \fBdselect\fP
 Termina el programa con éxito (el código de error devuelto es 0).
 .sp
 .
-.SH "Manipulación de selecciones de paquetes"
+.SH "PACKAGE SELECTIONS MANAGEMENT"
 .sp
 .SS Introducción
 .sp
@@ -248,7 +270,7 @@ Pulsar la tecla \fB«I»\fP conmuta la lista de paquetes a pantalla completa, una
 vista aumentada de los detalles de los paquetes, o la divide la pantalla
 simétricamente.
 .sp
-.SS "Detalles de la vista de paquetes."
+.SS "Detalles de la vista de paquetes"
 .sp
 Por omisión se muestra una descripción bastante extensa del paquete
 seleccionado en la lista.
@@ -269,12 +291,14 @@ el sistema de gestión de paquetes de Debian. Esto incluye los paquetes
 instalados en el sistema y también aquellos conocidos mediante la base de
 datos de paquetes disponibles.
 .sp
-Para cada paquete, la lista muestra el estado, prioridad, sección, las
-versiones instalada y disponible, el nombre del paquete y su descripción
-corta, todo esto en una sola línea. Pulsar la tecla \fB«V»\fP conmuta la
-aparición de la versión instalada, o la disponible. La tecla \fB«v»\fP modifica
-la pantalla del estado del paquete a la forma breve o informativa. La forma
-breve es la opción predefinido.
+For every package, the list shows the package's status, priority, section,
+installed and available architecture, installed and available versions, the
+package name and its short description, all in one line.  By pressing the
+\&\fB'A'\fP key, the display of the installed and available architecture can be
+toggled between on an off.  By pressing the \fB'V'\fP key, the display of the
+installed and available version can be toggled between on an off.  By
+pressing the \fB'v'\fP key, the package status display is toggled between
+verbose and shorthand.  Shorthand display is the default.
 .sp
 La forma breve del estado consiste de cuatro partes: una marca de fallo, la
 cual normalmente debería estar vacía, el estado actual, el estado de la
@@ -348,7 +372,7 @@ Los siguientes ordenamientos son posibles:
 Si no se usa explícitamente ninguno de los mencionados arriba, se usa el
 orden alfabético.
 .sp
-.SS "Modificar selecciones."
+.SS "Modificar selecciones"
 .sp
 El estado de la selección solicitada de paquetes individuales se puede
 alterar mediante las siguientes órdenes:
@@ -422,8 +446,8 @@ definida.
 .sp
 Si ha realizado un error al definir la lista de paquetes y desea revertir
 las selecciones actuales a lo que ya está instalado en el sistema, pulse
-\fB«C»\fP. Es similar a usar la orden «unhold» sobre todos los paquetes, pero
-ofrece un botón de pánico más obvio para aquellos casos en los que el
+\fB«C»\fP. Es similar a utilizar la orden «unhold» sobre todos los paquetes,
+pero ofrece un botón de pánico más obvio para aquellos casos en los que el
 usuario pulsó \fBIntro\fP por error.
 .sp
 .
@@ -450,15 +474,7 @@ roto, es mucho más flexible que los métodos de acceso integrados.
 .
 .SH "VÉASE TAMBIÉN"
 \fBdpkg\fP(1), \fBapt\-get\fP(8), \fBsources.list\fP(5), \fBdeb\fP(5).
-.
-.SH AUTORES
-\fBdselect\fP fue escrito por Ian Jackson (ijackson@gnu.ai.mit.edu). Puede ver
-una lista completa de contribuyentes con «dselect \-\-version».
-.br
-Esta página de manual fue escrita por Juho Vuori <javuori@cc.helsinki.fi
->, Josip Rodin y Joost kooij.
-
-.SH "TRADUCTOR"
+.SH TRADUCTOR
 Rudy Godoy <rudy@kernel\-panik.org>,
 Rubén Porras <nahoo@inicia.es>,
 Bruno Barrera C. <bruno.barrera@igloo.cl>,

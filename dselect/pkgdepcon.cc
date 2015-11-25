@@ -3,6 +3,7 @@
  * pkgdepcon.cc - dependency and conflict resolution
  *
  * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 2008-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -35,12 +36,13 @@ bool
 packagelist::useavailable(pkginfo *pkg)
 {
   if (pkg->clientdata &&
-      pkg->clientdata->selected == pkginfo::want_install &&
+      pkg->clientdata->selected == PKG_WANT_INSTALL &&
       pkg_is_informative(pkg, &pkg->available) &&
-      (!(pkg->status == pkginfo::stat_installed ||
-         pkg->status == pkginfo::stat_triggersawaited ||
-         pkg->status == pkginfo::stat_triggerspending) ||
-       versioncompare(&pkg->available.version,&pkg->installed.version) > 0))
+      (!(pkg->status == PKG_STAT_INSTALLED ||
+         pkg->status == PKG_STAT_TRIGGERSAWAITED ||
+         pkg->status == PKG_STAT_TRIGGERSPENDING) ||
+       dpkg_version_compare(&pkg->available.version,
+                            &pkg->installed.version) > 0))
     return true;
   else
     return false;
@@ -49,14 +51,10 @@ packagelist::useavailable(pkginfo *pkg)
 pkgbin *
 packagelist::find_pkgbin(pkginfo *pkg)
 {
-  pkgbin *r = &pkg->installed;
-  enum pkg_describe_opts pdo = pdo_foreign;
-  if (useavailable(pkg)) {
-    r = &pkg->available;
-    pdo = (enum pkg_describe_opts)(pdo | pdo_avail);
-  }
+  pkgbin *r;
+  r= useavailable(pkg) ? &pkg->available : &pkg->installed;
   debug(dbg_general, "packagelist[%p]::find_pkgbin(%s) useavailable=%d",
-        this, pkg_describe(pkg, pdo), useavailable(pkg));
+        this, pkgbin_name(pkg, r, pnaw_always), useavailable(pkg));
 
   return r;
 }
@@ -79,7 +77,7 @@ int packagelist::checkdependers(pkginfo *pkg, int changemade) {
 
 int packagelist::resolvesuggest() {
   // We continually go around looking for things to change, but we may
-  // only change the `suggested' value if we also increase the `priority'
+  // only change the ‘suggested’ value if we also increase the ‘priority’
   // Return 2 if we made a change due to a Recommended, Depends or Conficts,
   // or 1 if we offered or made a change because of an Optional line.
   debug(dbg_general, "packagelist[%p]::resolvesuggest()", this);
@@ -92,8 +90,7 @@ int packagelist::resolvesuggest() {
       if (!table[index]->pkg->set->name)
         continue;
       debug(dbg_depcon, "packagelist[%p]::resolvesuggest() loop[%i] %s / %d",
-            this, index, pkg_describe(table[index]->pkg, pdo_foreign),
-            changemade);
+            this, index, pkg_name(table[index]->pkg, pnaw_always), changemade);
       dependency *depends;
       for (depends = find_pkgbin(table[index]->pkg)->depends;
            depends;
@@ -108,8 +105,7 @@ int packagelist::resolvesuggest() {
         changemade = checkdependers(&depends->list->ed->pkg, changemade);
       }
       debug(dbg_depcon, "packagelist[%p]::resolvesuggest() loop[%i] %s / -> %d",
-            this, index, pkg_describe(table[index]->pkg, pdo_foreign),
-            changemade);
+            this, index, pkg_name(table[index]->pkg, pnaw_always), changemade);
     }
     if (!changemade) break;
     maxchangemade = max(maxchangemade, changemade);
@@ -119,18 +115,22 @@ int packagelist::resolvesuggest() {
   return maxchangemade;
 }
 
-static int dep_update_best_to_change_stop(perpackagestate *& best, pkginfo *trythis) {
+static bool
+dep_update_best_to_change_stop(perpackagestate *& best, pkginfo *trythis)
+{
   // There's no point trying to select a pure virtual package.
-  if (!trythis->clientdata) return 0;
+  if (!trythis->clientdata)
+    return false;
 
   debug(dbg_depcon, "update_best_to_change(best=%s{%d}, test=%s{%d});",
-        best ? pkg_describe(best->pkg, pdo_foreign) : "",
+        best ? pkg_name(best->pkg, pnaw_always) : "",
         best ? (int)best->spriority : -1,
         trythis->set->name, trythis->clientdata->spriority);
 
   // If the problem is caused by us deselecting one of these packages
   // we should not try to select another one instead.
-  if (trythis->clientdata->spriority == sp_deselecting) return 1;
+  if (trythis->clientdata->spriority == sp_deselecting)
+    return true;
 
   // If we haven't found anything yet then this is our best so far.
   if (!best) goto yes;
@@ -138,27 +138,30 @@ static int dep_update_best_to_change_stop(perpackagestate *& best, pkginfo *tryt
   // If only one of the packages is available, use that one
   if (!pkg_is_informative(trythis, &trythis->available) &&
       pkg_is_informative(best->pkg, &best->pkg->available))
-    return 0;
+    return false;
   if (pkg_is_informative(trythis, &trythis->available) &&
       !pkg_is_informative(best->pkg, &best->pkg->available))
     goto yes;
 
   // Select the package with the lowest priority (ie, the one of whom
   // we were least sure we wanted it deselected).
-  if (trythis->clientdata->spriority > best->spriority) return 0;
+  if (trythis->clientdata->spriority > best->spriority)
+    return false;
   if (trythis->clientdata->spriority < best->spriority) goto yes;
 
   // Pick the package with the must fundamental recommendation level.
-  if (trythis->priority > best->pkg->priority) return 0;
+  if (trythis->priority > best->pkg->priority)
+    return false;
   if (trythis->priority < best->pkg->priority) goto yes;
 
   // If we're still unsure we'll change the first one in the list.
-  return 0;
+  return false;
 
  yes:
   debug(dbg_depcon, "update_best_to_change(); yes");
 
-  best=trythis->clientdata; return 0;
+  best = trythis->clientdata;
+  return false;
 }
 
 int
@@ -177,15 +180,15 @@ packagelist::deselect_one_of(pkginfo *per, pkginfo *ped, dependency *dep)
 
   debug(dbg_depcon,
         "packagelist[%p]::deselect_one_of(): er %s{%d} ed %s{%d} [%p]",
-        this, pkg_describe(er->pkg, pdo_foreign), er->spriority,
-        pkg_describe(ed->pkg, pdo_foreign), ed->spriority, dep);
+        this, pkg_name(er->pkg, pnaw_always), er->spriority,
+        pkg_name(ed->pkg, pnaw_always), ed->spriority, dep);
 
   perpackagestate *best;
 
   // Try not keep packages needing reinstallation.
-  if (per->eflag & pkginfo::eflag_reinstreq)
+  if (per->eflag & PKG_EFLAG_REINSTREQ)
     best = ed;
-  else if (ped->eflag & pkginfo::eflag_reinstreq)
+  else if (ped->eflag & PKG_EFLAG_REINSTREQ)
     best = er;
   else if (er->spriority < ed->spriority) best= er; // We'd rather change the
   else if (er->spriority > ed->spriority) best= ed; // one with the lowest priority.
@@ -197,12 +200,12 @@ packagelist::deselect_one_of(pkginfo *per, pkginfo *ped, dependency *dep)
   else best= ed;                                      // ... failing that, the second
 
   debug(dbg_depcon, "packagelist[%p]::deselect_one_of(): best %s{%d}",
-        this, pkg_describe(best->pkg, pdo_foreign), best->spriority);
+        this, pkg_name(best->pkg, pnaw_always), best->spriority);
 
   if (best->spriority >= sp_deselecting) return 0;
   best->suggested=
-    best->pkg->status == pkginfo::stat_notinstalled
-      ? pkginfo::want_purge : pkginfo::want_deinstall; // FIXME: configurable.
+    best->pkg->status == PKG_STAT_NOTINSTALLED
+      ? PKG_WANT_PURGE : PKG_WANT_DEINSTALL; // FIXME: configurable.
   best->selected= best->suggested;
   best->spriority= sp_deselecting;
 
@@ -212,7 +215,8 @@ packagelist::deselect_one_of(pkginfo *per, pkginfo *ped, dependency *dep)
 int packagelist::resolvedepcon(dependency *depends) {
   perpackagestate *best, *fixbyupgrade;
   deppossi *possi, *provider;
-  int r, foundany;
+  bool foundany;
+  int rc;
 
   if (debug_has_flag(dbg_depcon)) {
     varbuf pkg_names;
@@ -224,7 +228,7 @@ int packagelist::resolvedepcon(dependency *depends) {
 
     debug(dbg_depcon,
           "packagelist[%p]::resolvedepcon([%p] %s --%s-->%s); (ing)->want=%s",
-          this, depends, pkg_describe(depends->up, pdo_foreign),
+          this, depends, pkg_name(depends->up, pnaw_always),
           relatestrings[depends->type],
           pkg_names.string(), depends->up->clientdata ?
           wantstrings[depends->up->clientdata->suggested] : "(no clientdata)");
@@ -246,7 +250,7 @@ int packagelist::resolvedepcon(dependency *depends) {
     if (would_like_to_install(depends->up->clientdata->selected,depends->up) <= 0)
       return 0;
 
-    fixbyupgrade= 0;
+    fixbyupgrade = nullptr;
 
     possi = depends->list;
     while (possi && !deppossatisfied(possi, &fixbyupgrade))
@@ -259,35 +263,36 @@ int packagelist::resolvedepcon(dependency *depends) {
     switch (depends->type) {
     case dep_enhances:
     case dep_suggests:
-    	r= add(depends, dp_may);
-	return r;
+      rc = add(depends, dp_may);
+      return rc;
     case dep_recommends:
-    	r= add(depends, dp_should);
+      rc = add(depends, dp_should);
 	break;
     default:
-    	r= add(depends, dp_must);
+      rc = add(depends, dp_must);
     }
 
     if (fixbyupgrade) {
       debug(dbg_depcon,
             "packagelist[%p]::resolvedepcon([%p]): fixbyupgrade %s",
-            this, depends, pkg_describe(fixbyupgrade->pkg, pdo_foreign));
+            this, depends, pkg_name(fixbyupgrade->pkg, pnaw_always));
       best= fixbyupgrade;
     } else {
-      best= 0;
+      best = nullptr;
       for (possi= depends->list;
            possi;
            possi= possi->next) {
-        foundany= 0;
+        foundany = false;
         if (possi->ed->pkg.clientdata)
-          foundany = 1;
+          foundany = true;
         if (dep_update_best_to_change_stop(best, &possi->ed->pkg))
           goto mustdeselect;
         for (provider = possi->ed->depended.available;
              provider;
              provider = provider->rev_next) {
           if (provider->up->type != dep_provides) continue;
-          if (provider->up->up->clientdata) foundany= 1;
+          if (provider->up->up->clientdata)
+            foundany = true;
           if (dep_update_best_to_change_stop(best, provider->up->up)) goto mustdeselect;
         }
         if (!foundany) addunavailable(possi);
@@ -296,36 +301,38 @@ int packagelist::resolvedepcon(dependency *depends) {
         debug(dbg_depcon,
               "packagelist[%p]::resolvedepcon([%p]): mustdeselect nobest",
               this, depends);
-        return r;
+        return rc;
       }
     }
     debug(dbg_depcon,
           "packagelist[%p]::resolvedepcon([%p]): select best=%s{%d}",
-          this, depends, pkg_describe(best->pkg, pdo_foreign), best->spriority);
-    if (best->spriority >= sp_selecting) return r;
+          this, depends, pkg_name(best->pkg, pnaw_always), best->spriority);
+    if (best->spriority >= sp_selecting)
+      return rc;
     /* Always select depends. Only select recommends if we got here because
      * of a manually-initiated install request. */
     if (depends->type != dep_recommends || manual_install) {
-      best->selected= best->suggested= pkginfo::want_install;
+      best->selected = best->suggested = PKG_WANT_INSTALL;
       best->spriority= sp_selecting;
     }
-    return r ? 2 : 0;
+    return rc ? 2 : 0;
 
   mustdeselect:
     best= depends->up->clientdata;
     debug(dbg_depcon,
           "packagelist[%p]::resolvedepcon([%p]): mustdeselect best=%s{%d}",
-          this, depends, pkg_describe(best->pkg, pdo_foreign), best->spriority);
+          this, depends, pkg_name(best->pkg, pnaw_always), best->spriority);
 
-    if (best->spriority >= sp_deselecting) return r;
+    if (best->spriority >= sp_deselecting)
+      return rc;
     /* Always remove depends, but never remove recommends. */
     if (depends->type != dep_recommends) {
       best->selected= best->suggested=
-        best->pkg->status == pkginfo::stat_notinstalled
-          ? pkginfo::want_purge : pkginfo::want_deinstall; // FIXME: configurable
+        best->pkg->status == PKG_STAT_NOTINSTALLED
+          ? PKG_WANT_PURGE : PKG_WANT_DEINSTALL; // FIXME: configurable
       best->spriority= sp_deselecting;
     }
-    return r ? 2 : 0;
+    return rc ? 2 : 0;
 
   case dep_conflicts:
   case dep_breaks:
@@ -339,30 +346,33 @@ int packagelist::resolvedepcon(dependency *depends) {
           "packagelist[%p]::resolvedepcon([%p]): conflict installing 1",
           this, depends);
 
-    if (!deppossatisfied(depends->list,0)) return 0;
+    if (!deppossatisfied(depends->list, nullptr))
+      return 0;
 
     debug(dbg_depcon,
           "packagelist[%p]::resolvedepcon([%p]): conflict satisfied - ouch",
           this, depends);
 
     if (depends->up->set != depends->list->ed) {
-      r = deselect_one_of(depends->up, &depends->list->ed->pkg, depends);
-      if (r)
-        return r;
+      rc = deselect_one_of(depends->up, &depends->list->ed->pkg, depends);
+      if (rc)
+        return rc;
     }
     for (provider = depends->list->ed->depended.available;
          provider;
          provider = provider->rev_next) {
       if (provider->up->type != dep_provides) continue;
       if (provider->up->up == depends->up) continue; // conflicts & provides same thing
-      r= deselect_one_of(depends->up, provider->up->up, depends);  if (r) return r;
+      rc = deselect_one_of(depends->up, provider->up->up, depends);
+      if (rc)
+        return rc;
     }
     debug(dbg_depcon, "packagelist[%p]::resolvedepcon([%p]): no desel",
           this, depends);
     return 0;
 
   default:
-    internerr("unknown deptype");
+    internerr("unknown deptype %d", depends->type);
   }
   /* never reached, make gcc happy */
   return 1;
@@ -371,10 +381,10 @@ int packagelist::resolvedepcon(dependency *depends) {
 bool
 packagelist::deppossatisfied(deppossi *possi, perpackagestate **fixbyupgrade)
 {
-  // `satisfied' here for Conflicts and Breaks means that the
+  // ‘satisfied’ here for Conflicts and Breaks means that the
   //  restriction is violated ie that the target package is wanted
   int would;
-  pkginfo::pkgwant want= pkginfo::want_purge;
+  pkgwant want = PKG_WANT_PURGE;
 
   if (possi->ed->pkg.clientdata) {
     want = possi->ed->pkg.clientdata->selected;
@@ -391,21 +401,20 @@ packagelist::deppossatisfied(deppossi *possi, perpackagestate **fixbyupgrade)
     // been specified, in which case we don't need to look at the rest
     // anyway.
     if (useavailable(&possi->ed->pkg)) {
-      assert(want == pkginfo::want_install);
+      assert(want == PKG_WANT_INSTALL);
       return versionsatisfied(&possi->ed->pkg.available, possi);
     } else {
       if (versionsatisfied(&possi->ed->pkg.installed, possi))
         return true;
-      if (want == pkginfo::want_hold && fixbyupgrade && !*fixbyupgrade &&
+      if (want == PKG_WANT_HOLD && fixbyupgrade && !*fixbyupgrade &&
           versionsatisfied(&possi->ed->pkg.available, possi) &&
-          versioncompare(&possi->ed->pkg.available.version,
-                         &possi->ed->pkg.installed.version) > 1)
+          dpkg_version_compare(&possi->ed->pkg.available.version,
+                               &possi->ed->pkg.installed.version) > 1)
         *fixbyupgrade = possi->ed->pkg.clientdata;
       return false;
     }
   }
-  if (possi->verrel != dvr_none)
-    return false;
+
   deppossi *provider;
 
   for (provider = possi->ed->depended.installed;
@@ -417,7 +426,8 @@ packagelist::deppossatisfied(deppossi *possi, perpackagestate **fixbyupgrade)
         provider->up->up->clientdata &&
         !useavailable(provider->up->up) &&
         would_like_to_install(provider->up->up->clientdata->selected,
-                              provider->up->up))
+                              provider->up->up) &&
+        pkg_virtual_deppossi_satisfied(possi, provider))
       return true;
   }
   for (provider = possi->ed->depended.available;
@@ -428,16 +438,17 @@ packagelist::deppossatisfied(deppossi *possi, perpackagestate **fixbyupgrade)
          provider->up->up->set == possi->up->up->set) ||
         !provider->up->up->clientdata ||
         !would_like_to_install(provider->up->up->clientdata->selected,
-                               provider->up->up))
+                               provider->up->up) ||
+        !pkg_virtual_deppossi_satisfied(possi, provider))
       continue;
     if (useavailable(provider->up->up))
       return true;
     if (fixbyupgrade && !*fixbyupgrade &&
-        (!(provider->up->up->status == pkginfo::stat_installed ||
-           provider->up->up->status == pkginfo::stat_triggerspending ||
-           provider->up->up->status == pkginfo::stat_triggersawaited) ||
-         versioncompare(&provider->up->up->available.version,
-                        &provider->up->up->installed.version) > 1))
+        (!(provider->up->up->status == PKG_STAT_INSTALLED ||
+           provider->up->up->status == PKG_STAT_TRIGGERSPENDING ||
+           provider->up->up->status == PKG_STAT_TRIGGERSAWAITED) ||
+         dpkg_version_compare(&provider->up->up->available.version,
+                              &provider->up->up->installed.version) > 1))
       *fixbyupgrade = provider->up->up->clientdata;
   }
   return false;

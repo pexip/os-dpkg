@@ -1,9 +1,26 @@
+.\" dpkg manual page - deb-split(5)
+.\"
+.\" Copyright Â© 2009-2012 Guillem Jover <guillem@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH deb\-split 5 2011\-07\-04 Debianprojektet Debian
+.TH deb\-split 5 2012\-04\-09 Debianprojektet Debian
 .SH NAMN
 deb\-split \- Debians flerdelade binära paketformat
 .SH SYNOPS
@@ -36,10 +53,11 @@ Nummer på aktuell del, följt av ett snedstreck och totalt antal delar (som i
 .IP \(bu
 Paketets arkitektur (sedan dpkg 1.16.1).
 .PP
-Filer som läser flerdelade arkiv bör vara beredda på att ytterligare rader
-är närvarande, och bör ignorera dessa om så är fallet.
+Filer som läser flerdelade arkiv bör vara beredda på att underversionsnumret
+kan ökas och att ytterligare rader kan vara närvarande, och bör ignorera
+dessa om så är fallet.
 .PP
-Om versionsnumret har ändrats har en inkompatibel ändring införts, och
+Om huvudversionsnumret har ändrats har en inkompatibel ändring införts, och
 programmet skall avbrytas. Om så inte har gjorts, skall programmet kunna
 fortsätta utan problem, såvida det inte stöter på en oväntad post i arkivet
 (förutom i slutet), enligt vad beskrivs nedan.
@@ -53,5 +71,5 @@ poster kan komma att definieras i framtiden, och kommer (om möjligt)
 placeras efter dessa två.
 .SH "SE ÄVEN"
 \fBdeb\fP(5), \fBdpkg\-split\fP(1).
-.SH "ÖVERSÄTTNING"
+.SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

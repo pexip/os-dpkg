@@ -1,4 +1,21 @@
-.\" Authors: Ian Jackson
+.\" dpkg manual page - dpkg-split(1)
+.\"
+.\" Copyright Â© 1995-1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
+.\" Copyright Â© 2011 Guillem Jover <guillem@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
@@ -96,7 +113,7 @@ Kastar bort delar från kön över de som väntar på återstående delar av paket.
 Om inget \fIpaket\fP anges töms kön helt; om paket anges kastas bara delar för
 de(t) paket som anges.
 .TP 
-\fB\-h\fP, \fB\-\-help\fP
+\fB\-?\fP, \fB\-\-help\fP
 Visar hjälpskärm och avslutar.
 .TP 
 \fB\-\-version\fP
@@ -150,13 +167,6 @@ ett binärpaket.
 Något har gått fel, till exempel ett systemanrop, att en fil såg ut som en
 paketdel men var trasig, ett användningsfel, eller något annat problem.
 .
-.SH PROGRAMFEL
-Kompletta detaljer för paket i kön kan inte fås utan att själv gräva i
-kö\-katalogen.
-
-Det finns inget lätt sätta att testa om en fil som kan vara en del av ett
-binärpaket faktiskt är det.
-.
 .SH FILER
 .TP 
 \fB/var/lib/dpkg/parts\fP
@@ -166,13 +176,14 @@ Filnamnen som används i katalogen är i ett internt format för \fBdpkg\-split\fP
 och är knappast användbara för andra program, och hur som helst kan inte
 formatet på filnamnen litas på.
 .
+.SH PROGRAMFEL
+Kompletta detaljer för paket i kön kan inte fås utan att själv gräva i
+kö\-katalogen.
+
+Det finns inget lätt sätta att testa om en fil som kan vara en del av ett
+binärpaket faktiskt är det.
+.
 .SH "SE ÄVEN"
 \fBdeb\fP(5), \fBdeb\-control\fP(5), \fBdpkg\-deb\fP(1), \fBdpkg\fP(1).
-.
-.SH FÖRFATTARE
-Upphovsrättsskyddat © 1995\-1996 Ian Jackson
-.sp
-Detta är fri programvara; se GNU General Public License version 2 eller
-senare för kopieringsvillkor. Det finns INGEN GARANTI.
-.SH "ÖVERSÄTTNING"
+.SH ÖVERSÄTTNING
 Peter Krefting och Daniel Nylander.

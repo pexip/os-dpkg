@@ -3,7 +3,11 @@
 # CFLAGS: flags for the C compiler
 # CPPFLAGS: flags for the C preprocessor
 # CXXFLAGS: flags for the C++ compiler
-# FFLAGS: flags for the Fortran compiler
+# OBJCFLAGS: flags for the Objective C compiler
+# OBJCXXFLAGS: flags for the Objective C++ compiler
+# GCJFLAGS: flags for the GNU Java compiler
+# FFLAGS: flags for the Fortran 77 compiler
+# FCFLAGS: flags for the Fortran 9x compiler
 # LDFLAGS: flags for the linker
 #
 # You can also export them in the environment by setting
@@ -14,7 +18,8 @@
 
 dpkg_late_eval ?= $(or $(value DPKG_CACHE_$(1)),$(eval DPKG_CACHE_$(1) := $(shell $(2)))$(value DPKG_CACHE_$(1)))
 
-DPKG_BUILDFLAGS_LIST = CFLAGS CPPFLAGS CXXFLAGS FFLAGS LDFLAGS
+DPKG_BUILDFLAGS_LIST = CFLAGS CPPFLAGS CXXFLAGS OBJCFLAGS OBJCXXFLAGS \
+                       GCJFLAGS FFLAGS FCFLAGS LDFLAGS
 
 define dpkg_buildflags_export_envvar
 ifdef $(1)
@@ -22,6 +27,7 @@ DPKG_BUILDFLAGS_EXPORT_ENVVAR += $(1)="$(value $(1))"
 endif
 endef
 
+$(eval $(call dpkg_buildflags_export_envvar,DEB_BUILD_OPTIONS))
 $(eval $(call dpkg_buildflags_export_envvar,DEB_BUILD_MAINT_OPTIONS))
 $(foreach flag,$(DPKG_BUILDFLAGS_LIST),\
   $(foreach operation,SET STRIP APPEND PREPEND,\

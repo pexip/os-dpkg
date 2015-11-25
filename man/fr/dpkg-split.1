@@ -1,4 +1,21 @@
-.\" Authors: Ian Jackson
+.\" dpkg manual page - dpkg-split(1)
+.\"
+.\" Copyright Â© 1995-1996 Ian Jackson <ian@chiark.chu.cam.ac.uk>
+.\" Copyright Â© 2011 Guillem Jover <guillem@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
+.
 .\"*******************************************************************
 .\"
 .\" This file was generated with po4a. Translate the source file.
@@ -9,7 +26,7 @@
 dpkg\-split \- outil de décomposition/recomposition des paquets Debian
 .
 .SH SYNOPSIS
-\fBdpkg\-split\fP [\fIoption\fP...] \fIcommand\fP
+\fBdpkg\-split\fP [\fIoption\fP...] \fIcommande\fP
 .
 .SH DESCRIPTION
 \fBdpkg\-split\fP décompose les fichiers d'un paquet binaire Debian en parties
@@ -58,8 +75,8 @@ signifie en fait qu'elles doivent avoir été créées par le même appel à
 Les parties des noms ne sont pas significatives pour le processus de
 recomposition.
 
-By default the output file is called
-\fIpackage\fP\fB_\fP\fIversion\fP\fB_\fP\fIarch\fP\fB.deb\fP.
+Par défaut, le fichier produit
+s'appelle\ \fIpaquet\fP\fB_\fP\fIversion\fP\fB_\fP\fIarch\fP\fB.deb\fP.
 
 .TP 
 \fB\-I\fP, \fB\-\-info\fP \fIpartie\fP...
@@ -74,17 +91,17 @@ paquet.
 La \fIpartie\fP déclarée est examinée et comparée avec les autres parties du
 même paquet qui se trouvent (si elles existent) dans la file.
 
-Quand toutes les parties d'un fichier (auquel appartient la partie \fIpart\fP)
-sont présentes, le fichier est recomposé et créé en tant que
+Quand toutes les parties d'un fichier (auquel appartient la partie
+\fIpartie\fP) sont présentes, le fichier est recomposé et créé en tant que
 \fIfichier\-complet\fP (ce fichier ne devrait pas déjà exister, mais ce n'est
 pas une erreur).
 
-Quand ce n'est pas le cas, la partie \fIpart\fP est mise dans la file et le
+Quand ce n'est pas le cas, la partie \fIpartie\fP est mise dans la file et le
 fichier \fIfichier\-complet\fP n'est pas créé.
 
-If \fIpart\fP is not a split binary package part then \fBdpkg\-split\fP will exit
-with status \fB1\fP; if some other trouble occurs then it will exit with status
-\fB2\fP.
+Quand la \fIpartie\fP n'appartient pas à un paquet binaire décomposé,
+\fBdpkg\-split\fP se termine avec un code de sortie égal à \fB1\fP\ ; s'il y a une
+autre erreur, c'est un code de sortie égal à \fB2\fP.
 
 L'option \fB\-\-output\fP ou \fB\-o\fP doit être fournie avec l'action \fB\-\-auto\fP. Si
 cela n'était pas obligatoire, le programme appelant ne saurait pas quel
@@ -104,7 +121,7 @@ en attente des autres parties composant le paquet.
 Quand aucun \fIpaquet\fP n'est donné, la file est vidée\ ; si un paquet est
 donné, seules les parties de ce paquet sont détruites.
 .TP 
-\fB\-h\fP, \fB\-\-help\fP
+\fB\-?\fP, \fB\-\-help\fP
 Affiche un message d'aide puis quitte.
 .TP 
 \fB\-\-version\fP
@@ -144,30 +161,24 @@ soit celui donné comme argument\ : les caractères alphanumériques sont en
 minuscules, les signes plus sont remplacés par des \fBx\fP et tous les autres
 caractères sont abandonnés.
 
-le résultat est alors tronqué autant que nécessaire et des fichiers de la
+Le résultat est alors tronqué autant que nécessaire et des fichiers de la
 forme\ : \fIprefixN\fP\fBof\fP\fIM\fP\fB.deb\fP sont créés.
 .
 .SH "CODE DE SORTIE"
 .TP 
 \fB0\fP
-The requested split, merge, or other command succeeded.  \fB\-\-info\fP commands
-count as successful even if the files are not binary package parts.
+La recomposition ou bien toute autre commande a réussi. Les commandes
+\fB\-\-info\fP réussissent toujours même si les fichiers ne sont pas des parties
+d'un paquet binaire.
 .TP 
 \fB1\fP
-Only occurs with \fB\-\-auto\fP and indicates that the \fIpart\fP file was not a
-binary package part.
+Ne peut apparaître qu'avec l'action \fB\-\-auto\fP et signale que le fichier
+\fIpartie\fP n'est pas une partie d'un paquet binaire.
 .TP 
 \fB2\fP
-Some kind of trouble happened, such as a system call failure, a file that
-looked like a package part file but was corrupted, a usage error or some
-other problem.
-.
-.SH BOGUES
-On ne peut pas obtenir tous les détails voulus sur les paquets présents dans
-la file à moins d'aller voir soi\-même dans le répertoire de la file.
-
-On ne peut pas facilement savoir si un fichier est vraiment la partie d'un
-paquet binaire ou non.
+Signale des problèmes, comme l'échec d'un appel système, ou un fichier qui,
+bien que ressemblant à une partie de fichier, est défectueux, ou bien une
+erreur d'utilisation, etc.
 .
 .SH FICHIERS
 .TP 
@@ -180,14 +191,15 @@ particulier à \fBdpkg\-split\fP et ne sont sans doute pas utiles pour d'autres
 programmes\ ; en tous cas on ne peut pas compter sur ce format de nom de
 fichier.
 .
+.SH BOGUES
+On ne peut pas obtenir tous les détails voulus sur les paquets présents dans
+la file à moins d'aller voir soi\-même dans le répertoire de la file.
+
+On ne peut pas facilement savoir si un fichier est vraiment la partie d'un
+paquet binaire ou non.
+.
 .SH "VOIR AUSSI"
 \fBdeb\fP(5), \fBdeb\-control\fP(5), \fBdpkg\-deb\fP(1), \fBdpkg\fP(1).
-.
-.SH AUTEUR
-Copyright \(co 1995\-1996 Ian Jackson
-.sp
-Ce programme est un logiciel libre\ ; voyez la «\ GNU General Public Licence\ »
-version 2 ou supérieure pour le copyright. Il n'y a PAS de garantie.
 .SH TRADUCTION
 Ariel VARDI <ariel.vardi@freesbee.fr>, 2002.
 Philippe Batailler, 2006.

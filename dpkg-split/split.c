@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -41,6 +41,7 @@
 #include <dpkg/dpkg.h>
 #include <dpkg/dpkg-db.h>
 #include <dpkg/path.h>
+#include <dpkg/string.h>
 #include <dpkg/subproc.h>
 #include <dpkg/buffer.h>
 #include <dpkg/ar.h>
@@ -51,6 +52,7 @@
 static char *
 deb_field(const char *filename, const char *field)
 {
+	struct dpkg_error err;
 	pid_t pid;
 	int p[2];
 	struct varbuf buf = VARBUF_INIT;
@@ -73,12 +75,14 @@ deb_field(const char *filename, const char *field)
 
 	/* Parant reads from pipe. */
 	varbuf_reset(&buf);
-	fd_vbuf_copy(p[0], &buf, -1, _("package field value extraction"));
+	if (fd_vbuf_copy(p[0], &buf, -1, &err) < 0)
+		ohshit(_("cannot extract package field value from '%s': %s"),
+		       filename, err.str);
 	varbuf_end_str(&buf);
 
 	close(p[0]);
 
-	subproc_wait_check(pid, _("package field value extraction"), PROCPIPE);
+	subproc_reap(pid, _("package field value extraction"), SUBPROC_NOPIPE);
 
 	/* Trim down trailing junk. */
 	for (end = buf.buf + strlen(buf.buf) - 1; end - buf.buf >= 1; end--)
@@ -114,6 +118,7 @@ static int
 mksplit(const char *file_src, const char *prefix, off_t maxpartsize,
         bool msdos)
 {
+	struct dpkg_error err;
 	int fd_src;
 	struct stat st;
 	char hash[MD5HASHLEN + 1];
@@ -134,7 +139,9 @@ mksplit(const char *file_src, const char *prefix, off_t maxpartsize,
 	if (!S_ISREG(st.st_mode))
 		ohshit(_("source file `%.250s' not a plain file"), file_src);
 
-	fd_md5(fd_src, hash, -1, "md5hash");
+	if (fd_md5(fd_src, hash, -1, &err) < 0)
+		ohshit(_("cannot compute MD5 hash for file '%s': %s"),
+		       file_src, err.str);
 	lseek(fd_src, 0, SEEK_SET);
 
 	/* FIXME: Use libdpkg-deb. */
@@ -147,8 +154,6 @@ mksplit(const char *file_src, const char *prefix, off_t maxpartsize,
 	if (last_partsize == 0)
 		last_partsize = partsize;
 	nparts = (st.st_size + partsize - 1) / partsize;
-
-	setvbuf(stdout, NULL, _IONBF, 0);
 
 	printf(P_("Splitting package %s into %d part: ",
 	          "Splitting package %s into %d parts: ", nparts),
@@ -190,10 +195,10 @@ mksplit(const char *file_src, const char *prefix, off_t maxpartsize,
 			cur_partsize = partsize;
 
 		if (cur_partsize > maxpartsize) {
-			ohshit(_("Header is too long, making part too long. "
-			       "Your package name or version\n"
-			       "numbers must be extraordinarily long, "
-			       "or something. Giving up.\n"));
+			ohshit(_("header is too long, making part too long; "
+			         "the package name or version\n"
+			         "numbers must be extraordinarily long, "
+			         "or something; giving up"));
 		}
 
 		/* Split the data. */
@@ -229,6 +234,10 @@ mksplit(const char *file_src, const char *prefix, off_t maxpartsize,
 	varbuf_destroy(&partname);
 	varbuf_destroy(&partmagic);
 
+	free(package);
+	free(version);
+	free(arch);
+
 	free(prefixdir);
 	free(msdos_prefix);
 
@@ -251,17 +260,12 @@ do_split(const char *const *argv)
 	if (prefix && *argv)
 		badusage(_("--split takes at most a source filename and destination prefix"));
 	if (!prefix) {
-		char *palloc;
-		int l;
+		size_t sourcefile_len = strlen(sourcefile);
 
-		l = strlen(sourcefile);
-		palloc = nfmalloc(l + 1);
-		strcpy(palloc, sourcefile);
-		if (!strcmp(palloc + l - (sizeof(DEBEXT) - 1), DEBEXT)) {
-			l -= (sizeof(DEBEXT) - 1);
-			palloc[l] = '\0';
-		}
-		prefix = palloc;
+		if (str_match_end(sourcefile, DEBEXT))
+			sourcefile_len -= strlen(DEBEXT);
+
+		prefix = nfstrnsave(sourcefile, sourcefile_len);
 	}
 
 	mksplit(sourcefile, prefix, opt_maxpartsize, opt_msdos);

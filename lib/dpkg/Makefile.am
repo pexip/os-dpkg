@@ -8,31 +8,50 @@ AM_CPPFLAGS = \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DCONFIGDIR=\"$(pkgconfdir)\" \
 	-DADMINDIR=\"$(admindir)\" \
+	-DDEFAULT_TEXT_DOMAIN=\"@PACKAGE@\" \
 	-idirafter $(top_srcdir)/lib/compat \
 	-I$(top_builddir) \
 	-I$(top_srcdir)/lib
 
 
 EXTRA_DIST = \
-	libdpkg.Versions \
+	libdpkg.map \
 	libdpkg.pc.in
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libdpkg.pc
 
-lib_LIBRARIES = libdpkg.a
+lib_LTLIBRARIES = libdpkg.la
 
-libdpkg_a_SOURCES = \
+if HAVE_LINKER_VERSION_SCRIPT
+libdpkg_la_LDFLAGS = \
+	-Wl,--version-script=$(srcdir)/libdpkg.map
+endif
+libdpkg_la_LIBADD = \
+	../compat/libcompat.la
+if BUILD_SHARED
+libdpkg_la_LIBADD += \
+	$(LIBINTL) \
+	$(ZLIB_LIBS) \
+	$(LIBLZMA_LIBS) \
+	$(BZ2_LIBS)
+endif
+libdpkg_la_DEPENDENCIES = \
+	libdpkg.map
+libdpkg_la_SOURCES = \
 	dlist.h \
 	ar.c \
 	arch.c \
+	atomic-file.c \
 	buffer.c \
 	cleanup.c \
 	command.c \
 	compress.c \
 	dbdir.c \
 	dbmodify.c \
+	deb-version.c \
 	debug.c \
+	depcon.c \
 	dir.c \
 	dump.c \
 	ehandle.c \
@@ -41,13 +60,13 @@ libdpkg_a_SOURCES = \
 	file.c \
 	fields.c \
 	glob.c \
-	i18n.h \
+	i18n.c i18n.h \
 	log.c \
-	md5.c md5.h \
 	mlib.c \
 	namevalue.c \
 	nfmalloc.c \
 	options.c \
+	options-parsers.c \
 	parse.c \
 	parsehelp.c \
 	path.c \
@@ -56,12 +75,17 @@ libdpkg_a_SOURCES = \
 	pkg-array.c \
 	pkg-format.c \
 	pkg-list.c \
+	pkg-namevalue.c \
 	pkg-queue.c \
 	pkg-show.c \
 	pkg-spec.c \
 	progname.c \
+	program.c \
 	progress.c \
+	report.c \
 	string.c \
+	strhash.c \
+	strwide.c \
 	subproc.c \
 	tarfn.c \
 	test.h \
@@ -71,15 +95,16 @@ libdpkg_a_SOURCES = \
 	trigdeferred.l \
 	utils.c \
 	varbuf.c \
-	vercmp.c \
 	version.c
 
 pkginclude_HEADERS = \
 	ar.h \
 	arch.h \
+	atomic-file.h \
 	buffer.h \
 	command.h \
 	compress.h \
+	deb-version.h \
 	debug.h \
 	dir.h \
 	dpkg.h \
@@ -102,7 +127,9 @@ pkginclude_HEADERS = \
 	pkg-show.h \
 	pkg-spec.h \
 	progname.h \
+	program.h \
 	progress.h \
+	report.h \
 	string.h \
 	subproc.h \
 	tarfn.h \
