@@ -126,7 +126,7 @@ extracthalf(const char *debar, const char *dir, const char *taroption,
   if (fstat(arfd, &stab))
     ohshite(_("failed to fstat archive"));
 
-  r = read_line(arfd, versionbuf, strlen(DPKG_AR_MAGIC), sizeof(versionbuf));
+  r = read_line(arfd, versionbuf, strlen(DPKG_AR_MAGIC), sizeof(versionbuf) - 1);
   if (r < 0)
     read_fail(r, debar, _("archive magic version number"));
 
@@ -227,7 +227,7 @@ extracthalf(const char *debar, const char *dir, const char *taroption,
     if (l && versionbuf[l - 1] == '\n')
       versionbuf[l - 1] = '\0';
 
-    r = read_line(arfd, ctrllenbuf, 1, sizeof(ctrllenbuf));
+    r = read_line(arfd, ctrllenbuf, 1, sizeof(ctrllenbuf) - 1);
     if (r < 0)
       read_fail(r, debar, _("archive control member size"));
     if (sscanf(ctrllenbuf, "%jd%c%d", &ctrllennum, &nlc, &dummy) != 2 ||

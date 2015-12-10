@@ -1,3 +1,22 @@
+dpkg (1.16.1.2ubuntu7.7pexip1) pexip; urgency=low
+
+  * New upstream release
+
+ -- John-Mark Bell <jmb@pexip.com>  Thu, 10 Dec 2015 01:38:37 +0000
+
+dpkg (1.16.1.2ubuntu7.7) precise-security; urgency=medium
+
+  * SECURITY UPDATE: multiple security issues
+    - dpkg-deb/extract.c: Fix off-by-one write access on versionbuf
+      variable.
+    - dpkg-deb/extract.c: Fix off-by-one write access on ctrllenbuf
+      variable. (CVE-2015-0860)
+    - lib/dpkg/ar.c: Fix an off-by-one read access in ar member name
+      variable.
+    - Thanks to Guillem Jover and Hanno Böck for the patches!
+
+ -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Thu, 26 Nov 2015 07:40:52 -0500
+
 dpkg (1.16.1.2ubuntu7.6pexip1) pexip; urgency=low
 
   * New upstream release
