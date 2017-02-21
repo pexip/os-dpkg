@@ -1,9 +1,22 @@
-.\" This is an -*- nroff -*- source file.
-.\" dpkg-name and this manpage are Copyright © 1995,1996 by Erick Branderhorst.
+.\" dpkg manual page - dpkg-name(1)
 .\"
-.\" This is free software; see the GNU General Public Licence version 2
-.\" or later for copying conditions.  There is NO warranty.
-.TH dpkg\-name 1 "2011-08-14" "Debian Project" "dpkg utilities"
+.\" Copyright © 1995-1996 Erick Branderhorst
+.\" Copyright © 2007-2012 Guillem Jover <guillem@debian.org>
+.\"
+.\" This is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <https://www.gnu.org/licenses/>.
+.
+.TH dpkg\-name 1 "2012-04-15" "Debian Project" "dpkg utilities"
 .SH NAME
 dpkg\-name \- rename Debian packages to full package names
 .
@@ -52,15 +65,25 @@ so a lot of packages will find their way to the `no\-section' area. Use
 this option with care, it's messy.
 .TP
 .BR \-c ", " \-\-create\-dir
-This option can used together with the \-s option. If a target
+This option can used together with the \fB\-s\fP option. If a target
 directory isn't found it will be created automatically.
 .B Use this option with care.
 .TP
-.BR \-h ", " \-\-help
+.BR \-? ", " \-\-help
 Show the usage message and exit.
 .TP
 .BR \-v ", " \-\-version
 Show the version and exit.
+.
+.SH BUGS
+Some packages don't follow the name structure
+.IB package _ version _ architecture .deb\fR.\fP
+Packages renamed by \fBdpkg\-name\fP
+will follow this structure. Generally this will have no impact on how
+packages are installed by
+.BR dselect (1)/ dpkg (1),
+but other installation tools
+might depend on this naming structure.
 .
 .SH EXAMPLES
 .TP
@@ -71,8 +94,8 @@ part of `bar\-foo.deb').
 .TP
 .B find /root/debian/ \-name \(aq*.deb\(aq | xargs \-n 1 dpkg\-name \-a
 All files with the extension `deb' in the directory /root/debian and its
-subdirectory's will be renamed by dpkg\-name if required into names with no
-architecture information.
+subdirectory's will be renamed by \fBdpkg\-name\fP if required into names
+with no architecture information.
 .TP
 .B find \-name \(aq*.deb\(aq | xargs \-n 1 dpkg\-name \-a \-o \-s \-c
 .B Don't do this.
@@ -80,18 +103,8 @@ Your archive will be messed up completely because a lot of packages
 don't come with section information.
 .B Don't do this.
 .TP
-.B dpkg \-\-build debian\-tmp && dpkg\-name \-o \-s .. debian\-tmp.deb
+.B dpkg\-deb \-\-build debian\-tmp && dpkg\-name \-o \-s .. debian\-tmp.deb
 This can be used when building new packages.
-.
-.SH BUGS
-Some packages don't follow the name structure
-.IB package _ version _ architecture .deb\fR.\fP
-Packages renamed by dpkg\-name
-will follow this structure. Generally this will have no impact on how
-packages are installed by
-.BR dselect (1)/ dpkg (1),
-but other installation tools
-might depend on this naming structure.
 .
 .SH SEE ALSO
 .BR deb (5),
@@ -100,9 +113,3 @@ might depend on this naming structure.
 .BR dpkg\-deb (1),
 .BR find (1),
 .BR xargs (1).
-.
-.SH AUTHOR
-Copyright \(co 1995,1996 Erick Branderhorst
-.sp
-This is free software; see the GNU General Public Licence version 2 or
-later for copying conditions. There is NO WARRANTY.

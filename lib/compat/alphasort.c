@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -22,7 +22,8 @@
 #include <string.h>
 #include <dirent.h>
 
-#ifndef HAVE_ALPHASORT
+#include "compat.h"
+
 int
 alphasort(const void *a, const void *b)
 {
@@ -30,4 +31,3 @@ alphasort(const void *a, const void *b)
 	              (*(const struct dirent **)b)->d_name);
 
 }
-#endif

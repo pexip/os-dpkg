@@ -3,7 +3,7 @@
  *
  * Copyright © 1995 Ian Jackson
  * Copyright © 2000, 2001 Wichert Akkerman
- * Copyright © 2010 Guillem Jover <guillem@debian.org>
+ * Copyright © 2006-2014 Guillem Jover <guillem@debian.org>
  * Copyright © 2011 Linaro Limited
  * Copyright © 2011 Raphaël Hertzog <hertzog@debian.org>
  *
@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -47,7 +47,6 @@
 #include <dpkg/options.h>
 
 #include "filesdb.h"
-#include "infodb.h"
 
 
 static const char printforhelp[] = N_(
@@ -69,11 +68,6 @@ printversion(const struct cmdinfo *cip, const char *value)
 {
 	printf(_("Debian %s version %s.\n"), dpkg_get_progname(),
 	       DPKG_VERSION_ARCH);
-
-	printf(_(
-"Copyright (C) 1995 Ian Jackson.\n"
-"Copyright (C) 2000,2001 Wichert Akkerman.\n"
-"Copyright (C) 2010 Guillem Jover.\n"));
 
 	printf(_(
 "This is free software; see the GNU General Public License version 2 or\n"
@@ -127,9 +121,9 @@ usage(const struct cmdinfo *cip, const char *value)
 struct file {
 	const char *name;
 	enum {
-		file_stat_invalid,
-		file_stat_valid,
-		file_stat_nofile,
+		FILE_STAT_INVALID,
+		FILE_STAT_VALID,
+		FILE_STAT_NOFILE,
 	} stat_state;
 	struct stat stat;
 };
@@ -138,7 +132,7 @@ static void
 file_init(struct file *f, const char *filename)
 {
 	f->name = filename;
-	f->stat_state = file_stat_invalid;
+	f->stat_state = FILE_STAT_INVALID;
 }
 
 static void
@@ -146,7 +140,7 @@ file_stat(struct file *f)
 {
 	int ret;
 
-	if (f->stat_state != file_stat_invalid)
+	if (f->stat_state != FILE_STAT_INVALID)
 		return;
 
 	ret = lstat(f->name, &f->stat);
@@ -154,9 +148,9 @@ file_stat(struct file *f)
 		ohshite(_("cannot stat file '%s'"), f->name);
 
 	if (ret == 0)
-		f->stat_state = file_stat_valid;
+		f->stat_state = FILE_STAT_VALID;
 	else
-		f->stat_state = file_stat_nofile;
+		f->stat_state = FILE_STAT_NOFILE;
 }
 
 static void
@@ -183,7 +177,7 @@ check_rename(struct file *src, struct file *dst)
 
 	/* If the source file is not present and we are not going to do
 	 * the rename anyway there's no point in checking any further. */
-	if (src->stat_state == file_stat_nofile)
+	if (src->stat_state == FILE_STAT_NOFILE)
 		return false;
 
 	file_stat(dst);
@@ -200,8 +194,8 @@ check_rename(struct file *src, struct file *dst)
 	check_writable_dir(src);
 	check_writable_dir(dst);
 
-	if (src->stat_state == file_stat_valid &&
-	    dst->stat_state == file_stat_valid &&
+	if (src->stat_state == FILE_STAT_VALID &&
+	    dst->stat_state == FILE_STAT_VALID &&
 	    !(src->stat.st_dev == dst->stat.st_dev &&
 	      src->stat.st_ino == dst->stat.st_ino))
 		ohshit(_("rename involves overwriting `%s' with\n"
@@ -212,46 +206,50 @@ check_rename(struct file *src, struct file *dst)
 }
 
 static void
-file_copy(const char *src, const char *realdst)
+file_copy(const char *src, const char *dst)
 {
-	char *dst;
+	struct dpkg_error err;
+	char *tmp;
 	int srcfd, dstfd;
 
 	srcfd = open(src, O_RDONLY);
 	if (srcfd < 0)
 		ohshite(_("unable to open file '%s'"), src);
 
-	m_asprintf(&dst, "%s%s", realdst, ".dpkg-divert.tmp");
-	dstfd = creat(dst, 0600);
+	m_asprintf(&tmp, "%s%s", dst, ".dpkg-divert.tmp");
+	dstfd = creat(tmp, 0600);
 	if (dstfd < 0)
-		ohshite(_("unable to create file '%s'"), dst);
+		ohshite(_("unable to create file '%s'"), tmp);
 
-	/* FIXME: leaves a dangling destination file on error. */
+	push_cleanup(cu_filename, ~ehflag_normaltidy, NULL, 0, 1, tmp);
 
-	fd_fd_copy(srcfd, dstfd, -1, _("file copy"));
+	if (fd_fd_copy(srcfd, dstfd, -1, &err) < 0)
+		ohshit(_("cannot copy '%s' to '%s': %s"), src, tmp, err.str);
 
 	close(srcfd);
 
 	if (fsync(dstfd))
-		ohshite(_("unable to sync file '%s'"), dst);
+		ohshite(_("unable to sync file '%s'"), tmp);
 	if (close(dstfd))
-		ohshite(_("unable to close file '%s'"), dst);
+		ohshite(_("unable to close file '%s'"), tmp);
 
-	file_copy_perms(src, dst);
+	file_copy_perms(src, tmp);
 
-	if (rename(dst, realdst) != 0)
-		ohshite(_("cannot rename '%s' to '%s'"), dst, realdst);
+	if (rename(tmp, dst) != 0)
+		ohshite(_("cannot rename '%s' to '%s'"), tmp, dst);
 
-	free(dst);
+	free(tmp);
+
+	pop_cleanup(ehflag_normaltidy);
 }
 
 static void
 file_rename(struct file *src, struct file *dst)
 {
-	if (src->stat_state == file_stat_nofile)
+	if (src->stat_state == FILE_STAT_NOFILE)
 		return;
 
-	if (dst->stat_state == file_stat_valid) {
+	if (dst->stat_state == FILE_STAT_VALID) {
 		if (unlink(src->name))
 			ohshite(_("rename: remove duplicate old link '%s'"),
 			        src->name);
@@ -266,6 +264,15 @@ file_rename(struct file *src, struct file *dst)
 			ohshite(_("unable to remove copied source file '%s'"),
 			        src->name);
 	}
+}
+
+static void
+diversion_check_filename(const char *filename)
+{
+	if (filename[0] != '/')
+		badusage(_("filename \"%s\" is not absolute"), filename);
+	if (strchr(filename, '\n') != NULL)
+		badusage(_("file may not contain newlines"));
 }
 
 static const char *
@@ -347,51 +354,61 @@ diversion_describe(struct diversion *d)
 static void
 divertdb_write(void)
 {
-	char *dbname, *dbname_new, *dbname_old;
-	FILE *dbfile;
+	char *dbname;
+	struct atomic_file *file;
 	struct fileiterator *iter;
 	struct filenamenode *namenode;
 
 	dbname = dpkg_db_get_path(DIVERSIONSFILE);
-	m_asprintf(&dbname_new, "%s%s", dbname, NEWDBEXT);
-	m_asprintf(&dbname_old, "%s%s", dbname, OLDDBEXT);
 
-	dbfile = fopen(dbname_new, "w");
-	if (!dbfile)
-		ohshite(_("cannot create new %s file"), DIVERSIONSFILE);
-	chmod(dbname_new, 0644);
+	file = atomic_file_new(dbname, ATOMIC_FILE_BACKUP);
+	atomic_file_open(file);
 
-	iter = iterfilestart();
-	while ((namenode = iterfilenext(iter))) {
+	iter = files_db_iter_new();
+	while ((namenode = files_db_iter_next(iter))) {
 		struct diversion *d = namenode->divert;
 
 		if (d == NULL || d->useinstead == NULL)
 			continue;
 
-		fprintf(dbfile, "%s\n%s\n%s\n",
+		fprintf(file->fp, "%s\n%s\n%s\n",
 		        d->useinstead->divert->camefrom->name,
 		        d->useinstead->name,
 		        diversion_pkg_name(d));
 	}
-	iterfileend(iter);
+	files_db_iter_free(iter);
 
-	if (fflush(dbfile))
-		ohshite(_("unable to flush file '%s'"), dbname_new);
-	if (fsync(fileno(dbfile)))
-		ohshite(_("unable to sync file '%s'"), dbname_new);
-	if (fclose(dbfile))
-		ohshite(_("unable to close file '%s'"), dbname_new);
-
-	if (unlink(dbname_old) && errno != ENOENT)
-		ohshite(_("error removing old diversions-old"));
-	if (link(dbname, dbname_old) && errno != ENOENT)
-		ohshite(_("error creating new diversions-old"));
-	if (rename(dbname_new, dbname))
-		ohshite(_("error installing new diversions"));
+	atomic_file_sync(file);
+	atomic_file_close(file);
+	atomic_file_commit(file);
+	atomic_file_free(file);
 
 	free(dbname);
-	free(dbname_new);
-	free(dbname_old);
+}
+
+static bool
+diversion_is_owned_by_self(struct pkgset *set, struct filenamenode *namenode)
+{
+	struct pkginfo *pkg;
+	struct filepackages_iterator *iter;
+	bool owned = false;
+
+	if (set == NULL)
+		return false;
+
+	for (pkg = &set->pkg; pkg; pkg = pkg->arch_next)
+		ensure_packagefiles_available(pkg);
+
+	iter = filepackages_iter_new(namenode);
+	while ((pkg = filepackages_iter_next(iter))) {
+		if (pkg->set == set) {
+			owned = true;
+			break;
+		}
+	}
+	filepackages_iter_free(iter);
+
+	return owned;
 }
 
 static int
@@ -409,17 +426,14 @@ diversion_add(const char *const *argv)
 	if (!filename || argv[1])
 		badusage(_("--%s needs a single argument"), cipaction->olong);
 
-	if (filename[0] != '/')
-		badusage(_("filename \"%s\" is not absolute"), filename);
-	if (strchr(filename, '\n') != NULL)
-		badusage(_("file may not contain newlines"));
+	diversion_check_filename(filename);
 
 	file_init(&file_from, filename);
 	file_stat(&file_from);
 
-	if (file_from.stat_state == file_stat_valid &&
+	if (file_from.stat_state == FILE_STAT_VALID &&
 	    S_ISDIR(file_from.stat.st_mode))
-		badusage(_("Cannot divert directories"));
+		badusage(_("cannot divert directories"));
 
 	fnn_from = findnamenode(filename, 0);
 
@@ -430,8 +444,6 @@ diversion_add(const char *const *argv)
 		m_asprintf(&str, "%s.distrib", filename);
 		opt_divertto = str;
 	}
-	if (opt_divertto[0] != '/')
-		badusage(_("filename \"%s\" is not absolute"), opt_divertto);
 
 	if (strcmp(filename, opt_divertto) == 0)
 		badusage(_("cannot divert file '%s' to itself"), filename);
@@ -485,6 +497,14 @@ diversion_add(const char *const *argv)
 		printf(_("Adding '%s'\n"), diversion_describe(contest));
 	if (opt_rename)
 		opt_rename = check_rename(&file_from, &file_to);
+	/* Check we are not renaming a file owned by the diverting pkgset. */
+	if (opt_rename && diversion_is_owned_by_self(pkgset, fnn_from)) {
+		if (opt_verbose > 0)
+			printf(_("Ignoring request to rename file '%s' "
+			         "owned by diverting package '%s'\n"),
+			       filename, pkgset->name);
+		opt_rename = false;
+	}
 	if (!opt_test) {
 		divertdb_write();
 		if (opt_rename)
@@ -492,6 +512,38 @@ diversion_add(const char *const *argv)
 	}
 
 	return 0;
+}
+
+static bool
+diversion_is_shared(struct pkgset *set, struct filenamenode *namenode)
+{
+	const char *archname;
+	struct pkginfo *pkg;
+	struct dpkg_arch *arch;
+	struct filepackages_iterator *iter;
+	bool shared = false;
+
+	if (set == NULL)
+		return false;
+
+	archname = getenv("DPKG_MAINTSCRIPT_ARCH");
+	arch = dpkg_arch_find(archname);
+	if (arch->type == DPKG_ARCH_NONE || arch->type == DPKG_ARCH_EMPTY)
+		return false;
+
+	for (pkg = &set->pkg; pkg; pkg = pkg->arch_next)
+		ensure_packagefiles_available(pkg);
+
+	iter = filepackages_iter_new(namenode);
+	while ((pkg = filepackages_iter_next(iter))) {
+		if (pkg->set == set && pkg->installed.arch != arch) {
+			shared = true;
+			break;
+		}
+	}
+	filepackages_iter_free(iter);
+
+	return shared;
 }
 
 static int
@@ -502,10 +554,11 @@ diversion_remove(const char *const *argv)
 	struct diversion *contest, *altname;
 	struct file file_from, file_to;
 	struct pkgset *pkgset;
-	const char *arch = getenv("DPKG_MAINTSCRIPT_ARCH");
 
 	if (!filename || argv[1])
 		badusage(_("--%s needs a single argument"), cipaction->olong);
+
+	diversion_check_filename(filename);
 
 	namenode = findnamenode(filename, fnn_nonew);
 
@@ -541,34 +594,12 @@ diversion_remove(const char *const *argv)
 		       diversion_describe(contest));
 
 	/* Ignore removal request if the diverted file is still owned
-	 * by another package in the same set */
-	if (pkgset && arch) {
-		struct pkginfo *pkg;
-		struct filepackages_iterator *iter;
-		bool ignore_remove = false;
-		struct dpkg_arch *darch = dpkg_arch_find(arch);
-
-		for (pkg = &pkgset->pkg; pkg; pkg = pkg->arch_next) {
-			ensure_packagefiles_available(pkg);
-		}
-
-		iter = filepackages_iter_new(namenode);
-		while ((pkg = filepackages_iter_next(iter))) {
-			if (pkg->set == pkgset && pkg->installed.arch != darch) {
-				ignore_remove = true;
-				break;
-			}
-		}
-		filepackages_iter_free(iter);
-
-		if (ignore_remove) {
-			if (opt_verbose > 0)
-				printf(_("Ignoring removal request of '%s' "
-				         "because diverted file is still "
-				         "owned by the package set.\n"),
-				       diversion_describe(contest));
-			exit(0);
-		}
+	 * by another package in the same set. */
+	if (diversion_is_shared(pkgset, namenode)) {
+		if (opt_verbose > 0)
+			printf(_("Ignoring request to remove shared diversion '%s'.\n"),
+			       diversion_describe(contest));
+		exit(0);
 	}
 
 	if (opt_verbose > 0)
@@ -606,22 +637,22 @@ diversion_list(const char *const *argv)
 	if (glob_list == NULL)
 		glob_list_prepend(&glob_list, m_strdup("*"));
 
-	iter = iterfilestart();
-	while ((namenode = iterfilenext(iter))) {
+	iter = files_db_iter_new();
+	while ((namenode = files_db_iter_next(iter))) {
 		struct glob_node *g;
 		struct diversion *contest = namenode->divert;
 		struct diversion *altname;
-		const char *pkg_name;
+		const char *pkgname;
 
 		if (contest->useinstead == NULL)
 			continue;
 
 		altname = contest->useinstead->divert;
 
-		pkg_name = diversion_pkg_name(contest);
+		pkgname = diversion_pkg_name(contest);
 
 		for (g = glob_list; g; g = g->next) {
-			if (fnmatch(g->pattern, pkg_name, 0) == 0 ||
+			if (fnmatch(g->pattern, pkgname, 0) == 0 ||
 			    fnmatch(g->pattern, contest->useinstead->name, 0) == 0 ||
 			    fnmatch(g->pattern, altname->camefrom->name, 0) == 0) {
 				printf("%s\n", diversion_describe(contest));
@@ -629,7 +660,7 @@ diversion_list(const char *const *argv)
 			}
 		}
 	}
-	iterfileend(iter);
+	files_db_iter_free(iter);
 
 	glob_list_free(glob_list);
 
@@ -644,6 +675,8 @@ diversion_truename(const char *const *argv)
 
 	if (!filename || argv[1])
 		badusage(_("--%s needs a single argument"), cipaction->olong);
+
+	diversion_check_filename(filename);
 
 	namenode = findnamenode(filename, fnn_nonew);
 
@@ -665,6 +698,8 @@ diversion_listpackage(const char *const *argv)
 	if (!filename || argv[1])
 		badusage(_("--%s needs a single argument"), cipaction->olong);
 
+	diversion_check_filename(filename);
+
 	namenode = findnamenode(filename, fnn_nonew);
 
 	/* Print nothing if file is not diverted. */
@@ -682,7 +717,7 @@ diversion_listpackage(const char *const *argv)
 }
 
 static void
-setpackage(const struct cmdinfo *cip, const char *value)
+set_package(const struct cmdinfo *cip, const char *value)
 {
 	opt_pkgname_match_any = false;
 
@@ -694,10 +729,12 @@ setpackage(const struct cmdinfo *cip, const char *value)
 }
 
 static void
-setdivertto(const struct cmdinfo *cip, const char *value)
+set_divertto(const struct cmdinfo *cip, const char *value)
 {
 	opt_divertto = value;
 
+	if (opt_divertto[0] != '/')
+		badusage(_("filename \"%s\" is not absolute"), opt_divertto);
 	if (strchr(opt_divertto, '\n') != NULL)
 		badusage(_("divert-to may not contain newlines"));
 }
@@ -713,13 +750,13 @@ static const struct cmdinfo cmdinfos[] = {
 	ACTION("truename",    0, 0, diversion_truename),
 
 	{ "admindir",   0,   1,  NULL,         &admindir, NULL          },
-	{ "divert",     0,   1,  NULL,         NULL,      setdivertto   },
-	{ "package",    0,   1,  NULL,         NULL,      setpackage    },
-	{ "local",      0,   0,  NULL,         NULL,      setpackage    },
+	{ "divert",     0,   1,  NULL,         NULL,      set_divertto  },
+	{ "package",    0,   1,  NULL,         NULL,      set_package   },
+	{ "local",      0,   0,  NULL,         NULL,      set_package   },
 	{ "quiet",      0,   0,  &opt_verbose, NULL,      NULL, 0       },
 	{ "rename",     0,   0,  &opt_rename,  NULL,      NULL, 1       },
 	{ "test",       0,   0,  &opt_test,    NULL,      NULL, 1       },
-	{ "help",       0,   0,  NULL,         NULL,      usage         },
+	{ "help",      '?',  0,  NULL,         NULL,      usage         },
 	{ "version",    0,   0,  NULL,         NULL,      printversion  },
 	{  NULL,        0                                               }
 };
@@ -729,37 +766,29 @@ main(int argc, const char * const *argv)
 {
 	const char *env_pkgname;
 	int ret;
-	enum modstatdb_rw msdb_status;
 
-	if (getenv("DPKG_UNTRANSLATED_MESSAGES") == NULL)
-		setlocale(LC_ALL, "");
-	bindtextdomain(PACKAGE, LOCALEDIR);
-	textdomain(PACKAGE);
-
-	dpkg_set_progname("dpkg-divert");
-	standard_startup();
-	myopt(&argv, cmdinfos, printforhelp);
+	dpkg_locales_init(PACKAGE);
+	dpkg_program_init("dpkg-divert");
+	dpkg_options_parse(&argv, cmdinfos, printforhelp);
 
 	admindir = dpkg_db_set_dir(admindir);
 
 	env_pkgname = getenv("DPKG_MAINTSCRIPT_PACKAGE");
 	if (opt_pkgname_match_any && env_pkgname)
-		setpackage(NULL, env_pkgname);
+		set_package(NULL, env_pkgname);
 
 	if (!cipaction)
 		setaction(&cmdinfo_add, NULL);
 
-	setvbuf(stdout, NULL, _IONBF, 0);
-
-	msdb_status = modstatdb_open(msdbrw_readonly);
-	pkg_infodb_init(msdb_status);
+	modstatdb_open(msdbrw_readonly);
 	filesdbinit();
 	ensure_diversions();
 
 	ret = cipaction->action(argv);
 
 	modstatdb_shutdown();
-	standard_shutdown();
+
+	dpkg_program_done();
 
 	return ret;
 }

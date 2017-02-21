@@ -3,7 +3,7 @@
  * tarfn.h - tar archive extraction functions
  *
  * Copyright © 1995 Bruce Perens
- * Copyright © 2009-2010 Guillem Jover <guillem@debian.org>
+ * Copyright © 2009-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef LIBDPKG_TARFN_H
@@ -24,41 +24,52 @@
 
 #include <sys/types.h>
 
-#include <unistd.h>
-#include <stdlib.h>
-
 #include <dpkg/file.h>
+
+/**
+ * @defgroup tar Tar archive handling
+ * @ingroup dpkg-public
+ * @{
+ */
 
 #define TARBLKSZ	512
 
 enum tar_format {
-	tar_format_old,
-	tar_format_gnu,
-	tar_format_ustar,
-	tar_format_pax,
+	TAR_FORMAT_OLD,
+	TAR_FORMAT_GNU,
+	TAR_FORMAT_USTAR,
+	TAR_FORMAT_PAX,
 };
 
 enum tar_filetype {
-	tar_filetype_file0 = '\0',	/* For compatibility with decades-old bug */
-	tar_filetype_file = '0',
-	tar_filetype_hardlink = '1',
-	tar_filetype_symlink = '2',
-	tar_filetype_chardev = '3',
-	tar_filetype_blockdev = '4',
-	tar_filetype_dir = '5',
-	tar_filetype_fifo = '6',
-	tar_filetype_gnu_longlink = 'K',
-	tar_filetype_gnu_longname = 'L',
+	/** For compatibility with decades-old bug. */
+	TAR_FILETYPE_FILE0 = '\0',
+	TAR_FILETYPE_FILE = '0',
+	TAR_FILETYPE_HARDLINK = '1',
+	TAR_FILETYPE_SYMLINK = '2',
+	TAR_FILETYPE_CHARDEV = '3',
+	TAR_FILETYPE_BLOCKDEV = '4',
+	TAR_FILETYPE_DIR = '5',
+	TAR_FILETYPE_FIFO = '6',
+	TAR_FILETYPE_GNU_LONGLINK = 'K',
+	TAR_FILETYPE_GNU_LONGNAME = 'L',
 };
 
 struct tar_entry {
-	enum tar_format format;	/* Tar archive format. */
-	enum tar_filetype type;	/* Regular, Directory, Special, Link */
-	char *name;		/* File name */
-	char *linkname;		/* Name for symbolic and hard links */
-	off_t size;		/* Size of file */
-	time_t mtime;		/* Last-modified time. */
-	dev_t dev;		/* Special device for mknod() */
+	/** Tar archive format. */
+	enum tar_format format;
+	/** File type. */
+	enum tar_filetype type;
+	/** File name. */
+	char *name;
+	/** Symlink or hardlink name. */
+	char *linkname;
+	/** File size. */
+	off_t size;
+	/** Last-modified time. */
+	time_t mtime;
+	/** Special device for mknod(). */
+	dev_t dev;
 
 	struct file_stat stat;
 };
@@ -76,6 +87,11 @@ struct tar_operations {
 	tar_make_func *mknod;
 };
 
+void
+tar_entry_update_from_system(struct tar_entry *te);
+
 int tar_extractor(void *ctx, const struct tar_operations *ops);
+
+/** @} */
 
 #endif

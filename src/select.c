@@ -3,6 +3,7 @@
  * select.c - by-hand (rather than dselect-based) package selection
  *
  * Copyright © 1995,1996 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 2006,2008-2014 Guillem Jover <guillem@debian.org>
  * Copyright © 2011 Linaro Limited
  * Copyright © 2011 Raphaël Hertzog <hertzog@debian.org>
  *
@@ -17,7 +18,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -33,6 +34,7 @@
 #include <dpkg/dpkg.h>
 #include <dpkg/dpkg-db.h>
 #include <dpkg/pkg-array.h>
+#include <dpkg/pkg-show.h>
 #include <dpkg/pkg-spec.h>
 #include <dpkg/options.h>
 
@@ -41,17 +43,18 @@
 #include "main.h"
 
 static void getsel1package(struct pkginfo *pkg) {
-  int l;
   const char *pkgname;
+  int l;
 
-  if (pkg->want == want_unknown) return;
-  pkgname = pkg_describe(pkg, pdo_foreign);
+  if (pkg->want == PKG_WANT_UNKNOWN)
+    return;
+  pkgname = pkg_name(pkg, pnaw_nonambig);
   l = strlen(pkgname);
   l >>= 3;
   l = 6 - l;
   if (l < 1)
     l = 1;
-  printf("%s%.*s%s\n", pkgname, l, "\t\t\t\t\t\t", wantinfos[pkg->want].name);
+  printf("%s%.*s%s\n", pkgname, l, "\t\t\t\t\t\t", pkg_want_name(pkg));
 }
 
 int
@@ -61,25 +64,27 @@ getselections(const char *const *argv)
   struct pkginfo *pkg;
   const char *thisarg;
   int i, found;
-  enum modstatdb_rw msdb_status;
-  struct pkg_spec pkgspec = PKG_SPEC_INIT(psf_def_native | psf_patterns);
 
-  msdb_status = modstatdb_open(msdbrw_readonly);
-  pkg_infodb_init(msdb_status);
+  modstatdb_open(msdbrw_readonly);
 
   pkg_array_init_from_db(&array);
-  pkg_array_sort(&array, pkg_sorter_by_name);
+  pkg_array_sort(&array, pkg_sorter_by_nonambig_name_arch);
 
   if (!*argv) {
     for (i = 0; i < array.n_pkgs; i++) {
       pkg = array.pkgs[i];
-      if (pkg->status == stat_notinstalled) continue;
+      if (pkg->status == PKG_STAT_NOTINSTALLED)
+        continue;
       getsel1package(pkg);
     }
   } else {
     while ((thisarg= *argv++)) {
+      struct pkg_spec pkgspec;
+
       found= 0;
+      pkg_spec_init(&pkgspec, PKG_SPEC_PATTERNS | PKG_SPEC_ARCH_WILDCARD);
       pkg_spec_parse(&pkgspec, thisarg);
+
       for (i = 0; i < array.n_pkgs; i++) {
         pkg = array.pkgs[i];
         if (!pkg_spec_match_pkg(&pkgspec, pkg, &pkg->installed))
@@ -87,9 +92,10 @@ getselections(const char *const *argv)
         getsel1package(pkg); found++;
       }
       if (!found)
-        fprintf(stderr,_("No packages found matching %s.\n"),thisarg);
+        notice(_("no packages found matching %s"), thisarg);
+
+      pkg_spec_destroy(&pkgspec);
     }
-    pkg_spec_reset(&pkgspec);
   }
 
   m_output(stdout, _("<standard output>"));
@@ -103,23 +109,30 @@ getselections(const char *const *argv)
 int
 setselections(const char *const *argv)
 {
+  enum modstatdb_rw msdbflags;
   const struct namevalue *nv;
   struct pkginfo *pkg;
-  const char *e;
   int c, lno;
   struct varbuf namevb = VARBUF_INIT;
   struct varbuf selvb = VARBUF_INIT;
-  enum modstatdb_rw msdb_status;
-  struct pkg_spec pkgspec = PKG_SPEC_INIT(psf_def_native | psf_no_check);
+  bool db_possibly_outdated = false;
 
   if (*argv)
     badusage(_("--%s takes no arguments"), cipaction->olong);
 
-  msdb_status = modstatdb_open(msdbrw_write | msdbrw_available_readonly);
-  pkg_infodb_init(msdb_status);
+  msdbflags = msdbrw_available_readonly;
+  if (f_noact)
+    msdbflags |= msdbrw_readonly;
+  else
+    msdbflags |= msdbrw_write;
+
+  modstatdb_open(msdbflags);
+  pkg_infodb_upgrade();
 
   lno= 1;
   for (;;) {
+    struct dpkg_error err;
+
     do { c= getchar(); if (c == '\n') lno++; } while (c != EOF && isspace(c));
     if (c == EOF) break;
     if (c == '#') {
@@ -154,23 +167,33 @@ setselections(const char *const *argv)
       if (!isspace(c))
         ohshit(_("unexpected data after package and selection at line %d"),lno);
     }
-    pkg_spec_parse(&pkgspec, namevb.buf);
-    e = pkg_spec_is_illegal(&pkgspec);
-    if (e) ohshit(_("illegal package name at line %d: %.250s"),lno,e);
+    pkg = pkg_spec_parse_pkg(namevb.buf, &err);
+    if (pkg == NULL)
+      ohshit(_("illegal package name at line %d: %.250s"), lno, err.str);
+
+    if (!pkg_is_informative(pkg, &pkg->installed) &&
+        !pkg_is_informative(pkg, &pkg->available)) {
+      db_possibly_outdated = true;
+      warning(_("package not in database at line %d: %.250s"), lno, namevb.buf);
+      continue;
+    }
 
     nv = namevalue_find_by_name(wantinfos, selvb.buf);
     if (nv == NULL)
       ohshit(_("unknown wanted status at line %d: %.250s"), lno, selvb.buf);
-    pkg = pkg_spec_find_pkg(&pkgspec, namevb.buf);
-    pkg->want = nv->value;
+
+    pkg_set_want(pkg, nv->value);
     if (c == EOF) break;
     lno++;
   }
   if (ferror(stdin)) ohshite(_("read error on standard input"));
-  pkg_spec_reset(&pkgspec);
   modstatdb_shutdown();
   varbuf_destroy(&namevb);
   varbuf_destroy(&selvb);
+
+  if (db_possibly_outdated)
+    warning(_("found unknown packages; this might mean the available database\n"
+              "is outdated, and needs to be updated through a frontend method"));
 
   return 0;
 }
@@ -178,20 +201,25 @@ setselections(const char *const *argv)
 int
 clearselections(const char *const *argv)
 {
+  enum modstatdb_rw msdbflags;
   struct pkgiterator *it;
   struct pkginfo *pkg;
-  enum modstatdb_rw msdb_status;
 
   if (*argv)
     badusage(_("--%s takes no arguments"), cipaction->olong);
 
-  msdb_status = modstatdb_open(msdbrw_write);
-  pkg_infodb_init(msdb_status);
+  if (f_noact)
+    msdbflags = msdbrw_readonly;
+  else
+    msdbflags = msdbrw_write;
+
+  modstatdb_open(msdbflags);
+  pkg_infodb_upgrade();
 
   it = pkg_db_iter_new();
   while ((pkg = pkg_db_iter_next_pkg(it))) {
     if (!pkg->installed.essential)
-      pkg->want = want_deinstall;
+      pkg_set_want(pkg, PKG_WANT_DEINSTALL);
   }
   pkg_db_iter_free(it);
 

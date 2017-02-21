@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef LIBDPKG_PROGNAME_H
@@ -25,8 +25,16 @@
 
 DPKG_BEGIN_DECLS
 
+/**
+ * @defgroup progname Program name handling
+ * @ingroup dpkg-public
+ * @{
+ */
+
 void dpkg_set_progname(const char *name);
 const char *dpkg_get_progname(void);
+
+/** @} */
 
 DPKG_END_DECLS
 

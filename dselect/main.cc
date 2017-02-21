@@ -2,8 +2,9 @@
  * dselect - Debian package maintenance user interface
  * main.cc - main program
  *
- * Copyright © 1994,1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1994-1996 Ian Jackson <ian@chiark.greenend.org.uk>
  * Copyright © 2000,2001 Wichert Akkerman <wakkerma@debian.org>
+ * Copyright © 2006-2012 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,14 +17,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 #include <compat.h>
 
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/wait.h>
 
 #include <assert.h>
@@ -39,6 +39,9 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+// Solaris requires curses.h to be included before term.h
+#include "dselect-curses.h"
 
 #if defined(HAVE_NCURSESW_TERM_H)
 #include <ncursesw/term.h>
@@ -59,8 +62,7 @@
 
 static const char printforhelp[] = N_("Type dselect --help for help.");
 
-modstatdb_rw readwrite;
-int expertmode= 0;
+bool expertmode = false;
 
 static const char *admindir = ADMINDIR;
 
@@ -80,7 +82,7 @@ static const struct table_t colourtable[]= {
   {"magenta",	COLOR_MAGENTA	},
   {"cyan",	COLOR_CYAN	},
   {"white",	COLOR_WHITE	},
-  {NULL, 0},
+  {nullptr, 0},
 };
 
 static const struct table_t attrtable[]= {
@@ -92,7 +94,7 @@ static const struct table_t attrtable[]= {
   {"bright",	A_BLINK		}, // on some terminals
   {"dim",	A_DIM		},
   {"bold",	A_BOLD		},
-  {NULL, 0},
+  {nullptr, 0},
 };
 
 /* A slightly confusing mapping from dselect's internal names to
@@ -110,7 +112,7 @@ static const struct table_t screenparttable[]= {
   {"infodesc",		info_head	},
   {"infofoot",		whatinfo	},
   {"helpscreen",	helpscreen	},
-  {NULL, 0},
+  {nullptr, 0},
 };
 
 /* Historical (patriotic?) colours. */
@@ -147,16 +149,12 @@ static const menuentry menuentries[]= {
   { "config",	N_("c"),	N_("[C]onfig"),	N_("Configure any packages that are unconfigured."),	&urq_config  },
   { "remove",	N_("r"),	N_("[R]emove"),	N_("Remove unwanted software."),			&urq_remove  },
   { "quit",	N_("q"),	N_("[Q]uit"),	N_("Quit dselect."),					&urq_quit    },
-  { 0,		0,  		N_("menu"),	0,							&urq_menu    },
-  { 0 }
+  { nullptr,	nullptr,	N_("menu"),	nullptr,						&urq_menu    },
+  { nullptr }
 };
 
 static const char programdesc[]=
       N_("Debian `%s' package handling frontend version %s.\n");
-
-static const char copyrightstring[]= N_(
-      "Copyright (C) 1994-1996 Ian Jackson.\n"
-      "Copyright (C) 2000,2001 Wichert Akkerman.\n");
 
 static const char licensestring[]= N_(
       "This is free software; see the GNU General Public License version 2 or\n"
@@ -166,8 +164,7 @@ static void DPKG_ATTR_NORET
 printversion(const struct cmdinfo *ci, const char *value)
 {
   printf(gettext(programdesc), DSELECT, DPKG_VERSION_ARCH);
-  printf("%s", gettext(copyrightstring));
-  printf(gettext(licensestring), DSELECT);
+  printf("%s", gettext(licensestring));
 
   m_output(stdout, _("<standard output>"));
 
@@ -188,7 +185,7 @@ usage(const struct cmdinfo *ci, const char *value)
 "  --admindir <directory>     Use <directory> instead of %s.\n"
 "  --expert                   Turn on expert mode.\n"
 "  --debug <file> | -D<file>  Turn on debugging, sending output to <file>.\n"
-"  --colour | --color screenpart:[foreground],[background][:attr[+attr+..]]\n"
+"  --colour | --color screenpart:[foreground],[background][:attr[+attr+...]]\n"
 "                             Configure screen colours.\n"
 "\n"), ADMINDIR);
 
@@ -197,10 +194,10 @@ usage(const struct cmdinfo *ci, const char *value)
 "  --version                  Show the version.\n"
 "\n"));
 
-  printf(_(
-"Actions:\n"
-"  access update select install config remove quit\n"
-"\n"));
+  printf(_("Actions:\n"));
+  for (i = 0; menuentries[i].command; i++)
+    printf("  %s", menuentries[i].command);
+  fputs("\n\n", stdout);
 
   printf(_("Screenparts:\n"));
   for (i=0; screenparttable[i].name; i++)
@@ -225,20 +222,23 @@ usage(const struct cmdinfo *ci, const char *value)
 /* These are called by C code, so need to have C calling convention */
 extern "C" {
 
-  static void setdebug(const struct cmdinfo*, const char *v) {
+  static void
+  set_debug(const struct cmdinfo*, const char *v)
+  {
     FILE *fp;
 
     fp = fopen(v, "a");
     if (!fp)
       ohshite(_("couldn't open debug file `%.255s'\n"), v);
-    setvbuf(fp, 0, _IONBF, 0);
 
-    debug_set_output(fp);
+    debug_set_output(fp, v);
     debug_set_mask(dbg_general | dbg_depcon);
   }
 
-  static void setexpert(const struct cmdinfo*, const char *v) {
-    expertmode= 1;
+  static void
+  set_expert(const struct cmdinfo*, const char *v)
+  {
+    expertmode = true;
   }
 
   static int
@@ -246,11 +246,11 @@ extern "C" {
   {
     int i;
 
-    for (i= 0;  item && (table[i].name!=NULL); i++)
+    for (i = 0; item && (table[i].name != nullptr); i++)
       if (strcasecmp(item, table[i].name) == 0)
         return table[i].num;
 
-    ohshit(_("Invalid %s `%s'\n"), tablename, item);
+    ohshit(_("invalid %s '%s'"), tablename, item);
   }
 
   /*
@@ -261,39 +261,41 @@ extern "C" {
    *            --color colheads:,green:bright
    *            --color selstate::reverse  // doesn't work FIXME
    */
-  static void setcolor(const struct cmdinfo*, const char *string) {
+  static void
+  set_color(const struct cmdinfo*, const char *string)
+  {
     char *s;
     char *colours, *attributes, *attrib, *colourname;
     int screenpart, aval;
 
     s = m_strdup(string); // strtok modifies strings, keep string const
     screenpart= findintable(screenparttable, strtok(s, ":"), _("screen part"));
-    colours= strtok(NULL, ":");
-    attributes= strtok(NULL, ":");
+    colours = strtok(nullptr, ":");
+    attributes = strtok(nullptr, ":");
 
-    if ((colours == NULL || ! strlen(colours)) &&
-        (attributes == NULL || ! strlen(attributes))) {
-       ohshit(_("Null colour specification\n"));
+    if ((colours == nullptr || ! strlen(colours)) &&
+        (attributes == nullptr || ! strlen(attributes))) {
+       ohshit(_("null colour specification"));
     }
 
-    if (colours != NULL && strlen(colours)) {
+    if (colours != nullptr && strlen(colours)) {
       colourname= strtok(colours, ",");
-      if (colourname != NULL && strlen(colourname)) {
+      if (colourname != nullptr && strlen(colourname)) {
         // normalize attributes to prevent confusion
         color[screenpart].attr= A_NORMAL;
        color[screenpart].fore=findintable(colourtable, colourname, _("colour"));
       }
-      colourname= strtok(NULL, ",");
-      if (colourname != NULL && strlen(colourname)) {
+      colourname = strtok(nullptr, ",");
+      if (colourname != nullptr && strlen(colourname)) {
         color[screenpart].attr= A_NORMAL;
         color[screenpart].back=findintable(colourtable, colourname, _("colour"));
       }
     }
 
-    if (attributes != NULL && strlen(attributes)) {
+    if (attributes != nullptr && strlen(attributes)) {
       for (attrib= strtok(attributes, "+");
-           attrib != NULL && strlen(attrib);
-          attrib= strtok(NULL, "+")) {
+           attrib != nullptr && strlen(attrib);
+           attrib = strtok(nullptr, "+")) {
                aval=findintable(attrtable, attrib, _("colour attribute"));
                if (aval == A_NORMAL) // set to normal
                        color[screenpart].attr= aval;
@@ -301,22 +303,24 @@ extern "C" {
                        color[screenpart].attr= color[screenpart].attr | aval;
       }
     }
+
+    free(s);
   }
 
 } /* End of extern "C" */
 
 static const struct cmdinfo cmdinfos[]= {
-  { "admindir",     0,   1,  0,  &admindir,  0               },
-  { "debug",       'D',  1,  0,  0,          setdebug        },
-  { "expert",      'E',  0,  0,  0,          setexpert       },
-  { "help",        'h',  0,  0,  0,          usage           },
-  { "version",      0,   0,  0,  0,          printversion    },
-  { "color",        0,   1,  0,  0,          setcolor        }, /* US spelling */
-  { "colour",       0,   1,  0,  0,          setcolor        }, /* UK spelling */
-  { 0,              0,   0,  0,  0,          0               }
+  { "admindir",     0,  1, nullptr,  &admindir, nullptr      },
+  { "debug",       'D', 1, nullptr,  nullptr,   set_debug    },
+  { "expert",      'E', 0, nullptr,  nullptr,   set_expert   },
+  { "help",        '?', 0, nullptr,  nullptr,   usage        },
+  { "version",      0,  0, nullptr,  nullptr,   printversion },
+  { "color",        0,  1, nullptr,  nullptr,   set_color    }, /* US spelling */
+  { "colour",       0,  1, nullptr,  nullptr,   set_color    }, /* UK spelling */
+  { nullptr,        0,  0, nullptr,  nullptr,   nullptr      }
 };
 
-static int cursesareon= 0;
+static bool cursesareon = false;
 void curseson() {
   if (!cursesareon) {
     const char *cup, *smso;
@@ -336,7 +340,7 @@ void curseson() {
       ohshit(_("terminal lacks necessary features, giving up"));
     }
   }
-  cursesareon= 1;
+  cursesareon = true;
 }
 
 void cursesoff() {
@@ -345,23 +349,27 @@ void cursesoff() {
     refresh();
     endwin();
   }
-  cursesareon=0;
+  cursesareon = false;
 }
 
-extern void *operator new(size_t size) {
+extern void *
+operator new(size_t size) DPKG_ATTR_THROW(std::bad_alloc)
+{
   void *p;
   p= m_malloc(size);
   assert(p);
   return p;
 }
 
-extern void operator delete(void *p) {
+extern void
+operator delete(void *p) DPKG_ATTR_NOEXCEPT
+{
   free(p);
 }
 
 urqresult urq_list(void) {
-  readwrite = modstatdb_open((modstatdb_rw)(msdbrw_writeifposs |
-                                            msdbrw_available_readonly));
+  modstatdb_open((modstatdb_rw)(msdbrw_writeifposs |
+                                msdbrw_available_readonly));
 
   curseson();
 
@@ -419,9 +427,9 @@ refreshmenu(void)
          "Press <enter> to confirm selection.   ^L redraws screen.\n\n"));
 
   attrset(A_NORMAL);
-  addstr(gettext(copyrightstring));
-  sprintf(buf, gettext(licensestring), DSELECT);
-  addstr(buf);
+  addstr(_("Copyright (C) 1994-1996 Ian Jackson.\n"
+           "Copyright (C) 2000,2001 Wichert Akkerman.\n"));
+  addstr(gettext(licensestring));
 
   modstatdb_init();
   if (!modstatdb_can_lock())
@@ -433,7 +441,6 @@ refreshmenu(void)
 }
 
 urqresult urq_menu(void) {
-#define C(x) ((x)-'a'+1)
   int entries, c;
   entries= refreshmenu();
   int cursor=0;
@@ -451,14 +458,17 @@ urqresult urq_menu(void) {
       }
     }
 
-    if (c==C('n') || c==KEY_DOWN || c==' ' || c=='j') {
+    if (c == CTRL('n') || c == KEY_DOWN || c == ' ' || c == 'j') {
       dme(cursor,0); cursor++; cursor %= entries; dme(cursor,1);
-    } else if (c==C('p') || c==KEY_UP || c==C('h') ||
+    } else if (c == CTRL('p') || c == KEY_UP || c == CTRL('h') ||
                c==KEY_BACKSPACE || c==KEY_DC || c=='k') {
       dme(cursor,0); cursor+= entries-1; cursor %= entries; dme(cursor,1);
     } else if (c=='\n' || c=='\r' || c==KEY_ENTER) {
       clear(); refresh();
-      switch (menuentries[cursor].fn()) { /* FIXME: trap errors in urq_... */
+
+      /* FIXME: trap errors in urq_... */
+      urqresult res = menuentries[cursor].fn();
+      switch (res) {
       case urqr_quitmenu:
         return urqr_quitmenu;
       case urqr_normal:
@@ -466,10 +476,10 @@ urqresult urq_menu(void) {
       case urqr_fail:
         break;
       default:
-        internerr("unknown menufn");
+        internerr("unknown menufn %d", res);
       }
       refreshmenu(); dme(cursor,1);
-    } else if (c==C('l')) {
+    } else if (c == CTRL('l')) {
       clearok(stdscr,TRUE); clear(); refreshmenu(); dme(cursor,1);
     } else if (isdigit(c)) {
       char buf[2]; buf[0]=c; buf[1]=0; c=atoi(buf);
@@ -509,22 +519,19 @@ dselect_catch_fatal_error()
 int
 main(int, const char *const *argv)
 {
-  setlocale(LC_ALL, "");
-  bindtextdomain(DSELECT, LOCALEDIR);
-  textdomain(DSELECT);
-
+  dpkg_locales_init(DSELECT);
   dpkg_set_progname(DSELECT);
 
-  push_error_context_func(dselect_catch_fatal_error, print_fatal_error, 0);
+  push_error_context_func(dselect_catch_fatal_error, print_fatal_error, nullptr);
 
-  loadcfgfile(DSELECT, cmdinfos);
-  myopt(&argv, cmdinfos, printforhelp);
+  dpkg_options_load(DSELECT, cmdinfos);
+  dpkg_options_parse(&argv, cmdinfos, printforhelp);
 
   admindir = dpkg_db_set_dir(admindir);
 
   if (*argv) {
     const char *a;
-    while ((a= *argv++) != 0) {
+    while ((a = *argv++) != nullptr) {
       const menuentry *me = menuentries;
       while (me->command && strcmp(me->command, a))
         me++;
@@ -536,6 +543,7 @@ main(int, const char *const *argv)
   }
 
   cursesoff();
-  standard_shutdown();
+  dpkg_program_done();
+
   return(0);
 }

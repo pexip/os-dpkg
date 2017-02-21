@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -51,10 +51,10 @@
 static const char *const methoddirectories[]= {
   LIBDIR "/" METHODSDIR,
   LOCALLIBDIR "/" METHODSDIR,
-  0
+  nullptr
 };
 
-static char *methodlockfile= 0;
+static char *methodlockfile = nullptr;
 static int methlockfd= -1;
 
 static void
@@ -79,7 +79,7 @@ static void cu_unlockmethod(int, void**) {
   assert(methlockfd);
   fl.l_type=F_UNLCK; fl.l_whence= SEEK_SET; fl.l_start=fl.l_len=0;
   if (fcntl(methlockfd,F_SETLK,&fl) == -1)
-    sthfailed("unable to unlock access method area");
+    sthfailed(_("cannot unlock access method area"));
 }
 
 static enum urqresult ensureoptions(void) {
@@ -88,12 +88,12 @@ static enum urqresult ensureoptions(void) {
   int nread;
 
   if (!options) {
-    newoptions= 0;
+    newoptions = nullptr;
     nread= 0;
     for (ccpp= methoddirectories; *ccpp; ccpp++)
       readmethods(*ccpp, &newoptions, &nread);
     if (!newoptions) {
-      sthfailed("no access methods are available");
+      sthfailed(_("no access methods are available"));
       return urqr_fail;
     }
     options= newoptions;
@@ -105,30 +105,30 @@ static enum urqresult ensureoptions(void) {
 static enum urqresult lockmethod(void) {
   struct flock fl;
 
-  if (methodlockfile == NULL)
+  if (methodlockfile == nullptr)
     methodlockfile = dpkg_db_get_path(METHLOCKFILE);
 
   if (methlockfd == -1) {
     methlockfd= open(methodlockfile, O_RDWR|O_CREAT|O_TRUNC, 0660);
     if (methlockfd == -1) {
       if ((errno == EPERM) || (errno == EACCES)) {
-        sthfailed("requested operation requires superuser privilege");
+        sthfailed(_("requested operation requires superuser privilege"));
         return urqr_fail;
       }
-      sthfailed("unable to open/create access method lockfile");
+      sthfailed(_("cannot open or create access method lockfile"));
       return urqr_fail;
     }
   }
   fl.l_type=F_WRLCK; fl.l_whence=SEEK_SET; fl.l_start=fl.l_len=0;
   if (fcntl(methlockfd,F_SETLK,&fl) == -1) {
     if (errno == EWOULDBLOCK || errno == EAGAIN) {
-      sthfailed("the access method area is already locked");
+      sthfailed(_("the access method area is already locked"));
       return urqr_fail;
       }
-    sthfailed("unable to lock access method area");
+    sthfailed(_("cannot lock access method area"));
     return urqr_fail;
   }
-  push_cleanup(cu_unlockmethod,~0, 0,0, 0);
+  push_cleanup(cu_unlockmethod, ~0, nullptr, 0, 0);
   return urqr_normal;
 }
 
@@ -136,24 +136,24 @@ static urqresult
 falliblesubprocess(struct command *cmd)
 {
   pid_t pid;
-  int status, i, c;
+  int i, c;
 
   cursesoff();
 
-  subproc_signals_setup(cmd->name);
+  subproc_signals_ignore(cmd->name);
 
   pid = subproc_fork();
   if (pid == 0) {
-    subproc_signals_cleanup(0, 0);
+    subproc_signals_cleanup(0, nullptr);
     command_exec(cmd);
   }
 
-  status = subproc_wait(pid, cmd->name);
-
-  pop_cleanup(ehflag_normaltidy);
-
   fprintf(stderr, "\n");
-  i = subproc_check(status, cmd->name, PROCWARN);
+
+  i = subproc_reap(pid, cmd->name, SUBPROC_WARN);
+
+  subproc_signals_restore();
+
   if (i == 0) {
     sleep(1);
     return urqr_normal;
@@ -180,11 +180,11 @@ static urqresult runscript(const char *exepath, const char *name) {
 
     command_init(&cmd, coption->meth->path, name);
     command_add_args(&cmd, exepath, dpkg_db_get_dir(),
-                     coption->meth->name, coption->name, NULL);
+                     coption->meth->name, coption->name, nullptr);
     ur = falliblesubprocess(&cmd);
     command_destroy(&cmd);
   } else {
-    sthfailed("no access method is selected/configured");
+    sthfailed(_("no access method is selected or configured"));
     ur= urqr_fail;
   }
   pop_cleanup(ehflag_normaltidy);
@@ -206,7 +206,7 @@ static urqresult rundpkgauto(const char *name, const char *dpkgmode) {
 
   command_init(&cmd, DPKG, name);
   command_add_args(&cmd, DPKG, "--admindir", dpkg_db_get_dir(), "--pending",
-                   dpkgmode, NULL);
+                   dpkgmode, nullptr);
 
   cursesoff();
   printf("running dpkg --pending %s ...\n",dpkgmode);
@@ -245,7 +245,7 @@ urqresult urq_setup(void) {
 
     command_init(&cmd, coption->meth->path, _("query/setup script"));
     command_add_args(&cmd, METHODSETUPSCRIPT, dpkg_db_get_dir(),
-                     coption->meth->name, coption->name, NULL);
+                     coption->meth->name, coption->name, nullptr);
     ur = falliblesubprocess(&cmd);
     command_destroy(&cmd);
     if (ur == urqr_normal) writecurrentopt();
