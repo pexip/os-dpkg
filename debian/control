@@ -17,7 +17,7 @@ Build-Depends: debhelper (>= 7), pkg-config, flex,
  libselinux1-dev (>= 1.28-4) [linux-any],
  libncursesw5-dev,
  libtimedate-perl, libio-string-perl
-XS-Pexip-Upstream: http://archive.ubuntu.com/ubuntu/ precise
+XS-Pexip-Upstream: http://ftp.debian.org/debian/ jessie
 
 Package: libdpkg-dev
 Section: libdevel
