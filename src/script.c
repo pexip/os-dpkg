@@ -2,7 +2,7 @@
  * dpkg - main program for package management
  * script.c - maintainer script routines
  *
- * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 2007-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
@@ -31,11 +31,12 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#ifdef WITH_SELINUX
+#ifdef WITH_LIBSELINUX
 #include <selinux/selinux.h>
 #endif
 
 #include <dpkg/i18n.h>
+#include <dpkg/debug.h>
 #include <dpkg/dpkg.h>
 #include <dpkg/dpkg-db.h>
 #include <dpkg/pkg.h>
@@ -87,7 +88,7 @@ setexecute(const char *path, struct stat *stab)
 		return;
 	if (!chmod(path, 0755))
 		return;
-	ohshite(_("unable to set execute permissions on `%.250s'"), path);
+	ohshite(_("unable to set execute permissions on '%.250s'"), path);
 }
 
 /**
@@ -97,21 +98,29 @@ static const char *
 maintscript_pre_exec(struct command *cmd)
 {
 	const char *admindir = dpkg_db_get_dir();
-	size_t instdirl = strlen(instdir);
+	const char *changedir;
+	size_t instdirlen = strlen(instdir);
 
-	if (*instdir) {
-		if (strncmp(admindir, instdir, instdirl) != 0)
+	if (instdirlen > 0 && fc_script_chrootless)
+		changedir = instdir;
+	else
+		changedir = "/";
+
+	if (instdirlen > 0 && !fc_script_chrootless) {
+		if (strncmp(admindir, instdir, instdirlen) != 0)
 			ohshit(_("admindir must be inside instdir for dpkg to work properly"));
-		if (setenv("DPKG_ADMINDIR", admindir + instdirl, 1) < 0)
+		if (setenv("DPKG_ADMINDIR", admindir + instdirlen, 1) < 0)
+			ohshite(_("unable to setenv for subprocesses"));
+		if (setenv("DPKG_ROOT", "", 1) < 0)
 			ohshite(_("unable to setenv for subprocesses"));
 
 		if (chroot(instdir))
-			ohshite(_("failed to chroot to `%.250s'"), instdir);
+			ohshite(_("failed to chroot to '%.250s'"), instdir);
 	}
 	/* Switch to a known good directory to give the maintainer script
 	 * a saner environment, also needed after the chroot(). */
-	if (chdir("/"))
-		ohshite(_("failed to chdir to `%.255s'"), "/");
+	if (chdir(changedir))
+		ohshite(_("failed to chdir to '%.255s'"), changedir);
 	if (debug_has_flag(dbg_scripts)) {
 		struct varbuf args = VARBUF_INIT;
 		const char **argv = cmd->argv;
@@ -125,11 +134,11 @@ maintscript_pre_exec(struct command *cmd)
 		      args.buf);
 		varbuf_destroy(&args);
 	}
-	if (!instdirl)
+	if (instdirlen == 0 || fc_script_chrootless)
 		return cmd->filename;
 
-	assert(strlen(cmd->filename) >= instdirl);
-	return cmd->filename + instdirl;
+	assert(strlen(cmd->filename) >= instdirlen);
+	return cmd->filename + instdirlen;
 }
 
 /**
@@ -144,7 +153,7 @@ maintscript_set_exec_context(struct command *cmd, const char *fallback)
 {
 	int rc = 0;
 
-#ifdef WITH_SELINUX
+#ifdef WITH_LIBSELINUX
 	rc = setexecfilecon(cmd->filename, fallback);
 #endif
 
@@ -165,13 +174,17 @@ maintscript_exec(struct pkginfo *pkg, struct pkgbin *pkgbin,
 	pid = subproc_fork();
 	if (pid == 0) {
 		char *pkg_count;
+		const char *maintscript_debug;
 
-		m_asprintf(&pkg_count, "%d", pkgset_installed_instances(pkg->set));
+		pkg_count = str_fmt("%d", pkgset_installed_instances(pkg->set));
+
+		maintscript_debug = debug_has_flag(dbg_scripts) ? "1" : "0";
 
 		if (setenv("DPKG_MAINTSCRIPT_PACKAGE", pkg->set->name, 1) ||
 		    setenv("DPKG_MAINTSCRIPT_PACKAGE_REFCOUNT", pkg_count, 1) ||
 		    setenv("DPKG_MAINTSCRIPT_ARCH", pkgbin->arch->name, 1) ||
 		    setenv("DPKG_MAINTSCRIPT_NAME", cmd->argv[0], 1) ||
+		    setenv("DPKG_MAINTSCRIPT_DEBUG", maintscript_debug, 1) ||
 		    setenv("DPKG_RUNNING_VERSION", PACKAGE_VERSION, 1))
 			ohshite(_("unable to setenv for maintainer script"));
 
@@ -216,7 +229,7 @@ vmaintscript_installed(struct pkginfo *pkg, const char *scriptname,
 			      scriptname);
 			return 0;
 		}
-		ohshite(_("unable to stat %s `%.250s'"), buf, scriptpath);
+		ohshite(_("unable to stat %s '%.250s'"), buf, scriptpath);
 	}
 	maintscript_exec(pkg, &pkg->installed, &cmd, &stab, 0);
 
@@ -288,7 +301,7 @@ maintscript_new(struct pkginfo *pkg, const char *scriptname,
 			      scriptname, cidir);
 			return 0;
 		}
-		ohshite(_("unable to stat %s `%.250s'"), buf, cidir);
+		ohshite(_("unable to stat %s '%.250s'"), buf, cidir);
 	}
 	maintscript_exec(pkg, &pkg->available, &cmd, &stab, 0);
 
@@ -343,6 +356,7 @@ maintscript_fallback(struct pkginfo *pkg,
 	command_init(&cmd, cidir, buf);
 	command_add_args(&cmd, scriptname, iffallback,
 	                 versiondescribe(&pkg->installed.version, vdew_nonambig),
+	                 versiondescribe(&pkg->available.version, vdew_nonambig),
 	                 NULL);
 
 	if (stat(cidir, &stab)) {
@@ -350,7 +364,7 @@ maintscript_fallback(struct pkginfo *pkg,
 		if (errno == ENOENT)
 			ohshit(_("there is no script in the new version of the package - giving up"));
 		else
-			ohshite(_("unable to stat %s `%.250s'"), buf, cidir);
+			ohshite(_("unable to stat %s '%.250s'"), buf, cidir);
 	}
 
 	maintscript_exec(pkg, &pkg->available, &cmd, &stab, 0);

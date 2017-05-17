@@ -2,7 +2,7 @@
  * dselect - Debian package maintenance user interface
  * pkgdepcon.cc - dependency and conflict resolution
  *
- * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 2008-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
@@ -78,7 +78,7 @@ int packagelist::checkdependers(pkginfo *pkg, int changemade) {
 int packagelist::resolvesuggest() {
   // We continually go around looking for things to change, but we may
   // only change the ‘suggested’ value if we also increase the ‘priority’
-  // Return 2 if we made a change due to a Recommended, Depends or Conficts,
+  // Return 2 if we made a change due to a Recommended, Depends or Conflicts,
   // or 1 if we offered or made a change because of an Optional line.
   debug(dbg_general, "packagelist[%p]::resolvesuggest()", this);
   int changemade, maxchangemade;

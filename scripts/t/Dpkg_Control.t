@@ -16,19 +16,22 @@
 use strict;
 use warnings;
 
-use Test::More tests => 24;
-use IO::String;
+use Test::More;
+use Test::Dpkg qw(:needs :paths);
 
 BEGIN {
+    test_needs_module('IO::String');
+
+    plan tests => 24;
+
     use_ok('Dpkg::Control');
     use_ok('Dpkg::Control::Info');
 }
 
-my $srcdir = $ENV{srcdir} || '.';
-my $datadir = $srcdir . '/t/Dpkg_Control';
+my $datadir = test_get_data_path('t/Dpkg_Control');
 
 sub parse_dsc {
-    my ($path) = @_;
+    my $path = shift;
 
     my $dsc = Dpkg::Control->new(type => CTRL_PKG_SRC);
     eval {

@@ -20,19 +20,25 @@ use strict;
 use warnings;
 
 our $VERSION = '1.02';
+our @EXPORT = qw(
+    $compression_re_file_ext
+    compression_is_supported
+    compression_get_list
+    compression_get_property
+    compression_guess_from_filename
+    compression_get_file_extension_regex
+    compression_get_default
+    compression_set_default
+    compression_get_default_level
+    compression_set_default_level
+    compression_is_valid_level
+);
+
+use Exporter qw(import);
+use Config;
 
 use Dpkg::ErrorHandling;
 use Dpkg::Gettext;
-
-use Exporter qw(import);
-our @EXPORT = qw($compression_re_file_ext compression_get_list
-		 compression_is_supported compression_get_property
-		 compression_guess_from_filename
-		 compression_get_file_extension_regex
-		 compression_get_default compression_set_default
-		 compression_get_default_level
-		 compression_set_default_level
-		 compression_is_valid_level);
 
 =encoding utf8
 
@@ -42,7 +48,7 @@ Dpkg::Compression - simple database of available compression methods
 
 =head1 DESCRIPTION
 
-This modules provides a few public funcions and a public regex to
+This modules provides a few public functions and a public regex to
 interact with the set of supported compression methods.
 
 =cut
@@ -50,7 +56,7 @@ interact with the set of supported compression methods.
 my $COMP = {
     gzip => {
 	file_ext => 'gz',
-	comp_prog => [ 'gzip', '--no-name', '--rsyncable' ],
+	comp_prog => [ 'gzip', '--no-name' ],
 	decomp_prog => [ 'gunzip' ],
 	default_level => 9,
     },
@@ -74,6 +80,24 @@ my $COMP = {
     },
 };
 
+#
+# XXX: The gzip package in Debian at some point acquired a Debian-specific
+# --rsyncable option via a vendor patch. Which is not present in most of the
+# major distributions, dpkg downstream systems, nor gzip upstream, who have
+# stated they will most probably not accept it because people should be using
+# pigz instead.
+#
+# This option should have never been accepted in dpkg, ever. But removing it
+# now would probably cause demands for tarring and feathering. In addition
+# we cannot use the Dpkg::Vendor logic because that would cause circular
+# module dependencies. The whole affair is pretty disgusting really.
+#
+# Check the perl Config to discern Debian and hopefully derivatives too.
+#
+if ($Config{cf_by} eq 'Debian Project') {
+    push @{$COMP->{gzip}->{comp_prog}}, '--rsyncable';
+}
+
 # XXX: Backwards compatibility, stop exporting on VERSION 2.00.
 ## no critic (Variables::ProhibitPackageVars)
 our $default_compression = 'xz';
@@ -87,7 +111,7 @@ our $compression_re_file_ext = qr/(?:$regex)/;
 
 =over 4
 
-=item my @list = compression_get_list()
+=item @list = compression_get_list()
 
 Returns a list of supported compression methods (sorted alphabetically).
 
@@ -147,7 +171,7 @@ sub compression_guess_from_filename {
     return;
 }
 
-=item my $regex = compression_get_file_extension_regex()
+=item $regex = compression_get_file_extension_regex()
 
 Returns a regex that matches a file extension of a file compressed with
 one of the supported compression methods.
@@ -158,9 +182,9 @@ sub compression_get_file_extension_regex {
     return $compression_re_file_ext;
 }
 
-=item my $comp = compression_get_default()
+=item $comp = compression_get_default()
 
-Return the default compression method. It's "gzip" unless
+Return the default compression method. It is "xz" unless
 C<compression_set_default> has been used to change it.
 
 =item compression_set_default($comp)
@@ -175,13 +199,13 @@ sub compression_get_default {
 }
 
 sub compression_set_default {
-    my ($method) = @_;
-    error(_g('%s is not a supported compression'), $method)
+    my $method = shift;
+    error(g_('%s is not a supported compression'), $method)
             unless compression_is_supported($method);
     $default_compression = $method;
 }
 
-=item my $level = compression_get_default_level()
+=item $level = compression_get_default_level()
 
 Return the default compression level used when compressing data. It's "9"
 for "gzip" and "bzip2", "6" for "xz" and "lzma", unless
@@ -204,8 +228,8 @@ sub compression_get_default_level {
 }
 
 sub compression_set_default_level {
-    my ($level) = @_;
-    error(_g('%s is not a compression level'), $level)
+    my $level = shift;
+    error(g_('%s is not a compression level'), $level)
         if defined($level) and not compression_is_valid_level($level);
     $default_compression_level = $level;
 }
@@ -218,7 +242,7 @@ Returns a boolean indicating whether $level is a valid compression level
 =cut
 
 sub compression_is_valid_level {
-    my ($level) = @_;
+    my $level = shift;
     return $level =~ /^([1-9]|fast|best)$/;
 }
 
@@ -226,24 +250,20 @@ sub compression_is_valid_level {
 
 =head1 CHANGES
 
-=head2 Version 1.02
+=head2 Version 1.02 (dpkg 1.17.2)
 
 New function: compression_get_file_extension_regex()
 
 Deprecated variables: $default_compression, $default_compression_level
 and $compression_re_file_ext
 
-=head2 Version 1.01
+=head2 Version 1.01 (dpkg 1.16.1)
 
 Default compression level is not global any more, it is per compressor type.
 
-=head2 Version 1.00
+=head2 Version 1.00 (dpkg 1.15.6)
 
 Mark the module as public.
-
-=head1 AUTHOR
-
-Raphaël Hertzog <hertzog@debian.org>.
 
 =cut
 

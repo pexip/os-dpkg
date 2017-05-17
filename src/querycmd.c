@@ -2,9 +2,9 @@
  * dpkg-query - program for query the dpkg database
  * querycmd.c - status enquiry and listing options
  *
- * Copyright © 1995,1996 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1995,1996 Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 2000,2001 Wichert Akkerman <wakkerma@debian.org>
- * Copyright © 2006-2014 Guillem Jover <guillem@debian.org>
+ * Copyright © 2006-2015 Guillem Jover <guillem@debian.org>
  * Copyright © 2011 Linaro Limited
  * Copyright © 2011 Raphaël Hertzog <hertzog@debian.org>
  *
@@ -32,6 +32,8 @@
 #if HAVE_LOCALE_H
 #include <locale.h>
 #endif
+#include <errno.h>
+#include <limits.h>
 #include <string.h>
 #include <fcntl.h>
 #include <dirent.h>
@@ -63,14 +65,17 @@ static int opt_loadavail = 0;
 
 static int getwidth(void) {
   int fd;
-  int res;
+  long res;
   struct winsize ws;
   const char *columns;
+  char *endptr;
 
   columns = getenv("COLUMNS");
   if (columns) {
-    res = atoi(columns);
-    if (res > 0)
+    errno = 0;
+    res = strtol(columns, &endptr, 10);
+    if (errno == 0 && columns != endptr && *endptr == '\0' &&
+        res > 0 && res < INT_MAX)
       return res;
   }
 
@@ -88,6 +93,55 @@ static int getwidth(void) {
 
     return res;
   }
+}
+
+static int
+pkg_array_match_patterns(struct pkg_array *array,
+                         pkg_array_visitor_func *pkg_visitor, void *pkg_data,
+                         const char *const *argv)
+{
+  int argc, i, ip, *found;
+  int rc = 0;
+  struct pkg_spec *ps;
+
+  for (argc = 0; argv[argc]; argc++);
+  found = m_calloc(argc, sizeof(int));
+
+  ps = m_malloc(sizeof(*ps) * argc);
+  for (ip = 0; ip < argc; ip++) {
+    pkg_spec_init(&ps[ip], PKG_SPEC_PATTERNS | PKG_SPEC_ARCH_WILDCARD);
+    pkg_spec_parse(&ps[ip], argv[ip]);
+  }
+
+  for (i = 0; i < array->n_pkgs; i++) {
+    struct pkginfo *pkg;
+    bool pkg_found = false;
+
+    pkg = array->pkgs[i];
+    for (ip = 0; ip < argc; ip++) {
+      if (pkg_spec_match_pkg(&ps[ip], pkg, &pkg->installed)) {
+        pkg_found = true;
+        found[ip]++;
+      }
+    }
+    if (!pkg_found)
+      array->pkgs[i] = NULL;
+  }
+
+  pkg_array_foreach(array, pkg_visitor, pkg_data);
+
+  for (ip = 0; ip < argc; ip++) {
+    if (!found[ip]) {
+      notice(_("no packages found matching %s"), argv[ip]);
+      rc++;
+    }
+    pkg_spec_destroy(&ps[ip]);
+  }
+
+  free(ps);
+  free(found);
+
+  return rc;
 }
 
 struct list_format {
@@ -125,7 +179,7 @@ list_format_init(struct list_format *fmt, struct pkg_array *array)
       vlen = str_width(versiondescribe(&array->pkgs[i]->installed.version,
                                        vdew_nonambig));
       alen = str_width(dpkg_arch_describe(array->pkgs[i]->installed.arch));
-      pkg_summary(array->pkgs[i], &array->pkgs[i]->installed, &dlen);
+      pkgbin_summary(array->pkgs[i], &array->pkgs[i]->installed, &dlen);
 
       if (plen > fmt->nw)
         fmt->nw = plen;
@@ -222,15 +276,16 @@ Desired=Unknown/Install/Remove/Purge/Hold\n\
 }
 
 static void
-list1package(struct pkginfo *pkg, struct list_format *fmt, struct pkg_array *array)
+pkg_array_list_item(struct pkg_array *array, struct pkginfo *pkg, void *pkg_data)
 {
+  struct list_format *fmt = pkg_data;
   int l;
   const char *pdesc;
 
   list_format_init(fmt, array);
   list_format_print_header(fmt);
 
-  pdesc = pkg_summary(pkg, &pkg->installed, &l);
+  pdesc = pkgbin_summary(pkg, &pkg->installed, &l);
   l = min(l, fmt->dw);
 
   list_format_print(fmt,
@@ -243,28 +298,13 @@ list1package(struct pkginfo *pkg, struct list_format *fmt, struct pkg_array *arr
                     pdesc, l);
 }
 
-static void
-list_found_packages(struct list_format *fmt, struct pkg_array *array)
-{
-  int i;
-
-  for (i = 0; i < array->n_pkgs; i++) {
-    struct pkginfo *pkg = array->pkgs[i];
-
-    if (pkg == NULL)
-      continue;
-
-    list1package(pkg, fmt, array);
-  }
-}
-
 static int
 listpackages(const char *const *argv)
 {
   struct pkg_array array;
   struct pkginfo *pkg;
   int i;
-  int failures = 0;
+  int rc = 0;
   struct list_format fmt;
 
   if (!opt_loadavail)
@@ -284,46 +324,9 @@ listpackages(const char *const *argv)
         array.pkgs[i] = NULL;
     }
 
-    list_found_packages(&fmt, &array);
+    pkg_array_foreach(&array, pkg_array_list_item, &fmt);
   } else {
-    int argc, ip, *found;
-    struct pkg_spec *ps;
-
-    for (argc = 0; argv[argc]; argc++);
-    found = m_calloc(sizeof(int) * argc);
-
-    ps = m_malloc(sizeof(*ps) * argc);
-    for (ip = 0; ip < argc; ip++) {
-      pkg_spec_init(&ps[ip], PKG_SPEC_PATTERNS | PKG_SPEC_ARCH_WILDCARD);
-      pkg_spec_parse(&ps[ip], argv[ip]);
-    }
-
-    for (i = 0; i < array.n_pkgs; i++) {
-      pkg = array.pkgs[i];
-      for (ip = 0; ip < argc; ip++) {
-        if (pkg_spec_match_pkg(&ps[ip], pkg, &pkg->installed)) {
-          found[ip]++;
-          break;
-        }
-      }
-      if (ip == argc)
-        array.pkgs[i] = NULL;
-    }
-
-    list_found_packages(&fmt, &array);
-
-    /* FIXME: we might get non-matching messages for sub-patterns specified
-     * after their super-patterns, due to us skipping on first match. */
-    for (ip = 0; ip < argc; ip++) {
-      if (!found[ip]) {
-        notice(_("no packages found matching %s"), argv[ip]);
-        failures++;
-      }
-      pkg_spec_destroy(&ps[ip]);
-    }
-
-    free(ps);
-    free(found);
+    rc = pkg_array_match_patterns(&array, pkg_array_list_item, &fmt, argv);
   }
 
   m_output(stdout, _("<standard output>"));
@@ -332,7 +335,7 @@ listpackages(const char *const *argv)
   pkg_array_destroy(&array);
   modstatdb_shutdown();
 
-  return failures;
+  return rc;
 }
 
 static int searchoutput(struct filenamenode *namenode) {
@@ -392,18 +395,6 @@ searchfiles(const char *const *argv)
   while ((thisarg = *argv++) != NULL) {
     found= 0;
 
-    /* Trim trailing ‘/’ and ‘/.’ from the argument if it's
-     * not a pattern, just a path. */
-    if (!strpbrk(thisarg, "*[?\\")) {
-      varbuf_reset(&path);
-      varbuf_add_str(&path, thisarg);
-      varbuf_end_str(&path);
-
-      varbuf_trunc(&path, path_trim_slash_slashdot(path.buf));
-
-      thisarg = path.buf;
-    }
-
     if (!strchr("*[?/",*thisarg)) {
       varbuf_reset(&vb);
       varbuf_add_char(&vb, '*');
@@ -413,7 +404,14 @@ searchfiles(const char *const *argv)
       thisarg= vb.buf;
     }
     if (!strpbrk(thisarg, "*[?\\")) {
-      namenode= findnamenode(thisarg, 0);
+      /* Trim trailing ‘/’ and ‘/.’ from the argument if it is not
+       * a pattern, just a pathname. */
+      varbuf_reset(&path);
+      varbuf_add_str(&path, thisarg);
+      varbuf_end_str(&path);
+      varbuf_trunc(&path, path_trim_slash_slashdot(path.buf));
+
+      namenode = findnamenode(path.buf, 0);
       found += searchoutput(namenode);
     } else {
       iter = files_db_iter_new();
@@ -494,7 +492,7 @@ enqperpackage(const char *const *argv)
         ensure_diversions();
         file= pkg->clientdata->files;
         if (!file) {
-          printf(_("Package `%s' does not contain any files (!)\n"),
+          printf(_("Package '%s' does not contain any files (!)\n"),
                  pkg_name(pkg, pnaw_nonambig));
         } else {
           while (file) {
@@ -538,6 +536,14 @@ enqperpackage(const char *const *argv)
   return failures;
 }
 
+static void
+pkg_array_show_item(struct pkg_array *array, struct pkginfo *pkg, void *pkg_data)
+{
+  struct pkg_format_node *fmt = pkg_data;
+
+  pkg_format_show(fmt, pkg, &pkg->installed);
+}
+
 static int
 showpackages(const char *const *argv)
 {
@@ -546,14 +552,14 @@ showpackages(const char *const *argv)
   struct pkginfo *pkg;
   struct pkg_format_node *fmt;
   int i;
-  int failures = 0;
+  int rc = 0;
 
   fmt = pkg_format_parse(showformat, &err);
   if (!fmt) {
     notice(_("error in show format: %s"), err.str);
     dpkg_error_destroy(&err);
-    failures++;
-    return failures;
+    rc++;
+    return rc;
   }
 
   if (!opt_loadavail)
@@ -572,41 +578,7 @@ showpackages(const char *const *argv)
       pkg_format_show(fmt, pkg, &pkg->installed);
     }
   } else {
-    int argc, ip, *found;
-    struct pkg_spec *ps;
-
-    for (argc = 0; argv[argc]; argc++);
-    found = m_calloc(sizeof(int) * argc);
-
-    ps = m_malloc(sizeof(*ps) * argc);
-    for (ip = 0; ip < argc; ip++) {
-      pkg_spec_init(&ps[ip], PKG_SPEC_PATTERNS | PKG_SPEC_ARCH_WILDCARD);
-      pkg_spec_parse(&ps[ip], argv[ip]);
-    }
-
-    for (i = 0; i < array.n_pkgs; i++) {
-      pkg = array.pkgs[i];
-      for (ip = 0; ip < argc; ip++) {
-        if (pkg_spec_match_pkg(&ps[ip], pkg, &pkg->installed)) {
-          pkg_format_show(fmt, pkg, &pkg->installed);
-          found[ip]++;
-          break;
-        }
-      }
-    }
-
-    /* FIXME: we might get non-matching messages for sub-patterns specified
-     * after their super-patterns, due to us skipping on first match. */
-    for (ip = 0; ip < argc; ip++) {
-      if (!found[ip]) {
-        notice(_("no packages found matching %s"), argv[ip]);
-        failures++;
-      }
-      pkg_spec_destroy(&ps[ip]);
-    }
-
-    free(ps);
-    free(found);
+    rc = pkg_array_match_patterns(&array, pkg_array_show_item, fmt, argv);
   }
 
   m_output(stdout, _("<standard output>"));
@@ -616,7 +588,7 @@ showpackages(const char *const *argv)
   pkg_format_free(fmt);
   modstatdb_shutdown();
 
-  return failures;
+  return rc;
 }
 
 static bool
@@ -777,7 +749,7 @@ static void DPKG_ATTR_NORET
 printversion(const struct cmdinfo *ci, const char *value)
 {
   printf(_("Debian %s package management program query tool version %s.\n"),
-         DPKGQUERY, DPKG_VERSION_ARCH);
+         DPKGQUERY, PACKAGE_RELEASE);
   printf(_(
 "This is free software; see the GNU General Public License version 2 or\n"
 "later for copying conditions. There is NO warranty.\n"));
@@ -798,7 +770,7 @@ usage(const struct cmdinfo *ci, const char *value)
 "Commands:\n"
 "  -s|--status <package> ...        Display package status details.\n"
 "  -p|--print-avail <package> ...   Display available version details.\n"
-"  -L|--listfiles <package> ...     List files `owned' by package(s).\n"
+"  -L|--listfiles <package> ...     List files 'owned' by package(s).\n"
 "  -l|--list [<pattern> ...]        List packages concisely.\n"
 "  -W|--show [<pattern> ...]        Show information on package(s).\n"
 "  -S|--search <pattern> ...        Find package(s) owning file(s).\n"

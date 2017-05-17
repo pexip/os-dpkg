@@ -2,7 +2,7 @@
  * dpkg - main program for package management
  * errors.c - per package error handling
  *
- * Copyright © 1994,1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1994,1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 2007-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
@@ -28,7 +28,6 @@
 
 #include <errno.h>
 #include <limits.h>
-#include <ctype.h>
 #include <string.h>
 #include <dirent.h>
 #include <unistd.h>
@@ -48,7 +47,7 @@ static int nerrs = 0;
 
 struct error_report {
   struct error_report *next;
-  const char *what;
+  char *what;
 };
 
 static struct error_report *reports = NULL;
@@ -67,7 +66,7 @@ enqueue_error_report(const char *arg)
     abort_processing = true;
     nr= &emergency;
   }
-  nr->what= arg;
+  nr->what = m_strdup(arg);
   nr->next = NULL;
   *lastreport= nr;
   lastreport= &nr->next;
@@ -110,6 +109,7 @@ reportbroken_retexitstatus(int ret)
     fputs(_("Errors were encountered while processing:\n"),stderr);
     while (reports) {
       fprintf(stderr," %s\n",reports->what);
+      free(reports->what);
       reports= reports->next;
     }
   }

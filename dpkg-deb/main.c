@@ -2,7 +2,7 @@
  * dpkg-deb - construction and deconstruction of *.deb archives
  * main.c - main program
  *
- * Copyright © 1994,1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1994,1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 2006-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
@@ -25,13 +25,11 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#include <assert.h>
 #include <limits.h>
 #if HAVE_LOCALE_H
 #include <locale.h>
 #endif
 #include <errno.h>
-#include <ctype.h>
 #include <string.h>
 #include <dirent.h>
 #include <unistd.h>
@@ -52,8 +50,8 @@ const char *showformat = "${Package}\t${Version}\n";
 static void DPKG_ATTR_NORET
 printversion(const struct cmdinfo *cip, const char *value)
 {
-  printf(_("Debian `%s' package archive backend version %s.\n"),
-         BACKEND, DPKG_VERSION_ARCH);
+  printf(_("Debian '%s' package archive backend version %s.\n"),
+         BACKEND, PACKAGE_RELEASE);
   printf(_(
 "This is free software; see the GNU General Public License version 2 or\n"
 "later for copying conditions. There is NO warranty.\n"));
@@ -94,7 +92,7 @@ usage(const struct cmdinfo *cip, const char *value)
   printf(_(
 "<deb> is the filename of a Debian format archive.\n"
 "<cfile> is the name of an administrative file component.\n"
-"<cfield> is the name of a field in the main `control' file.\n"
+"<cfield> is the name of a field in the main 'control' file.\n"
 "\n"));
 
   printf(_(
@@ -104,14 +102,12 @@ usage(const struct cmdinfo *cip, const char *value)
 "      --showformat=<format>        Use alternative format for --show.\n"
 "      --deb-format=<format>        Select archive format.\n"
 "                                     Allowed values: 0.939000, 2.0 (default).\n"
-"      --old                        Legacy alias for '--deb-format=0.939000'.\n"
-"      --new                        Legacy alias for '--deb-format=2.0'.\n"
 "      --nocheck                    Suppress control file check (build bad\n"
 "                                     packages).\n"
 "      --uniform-compression        Use the compression params on all members.\n"
 "  -z#                              Set the compression level when building.\n"
 "  -Z<type>                         Set the compression type used when building.\n"
-"                                     Allowed types: gzip, xz, bzip2, none.\n"
+"                                     Allowed types: gzip, xz, none.\n"
 "  -S<strategy>                     Set the compression strategy when building.\n"
 "                                     Allowed values: none; extreme (xz);\n"
 "                                     filtered, huffman, rle, fixed (gzip).\n"
@@ -164,24 +160,6 @@ set_deb_format(const struct cmdinfo *cip, const char *value)
     badusage(_("unknown deb format version: %s"), value);
 }
 
-static void
-set_deb_old(const struct cmdinfo *cip, const char *value)
-{
-  deb_format = DEB_VERSION_OBJECT(0, 939000);
-
-  warning(_("obsolete option '--%s'; please use '--%s' instead"),
-          cip->olong, "deb-format=0.939000");
-}
-
-static void
-set_deb_new(const struct cmdinfo *cip, const char *value)
-{
-  deb_format = DEB_VERSION_OBJECT(2, 0);
-
-  warning(_("obsolete option '--%s'; please use '--%s' instead"),
-          cip->olong, "deb-format=2.0");
-}
-
 struct compress_params compress_params = {
   .type = DPKG_DEB_DEFAULT_COMPRESSOR,
   .strategy = COMPRESSOR_STRATEGY_NONE,
@@ -205,7 +183,7 @@ set_compress_strategy(const struct cmdinfo *cip, const char *value)
 {
   compress_params.strategy = compressor_get_strategy(value);
   if (compress_params.strategy == COMPRESSOR_STRATEGY_UNKNOWN)
-    ohshit(_("unknown compression strategy '%s'!"), value);
+    badusage(_("unknown compression strategy '%s'!"), value);
 }
 
 static void
@@ -213,11 +191,11 @@ set_compress_type(const struct cmdinfo *cip, const char *value)
 {
   compress_params.type = compressor_find_by_name(value);
   if (compress_params.type == COMPRESSOR_TYPE_UNKNOWN)
-    ohshit(_("unknown compression type `%s'!"), value);
+    badusage(_("unknown compression type '%s'!"), value);
   if (compress_params.type == COMPRESSOR_TYPE_LZMA)
-    warning(_("deprecated compression type '%s'; use xz instead"), value);
+    badusage(_("obsolete compression type '%s'; use xz instead"), value);
   if (compress_params.type == COMPRESSOR_TYPE_BZIP2)
-    warning(_("deprecated compression type '%s'; use xz or gzip instead"), value);
+    badusage(_("obsolete compression type '%s'; use xz or gzip instead"), value);
 }
 
 static const struct cmdinfo cmdinfos[]= {
@@ -234,8 +212,6 @@ static const struct cmdinfo cmdinfos[]= {
   ACTION("show",          'W', 0, do_showinfo),
 
   { "deb-format",    0,   1, NULL,           NULL,         set_deb_format   },
-  { "new",           0,   0, NULL,           NULL,         set_deb_new      },
-  { "old",           0,   0, NULL,           NULL,         set_deb_old      },
   { "debug",         'D', 0, &debugflag,     NULL,         NULL,          1 },
   { "verbose",       'v', 0, &opt_verbose,   NULL,         NULL,          1 },
   { "nocheck",       0,   0, &nocheckflag,   NULL,         NULL,          1 },

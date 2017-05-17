@@ -19,14 +19,13 @@ use strict;
 use warnings;
 
 our $VERSION = '1.00';
+our @EXPORT = @Dpkg::Control::FieldsCore::EXPORT;
 
 use Carp;
 use Exporter qw(import);
 
 use Dpkg::Control::FieldsCore;
 use Dpkg::Vendor qw(run_vendor_hook);
-
-our @EXPORT = @Dpkg::Control::FieldsCore::EXPORT;
 
 # Register vendor specifics fields
 foreach my $op (run_vendor_hook('register-custom-fields')) {
@@ -58,13 +57,9 @@ inherited from Dpkg::Control::FieldsCore.
 
 =head1 CHANGES
 
-=head2 Version 1.00
+=head2 Version 1.00 (dpkg 1.15.6)
 
 Mark the module as public.
-
-=head1 AUTHOR
-
-Raphaël Hertzog <hertzog@debian.org>.
 
 =cut
 

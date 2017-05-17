@@ -2,7 +2,7 @@
  * dpkg - main program for package management
  * filesdb.h - management of database of files installed on system
  *
- * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 2008-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
@@ -152,6 +152,7 @@ struct pkginfo *filepackages_iter_next(struct filepackages_iterator *iter);
 void filepackages_iter_free(struct filepackages_iterator *iter);
 
 void filesdbinit(void);
+void files_db_reset(void);
 
 struct fileiterator;
 struct fileiterator *files_db_iter_new(void);

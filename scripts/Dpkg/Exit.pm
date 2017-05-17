@@ -20,10 +20,13 @@ use strict;
 use warnings;
 
 our $VERSION = '1.01';
+our @EXPORT_OK = qw(
+    push_exit_handler
+    pop_exit_handler
+    run_exit_handlers
+);
 
 use Exporter qw(import);
-
-our @EXPORT_OK = qw(push_exit_handler pop_exit_handler run_exit_handlers);
 
 # XXX: Backwards compatibility, stop exporting on VERSION 2.00.
 ## no critic (Variables::ProhibitPackageVars)
@@ -75,26 +78,26 @@ sub run_exit_handlers {
     &$_() foreach (reverse @handlers);
 }
 
-sub exit_handler {
+sub _exit_handler {
     run_exit_handlers();
     exit(127);
 }
 
-$SIG{INT} = \&exit_handler;
-$SIG{HUP} = \&exit_handler;
-$SIG{QUIT} = \&exit_handler;
+$SIG{INT} = \&_exit_handler;
+$SIG{HUP} = \&_exit_handler;
+$SIG{QUIT} = \&_exit_handler;
 
 =back
 
 =head1 CHANGES
 
-=head2 Version 1.01
+=head2 Version 1.01 (dpkg 1.17.2)
 
 New functions: push_exit_handler(), pop_exit_handler(), run_exit_handlers()
 
 Deprecated variable: @handlers
 
-=head2 Version 1.00
+=head2 Version 1.00 (dpkg 1.15.6)
 
 Mark the module as public.
 

@@ -2,7 +2,7 @@
  * dpkg - main program for package management
  * divertdb.c - management of database of diverted files
  *
- * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 2000, 2001 Wichert Akkerman <wakkerma@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
@@ -96,7 +96,7 @@ ensure_diversions(void)
 	diversions = NULL;
 	if (!file) {
 		onerr_abort--;
-		debug(dbg_general, "%s: none, reseting", __func__);
+		debug(dbg_general, "%s: none, resetting", __func__);
 		return;
 	}
 	debug(dbg_general, "%s: new, (re)loading", __func__);
@@ -119,7 +119,7 @@ ensure_diversions(void)
 
 		if (oialtname->camefrom->divert ||
 		    oicontest->useinstead->divert)
-			ohshit(_("conflicting diversions involving `%.250s' or `%.250s'"),
+			ohshit(_("conflicting diversions involving '%.250s' or '%.250s'"),
 			       oialtname->camefrom->name, oicontest->useinstead->name);
 
 		oialtname->camefrom->divert = oicontest;

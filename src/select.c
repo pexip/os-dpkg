@@ -2,8 +2,8 @@
  * dpkg - main program for package management
  * select.c - by-hand (rather than dselect-based) package selection
  *
- * Copyright © 1995,1996 Ian Jackson <ian@chiark.greenend.org.uk>
- * Copyright © 2006,2008-2014 Guillem Jover <guillem@debian.org>
+ * Copyright © 1995,1996 Ian Jackson <ijackson@chiark.greenend.org.uk>
+ * Copyright © 2006, 2008-2015 Guillem Jover <guillem@debian.org>
  * Copyright © 2011 Linaro Limited
  * Copyright © 2011 Raphaël Hertzog <hertzog@debian.org>
  *
@@ -25,12 +25,12 @@
 #include <compat.h>
 
 #include <fnmatch.h>
-#include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
 #include <dpkg/i18n.h>
+#include <dpkg/c-ctype.h>
 #include <dpkg/dpkg.h>
 #include <dpkg/dpkg-db.h>
 #include <dpkg/pkg-array.h>
@@ -103,6 +103,8 @@ getselections(const char *const *argv)
 
   pkg_array_destroy(&array);
 
+  modstatdb_shutdown();
+
   return 0;
 }
 
@@ -133,7 +135,11 @@ setselections(const char *const *argv)
   for (;;) {
     struct dpkg_error err;
 
-    do { c= getchar(); if (c == '\n') lno++; } while (c != EOF && isspace(c));
+    do {
+      c = getchar();
+      if (c == '\n')
+        lno++;
+    } while (c != EOF && c_isspace(c));
     if (c == EOF) break;
     if (c == '#') {
       do { c= getchar(); if (c == '\n') lno++; } while (c != EOF && c != '\n');
@@ -141,22 +147,24 @@ setselections(const char *const *argv)
     }
 
     varbuf_reset(&namevb);
-    while (!isspace(c)) {
+    while (!c_isspace(c)) {
       varbuf_add_char(&namevb, c);
       c= getchar();
-      if (c == EOF) ohshit(_("unexpected eof in package name at line %d"),lno);
+      if (c == EOF)
+        ohshit(_("unexpected end of file in package name at line %d"), lno);
       if (c == '\n') ohshit(_("unexpected end of line in package name at line %d"),lno);
     }
     varbuf_end_str(&namevb);
 
-    while (c != EOF && isspace(c)) {
+    while (c != EOF && c_isspace(c)) {
       c= getchar();
-      if (c == EOF) ohshit(_("unexpected eof after package name at line %d"),lno);
+      if (c == EOF)
+        ohshit(_("unexpected end of file after package name at line %d"), lno);
       if (c == '\n') ohshit(_("unexpected end of line after package name at line %d"),lno);
     }
 
     varbuf_reset(&selvb);
-    while (c != EOF && !isspace(c)) {
+    while (c != EOF && !c_isspace(c)) {
       varbuf_add_char(&selvb, c);
       c= getchar();
     }
@@ -164,7 +172,7 @@ setselections(const char *const *argv)
 
     while (c != EOF && c != '\n') {
       c= getchar();
-      if (!isspace(c))
+      if (!c_isspace(c))
         ohshit(_("unexpected data after package and selection at line %d"),lno);
     }
     pkg = pkg_spec_parse_pkg(namevb.buf, &err);
@@ -174,7 +182,7 @@ setselections(const char *const *argv)
     if (!pkg_is_informative(pkg, &pkg->installed) &&
         !pkg_is_informative(pkg, &pkg->available)) {
       db_possibly_outdated = true;
-      warning(_("package not in database at line %d: %.250s"), lno, namevb.buf);
+      warning(_("package not in status nor available database at line %d: %.250s"), lno, namevb.buf);
       continue;
     }
 
@@ -193,7 +201,8 @@ setselections(const char *const *argv)
 
   if (db_possibly_outdated)
     warning(_("found unknown packages; this might mean the available database\n"
-              "is outdated, and needs to be updated through a frontend method"));
+              "is outdated, and needs to be updated through a frontend method;\n"
+              "please see the FAQ <https://wiki.debian.org/Teams/Dpkg/FAQ>"));
 
   return 0;
 }
@@ -202,7 +211,7 @@ int
 clearselections(const char *const *argv)
 {
   enum modstatdb_rw msdbflags;
-  struct pkgiterator *it;
+  struct pkgiterator *iter;
   struct pkginfo *pkg;
 
   if (*argv)
@@ -216,12 +225,12 @@ clearselections(const char *const *argv)
   modstatdb_open(msdbflags);
   pkg_infodb_upgrade();
 
-  it = pkg_db_iter_new();
-  while ((pkg = pkg_db_iter_next_pkg(it))) {
+  iter = pkg_db_iter_new();
+  while ((pkg = pkg_db_iter_next_pkg(iter))) {
     if (!pkg->installed.essential)
       pkg_set_want(pkg, PKG_WANT_DEINSTALL);
   }
-  pkg_db_iter_free(it);
+  pkg_db_iter_free(iter);
 
   modstatdb_shutdown();
 

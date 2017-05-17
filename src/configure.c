@@ -2,9 +2,9 @@
  * dpkg - main program for package management
  * configure.c - configure packages
  *
- * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 1999, 2002 Wichert Akkerman <wichert@deephackmode.org>
- * Copyright © 2007-2014 Guillem Jover <guillem@debian.org>
+ * Copyright © 2007-2015 Guillem Jover <guillem@debian.org>
  * Copyright © 2011 Linaro Limited
  * Copyright © 2011 Raphaël Hertzog <hertzog@debian.org>
  *
@@ -38,6 +38,7 @@
 #include <dirent.h>
 #include <termios.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -116,7 +117,7 @@ show_prompt(const char *cfgfile, const char *realold, const char *realnew,
 		        _("     Version in package is the same as at last installation.\n"));
 	}
 
-	/* No --force-confdef but a forcible situtation. */
+	/* No --force-confdef but a forcible situation. */
 	/* TODO: check if this condition can not be simplified to
 	 *       just !fc_conff_def */
 	if (!(fc_conff_def && (what & (CFOF_INSTALL | CFOF_KEEP)))) {
@@ -175,7 +176,7 @@ show_prompt(const char *cfgfile, const char *realold, const char *realnew,
 	if (c == EOF) {
 		if (ferror(stdin))
 			ohshite(_("read error on stdin at conffile prompt"));
-		ohshit(_("EOF on stdin at conffile prompt"));
+		ohshit(_("end of file on stdin at conffile prompt"));
 	}
 
 	if (!cc) {
@@ -229,7 +230,7 @@ spawn_shell(const char *confold, const char *confnew)
 {
 	pid_t pid;
 
-	fputs(_("Type `exit' when you're done.\n"), stderr);
+	fputs(_("Type 'exit' when you're done.\n"), stderr);
 
 	pid = subproc_fork();
 	if (!pid) {
@@ -264,7 +265,7 @@ spawn_shell(const char *confold, const char *confnew)
  * @param distedited A flag to indicate whether the file has been updated
  *        between package versions. Set to nonzero to indicate that the file
  *        has been updated.
- * @param what Hints on what action should be taken by defualt.
+ * @param what Hints on what action should be taken by default.
  *
  * @return The action which should be taken based on user input and/or the
  *         default actions as configured by cmdline/configuration options.
@@ -323,7 +324,7 @@ promptconfaction(struct pkginfo *pkg, const char *cfgfile,
  *
  * When the first instance of a package set is configured, the *.dpkg-new
  * files gets installed into their destination, which makes configuration of
- * conffiles from subsequent package instances be skept along with updates
+ * conffiles from subsequent package instances be skipped along with updates
  * to the Conffiles field hash.
  *
  * In case the conffile has already been processed, sync the hash from an
@@ -410,7 +411,7 @@ deferred_configure_conffile(struct pkginfo *pkg, struct conffile *conff)
 	if (!stat(cdr.buf, &stab))
 		file_copy_perms(cdr.buf, cdr2.buf);
 	else if (errno != ENOENT)
-		ohshite(_("unable to stat current installed conffile `%.250s'"),
+		ohshite(_("unable to stat current installed conffile '%.250s'"),
 		        cdr.buf);
 
 	/* Select what to do. */
@@ -423,7 +424,7 @@ deferred_configure_conffile(struct pkginfo *pkg, struct conffile *conff)
 	} else if (strcmp(currenthash, NONEXISTENTFLAG) == 0 && fc_conff_miss) {
 		fprintf(stderr,
 		        _("\n"
-		          "Configuration file `%s', does not exist on system.\n"
+		          "Configuration file '%s', does not exist on system.\n"
 		          "Installing new config file as you requested.\n"),
 		        usenode->name);
 		what = CFO_NEW_CONFF;
@@ -509,7 +510,7 @@ deferred_configure_conffile(struct pkginfo *pkg, struct conffile *conff)
 		strcpy(cdr2rest, DPKGNEWEXT);
 		trig_path_activate(usenode, pkg);
 		if (rename(cdr2.buf, cdr.buf))
-			ohshite(_("unable to install `%.250s' as `%.250s'"),
+			ohshite(_("unable to install '%.250s' as '%.250s'"),
 			        cdr2.buf, cdr.buf);
 		break;
 	default:
@@ -561,7 +562,7 @@ deferred_configure(struct pkginfo *pkg)
 	enum dep_check ok;
 
 	if (pkg->status == PKG_STAT_NOTINSTALLED)
-		ohshit(_("no package named `%s' is installed, cannot configure"),
+		ohshit(_("no package named '%s' is installed, cannot configure"),
 		       pkg_name(pkg, pnaw_nonambig));
 	if (pkg->status == PKG_STAT_INSTALLED)
 		ohshit(_("package %.250s is already installed and configured"),
@@ -569,7 +570,7 @@ deferred_configure(struct pkginfo *pkg)
 	if (pkg->status != PKG_STAT_UNPACKED &&
 	    pkg->status != PKG_STAT_HALFCONFIGURED)
 		ohshit(_("package %.250s is not ready for configuration\n"
-		         " cannot configure (current status `%.250s')"),
+		         " cannot configure (current status '%.250s')"),
 		       pkg_name(pkg, pnaw_nonambig),
 		       pkg_status_name(pkg));
 
@@ -759,8 +760,11 @@ conffderef(struct pkginfo *pkg, struct varbuf *result, const char *in)
 			} else if (r != stab.st_size) {
 				warning(_("symbolic link '%.250s' size has "
 				          "changed from %jd to %zd"),
-				        result->buf, stab.st_size, r);
-				return -1;
+				        result->buf, (intmax_t)stab.st_size, r);
+				/* If the returned size is smaller, let's
+				 * proceed, otherwise error out. */
+				if (r > stab.st_size)
+					return -1;
 			}
 			varbuf_trunc(&target, r);
 			varbuf_end_str(&target);

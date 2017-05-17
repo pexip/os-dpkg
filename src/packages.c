@@ -2,7 +2,7 @@
  * dpkg - main program for package management
  * packages.c - common to actions that process packages
  *
- * Copyright © 1994,1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1994,1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 2006-2014 Guillem Jover <guillem@debian.org>
  * Copyright © 2011 Linaro Limited
  * Copyright © 2011 Raphaël Hertzog <hertzog@debian.org>
@@ -28,7 +28,6 @@
 #include <sys/stat.h>
 
 #include <assert.h>
-#include <ctype.h>
 #include <string.h>
 #include <fcntl.h>
 #include <dirent.h>
@@ -73,11 +72,11 @@ enqueue_package_mark_seen(struct pkginfo *pkg)
 static void
 enqueue_pending(void)
 {
-  struct pkgiterator *it;
+  struct pkgiterator *iter;
   struct pkginfo *pkg;
 
-  it = pkg_db_iter_new();
-  while ((pkg = pkg_db_iter_next_pkg(it)) != NULL) {
+  iter = pkg_db_iter_new();
+  while ((pkg = pkg_db_iter_next_pkg(iter)) != NULL) {
     switch (cipaction->arg_int) {
     case act_configure:
       if (!(pkg->status == PKG_STAT_UNPACKED ||
@@ -109,7 +108,7 @@ enqueue_pending(void)
     }
     enqueue_package(pkg);
   }
-  pkg_db_iter_free(it);
+  pkg_db_iter_free(iter);
 }
 
 static void
@@ -270,7 +269,7 @@ void process_queue(void) {
     case act_triggers:
       if (!pkg->trigpend_head)
         ohshit(_("package %.250s is not ready for trigger processing\n"
-                 " (current status `%.250s' with no pending triggers)"),
+                 " (current status '%.250s' with no pending triggers)"),
                pkg_name(pkg, pnaw_nonambig), pkg_status_name(pkg));
       /* Fall through. */
     case act_install:

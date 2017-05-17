@@ -2,7 +2,7 @@
  * dpkg - main program for package management
  * filesdb.c - management of database of files installed on system
  *
- * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 2000,2001 Wichert Akkerman <wakkerma@debian.org>
  * Copyright © 2008-2014 Guillem Jover <guillem@debian.org>
  *
@@ -235,7 +235,7 @@ ensure_packagefiles_available(struct pkginfo *pkg)
 
   if (fd==-1) {
     if (errno != ENOENT)
-      ohshite(_("unable to open files list file for package `%.250s'"),
+      ohshite(_("unable to open files list file for package '%.250s'"),
               pkg_name(pkg, pnaw_nonambig));
     onerr_abort--;
     if (pkg->status != PKG_STAT_CONFIGFILES &&
@@ -282,7 +282,7 @@ ensure_packagefiles_available(struct pkginfo *pkg)
       if (ptr > thisline && ptr[-1] == '/') ptr--;
       /* Add the file to the list. */
       if (ptr == thisline)
-        ohshit(_("files list file for package `%.250s' contains empty filename"),
+        ohshit(_("files list file for package '%.250s' contains empty filename"),
                pkg_name(pkg, pnaw_nonambig));
       *ptr = '\0';
 
@@ -293,7 +293,7 @@ ensure_packagefiles_available(struct pkginfo *pkg)
   }
   pop_cleanup(ehflag_normaltidy); /* fd = open() */
   if (close(fd))
-    ohshite(_("error closing files list file for package `%.250s'"),
+    ohshite(_("error closing files list file for package '%.250s'"),
             pkg_name(pkg, pnaw_nonambig));
 
   onerr_abort--;
@@ -449,6 +449,7 @@ write_filelist_except(struct pkginfo *pkg, struct pkgbin *pkgbin,
                       struct fileinlist *list, enum filenamenode_flags mask)
 {
   struct atomic_file *file;
+  struct fileinlist *node;
   const char *listfile;
 
   listfile = pkg_infodb_get_file(pkg, pkgbin, LISTFILE);
@@ -456,12 +457,11 @@ write_filelist_except(struct pkginfo *pkg, struct pkgbin *pkgbin,
   file = atomic_file_new(listfile, 0);
   atomic_file_open(file);
 
-  while (list) {
-    if (!(mask && (list->namenode->flags & mask))) {
-      fputs(list->namenode->name, file->fp);
+  for (node = list; node; node = node->next) {
+    if (!(mask && (node->namenode->flags & mask))) {
+      fputs(node->namenode->name, file->fp);
       putc('\n', file->fp);
     }
-    list= list->next;
   }
 
   atomic_file_sync(file);
@@ -579,6 +579,15 @@ void filesdbinit(void) {
       fnn->newhash = EMPTYHASHFLAG;
       fnn->filestat = NULL;
     }
+}
+
+void
+files_db_reset(void)
+{
+  int i;
+
+  for (i = 0; i < BINS; i++)
+    bins[i] = NULL;
 }
 
 struct filenamenode *findnamenode(const char *name, enum fnnflags flags) {

@@ -16,7 +16,12 @@
 use strict;
 use warnings;
 
-use Test::More tests => 124;
+use Test::More;
+use Test::Dpkg qw(:needs);
+
+test_needs_command('c++filt');
+
+plan tests => 124;
 
 use_ok('Dpkg::Shlibs::Cppfilt');
 

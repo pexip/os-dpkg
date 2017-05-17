@@ -2,8 +2,8 @@
  * libdpkg - Debian packaging suite library routines
  * pkg-array.c - primitives for pkg array handling
  *
- * Copyright © 1995,1996 Ian Jackson <ian@chiark.greenend.org.uk>
- * Copyright © 2009-2014 Guillem Jover <guillem@debian.org>
+ * Copyright © 1995,1996 Ian Jackson <ijackson@chiark.greenend.org.uk>
+ * Copyright © 2009-2015 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,19 +62,42 @@ pkg_array_init_from_names(struct pkg_array *a, pkg_mapper_func pkg_mapper,
 void
 pkg_array_init_from_db(struct pkg_array *a)
 {
-	struct pkgiterator *it;
+	struct pkgiterator *iter;
 	struct pkginfo *pkg;
 	int i;
 
 	a->n_pkgs = pkg_db_count_pkg();
 	a->pkgs = m_malloc(sizeof(a->pkgs[0]) * a->n_pkgs);
 
-	it = pkg_db_iter_new();
-	for (i = 0; (pkg = pkg_db_iter_next_pkg(it)); i++)
+	iter = pkg_db_iter_new();
+	for (i = 0; (pkg = pkg_db_iter_next_pkg(iter)); i++)
 		a->pkgs[i] = pkg;
-	pkg_db_iter_free(it);
+	pkg_db_iter_free(iter);
 
 	assert(i == a->n_pkgs);
+}
+
+/**
+ * Visit each non-NULL package in a package array.
+ *
+ * @param a The array to visit.
+ * @param pkg_visitor The function to visit each item of the array.
+ * @param pkg_data Data to pass pkg_visit for each package visited.
+ */
+void
+pkg_array_foreach(struct pkg_array *a, pkg_array_visitor_func *pkg_visitor,
+                  void *pkg_data)
+{
+	int i;
+
+	for (i = 0; i < a->n_pkgs; i++) {
+		struct pkginfo *pkg = a->pkgs[i];
+
+		if (pkg == NULL)
+			continue;
+
+		pkg_visitor(a, pkg, pkg_data);
+	}
 }
 
 /**

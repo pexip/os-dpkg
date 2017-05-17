@@ -1,7 +1,7 @@
 /*
  * libcompat - system compatibility library
  *
- * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,7 +60,6 @@ const char *const sys_siglist[] = {
 #  define NSIG 32
 # endif
 # define COMPAT_NSIGLIST NSIG
-extern const char *const sys_siglist[];
 #endif
 
 const char *

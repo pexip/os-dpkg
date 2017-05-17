@@ -17,7 +17,9 @@ use strict;
 use warnings;
 
 use Test::More;
+
 use Dpkg::ErrorHandling;
+use Dpkg::IPC;
 
 report_options(quiet_warnings => 1);
 
@@ -28,11 +30,17 @@ my @ops = ('<', '<<', 'lt',
 	   '>=', 'ge',
 	   '>', '>>', 'gt');
 
-plan tests => scalar(@tests) * (3 * scalar(@ops) + 4) + 13;
+plan tests => scalar(@tests) * (3 * scalar(@ops) + 4) + 30;
 
 sub dpkg_vercmp {
      my ($a, $cmp, $b) = @_;
-     return system('dpkg', '--compare-versions', '--', $a, $cmp, $b) == 0;
+     my $stderr;
+
+     spawn(exec => [ 'dpkg', '--compare-versions', '--', $a, $cmp, $b ],
+           error_to_string => \$stderr, wait_child => 1, nocheck => 1);
+     diag("dpkg --compare-versions error=$?: $stderr") if $? and $? != 256;
+
+     return $? == 0;
 }
 
 sub obj_vercmp {
@@ -80,6 +88,22 @@ my $empty = Dpkg::Version->new('');
 ok($empty eq '', "Dpkg::Version->new('') eq ''");
 ok($empty->as_string() eq '', "Dpkg::Version->new('')->as_string() eq ''");
 ok(!$empty->is_valid(), 'empty version is invalid');
+$empty = Dpkg::Version->new('-0');
+ok($empty eq '', "Dpkg::Version->new('-0') eq '-0'");
+ok($empty->as_string() eq '-0', "Dpkg::Version->new('-0')->as_string() eq '-0'");
+ok(!$empty->is_valid(), 'empty upstream version is invalid');
+$empty = Dpkg::Version->new('0:-0');
+ok($empty eq '0:-0', "Dpkg::Version->new('0:-0') eq '0:-0'");
+ok($empty->as_string() eq '0:-0', "Dpkg::Version->new('0:-0')->as_string() eq '0:-0'");
+ok(!$empty->is_valid(), 'empty upstream version with epoch is invalid');
+$empty = Dpkg::Version->new(':1.0');
+ok($empty eq ':1.0', "Dpkg::Version->new(':1.0') eq ':1.0'");
+ok($empty->as_string() eq ':1.0', "Dpkg::Version->new(':1.0')->as_string() eq ':1.0'");
+ok(!$empty->is_valid(), 'empty epoch is invalid');
+$empty = Dpkg::Version->new('1.0-');
+ok($empty eq '1.0-', "Dpkg::Version->new('1.0-') eq '1.0-'");
+ok($empty->as_string() eq '1.0-', "Dpkg::Version->new('1.0-')->as_string() eq '1.0-'");
+ok(!$empty->is_valid(), 'empty revision is invalid');
 my $ver = Dpkg::Version->new('10a:5.2');
 ok(!$ver->is_valid(), 'bad epoch is invalid');
 ok(!$ver, 'bool eval of invalid leads to false');
@@ -91,6 +115,18 @@ $ver = Dpkg::Version->new('foo5.2');
 ok(!$ver->is_valid(), 'version does not start with digit 1/2');
 $ver = Dpkg::Version->new('0:foo5.2');
 ok(!$ver->is_valid(), 'version does not start with digit 2/2');
+
+# Native and non-native versions
+$ver = Dpkg::Version->new('1.0');
+ok($ver->is_native(), 'upstream version is native');
+$ver = Dpkg::Version->new('1:1.0');
+ok($ver->is_native(), 'upstream version w/ epoch is native');
+$ver = Dpkg::Version->new('1:1.0:1.0');
+ok($ver->is_native(), 'upstream version w/ epoch and colon is native');
+$ver = Dpkg::Version->new('1.0-1');
+ok(!$ver->is_native(), 'upstream version w/ revision is not native');
+$ver = Dpkg::Version->new('1.0-1.0-1');
+ok(!$ver->is_native(), 'upstream version w/ dash and revision is not native');
 
 # Other tests
 $ver = Dpkg::Version->new('1.2.3-4');
@@ -134,10 +170,10 @@ __DATA__
 1:0foo 0foo 1
 0:0foo 0foo 0
 0foo 0foo 0
-0foo- 0foo 0
-0foo- 0foo-0 0
+0foo-0 0foo 0
+0foo 0foo-0 0
 0foo 0fo 1
-0foo- 0foo+ -1
+0foo-0 0foo+ -1
 0foo~1 0foo -1
 0foo~foo+Bar 0foo~foo+bar -1
 0foo~~ 0foo~ -1
@@ -167,4 +203,3 @@ __DATA__
 1:3.8.1-1 3.8.GA-1 1
 1.0.1+gpl-1 1.0.1-2 1
 1a 1000a -1
--0.6.5 0.9.1 -1

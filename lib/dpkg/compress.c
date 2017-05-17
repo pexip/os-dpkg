@@ -4,7 +4,7 @@
  *
  * Copyright © 2000 Wichert Akkerman <wakkerma@debian.org>
  * Copyright © 2004 Scott James Remnant <scott@netsplit.com>
- * Copyright © 2006-2014 Guillem Jover <guillem@debian.org>
+ * Copyright © 2006-2015 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,13 +29,13 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#ifdef WITH_ZLIB
+#ifdef WITH_LIBZ
 #include <zlib.h>
 #endif
 #ifdef WITH_LIBLZMA
 #include <lzma.h>
 #endif
-#ifdef WITH_BZ2
+#ifdef WITH_LIBBZ2
 #include <bzlib.h>
 #endif
 
@@ -47,7 +47,7 @@
 #include <dpkg/buffer.h>
 #include <dpkg/command.h>
 #include <dpkg/compress.h>
-#if !defined(WITH_ZLIB) || !defined(WITH_LIBLZMA) || !defined(WITH_BZ2)
+#if !defined(WITH_LIBZ) || !defined(WITH_LIBLZMA) || !defined(WITH_LIBBZ2)
 #include <dpkg/subproc.h>
 
 static void DPKG_ATTR_SENTINEL
@@ -145,7 +145,7 @@ fixup_gzip_params(struct compress_params *params)
 		params->type = COMPRESSOR_TYPE_NONE;
 }
 
-#ifdef WITH_ZLIB
+#ifdef WITH_LIBZ
 static void
 decompress_gzip(int fd_in, int fd_out, const char *desc)
 {
@@ -278,7 +278,7 @@ fixup_bzip2_params(struct compress_params *params)
 		params->level = 1;
 }
 
-#ifdef WITH_BZ2
+#ifdef WITH_LIBBZ2
 static void
 decompress_bzip2(int fd_in, int fd_out, const char *desc)
 {
@@ -503,7 +503,7 @@ filter_lzma(struct io_lzma *io, int fd_in, int fd_out)
 		ohshite(_("%s: lzma close error"), io->desc);
 }
 
-static void
+static void DPKG_ATTR_NORET
 filter_lzma_error(struct io_lzma *io, lzma_ret ret)
 {
 	ohshit(_("%s: lzma error: %s"), io->desc,
@@ -527,6 +527,17 @@ static void
 filter_xz_init(struct io_lzma *io, lzma_stream *s)
 {
 	uint32_t preset;
+	lzma_check check = LZMA_CHECK_CRC64;
+#ifdef HAVE_LZMA_MT
+	uint64_t mt_memlimit;
+	lzma_mt mt_options = {
+		.flags = 0,
+		.block_size = 0,
+		.timeout = 0,
+		.filters = NULL,
+		.check = check,
+	};
+#endif
 	lzma_ret ret;
 
 	io->status |= DPKG_STREAM_COMPRESS;
@@ -534,7 +545,39 @@ filter_xz_init(struct io_lzma *io, lzma_stream *s)
 	preset = io->params->level;
 	if (io->params->strategy == COMPRESSOR_STRATEGY_EXTREME)
 		preset |= LZMA_PRESET_EXTREME;
-	ret = lzma_easy_encoder(s, preset, LZMA_CHECK_CRC32);
+
+#ifdef HAVE_LZMA_MT
+	mt_options.preset = preset;
+
+	/* Initialize the multi-threaded memory limit to half the physical
+	 * RAM, or to 128 MiB if we cannot infer the number. */
+	mt_memlimit = lzma_physmem() / 2;
+	if (mt_memlimit == 0)
+		mt_memlimit = 128 * 1024 * 1024;
+	/* Clamp the multi-threaded memory limit to half the addressable
+	 * memory on this architecture. */
+	if (mt_memlimit > INTPTR_MAX)
+		mt_memlimit = INTPTR_MAX;
+
+	mt_options.threads = lzma_cputhreads();
+	if (mt_options.threads == 0)
+		mt_options.threads = 1;
+
+	/* Guess whether we have enough RAM to use the multi-threaded encoder,
+	 * and decrease them up to single-threaded to reduce memory usage. */
+	for (; mt_options.threads > 1; mt_options.threads--) {
+		uint64_t mt_memusage;
+
+		mt_memusage = lzma_stream_encoder_mt_memusage(&mt_options);
+		if (mt_memusage < mt_memlimit)
+			break;
+	}
+
+	ret = lzma_stream_encoder_mt(s, &mt_options);
+#else
+	ret = lzma_easy_encoder(s, preset, check);
+#endif
+
 	if (ret != LZMA_OK)
 		filter_lzma_error(io, ret);
 }
@@ -829,6 +872,8 @@ decompress_filter(enum compressor_type type, int fd_in, int fd_out,
 	va_end(args);
 
 	compressor(type)->decompress(fd_in, fd_out, desc.buf);
+
+	varbuf_destroy(&desc);
 }
 
 void
@@ -843,4 +888,6 @@ compress_filter(struct compress_params *params, int fd_in, int fd_out,
 	va_end(args);
 
 	compressor(params->type)->compress(fd_in, fd_out, params, desc.buf);
+
+	varbuf_destroy(&desc);
 }

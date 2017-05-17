@@ -27,8 +27,6 @@ as an array of changelog entries (Dpkg::Changelog::Entry).
 By deriving this object and implementing its parse method, you
 add the ability to fill this object with changelog entries.
 
-=head2 FUNCTIONS
-
 =cut
 
 package Dpkg::Changelog;
@@ -36,11 +34,12 @@ package Dpkg::Changelog;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
-use Dpkg;
+use Carp;
+
 use Dpkg::Gettext;
-use Dpkg::ErrorHandling qw(:DEFAULT report);
+use Dpkg::ErrorHandling qw(:DEFAULT report REPORT_WARN);
 use Dpkg::Control;
 use Dpkg::Control::Changelog;
 use Dpkg::Control::Fields;
@@ -53,9 +52,11 @@ use parent qw(Dpkg::Interface::Storable);
 use overload
     '@{}' => sub { return $_[0]->{data} };
 
+=head1 METHODS
+
 =over 4
 
-=item my $c = Dpkg::Changelog->new(%options)
+=item $c = Dpkg::Changelog->new(%options)
 
 Creates a new changelog object.
 
@@ -103,7 +104,7 @@ previous L<parse> runs.
 =cut
 
 sub reset_parse_errors {
-    my ($self) = @_;
+    my $self = shift;
     $self->{parse_errors} = [];
 }
 
@@ -159,7 +160,7 @@ the original line
 =cut
 
 sub get_parse_errors {
-    my ($self) = @_;
+    my $self = shift;
 
     if (wantarray) {
 	return @{$self->{parse_errors}};
@@ -167,9 +168,9 @@ sub get_parse_errors {
 	my $res = '';
 	foreach my $e (@{$self->{parse_errors}}) {
 	    if ($e->[3]) {
-		$res .= report(_g('warning'), _g("%s(l%s): %s\nLINE: %s"), @$e);
+		$res .= report(REPORT_WARN, g_("%s(l%s): %s\nLINE: %s"), @$e);
 	    } else {
-		$res .= report(_g('warning'), _g('%s(l%s): %s'), @$e);
+		$res .= report(REPORT_WARN, g_('%s(l%s): %s'), @$e);
 	    }
 	}
 	return $res;
@@ -194,7 +195,7 @@ sub set_unparsed_tail {
 }
 
 sub get_unparsed_tail {
-    my ($self) = @_;
+    my $self = shift;
     return $self->{unparsed_tail};
 }
 
@@ -217,7 +218,7 @@ sub __sanity_check_range {
     my $data = $self->{data};
 
     if (defined($r->{offset}) and not defined($r->{count})) {
-	warning(_g("'offset' without 'count' has no effect")) if $self->{verbose};
+	warning(g_("'offset' without 'count' has no effect")) if $self->{verbose};
 	delete $r->{offset};
     }
 
@@ -226,7 +227,7 @@ sub __sanity_check_range {
         (defined($r->{from}) || defined($r->{since}) ||
 	 defined($r->{to}) || defined($r->{until})))
     {
-	warning(_g("you can't combine 'count' or 'offset' with any other " .
+	warning(g_("you can't combine 'count' or 'offset' with any other " .
 		   'range option')) if $self->{verbose};
 	delete $r->{from};
 	delete $r->{since};
@@ -234,12 +235,12 @@ sub __sanity_check_range {
 	delete $r->{until};
     }
     if (defined($r->{from}) && defined($r->{since})) {
-	warning(_g("you can only specify one of 'from' and 'since', using " .
+	warning(g_("you can only specify one of 'from' and 'since', using " .
 		   "'since'")) if $self->{verbose};
 	delete $r->{from};
     }
     if (defined($r->{to}) && defined($r->{until})) {
-	warning(_g("you can only specify one of 'to' and 'until', using " .
+	warning(g_("you can only specify one of 'to' and 'until', using " .
 		   "'until'")) if $self->{verbose};
 	delete $r->{to};
     }
@@ -247,12 +248,14 @@ sub __sanity_check_range {
     # Handle non-existing versions
     my (%versions, @versions);
     foreach my $entry (@{$data}) {
-        $versions{$entry->get_version()->as_string()} = 1;
-        push @versions, $entry->get_version()->as_string();
+        my $version = $entry->get_version();
+        next unless defined $version;
+        $versions{$version->as_string()} = 1;
+        push @versions, $version->as_string();
     }
     if ((defined($r->{since}) and not exists $versions{$r->{since}})) {
-        warning(_g("'%s' option specifies non-existing version"), 'since');
-        warning(_g('use newest entry that is earlier than the one specified'));
+        warning(g_("'%s' option specifies non-existing version"), 'since');
+        warning(g_('use newest entry that is earlier than the one specified'));
         foreach my $v (@versions) {
             if (version_compare_relation($v, REL_LT, $r->{since})) {
                 $r->{since} = $v;
@@ -261,14 +264,14 @@ sub __sanity_check_range {
         }
         if (not exists $versions{$r->{since}}) {
             # No version was earlier, include all
-            warning(_g('none found, starting from the oldest entry'));
+            warning(g_('none found, starting from the oldest entry'));
             delete $r->{since};
             $r->{from} = $versions[-1];
         }
     }
     if ((defined($r->{from}) and not exists $versions{$r->{from}})) {
-        warning(_g("'%s' option specifies non-existing version"), 'from');
-        warning(_g('use oldest entry that is later than the one specified'));
+        warning(g_("'%s' option specifies non-existing version"), 'from');
+        warning(g_('use oldest entry that is later than the one specified'));
         my $oldest;
         foreach my $v (@versions) {
             if (version_compare_relation($v, REL_GT, $r->{from})) {
@@ -278,13 +281,13 @@ sub __sanity_check_range {
         if (defined($oldest)) {
             $r->{from} = $oldest;
         } else {
-            warning(_g("no such entry found, ignoring '%s' parameter"), 'from');
+            warning(g_("no such entry found, ignoring '%s' parameter"), 'from');
             delete $r->{from}; # No version was oldest
         }
     }
     if (defined($r->{until}) and not exists $versions{$r->{until}}) {
-        warning(_g("'%s' option specifies non-existing version"), 'until');
-        warning(_g('use oldest entry that is later than the one specified'));
+        warning(g_("'%s' option specifies non-existing version"), 'until');
+        warning(g_('use oldest entry that is later than the one specified'));
         my $oldest;
         foreach my $v (@versions) {
             if (version_compare_relation($v, REL_GT, $r->{until})) {
@@ -294,13 +297,13 @@ sub __sanity_check_range {
         if (defined($oldest)) {
             $r->{until} = $oldest;
         } else {
-            warning(_g("no such entry found, ignoring '%s' parameter"), 'until');
+            warning(g_("no such entry found, ignoring '%s' parameter"), 'until');
             delete $r->{until}; # No version was oldest
         }
     }
     if (defined($r->{to}) and not exists $versions{$r->{to}}) {
-        warning(_g("'%s' option specifies non-existing version"), 'to');
-        warning(_g('use newest entry that is earlier than the one specified'));
+        warning(g_("'%s' option specifies non-existing version"), 'to');
+        warning(g_('use newest entry that is earlier than the one specified'));
         foreach my $v (@versions) {
             if (version_compare_relation($v, REL_LT, $r->{to})) {
                 $r->{to} = $v;
@@ -309,17 +312,17 @@ sub __sanity_check_range {
         }
         if (not exists $versions{$r->{to}}) {
             # No version was earlier
-            warning(_g("no such entry found, ignoring '%s' parameter"), 'to');
+            warning(g_("no such entry found, ignoring '%s' parameter"), 'to');
             delete $r->{to};
         }
     }
 
     if (defined($r->{since}) and $data->[0]->get_version() eq $r->{since}) {
-	warning(_g("'since' option specifies most recent version, ignoring"));
+	warning(g_("'since' option specifies most recent version, ignoring"));
 	delete $r->{since};
     }
     if (defined($r->{until}) and $data->[-1]->get_version() eq $r->{until}) {
-	warning(_g("'until' option specifies oldest version, ignoring"));
+	warning(g_("'until' option specifies oldest version, ignoring"));
 	delete $r->{until};
     }
     ## use critic
@@ -411,7 +414,7 @@ entries selected by the range set at creation (or with set_options).
 =cut
 
 sub abort_early {
-    my ($self) = @_;
+    my $self = shift;
 
     my $data = $self->{data} or return;
     my $r = $self->{range} or return;
@@ -472,52 +475,6 @@ sub output {
     return $str;
 }
 
-=item my $control = $c->dpkg($range)
-
-Returns a Dpkg::Control::Changelog object representing the entries selected
-by the optional range specifier (see L<"RANGE SELECTION"> for details).
-Returns undef in no entries are matched.
-
-The following fields are contained in the object:
-
-=over 4
-
-=item Source
-
-package name (in the first entry)
-
-=item Version
-
-packages' version (from first entry)
-
-=item Distribution
-
-target distribution (from first entry)
-
-=item Urgency
-
-urgency (highest of all printed entries)
-
-=item Maintainer
-
-person that created the (first) entry
-
-=item Date
-
-date of the (first) entry
-
-=item Closes
-
-bugs closed by the entry/entries, sorted by bug number
-
-=item Changes
-
-content of the the entry/entries
-
-=back
-
-=cut
-
 our ( @URGENCIES, %URGENCIES );
 BEGIN {
     @URGENCIES = qw(low medium high critical emergency);
@@ -525,7 +482,7 @@ BEGIN {
     %URGENCIES = map { $_ => $i++ } @URGENCIES;
 }
 
-sub dpkg {
+sub _format_dpkg {
     my ($self, $range) = @_;
 
     my @data = $self->get_range($range) or return;
@@ -538,6 +495,7 @@ sub dpkg {
     $f->{Distribution} = join(' ', $src->get_distributions());
     $f->{Maintainer} = $src->get_maintainer() // '';
     $f->{Date} = $src->get_timestamp() // '';
+    $f->{Timestamp} = $src->get_timepiece && $src->get_timepiece->epoch // '';
     $f->{Changes} = $src->get_dpkg_changes();
 
     # handle optional fields
@@ -579,21 +537,11 @@ sub dpkg {
     return $f;
 }
 
-=item my @controls = $c->rfc822($range)
-
-Returns a Dpkg::Index containing Dpkg::Control::Changelog objects where
-each object represents one entry in the changelog that is part of the
-range requested (see L<"RANGE SELECTION"> for details). For the format of
-such an object see the description of the L<"dpkg"> method (while ignoring
-the remarks about which values are taken from the first entry).
-
-=cut
-
-sub rfc822 {
+sub _format_rfc822 {
     my ($self, $range) = @_;
 
     my @data = $self->get_range($range) or return;
-    my $index = Dpkg::Index->new(type => CTRL_CHANGELOG);
+    my @ctrl;
 
     foreach my $entry (@data) {
 	my $f = Dpkg::Control::Changelog->new();
@@ -603,6 +551,7 @@ sub rfc822 {
 	$f->{Distribution} = join(' ', $entry->get_distributions());
 	$f->{Maintainer} = $entry->get_maintainer() // '';
 	$f->{Date} = $entry->get_timestamp() // '';
+	$f->{Timestamp} = $entry->get_timepiece && $entry->get_timepiece->epoch // '';
 	$f->{Changes} = $entry->get_dpkg_changes();
 
 	# handle optional fields
@@ -613,9 +562,129 @@ sub rfc822 {
 
         run_vendor_hook('post-process-changelog-entry', $f);
 
-	$index->add($f);
+        push @ctrl, $f;
     }
-    return $index;
+
+    return @ctrl;
+}
+
+=item $control = $c->format_range($format, $range)
+
+Formats the changelog into Dpkg::Control::Changelog objects representing the
+entries selected by the optional range specifier (see L<"RANGE SELECTION">
+for details). In scalar context returns a Dpkg::Index object containing the
+selected entries, in list context returns an array of Dpkg::Control::Changelog
+objects.
+
+With format B<dpkg> the returned Dpkg::Control::Changelog object is coalesced
+from the entries in the changelog that are part of the range requested,
+with the fields described below, but considering that "selected entry"
+means the first entry of the selected range.
+
+With format B<rfc822> each returned Dpkg::Control::Changelog objects
+represents one entry in the changelog that is part of the range requested,
+with the fields described below, but considering that "selected entry"
+means for each entry.
+
+The different formats return undef if no entries are matched. The following
+fields are contained in the object(s) returned:
+
+=over 4
+
+=item Source
+
+package name (selected entry)
+
+=item Version
+
+packages' version (selected entry)
+
+=item Distribution
+
+target distribution (selected entry)
+
+=item Urgency
+
+urgency (highest of all entries in range)
+
+=item Maintainer
+
+person that created the (selected) entry
+
+=item Date
+
+date of the (selected) entry
+
+=item Timestamp
+
+date of the (selected) entry as a timestamp in seconds since the epoch
+
+=item Closes
+
+bugs closed by the (selected) entry/entries, sorted by bug number
+
+=item Changes
+
+content of the (selected) entry/entries
+
+=back
+
+=cut
+
+sub format_range {
+    my ($self, $format, $range) = @_;
+
+    my @ctrl;
+
+    if ($format eq 'dpkg') {
+        @ctrl = $self->_format_dpkg($range);
+    } elsif ($format eq 'rfc822') {
+        @ctrl = $self->_format_rfc822($range);
+    } else {
+        croak "unknown changelog output format $format";
+    }
+
+    if (wantarray) {
+        return @ctrl;
+    } else {
+        my $index = Dpkg::Index->new(type => CTRL_CHANGELOG);
+
+        foreach my $f (@ctrl) {
+            $index->add($f);
+        }
+
+        return $index;
+    }
+}
+
+=item $control = $c->dpkg($range)
+
+This is a deprecated alias for $c->format_range('dpkg', $range).
+
+=cut
+
+sub dpkg {
+    my ($self, $range) = @_;
+
+    warnings::warnif('deprecated',
+                     'deprecated method, please use format_range("dpkg", $range) instead');
+
+    return $self->format_range('dpkg', $range);
+}
+
+=item @controls = $c->rfc822($range)
+
+This is a deprecated alias for C<scalar c->format_range('rfc822', $range)>.
+
+=cut
+
+sub rfc822 {
+    my ($self, $range) = @_;
+
+    warnings::warnif('deprecated',
+                     'deprecated method, please use format_range("rfc822", $range) instead');
+
+    return scalar $self->format_range('rfc822', $range);
 }
 
 =back
@@ -678,17 +747,18 @@ wasn't given as well.
 Some examples for the above options. Imagine an example changelog with
 entries for the versions 1.2, 1.3, 2.0, 2.1, 2.2, 3.0 and 3.1.
 
-            Range                           Included entries
- C<{ since =E<gt> '2.0' }>                  3.1, 3.0, 2.2
- C<{ until =E<gt> '2.0' }>                  1.3, 1.2
- C<{ from =E<gt> '2.0' }>                   3.1, 3.0, 2.2, 2.1, 2.0
- C<{ to =E<gt> '2.0' }>                     2.0, 1.3, 1.2
- C<{ count =E<gt> 2 }>                      3.1, 3.0
- C<{ count =E<gt> -2 }>	                    1.3, 1.2
- C<{ count =E<gt> 3, offset=E<gt> 2 }>      2.2, 2.1, 2.0
- C<{ count =E<gt> 2, offset=E<gt> -3 }>     2.0, 1.3
- C<{ count =E<gt> -2, offset=E<gt> 3 }>     3.0, 2.2
- C<{ count =E<gt> -2, offset=E<gt> -3 }>    2.2, 2.1
+  Range                        Included entries
+  -----                        ----------------
+  since => '2.0'               3.1, 3.0, 2.2
+  until => '2.0'               1.3, 1.2
+  from  => '2.0'               3.1, 3.0, 2.2, 2.1, 2.0
+  to    => '2.0'               2.0, 1.3, 1.2
+  count =>  2                  3.1, 3.0
+  count => -2                  1.3, 1.2
+  count =>  3, offset => 2     2.2, 2.1, 2.0
+  count =>  2, offset => -3    2.0, 1.3
+  count => -2, offset => 3     3.0, 2.2
+  count => -2, offset => -3    2.2, 2.1
 
 Any combination of one option of C<since> and C<from> and one of
 C<until> and C<to> returns the intersection of the two results
@@ -696,14 +766,17 @@ with only one of the options specified.
 
 =head1 CHANGES
 
-=head2 Version 1.00
+=head2 Version 1.01 (dpkg 1.18.8)
+
+New method: $c->format_range().
+
+Deprecated methods: $c->dpkg(), $c->rfc822().
+
+New field Timestamp in output formats.
+
+=head2 Version 1.00 (dpkg 1.15.6)
 
 Mark the module as public.
-
-=head1 AUTHOR
-
-Frank Lichtenheld, E<lt>frank@lichtenheld.deE<gt>
-Raphaël Hertzog, E<lt>hertzog@debian.orgE<gt>
 
 =cut
 1;

@@ -16,9 +16,16 @@
 use strict;
 use warnings;
 
-use Test::More tests => 118;
+use Test::More;
+use Test::Dpkg qw(:needs :paths);
+
 use Cwd;
-use IO::String;
+
+test_needs_module('IO::String');
+
+plan tests => 148;
+
+use Dpkg::Path qw(find_command);
 
 use_ok('Dpkg::Shlibs');
 
@@ -26,26 +33,38 @@ my $tmp;
 my @tmp;
 my %tmp;
 
-my @save_paths = Dpkg::Shlibs::get_library_paths();
-Dpkg::Shlibs::reset_library_paths();
+my $datadir = test_get_data_path('t/Dpkg_Shlibs');
 
-my $srcdir = $ENV{srcdir} || '.';
-my $datadir = $srcdir . '/t/Dpkg_Shlibs';
+my @librarypaths;
+
+{
+    # XXX: Keep as long as we support the deprecated LD_LIBRARY_PATH.
+    local $ENV{LD_LIBRARY_PATH} = '/test-env';
+
+    Dpkg::Shlibs::add_library_dir('/test-a');
+    @librarypaths = Dpkg::Shlibs::get_library_paths();
+    is($librarypaths[0], '/test-a', 'add_library_dir() does not get lost');
+
+    Dpkg::Shlibs::add_library_dir('/test-b');
+    @librarypaths = Dpkg::Shlibs::get_library_paths();
+    is_deeply([ @librarypaths[0, 1] ] , [ '/test-a', '/test-b' ],
+              'add_library_dir() prepends');
+}
+
+Dpkg::Shlibs::blank_library_paths();
 
 # We want relative paths inside the ld.so.conf fragments to work, and $srcdir
 # is usually a relative path, so let's temporarily switch directory.
 # XXX: An alternative would be to make parse_ldso_conf relative path aware.
 my $cwd = cwd();
-chdir($srcdir);
+test_needs_srcdir_switch();
 Dpkg::Shlibs::parse_ldso_conf('t/Dpkg_Shlibs/ld.so.conf');
 chdir($cwd);
 
-use Data::Dumper;
-
-my @librarypaths = Dpkg::Shlibs::get_library_paths();
-is_deeply([qw(/nonexistant32 /nonexistant/lib64
-	     /usr/local/lib /nonexistant/lib128 )],
-	  \@librarypaths, 'parsed library paths');
+@librarypaths = Dpkg::Shlibs::get_library_paths();
+is_deeply(\@librarypaths,
+          [ qw(/nonexistent32 /nonexistent/lib64
+               /usr/local/lib /nonexistent/lib128) ], 'parsed library paths');
 
 use_ok('Dpkg::Shlibs::Objdump');
 
@@ -180,7 +199,7 @@ sub save_load_test {
 
     is_deeply($dup, $symfile, $comment);
     if (-f $symfile->{file}) {
-	is( system(sprintf("diff -u '%s' '%s' >&2", $symfile->{file}, $save_file->filename)), 0,
+	is(system('diff', '-u', $symfile->{file}, $save_file->filename), 0,
 	    basename($symfile->{file}) . ' dumped identical');
     }
 }
@@ -340,6 +359,42 @@ is_deeply( $sym, { name => 'IA__g_free', version => '',
 		   hidden => '', defined => 1 },
 		   'symbol with visibility without version' );
 
+# Check parsing of objdump output when symbol names contain spaces
+$obj = Dpkg::Shlibs::Objdump::Object->new;
+
+open $objdump, '<', "$datadir/objdump.spacesyms"
+    or die "$datadir/objdump.spacesyms: $!";
+$obj->parse_objdump_output($objdump);
+close $objdump;
+
+sub check_spacesym {
+    my ($name, $version, $visibility) = @_;
+
+    $visibility //= '';
+    $sym = $obj->get_symbol($name . "@" . $version);
+    is_deeply($sym, { name => $name, version => $version,
+                      soname => 'libspacesyms.so.1',
+                      objid => 'libspacesyms.so.1',
+                      section => '.text', dynamic => 1,
+                      debug => '', type => 'F', weak => '',
+                      local => '', global => 1, visibility => $visibility,
+                      hidden => '', defined => 1 }, $name);
+    ok(defined $obj->{dynrelocs}{$name}, "dynreloc found for $name");
+}
+
+check_spacesym('symdefaultvernospacedefault', 'Base');
+check_spacesym('symdefaultvernospaceprotected', 'Base', 'protected');
+check_spacesym('symlongvernospacedefault', 'VERY_LONG_VERSION_1');
+check_spacesym('symlongvernospaceprotected', 'VERY_LONG_VERSION_1', 'protected');
+check_spacesym('symshortvernospacedefault', 'V1');
+check_spacesym('symshortvernospaceprotected', 'V1', 'protected');
+check_spacesym('symdefaultverSPA CEdefault', 'Base');
+check_spacesym('symdefaultverSPA CEprotected', 'Base', 'protected');
+check_spacesym('symlongverSPA CEdefault', 'VERY_LONG_VERSION_1');
+check_spacesym('symlongverSPA CEprotected', 'VERY_LONG_VERSION_1', 'protected');
+check_spacesym('symshortverSPA CEdefault', 'V1');
+check_spacesym('symshortverSPA CEprotected', 'V1', 'protected');
+
 ####### Test symbol tagging support  ######
 
 # Parsing/dumping
@@ -355,9 +410,27 @@ is(${$io->string_ref()},
 | libbasictags1 (>= 1.1)
  symbol11_optional@Base 1.1 1
  symbol21_amd64@Base 2.1
+ symbol25_64@Base 2.5
+ symbol26_little@Base 2.6
  symbol31_randomtag@Base 3.1
  symbol51_untagged@Base 5.1
 ', 'template vs. non-template on amd64');
+
+# Dumping in non-template mode (mips) (test for arch tags)
+$io = IO::String->new();
+$sym_file = Dpkg::Shlibs::SymbolFile->new(file => "$datadir/basictags.symbols", arch => 'mips');
+$sym_file->output($io);
+is(${$io->string_ref()},
+'libbasictags.so.1 libbasictags1 #MINVER#
+| libbasictags1 (>= 1.1)
+ symbol11_optional@Base 1.1 1
+ symbol23_mips@Base 2.3
+ symbol24_32@Base 2.4
+ symbol27_big@Base 2.7
+ symbol31_randomtag@Base 3.1
+ symbol42_mips_and_optional@Base 4.2
+ symbol51_untagged@Base 5.1
+', 'template vs. non-template on mips');
 
 # Dumping in non-template mode (i386) (test for arch tags)
 $io = IO::String->new();
@@ -369,6 +442,9 @@ is(${$io->string_ref()},
 | libbasictags1 (>= 1.1)
  symbol11_optional@Base 1.1 1
  symbol22_i386@Base 2.2
+ symbol24_32@Base 2.4
+ symbol26_little@Base 2.6
+ symbol28_little_32@Base 2.8
  symbol31_randomtag@Base 3.1
  symbol41_i386_and_optional@Base 4.1
  symbol51_untagged@Base 5.1
@@ -423,7 +499,7 @@ is_deeply($sym, Dpkg::Shlibs::Symbol->new(symbol => 'symbol11_optional@Base',
 		  symbol_templ => 'symbol11_optional@Base',
 		  minver => '1.1', dep_id => 1, deprecated => 0,
 		  tags => { optional => undef }, tagorder => [ 'optional' ]),
-	    'reappered optional symbol gets undeprecated + minver');
+	    'reappeared optional symbol gets undeprecated + minver');
 is( scalar($sym_file->get_lost_symbols($sym_file_dup) +
            $sym_file->get_new_symbols($sym_file_dup)), 0, 'reappeared optional symbol: neither NEW nor LOST');
 
@@ -443,6 +519,9 @@ is( $sym->get_symbolspec(1), ' symbol21_amd64@Base 2.1', 'no tags => no quotes i
 
 # - arch specific symbol disappears
 delete $tags_obj_i386->{dynsyms}{'symbol22_i386@Base'};
+delete $tags_obj_i386->{dynsyms}{'symbol24_32@Base'};
+delete $tags_obj_i386->{dynsyms}{'symbol26_little@Base'};
+delete $tags_obj_i386->{dynsyms}{'symbol28_little_32@Base'};
 delete $tags_obj_i386->{dynsyms}{'symbol41_i386_and_optional@Base'};
 $sym_file->merge_symbols($tags_obj_i386, '100.MISSING');
 
@@ -450,9 +529,30 @@ $sym = $sym_file->lookup_symbol('symbol22_i386@Base', ['libbasictags.so.1'], 1);
 is_deeply($sym, Dpkg::Shlibs::Symbol->new(symbol => 'symbol22_i386@Base',
 		  symbol_templ => 'symbol22_i386@Base',
 		  minver => '2.2', dep_id => 0, deprecated => '100.MISSING',
-		  tags => { arch => '!amd64 !ia64 !alpha' },
+		  tags => { arch => '!amd64 !ia64 !mips' },
 		  tagorder => [ 'arch' ]),
 	    'disappeared arch specific symbol gets deprecated');
+$sym = $sym_file->lookup_symbol('symbol24_32@Base', ['libbasictags.so.1'], 1);
+is_deeply($sym, Dpkg::Shlibs::Symbol->new(symbol => 'symbol24_32@Base',
+		  symbol_templ => 'symbol24_32@Base',
+		  minver => '2.4', dep_id => 0, deprecated => '100.MISSING',
+		  tags => { 'arch-bits' => '32' },
+		  tagorder => [ 'arch-bits' ]),
+	    'disappeared arch bits specific symbol gets deprecated');
+$sym = $sym_file->lookup_symbol('symbol26_little@Base', ['libbasictags.so.1'], 1);
+is_deeply($sym, Dpkg::Shlibs::Symbol->new(symbol => 'symbol26_little@Base',
+		  symbol_templ => 'symbol26_little@Base',
+		  minver => '2.6', dep_id => 0, deprecated => '100.MISSING',
+		  tags => { 'arch-endian' => 'little' },
+		  tagorder => [ 'arch-endian' ]),
+	    'disappeared arch endian specific symbol gets deprecated');
+$sym = $sym_file->lookup_symbol('symbol28_little_32@Base', ['libbasictags.so.1'], 1);
+is_deeply($sym, Dpkg::Shlibs::Symbol->new(symbol => 'symbol28_little_32@Base',
+		  symbol_templ => 'symbol28_little_32@Base',
+		  minver => '2.8', dep_id => 0, deprecated => '100.MISSING',
+		  tags => { 'arch-bits' => '32', 'arch-endian' => 'little' },
+		  tagorder => [ 'arch-bits', 'arch-endian' ]),
+	    'disappeared arch bits and endian specific symbol gets deprecated');
 $sym = $sym_file->lookup_symbol('symbol41_i386_and_optional@Base', ['libbasictags.so.1'], 1);
 is_deeply($sym, Dpkg::Shlibs::Symbol->new(symbol => 'symbol41_i386_and_optional@Base',
 		  symbol_templ => 'symbol41_i386_and_optional@Base',
@@ -461,8 +561,10 @@ is_deeply($sym, Dpkg::Shlibs::Symbol->new(symbol => 'symbol41_i386_and_optional@
 		  tags => { arch => 'i386', optional => 'reason' },
 		  tagorder => [ 'arch', 'optional' ]),
 	    'disappeared optional arch specific symbol gets deprecated');
-@tmp = map { $_->{symbol}->get_symbolname() } $sym_file->get_lost_symbols($sym_file_dup);
-is_deeply( \@tmp, [ 'symbol22_i386@Base' ], "missing arch specific is LOST, but optional arch specific isn't");
+@tmp = sort map { $_->{symbol}->get_symbolname() } $sym_file->get_lost_symbols($sym_file_dup);
+is_deeply(\@tmp, [ 'symbol22_i386@Base', 'symbol24_32@Base',
+                   'symbol26_little@Base', 'symbol28_little_32@Base' ],
+          "missing arch specific is LOST, but optional arch specific isn't");
 
 # Tests for tagged #includes
 $sym_file = Dpkg::Shlibs::SymbolFile->new(file => "$datadir/symbols.include-3", arch => 'i386');
@@ -496,6 +598,11 @@ is ( $sym->{teststruct}{foo}, 1, 'original field "foo" not changed' );
 is ( $sym->{testfield}, 1, 'original field "testfield" not changed' );
 
 ############ Test symbol patterns ###########
+
+SKIP: {
+
+skip 'c++filt not available', 41 if not find_command('c++filt');
+
 sub load_patterns_obj {
     $obj = Dpkg::Shlibs::Objdump::Object->new();
     open $objdump, '<', "$datadir/objdump.patterns"
@@ -668,4 +775,6 @@ is_deeply( \@tmp, [ $pat->get_symbolspec(1) ],
 foreach my $sym ($pat->get_pattern_matches()) {
     ok(!$sym->{deprecated}, $sym->get_symbolname() . ': not deprecated');
     is($sym->{minver}, '100.FOUND', $sym->get_symbolname() . ': version bumped');
+}
+
 }
