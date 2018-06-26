@@ -47,22 +47,23 @@ De controle\-data mogen ingesloten liggen in een OpenPGP\-handtekening met
 ASCII\-harnas volgens de specificatie RFC4880.
 .PP
 De naam van het \fB.buildinfo\fP\-bestand is afhankelijk van het type bouw en is
-zo specifiek als nodig, maar niet meer. Voor een bouw die \fBany\fP vermeldt,
-is de naam
-\fIbroncode\-naam\fP\fB_\fP\fIbroncode\-versie\fP\fB_\fP\fIarch\fP\fB.buildinfo\fP. In geval het
-een bouw betreft die \fBall\fP vermeldt, is de naam
-\fIbroncode\-naam\fP\fB_\fP\fIbroncode\-versie\fP\fB_\fP\fBall.buildinfo\fP. En in geval het
-een bouw betreft die \fBsource\fP vermeldt, is de naam
+zo specifiek als nodig, maar niet meer. Voor een bouw die \fBany\fP bevat, is
+de naam \fIbroncode\-naam\fP\fB_\fP\fIbinaire\-versie\fP\fB_\fP\fIarch\fP\fB.buildinfo\fP. In
+geval het een bouw betreft die \fBall\fP bevat, is de naam
+\fIbroncode\-naam\fP\fB_\fP\fIbinaire\-versie\fP\fB_\fP\fBall.buildinfo\fP. En in geval het
+een bouw betreft die \fBsource\fP bevat, is de naam
 \fIbroncode\-naam\fP\fB_\fP\fIbroncode\-versie\fP\fB_\fP\fBsource.buildinfo\fP.
 .
 .SH VELDEN
 .TP 
 \fBFormat:\fP \fIindelingsversie\fP (verplicht)
-The value of this field declares the format version of the file.  The syntax
-of the field value is a version number with a major and minor component.
-Backward incompatible changes to the format will bump the major version, and
-backward compatible changes (such as field additions) will bump the minor
-version.  The current format version is \fB1.0\fP.
+De waarde van dit veld bepaalt de indelingsversie van het bestand. De
+syntaxis van de veldwaarde is een versienummer met een hoofdversie\- en een
+onderversiecomponent. Wijzigingen aan de indeling die niet neerwaarts
+compatibel zijn, hebben een verhoging van het hoofdversienummer tot gevolg
+en neerwaarts compatibele veranderingen (zoals het toevoegen van extra
+velden) verhogen het onderversienummer. De huidige indelingsversie is
+\fB1.0\fP.
 .TP 
 \fBSource:\fP \fIbroncode\-naam\fP [\fB(\fP\fIbroncode\-versie\fP\fB)\fP] (verplicht)
 De naam van het broncodepakket. Indien de versie van het broncodepakket

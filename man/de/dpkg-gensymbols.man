@@ -468,7 +468,7 @@ debian/control aufgeführt ist (oder falls es keine Datei debian/control
 gibt).
 .TP 
 \fB\-v\fP\fIVersion\fP
-Definiert die Paketversion. Standardmäßig wird eie Version aus
+Definiert die Paketversion. Standardmäßig wird die Version aus
 debian/changelog ausgelesen. Benötigt, falls der Aufruf außerhalb des
 Quellpaketbaums erfolgt.
 .TP 

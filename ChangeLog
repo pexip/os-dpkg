@@ -1,3 +1,350 @@
+commit b08068d4bdaf60b2c15556de4da52c0dc9da5fa9
+Author: Guillem Jover <guillem@debian.org>
+Date:   Tue Jun 26 13:06:28 2018 +0200
+
+    Release 1.18.25
+
+ debian/changelog | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit eb870c76f6f416ff93ed02069a0c6578aab38928
+Author: Guillem Jover <guillem@debian.org>
+Date:   Tue Jun 26 11:55:06 2018 +0200
+
+    po: Update translations from master branch
+
+ debian/changelog        |   7 +
+ dselect/po/bs.po        |   2 +-
+ dselect/po/ca.po        |   2 +-
+ dselect/po/cs.po        |   2 +-
+ dselect/po/da.po        |   2 +-
+ dselect/po/de.po        |   2 +-
+ dselect/po/dselect.pot  |   4 +-
+ dselect/po/el.po        |   2 +-
+ dselect/po/es.po        |   2 +-
+ dselect/po/et.po        |   2 +-
+ dselect/po/eu.po        |   2 +-
+ dselect/po/fr.po        |   2 +-
+ dselect/po/gl.po        |   2 +-
+ dselect/po/hu.po        |   2 +-
+ dselect/po/id.po        |   2 +-
+ dselect/po/it.po        |   2 +-
+ dselect/po/ja.po        |   2 +-
+ dselect/po/ko.po        |   2 +-
+ dselect/po/nb.po        |   2 +-
+ dselect/po/nl.po        |   2 +-
+ dselect/po/nn.po        |   2 +-
+ dselect/po/pl.po        |   2 +-
+ dselect/po/pt.po        |   2 +-
+ dselect/po/pt_BR.po     |   2 +-
+ dselect/po/ro.po        |   2 +-
+ dselect/po/ru.po        |   2 +-
+ dselect/po/sk.po        |   2 +-
+ dselect/po/sv.po        |   2 +-
+ dselect/po/tl.po        |   2 +-
+ dselect/po/vi.po        |   2 +-
+ dselect/po/zh_CN.po     |   2 +-
+ dselect/po/zh_TW.po     |   2 +-
+ man/po/de.po            |  57 ++++---
+ man/po/dpkg-man.pot     |  36 ++--
+ man/po/es.po            |  41 +++--
+ man/po/fr.po            |  44 +++--
+ man/po/hu.po            |  32 ++--
+ man/po/it.po            |  44 +++--
+ man/po/ja.po            |  41 +++--
+ man/po/nl.po            | 150 ++++++++---------
+ man/po/pl.po            |  41 +++--
+ man/po/pt_BR.po         |  32 ++--
+ man/po/ru.po            |  32 ++--
+ man/po/sv.po            |  44 +++--
+ man/po/zh_CN.po         |  33 ++--
+ po/ast.po               |  28 ++-
+ po/bs.po                |  19 ++-
+ po/ca.po                |  28 ++-
+ po/cs.po                |  28 ++-
+ po/da.po                |  28 ++-
+ po/de.po                |  23 ++-
+ po/dpkg.pot             |  19 ++-
+ po/dz.po                |  26 ++-
+ po/el.po                |  26 ++-
+ po/eo.po                |  28 ++-
+ po/es.po                | 139 +++++++--------
+ po/et.po                |  26 ++-
+ po/eu.po                |  28 ++-
+ po/fr.po                |  28 ++-
+ po/gl.po                |  26 ++-
+ po/hu.po                |  26 ++-
+ po/id.po                |  28 ++-
+ po/it.po                | 439 ++++++++++++++++++------------------------------
+ po/ja.po                |  27 ++-
+ po/km.po                |  26 ++-
+ po/ko.po                |  28 ++-
+ po/ku.po                |  23 ++-
+ po/lt.po                |  26 ++-
+ po/mr.po                |  26 ++-
+ po/nb.po                |  28 ++-
+ po/ne.po                |  26 ++-
+ po/nl.po                |  24 ++-
+ po/nn.po                |  26 ++-
+ po/pa.po                |  25 ++-
+ po/pl.po                |  28 ++-
+ po/pt.po                | 275 +++++++++++-------------------
+ po/pt_BR.po             |  26 ++-
+ po/ro.po                |  28 ++-
+ po/ru.po                |  28 ++-
+ po/sk.po                |  28 ++-
+ po/sv.po                |  28 ++-
+ po/th.po                |  28 ++-
+ po/tl.po                |  26 ++-
+ po/tr.po                |  23 ++-
+ po/vi.po                |  28 ++-
+ po/zh_CN.po             | 141 ++++++----------
+ po/zh_TW.po             |  28 ++-
+ scripts/po/ca.po        |   2 +-
+ scripts/po/de.po        |   2 +-
+ scripts/po/dpkg-dev.pot |   4 +-
+ scripts/po/es.po        |   2 +-
+ scripts/po/fr.po        |   2 +-
+ scripts/po/pl.po        |   2 +-
+ scripts/po/ru.po        |   2 +-
+ scripts/po/sv.po        |   2 +-
+ 95 files changed, 1520 insertions(+), 1189 deletions(-)
+
+commit 1240bdbb128d96b0252768c86eb751c0692ee449
+Author: Guillem Jover <guillem@debian.org>
+Date:   Thu Jun 14 02:50:36 2018 +0200
+
+    Update git URLs for move away from alioth.debian.org
+    
+    The Alioth site has shut down, let's move to the new dpkg.org hosting.
+    
+    (cherry picked from commit 178d8914519ead4113df423f2a275c21b712f666)
+
+ README                  | 2 +-
+ debian/changelog        | 1 +
+ debian/control          | 4 ++--
+ man/deb-src-control.man | 4 ++--
+ 4 files changed, 6 insertions(+), 5 deletions(-)
+
+commit 2adba9aa9355521cc077549975c188be7ba737c7
+Author: Manuel A. Fernandez Montecelo <mafm@debian.org>
+Date:   Tue Jan 16 00:43:51 2018 +0100
+
+    arch: Add support for riscv64 CPU
+    
+    [guillem@debian.org:
+     - Update unit-tests. ]
+    
+    Closes: #822914
+    Stable-Candidate: 1.18.x
+    Signed-off-by: Guillem Jover <guillem@debian.org>
+    (cherry picked from commit ee0855cc66076691de4796be48f8a0d889fde001)
+
+ data/cputable         | 1 +
+ debian/changelog      | 3 +++
+ scripts/t/Dpkg_Arch.t | 4 ++--
+ 3 files changed, 6 insertions(+), 2 deletions(-)
+
+commit 0f34ad8fbc44187a52b86360ef7347a4e3ec7e30
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sat Oct 28 03:27:46 2017 +0200
+
+    dpkg-deb: Fix directory traversal with --raw-extract
+    
+    Guarantee that the DEBIAN pathname does not exist.
+    
+    Closes: #879982
+    Reported-by: Jakub Wilk <jwilk@jwilk.net>
+    (cherry picked from commit 5003d763fdd29fe9533b2927eb083d6e6d6d98d4)
+
+ debian/changelog    |  3 +++
+ dpkg-deb/dpkg-deb.h |  2 ++
+ dpkg-deb/extract.c  | 16 ++++++++--------
+ 3 files changed, 13 insertions(+), 8 deletions(-)
+
+commit bb3f3e7ea99db3d8ac4330a59fd9a9225193f4a9
+Author: Guillem Jover <guillem@debian.org>
+Date:   Tue Oct 17 22:42:16 2017 +0200
+
+    dpkg-buildpackage: Do not rehash .dsc file when signing binary-only builds
+    
+    Reported-by: Ximin Luo <infinity0@debian.org>
+    Stable-Candidate: 1.18.x
+    (cherry picked from commit 7e48a3921244dcaa0c2bf9fadd53a52ab230212a)
+
+ debian/changelog             | 2 ++
+ scripts/dpkg-buildpackage.pl | 6 ++++--
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+commit 634200ccc13eefb6704ea1ca5beba426b1dac14f
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sat Sep 16 13:43:52 2017 +0200
+
+    Dpkg::Getopt: Do not normalize args past a passthrough stop word
+    
+    Some commands pass some arguments through to another command, and those
+    must not be normalized as that might break their invocation.
+    
+    Reported-by: Helmut Grohne <helmut@subdivi.de>
+    Stable-Candidate: 1.17.x 1.18.x
+    (cherry picked from commit 2e344c2119c5a55a3180ddd61c67f8a657520ceb)
+
+ debian/changelog               |  5 +++++
+ scripts/Dpkg/Getopt.pm         | 13 ++++++++-----
+ scripts/dpkg-architecture.pl   |  2 +-
+ scripts/dpkg-parsechangelog.pl |  2 +-
+ scripts/t/Dpkg_Getopt.t        | 11 ++++++++---
+ 5 files changed, 23 insertions(+), 10 deletions(-)
+
+commit 4f0506459fdd872f9a049712d4ba1aec7578b175
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sat Aug 26 15:50:37 2017 +0200
+
+    man: Use correct name for archname validator value
+    
+    Reported-by: Niels Thykier <niels@thykier.net>
+    (cherry picked from commit e6e7cef81e77343249df5cffbcd4a9f0d06772de)
+
+ debian/changelog | 2 ++
+ man/dpkg.man     | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+commit 8d80f5b3e0bed5e4d968d0672dab218e640c0b17
+Author: Guillem Jover <guillem@debian.org>
+Date:   Wed May 24 03:06:25 2017 +0200
+
+    man: Update buildinfo information to match the current implementation
+    
+    (cherry picked from commit b8a9fefcfa67f7c93a526cfdb3c92943129f9d65)
+
+ debian/changelog          | 3 +++
+ man/dpkg-buildpackage.man | 4 ++--
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+
+commit 53310bfd97a571ee77cb080ee728aba037efdce2
+Author: Jakub Wilk <jwilk@jwilk.net>
+Date:   Thu Sep 7 01:46:58 2017 +0200
+
+    libdpkg: Fix integer overflow in unit test
+    
+    Fixes: commit 59f63342b9121b9d941d3dbd09487c953a113f6e
+    Signed-off-by: Guillem Jover <guillem@debian.org>
+    (cherry picked from commit 0fe059239ea00e6c82830f15a9417889d2789839)
+
+ lib/dpkg/t/t-deb-version.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit ccaf877b2ac0e8c859d12e52db95214c21875b54
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sun Aug 20 10:03:33 2017 +0200
+
+    libdpkg: Fix integer overflow in deb(5) version parser
+    
+    The previous code was both not checking for overflows, and triggering
+    undefined behavior as it was overflowing a signed integer.
+    
+    Closes: #868356
+    (cherry picked from commit 59f63342b9121b9d941d3dbd09487c953a113f6e)
+
+ debian/changelog           |  2 ++
+ lib/dpkg/deb-version.c     | 27 +++++++++++++++++++++------
+ lib/dpkg/t/t-deb-version.c | 22 +++++++++++++++++++++-
+ 3 files changed, 44 insertions(+), 7 deletions(-)
+
+commit 6f7c5d10175d226b6f5dabad42b62967b9b104bb
+Author: Guillem Jover <guillem@debian.org>
+Date:   Wed Jul 5 16:33:41 2017 +0200
+
+    dpkg-genbuildinfo: Always use the binary version for the .buildinfo filename
+    
+    We should use the binary (instead of the source) version for the
+    .buildinfo filename, otherwise on binNMUs the filename will be wrong.
+    
+    Reported-by: Raphaël Hertzog <hertzog@debian.org>
+    (cherry picked from commit f02d4572568398a55503351d9e5d04212a4207fc)
+    (cherry picked from commit 17319b5bd1271d88ef8dd55a64aa03cd12121c8a)
+
+ debian/changelog             | 3 +++
+ man/deb-buildinfo.man        | 4 ++--
+ man/dpkg-buildpackage.man    | 4 ++--
+ man/dpkg-genbuildinfo.man    | 2 +-
+ scripts/dpkg-genbuildinfo.pl | 5 +++--
+ 5 files changed, 11 insertions(+), 7 deletions(-)
+
+commit 93c2a08582b44a03aee8470e39b7f6f6d0c596c3
+Author: Guillem Jover <guillem@debian.org>
+Date:   Tue Jul 4 03:33:25 2017 +0200
+
+    s-s-d: Parse usernames and groupnames starting with digits correctly
+    
+    We should not consider a username or groupname that starts with digits
+    as a valid uid or gid. When parsing integers we should parse the strings
+    fully and not consider any partial parsing to be correct.
+    
+    Reported-by: Bodo Eggert <7eggert@online.de>
+    (cherry picked from commit 55c291c69bc9ee7c00731f4f5ffafd42673eb7d1)
+
+ debian/changelog          | 2 ++
+ utils/start-stop-daemon.c | 6 +++---
+ 2 files changed, 5 insertions(+), 3 deletions(-)
+
+commit 6c0e73a5357d46618b88bec39e7b8e068fc7e62e
+Merge: 0aeb21504 a00610920
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sun Feb 18 21:30:59 2018 +0100
+
+    Merge branch '1.18.x'
+
+commit 0aeb2150459710bc2899ab9160336bf44f082620
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sun Oct 1 01:17:24 2017 +0200
+
+    debian: Add versioned Build-Depends on tar
+    
+    The tar --clamp-mtime option is used in Dpkg::Source::Archive which
+    is used by dpkg-source, used by the test suite.
+    
+    Closes: #877330
+
+ debian/changelog | 5 ++++-
+ debian/control   | 2 ++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+commit a00610920540a595664d9c014174fd33f1be7446
+Author: Sven Joachim <svenjoac@gmx.de>
+Date:   Sat Nov 4 09:37:41 2017 +0100
+
+    Fix minor error in German dpkg translation
+    
+    Commit ef6187ded62bb3973e4e57779edc87c3e2904af5 removed support for
+    the bzip2 compression method, but "dpkg-deb --help" inadvertently
+    still mentioned it in the German translation.
+
+ debian/changelog | 3 +++
+ po/de.po         | 4 ++--
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+
+commit 197a4ba07d4e4e2ab50c2976858443ab94d0c760
+Author: Helge Kreutzmann <debian@helgefjell.de>
+Date:   Wed Oct 18 21:00:44 2017 +0200
+
+    Update German translation of manual pages (typo fix)
+    
+    Update to 2841t1f.
+
+ debian/changelog |  7 +++++++
+ man/po/de.po     | 13 ++-----------
+ 2 files changed, 9 insertions(+), 11 deletions(-)
+
+commit 4827c8cea445e75225a61ef62d83c282de4195da
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sun May 28 03:13:46 2017 +0200
+
+    Bump version to 1.18.25
+
+ debian/changelog | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
 commit 4fd7def03c96e82c03773c6eca111cf244bae8c0
 Author: Guillem Jover <guillem@debian.org>
 Date:   Wed May 17 13:16:31 2017 +0200

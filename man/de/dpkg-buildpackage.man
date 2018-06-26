@@ -65,18 +65,17 @@ wurde) oder \fBbuild\-arch\fP und \fBbinary\-arch\fP (falls ein \fBany\fP\- und 
 \fBbuild\-indep\fP und \fBbinary\-indep\fP (falls ein \fBall\fP\- und nicht \fBany\fP\-Bau
 mit \fB\-\-build\fP oder äquivalenten Optionen erbeten wurde).
 .IP \fB6.\fP 3
-Falls kein reiner Quellbau angefordert wurde, führt es den Hook \fBbuildinfo\fP
-aus und ruft \fBdpkg\-genbuildinfo\fP auf, um eine \fB.buildinfo\fP\-Datei zu
-erstellen. Viele Optionen von \fBdpkg\-buildpackage\fP werden an
-\fBdpkg\-genbuildinfo\fP weitergeleitet.
+Es führt den Hook \fBbuildinfo\fP aus und ruft \fBdpkg\-genbuildinfo\fP auf, um
+eine \fB.buildinfo\fP\-Datei zu erstellen. Viele Optionen von
+\fBdpkg\-buildpackage\fP werden an \fBdpkg\-genbuildinfo\fP weitergeleitet.
 .IP \fB7.\fP 3
 Es führt die \fBchanges\fP\-Hooks aus und ruft \fBdpkg\-genchanges\fP auf, um eine
 \&\fB.changes\fP\-Datei zu erstellen. Der Name der \fB.changes\fP\-Datei wird von der
 Art des Baus abhängen und wird so spezifisch wie notwendig sein, aber nicht
 mehr; für einen Bau, der \fBany\fP enthält, wird der Name
-\fIQuellname\fP\fB_\fP\fIQuellversion\fP\fB_\fP\fIArch\fP\fB.changes\fP oder andernfalls für
+\fIQuellname\fP\fB_\fP\fIBinärversion\fP\fB_\fP\fIArch\fP\fB.changes\fP oder andernfalls für
 einen Bau, der \fBall\fP enthält, wird der Name
-\fIQuellname\fP\fB_\fP\fIQuellversion\fP\fB_\fP\fBall.changes\fP oder andernfalls für einen
+\fIQuellname\fP\fB_\fP\fIBinärversion\fP\fB_\fP\fBall.changes\fP oder andernfalls für einen
 Bau, der \fBsource\fP enthält, wird der Name
 \fIQuellname\fP\fB_\fP\fIQuellversion\fP\fB_\fP\fBsource.changes\fP lauten. Viele Optionen
 von \fBdpkg\-buildpackage\fP werden an \fBdpkg\-genchanges\fP weitergegeben.
@@ -329,7 +328,8 @@ Konsequenzen auf.
 
 Die derzeit unterstützten \fIHook\-Name\fPn sind:
 
-\fBinit preclean source build binary changes postclean check sign done\fP
+\fBinit preclean source build binary buildinfo changes postclean check sign
+done\fP
 
 Der \fIHook\-Befehl\fP unterstützt die folgende Ersetzungsformatzeichenkette,
 die vor seiner Ausführung angewandt wird:

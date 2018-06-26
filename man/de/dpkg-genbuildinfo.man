@@ -93,7 +93,7 @@ für Informationen über alternative Formate.
 \fB\-O\fP[\fIDateiname\fP]
 Gibt die Buildinfo\-Datei zur Standardausgabe (oder \fIDateiname\fP, falls
 angegeben) aus, statt nach
-\fIVerz\fP\fB/\fP\fIQuellname\fP\fB_\fP\fIQuellversion\fP\fB_\fP\fIArch\fP\fB.buildinfo\fP (wobei
+\fIVerz\fP\fB/\fP\fIQuellname\fP\fB_\fP\fIBinärversion\fP\fB_\fP\fIArch\fP\fB.buildinfo\fP (wobei
 \fIVerz\fP standardmäßig \fB..\fP oder \fIHochladedateiverzeichnis\fP, falls \fB\-u\fP
 verwandt wurde, ist).
 .TP 
