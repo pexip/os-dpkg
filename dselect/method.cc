@@ -2,7 +2,7 @@
  * dselect - Debian package maintenance user interface
  * method.cc - access method handling
  *
- * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 2001,2002 Wichert Akkerman <wakkerma@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
@@ -30,7 +30,6 @@
 #include <assert.h>
 #include <errno.h>
 #include <limits.h>
-#include <ctype.h>
 #include <string.h>
 #include <fcntl.h>
 #include <dirent.h>
@@ -60,12 +59,9 @@ static int methlockfd= -1;
 static void
 sthfailed(const char * reasoning)
 {
-  char buf[2048];
-
   curseson();
   clear();
-  sprintf(buf,_("\n\n%s: %s\n"),DSELECT,reasoning);
-  addstr(buf);
+  printw(_("\n\n%s: %s\n"), DSELECT, reasoning);
   attrset(A_BOLD);
   addstr(_("\nPress <enter> to continue."));
   attrset(A_NORMAL);
@@ -121,10 +117,10 @@ static enum urqresult lockmethod(void) {
   }
   fl.l_type=F_WRLCK; fl.l_whence=SEEK_SET; fl.l_start=fl.l_len=0;
   if (fcntl(methlockfd,F_SETLK,&fl) == -1) {
-    if (errno == EWOULDBLOCK || errno == EAGAIN) {
+    if (errno == EACCES || errno == EAGAIN) {
       sthfailed(_("the access method area is already locked"));
       return urqr_fail;
-      }
+    }
     sthfailed(_("cannot lock access method area"));
     return urqr_fail;
   }
@@ -160,8 +156,10 @@ falliblesubprocess(struct command *cmd)
   }
   fprintf(stderr,_("Press <enter> to continue.\n"));
   m_output(stderr, _("<standard error>"));
-  do { c= fgetc(stdin); } while ((c == ERR && errno==EINTR) || ((c != '\n') && c != EOF));
-  if ((c == ERR) || (c == EOF))
+  do {
+    c = fgetc(stdin);
+  } while ((c == EOF && errno == EINTR) || (c != '\n' && c != EOF));
+  if (c == EOF)
     ohshite(_("error reading acknowledgement of program failure message"));
   return urqr_fail;
 }

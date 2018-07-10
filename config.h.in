@@ -54,13 +54,12 @@
 /* Define to 1 if the compiler supports C++11. */
 #undef HAVE_CXX11
 
+/* Define to 1 if you have the <cxxabi.h> header file. */
+#undef HAVE_CXXABI_H
+
 /* Define if the GNU dcgettext() function is already present or preinstalled.
    */
 #undef HAVE_DCGETTEXT
-
-/* Define to 1 if you have the declaration of `strnlen', and to 0 if you
-   don't. */
-#undef HAVE_DECL_STRNLEN
 
 /* Define to 1 if you have the declaration of `sys_errlist', and to 0 if you
    don't. */
@@ -137,8 +136,14 @@
 /* Define to 1 if you have the `lutimes' function. */
 #undef HAVE_LUTIMES
 
+/* xz multithreaded compression support */
+#undef HAVE_LZMA_MT
+
 /* Define to 1 if 'makedev' is declared in <sys/types.h> */
 #undef HAVE_MAKEDEV
+
+/* Define to 1 if you have the <md5.h> header file. */
+#undef HAVE_MD5_H
 
 /* Define to 1 if you have the `memcpy' function. */
 #undef HAVE_MEMCPY
@@ -227,6 +232,9 @@
 /* Define to 1 if you have the <sys/param.h> header file. */
 #undef HAVE_SYS_PARAM_H
 
+/* Define to 1 if you have the <sys/procfs.h> header file. */
+#undef HAVE_SYS_PROCFS_H
+
 /* Define to 1 if you have the <sys/proc.h> header file. */
 #undef HAVE_SYS_PROC_H
 
@@ -241,6 +249,9 @@
 
 /* Define to 1 if you have the <sys/sysctl.h> header file. */
 #undef HAVE_SYS_SYSCTL_H
+
+/* Define to 1 if you have the <sys/sysmacros.h> header file. */
+#undef HAVE_SYS_SYSMACROS_H
 
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
@@ -266,14 +277,16 @@
 /* Define to 1 if 'WCOREDUMP' is declared in <sys/wait.h> */
 #undef HAVE_WCOREDUMP
 
+/* Define to 1 if you have the `__cxa_pure_virtual' function. */
+#undef HAVE___CXA_PURE_VIRTUAL
+
 /* Define to 1 if you have __progname */
 #undef HAVE___PROGNAME
 
 /* Acknowledge the volatility of the API. */
 #undef LIBDPKG_VOLATILE_API
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
 
 /* Name of package */
@@ -284,6 +297,9 @@
 
 /* Define to the full name of this package. */
 #undef PACKAGE_NAME
+
+/* Define the project release information, version and architecture */
+#undef PACKAGE_RELEASE
 
 /* Define to the full name and version of this package. */
 #undef PACKAGE_STRING
@@ -297,6 +313,9 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
+/* GNU patch program */
+#undef PATCH
+
 /* The size of `unsigned int', as computed by sizeof. */
 #undef SIZEOF_UNSIGNED_INT
 
@@ -308,6 +327,9 @@
 
 /* GNU tar program */
 #undef TAR
+
+/* Use disk size pre-allocation */
+#undef USE_DISK_PREALLOCATE
 
 /* Use unreliable mmap support */
 #undef USE_MMAP
@@ -337,17 +359,17 @@
 /* Version number of package */
 #undef VERSION
 
-/* Define to 1 to use bz2 rather than console tool */
-#undef WITH_BZ2
+/* Define to 1 to use bz2 library rather than console tool */
+#undef WITH_LIBBZ2
 
-/* Define to 1 to use liblzma rather than console tool */
+/* Define to 1 to use lzma library rather than console tool */
 #undef WITH_LIBLZMA
 
 /* Define to 1 to compile in SELinux support */
-#undef WITH_SELINUX
+#undef WITH_LIBSELINUX
 
-/* Define to 1 to use zlib rather than console tool */
-#undef WITH_ZLIB
+/* Define to 1 to use z library rather than console tool */
+#undef WITH_LIBZ
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
@@ -360,10 +382,6 @@
 #  undef WORDS_BIGENDIAN
 # endif
 #endif
-
-/* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
-   `char[]'. */
-#undef YYTEXT_POINTER
 
 /* Enable large inode numbers on Mac OS X 10.5.  */
 #ifndef _DARWIN_USE_64_BIT_INODE

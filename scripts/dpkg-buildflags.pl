@@ -23,25 +23,26 @@ use warnings;
 
 use Dpkg ();
 use Dpkg::Gettext;
-use Dpkg::ErrorHandling qw(:DEFAULT report);
+use Dpkg::ErrorHandling qw(:DEFAULT report REPORT_STATUS);
+use Dpkg::Build::Env;
 use Dpkg::BuildFlags;
 use Dpkg::Vendor qw(get_current_vendor);
 
 textdomain('dpkg-dev');
 
 sub version {
-    printf _g("Debian %s version %s.\n"), $Dpkg::PROGNAME, $Dpkg::PROGVERSION;
+    printf g_("Debian %s version %s.\n"), $Dpkg::PROGNAME, $Dpkg::PROGVERSION;
 
-    printf _g('
+    printf g_('
 This is free software; see the GNU General Public License version 2 or
 later for copying conditions. There is NO warranty.
 ');
 }
 
 sub usage {
-    printf _g(
+    printf g_(
 'Usage: %s [<command>]')
-    . "\n\n" . _g(
+    . "\n\n" . g_(
 'Commands:
   --get <flag>       output the requested flag to stdout.
   --origin <flag>    output the origin of the flag to stdout:
@@ -67,20 +68,20 @@ my $load_config = 1;
 while (@ARGV) {
     $_ = shift(@ARGV);
     if (m/^--(get|origin|query-features)$/) {
-        usageerr(_g('two commands specified: --%s and --%s'), $1, $action)
+        usageerr(g_('two commands specified: --%s and --%s'), $1, $action)
             if defined($action);
         $action = $1;
         $param = shift(@ARGV);
-	usageerr(_g('%s needs a parameter'), $_) unless defined $param;
+	usageerr(g_('%s needs a parameter'), $_) unless defined $param;
     } elsif (m/^--export(?:=(sh|make|cmdline|configure))?$/) {
-        usageerr(_g('two commands specified: --%s and --%s'), 'export', $action)
+        usageerr(g_('two commands specified: --%s and --%s'), 'export', $action)
             if defined($action);
         my $type = $1 || 'sh';
         # Map legacy aliases.
         $type = 'cmdline' if $type eq 'configure';
         $action = "export-$type";
     } elsif (m/^--(list|status|dump)$/) {
-        usageerr(_g('two commands specified: --%s and --%s'), $1, $action)
+        usageerr(g_('two commands specified: --%s and --%s'), $1, $action)
             if defined($action);
         $action = $1;
         $load_config = 0 if $action eq 'list';
@@ -91,7 +92,7 @@ while (@ARGV) {
         version();
         exit 0;
     } else {
-	usageerr(_g("unknown option \`%s'"), $_);
+        usageerr(g_("unknown option '%s'"), $_);
     }
 }
 
@@ -151,15 +152,15 @@ if ($action eq 'list') {
     # First print all environment variables that might have changed the
     # results (only existing ones, might make sense to add an option to
     # also show which ones could have set to modify it).
-    my @envvars = Dpkg::BuildEnv::list_accessed();
+    my @envvars = Dpkg::Build::Env::list_accessed();
     for my $envvar (@envvars) {
 	if (exists $ENV{$envvar}) {
-	    printf report('status', 'environment variable %s=%s',
+	    printf report(REPORT_STATUS, 'environment variable %s=%s',
 	           $envvar, $ENV{$envvar});
 	}
     }
     my $vendor = Dpkg::Vendor::get_current_vendor() || 'undefined';
-    print report('status', "vendor is $vendor");
+    print report(REPORT_STATUS, "vendor is $vendor");
     # Then the resulting features:
     foreach my $area (sort $build_flags->get_feature_areas()) {
 	my $fs;
@@ -167,13 +168,13 @@ if ($action eq 'list') {
 	foreach my $feature (sort keys %features) {
 	    $fs .= sprintf(' %s=%s', $feature, $features{$feature} ? 'yes' : 'no');
 	}
-	print report('status', "$area features:$fs");
+	print report(REPORT_STATUS, "$area features:$fs");
     }
     # Then the resulting values (with their origin):
     foreach my $flag ($build_flags->list()) {
 	my $value = $build_flags->get($flag);
 	my $origin = $build_flags->get_origin($flag);
 	my $maintainer = $build_flags->is_maintainer_modified($flag) ? '+maintainer' : '';
-	print report('status', "$flag [$origin$maintainer]: $value");
+	print report(REPORT_STATUS, "$flag [$origin$maintainer]: $value");
     }
 }

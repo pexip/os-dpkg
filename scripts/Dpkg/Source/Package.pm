@@ -1,4 +1,5 @@
 # Copyright © 2008-2011 Raphaël Hertzog <hertzog@debian.org>
+# Copyright © 2008-2015 Guillem Jover <guillem@debian.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,14 +29,22 @@ packages. While it supports both the extraction and the creation
 of source packages, the only API that is officially supported
 is the one that supports the extraction of the source package.
 
-=head1 FUNCTIONS
-
 =cut
 
 use strict;
 use warnings;
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
+our @EXPORT_OK = qw(
+    get_default_diff_ignore_regex
+    set_default_diff_ignore_regex
+    get_default_tar_ignore_pattern
+);
+
+use Exporter qw(import);
+use POSIX qw(:errno_h :sys_wait_h);
+use Carp;
+use File::Basename;
 
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
@@ -48,15 +57,6 @@ use Dpkg::Path qw(check_files_are_the_same find_command);
 use Dpkg::IPC;
 use Dpkg::Vendor qw(run_vendor_hook);
 
-use Carp;
-use POSIX qw(:errno_h :sys_wait_h);
-use File::Basename;
-
-use Exporter qw(import);
-our @EXPORT_OK = qw(get_default_diff_ignore_regex
-                    set_default_diff_ignore_regex
-                    get_default_tar_ignore_pattern);
-
 my $diff_ignore_default_regex = '
 # Ignore general backup files
 (?:^|/).*~$|
@@ -67,11 +67,11 @@ my $diff_ignore_default_regex = '
 # Ignore baz-style junk files or directories
 (?:^|/),,.*(?:$|/.*$)|
 # File-names that should be ignored (never directories)
-(?:^|/)(?:DEADJOE|\.arch-inventory|\.(?:bzr|cvs|hg|git)ignore)$|
+(?:^|/)(?:DEADJOE|\.arch-inventory|\.(?:bzr|cvs|hg|git|mtn-)ignore)$|
 # File or directory names that should be ignored
 (?:^|/)(?:CVS|RCS|\.deps|\{arch\}|\.arch-ids|\.svn|
-\.hg(?:tags|sigs)?|_darcs|\.git(?:attributes|modules)?|
-\.shelf|_MTN|\.be|\.bzr(?:\.backup|tags)?)(?:$|/.*$)
+\.hg(?:tags|sigs)?|_darcs|\.git(?:attributes|modules|review)?|
+\.mailmap|\.shelf|_MTN|\.be|\.bzr(?:\.backup|tags)?)(?:$|/.*$)
 ';
 # Take out comments and newlines
 $diff_ignore_default_regex =~ s/^#.*$//mg;
@@ -106,10 +106,13 @@ our @tar_ignore_default_pattern = qw(
 .gitattributes
 .gitignore
 .gitmodules
+.gitreview
 .hg
 .hgignore
 .hgsigs
 .hgtags
+.mailmap
+.mtn-ignore
 .shelf
 .svn
 CVS
@@ -121,9 +124,11 @@ _darcs
 );
 ## use critic
 
+=head1 FUNCTIONS
+
 =over 4
 
-=item my $string = get_default_diff_ignore_regex()
+=item $string = get_default_diff_ignore_regex()
 
 Returns the default diff ignore regex.
 
@@ -140,12 +145,12 @@ Set a regex as the new default diff ignore regex.
 =cut
 
 sub set_default_diff_ignore_regex {
-    my ($regex) = @_;
+    my $regex = shift;
 
     $diff_ignore_default_regex = $regex;
 }
 
-=item my @array = get_default_tar_ignore_pattern()
+=item @array = get_default_tar_ignore_pattern()
 
 Returns the default tar ignore pattern, as an array.
 
@@ -154,6 +159,12 @@ Returns the default tar ignore pattern, as an array.
 sub get_default_tar_ignore_pattern {
     return @tar_ignore_default_pattern;
 }
+
+=back
+
+=head1 METHODS
+
+=over 4
 
 =item $p = Dpkg::Source::Package->new(filename => $dscfile, options => {})
 
@@ -177,6 +188,11 @@ specific for source packages using format "2.0" and "3.0 (quilt)".
 
 If set to 1, the check_signature() method will be stricter and will error
 out if the signature can't be verified.
+
+=item require_strong_checksums
+
+If set to 1, the check_checksums() method will be stricter and will error
+out if there is no strong checksum.
 
 =item copy_orig_tarballs
 
@@ -209,19 +225,23 @@ sub new {
 }
 
 sub init_options {
-    my ($self) = @_;
+    my $self = shift;
     # Use full ignore list by default
     # note: this function is not called by V1 packages
     $self->{options}{diff_ignore_regex} ||= $diff_ignore_default_regex;
     $self->{options}{diff_ignore_regex} .= '|(?:^|/)debian/source/local-.*$';
+    $self->{options}{diff_ignore_regex} .= '|(?:^|/)debian/files(?:\.new)?$';
     if (defined $self->{options}{tar_ignore}) {
         $self->{options}{tar_ignore} = [ @tar_ignore_default_pattern ]
             unless @{$self->{options}{tar_ignore}};
     } else {
         $self->{options}{tar_ignore} = [ @tar_ignore_default_pattern ];
     }
-    push @{$self->{options}{tar_ignore}}, 'debian/source/local-options',
-         'debian/source/local-patch-header';
+    push @{$self->{options}{tar_ignore}},
+         'debian/source/local-options',
+         'debian/source/local-patch-header',
+         'debian/files',
+         'debian/files.new';
     # Skip debianization while specific to some formats has an impact
     # on code common to all formats
     $self->{options}{skip_debianization} //= 0;
@@ -237,7 +257,7 @@ sub init_options {
 sub initialize {
     my ($self, $filename) = @_;
     my ($fn, $dir) = fileparse($filename);
-    error(_g('%s is not the name of a file'), $filename) unless $fn;
+    error(g_('%s is not the name of a file'), $filename) unless $fn;
     $self->{basedir} = $dir || './';
     $self->{filename} = $fn;
 
@@ -249,7 +269,7 @@ sub initialize {
 
     foreach my $f (qw(Source Version Files)) {
         unless (defined($fields->{$f})) {
-            error(_g('missing critical source control field %s'), $f);
+            error(g_('missing critical source control field %s'), $f);
         }
     }
 
@@ -265,29 +285,35 @@ sub upgrade_object_type {
     my $format = $self->{fields}{'Format'};
 
     if ($format =~ /^([\d\.]+)(?:\s+\((.*)\))?$/) {
-        my ($version, $variant, $major, $minor) = ($1, $2, $1, undef);
+        my ($version, $variant) = ($1, $2);
 
         if (defined $variant and $variant ne lc $variant) {
-            error(_g("source package format '%s' is not supported: %s"),
-                  $format, _g('format variant must be in lowercase'));
+            error(g_("source package format '%s' is not supported: %s"),
+                  $format, g_('format variant must be in lowercase'));
         }
 
-        $major =~ s/\.[\d\.]+$//;
+        my $major = $version =~ s/\.[\d\.]+$//r;
+        my $minor;
+
         my $module = "Dpkg::Source::Package::V$major";
         $module .= '::' . ucfirst $variant if defined $variant;
-        eval "require $module; \$minor = \$${module}::CURRENT_MINOR_VERSION;";
+        eval qq{
+            pop \@INC if \$INC[-1] eq '.';
+            require $module;
+            \$minor = \$${module}::CURRENT_MINOR_VERSION;
+        };
         $minor //= 0;
         if ($update_format) {
             $self->{fields}{'Format'} = "$major.$minor";
             $self->{fields}{'Format'} .= " ($variant)" if defined $variant;
         }
         if ($@) {
-            error(_g("source package format '%s' is not supported: %s"),
+            error(g_("source package format '%s' is not supported: %s"),
                   $format, $@);
         }
         bless $self, $module;
     } else {
-        error(_g("invalid Format field `%s'"), $format);
+        error(g_("invalid Format field '%s'"), $format);
     }
 }
 
@@ -298,7 +324,7 @@ Returns the filename of the DSC file.
 =cut
 
 sub get_filename {
-    my ($self) = @_;
+    my $self = shift;
     return $self->{basedir} . $self->{filename};
 }
 
@@ -310,7 +336,7 @@ usually do not have any path information.
 =cut
 
 sub get_files {
-    my ($self) = @_;
+    my $self = shift;
     return $self->{checksums}->get_files();
 }
 
@@ -318,24 +344,40 @@ sub get_files {
 
 Verify the checksums embedded in the DSC file. It requires the presence of
 the other files constituting the source package. If any inconsistency is
-discovered, it immediately errors out.
+discovered, it immediately errors out. It will make sure at least one strong
+checksum is present.
+
+If the object has been created with the "require_strong_checksums" option,
+then any problem will result in a fatal error.
 
 =cut
 
 sub check_checksums {
-    my ($self) = @_;
+    my $self = shift;
     my $checksums = $self->{checksums};
+    my $warn_on_weak = 0;
+
     # add_from_file verify the checksums if they are already existing
     foreach my $file ($checksums->get_files()) {
+        if (not $checksums->has_strong_checksums($file)) {
+            if ($self->{options}{require_strong_checksums}) {
+                error(g_('source package uses only weak checksums'));
+            } else {
+                $warn_on_weak = 1;
+            }
+        }
 	$checksums->add_from_file($self->{basedir} . $file, key => $file);
     }
+
+    warning(g_('source package uses only weak checksums')) if $warn_on_weak;
 }
 
 sub get_basename {
     my ($self, $with_revision) = @_;
     my $f = $self->{fields};
     unless (exists $f->{'Source'} and exists $f->{'Version'}) {
-        error(_g('source and version are required to compute the source basename'));
+        error(g_('%s and %s fields are required to compute the source basename'),
+              'Source', 'Version');
     }
     my $v = Dpkg::Version->new($f->{'Version'});
     my $vs = $v->as_string(omit_epoch => 1, omit_revision => !$with_revision);
@@ -351,7 +393,7 @@ sub find_original_tarballs {
     my @tar;
     foreach my $dir ('.', $self->{basedir}, $self->{options}{origtardir}) {
         next unless defined($dir) and -d $dir;
-        opendir(my $dir_dh, $dir) or syserr(_g('cannot opendir %s'), $dir);
+        opendir(my $dir_dh, $dir) or syserr(g_('cannot opendir %s'), $dir);
         push @tar, map { "$dir/$_" } grep {
 		($opts{include_main} and
 		 /^\Q$basename\E\.orig\.tar\.$opts{extension}$/) or
@@ -386,7 +428,7 @@ then any problem will result in a fatal error.
 =cut
 
 sub check_signature {
-    my ($self) = @_;
+    my $self = shift;
     my $dsc = $self->get_filename();
     my @exec;
 
@@ -403,7 +445,7 @@ sub check_signature {
         if (length $ENV{HOME} and -r "$ENV{HOME}/.gnupg/trustedkeys.gpg") {
             push @exec, '--keyring', "$ENV{HOME}/.gnupg/trustedkeys.gpg";
         }
-        foreach my $vendor_keyring (run_vendor_hook('keyrings')) {
+        foreach my $vendor_keyring (run_vendor_hook('package-keyrings')) {
             if (-r $vendor_keyring) {
                 push @exec, '--keyring', $vendor_keyring;
             }
@@ -420,27 +462,31 @@ sub check_signature {
             if ($gpg_status == 1 or ($gpg_status &&
                 $self->{options}{require_valid_signature}))
             {
-                error(_g('failed to verify signature on %s'), $dsc);
+                error(g_('failed to verify signature on %s'), $dsc);
             } elsif ($gpg_status) {
-                warning(_g('failed to verify signature on %s'), $dsc);
+                warning(g_('failed to verify signature on %s'), $dsc);
             }
         } else {
             subprocerr("@exec");
         }
     } else {
         if ($self->{options}{require_valid_signature}) {
-            error(_g("could not verify signature on %s since gpg isn't installed"), $dsc);
+            error(g_('cannot verify signature on %s since GnuPG is not installed'), $dsc);
         } else {
-            warning(_g("could not verify signature on %s since gpg isn't installed"), $dsc);
+            warning(g_('cannot verify signature on %s since GnuPG is not installed'), $dsc);
         }
     }
+}
+
+sub describe_cmdline_options {
+    return;
 }
 
 sub parse_cmdline_options {
     my ($self, @opts) = @_;
     foreach my $option (@opts) {
         if (not $self->parse_cmdline_option($option)) {
-            warning(_g('%s is not a valid option for %s'), $option, ref $self);
+            warning(g_('%s is not a valid option for %s'), $option, ref $self);
         }
     }
 }
@@ -452,7 +498,8 @@ sub parse_cmdline_option {
 =item $p->extract($targetdir)
 
 Extracts the source package in the target directory $targetdir. Beware
-that if $targetdir already exists, it will be erased.
+that if $targetdir already exists, it will be erased (as long as the
+no_overwrite_dir option is set).
 
 =cut
 
@@ -502,7 +549,7 @@ sub extract {
 	unless (-e $format_file) {
 	    mkdir($srcdir) unless -e $srcdir;
 	    open(my $format_fh, '>', $format_file)
-	        or syserr(_g('cannot write %s'), $format_file);
+	        or syserr(g_('cannot write %s'), $format_file);
 	    print { $format_fh } $self->{fields}{'Format'} . "\n";
 	    close($format_fh);
 	}
@@ -513,15 +560,15 @@ sub extract {
     my @s = lstat($rules);
     if (not scalar(@s)) {
         unless ($! == ENOENT) {
-            syserr(_g('cannot stat %s'), $rules);
+            syserr(g_('cannot stat %s'), $rules);
         }
-        warning(_g('%s does not exist'), $rules)
+        warning(g_('%s does not exist'), $rules)
             unless $self->{options}{skip_debianization};
     } elsif (-f _) {
         chmod($s[2] | 0111, $rules)
-            or syserr(_g('cannot make %s executable'), $rules);
+            or syserr(g_('cannot make %s executable'), $rules);
     } else {
-        warning(_g('%s is not a plain file'), $rules);
+        warning(g_('%s is not a plain file'), $rules);
     }
 }
 
@@ -556,7 +603,7 @@ sub do_build {
 
 sub can_build {
     my ($self, $dir) = @_;
-    return (0, 'can_build() has not been overriden');
+    return (0, 'can_build() has not been overridden');
 }
 
 sub add_file {
@@ -581,7 +628,7 @@ sub commit {
 
 sub do_commit {
     my ($self, $dir) = @_;
-    info(_g("'%s' is not supported by the source format '%s'"),
+    info(g_("'%s' is not supported by the source format '%s'"),
          'dpkg-source --commit', $self->{fields}{'Format'});
 }
 
@@ -594,14 +641,14 @@ sub write_dsc {
     }
 
     unless ($opts{nocheck}) {
-        foreach my $f (qw(Source Version)) {
+        foreach my $f (qw(Source Version Architecture)) {
             unless (defined($fields->{$f})) {
-                error(_g('missing information for critical output field %s'), $f);
+                error(g_('missing information for critical output field %s'), $f);
             }
         }
-        foreach my $f (qw(Maintainer Architecture Standards-Version)) {
+        foreach my $f (qw(Maintainer Standards-Version)) {
             unless (defined($fields->{$f})) {
-                warning(_g('missing information for output field %s'), $f);
+                warning(g_('missing information for output field %s'), $f);
             }
         }
     }
@@ -613,7 +660,7 @@ sub write_dsc {
     my $filename = $opts{filename};
     $filename //= $self->get_basename(1) . '.dsc';
     open(my $dsc_fh, '>', $filename)
-        or syserr(_g('cannot write %s'), $filename);
+        or syserr(g_('cannot write %s'), $filename);
     $fields->apply_substvars($opts{substvars});
     $fields->output($dsc_fh);
     close($dsc_fh);
@@ -623,20 +670,20 @@ sub write_dsc {
 
 =head1 CHANGES
 
-=head2 Version 1.01
+=head2 Version 1.02 (dpkg 1.18.7)
+
+New option: require_strong_checksums in check_checksums().
+
+=head2 Version 1.01 (dpkg 1.17.2)
 
 New functions: get_default_diff_ignore_regex(), set_default_diff_ignore_regex(),
 get_default_tar_ignore_pattern()
 
 Deprecated variables: $diff_ignore_default_regexp, @tar_ignore_default_pattern
 
-=head2 Version 1.00
+=head2 Version 1.00 (dpkg 1.16.1)
 
 Mark the module as public.
-
-=head1 AUTHOR
-
-Raphaël Hertzog, E<lt>hertzog@debian.orgE<gt>
 
 =cut
 

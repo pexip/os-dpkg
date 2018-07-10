@@ -2,7 +2,7 @@
  * dpkg - main program for package management
  * depcon.c - dependency and conflict checking
  *
- * Copyright © 1994,1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1994,1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 2006-2014 Guillem Jover <guillem@debian.org>
  * Copyright © 2011 Linaro Limited
  * Copyright © 2011 Raphaël Hertzog <hertzog@debian.org>
@@ -337,11 +337,16 @@ depisok(struct dependency *dep, struct varbuf *whynot,
     case PKG_STAT_TRIGGERSPENDING:
     case PKG_STAT_TRIGGERSAWAITED:
       break;
-    case PKG_STAT_NOTINSTALLED:
-    case PKG_STAT_CONFIGFILES:
-    case PKG_STAT_HALFINSTALLED:
     case PKG_STAT_HALFCONFIGURED:
     case PKG_STAT_UNPACKED:
+    case PKG_STAT_HALFINSTALLED:
+      if (dep->type == dep_predepends ||
+          dep->type == dep_conflicts ||
+          dep->type == dep_breaks)
+        break;
+      /* Fall through. */
+    case PKG_STAT_CONFIGFILES:
+    case PKG_STAT_NOTINSTALLED:
       return true;
     default:
       internerr("unknown status depending '%d'", dep->up->status);
@@ -415,8 +420,7 @@ depisok(struct dependency *dep, struct varbuf *whynot,
           case PKG_STAT_TRIGGERSAWAITED:
               if (canfixbytrigaw && versionsatisfied(&pkg_pos->installed, possi))
                 *canfixbytrigaw = pkg_pos;
-              /* Fall through to have a chance to return OK due to
-               * allowunconfigd and to fill the explanation */
+              /* Fall through. */
           case PKG_STAT_UNPACKED:
           case PKG_STAT_HALFCONFIGURED:
             if (allowunconfigd) {
@@ -576,6 +580,7 @@ depisok(struct dependency *dep, struct varbuf *whynot,
           case PKG_STAT_HALFCONFIGURED:
             if (dep->type == dep_breaks)
               break; /* No problem. */
+            /* Fall through. */
           case PKG_STAT_INSTALLED:
           case PKG_STAT_TRIGGERSPENDING:
           case PKG_STAT_TRIGGERSAWAITED:
@@ -646,6 +651,7 @@ depisok(struct dependency *dep, struct varbuf *whynot,
         case PKG_ISTOBE_DECONFIGURE:
           if (dep->type == dep_breaks)
             continue; /* Already deconfiguring. */
+          /* Fall through. */
         case PKG_ISTOBE_NORMAL:
         case PKG_ISTOBE_PREINSTALL:
           switch (provider->up->up->status) {
@@ -657,6 +663,7 @@ depisok(struct dependency *dep, struct varbuf *whynot,
           case PKG_STAT_HALFCONFIGURED:
             if (dep->type == dep_breaks)
               break; /* No problem. */
+            /* Fall through. */
           case PKG_STAT_INSTALLED:
           case PKG_STAT_TRIGGERSPENDING:
           case PKG_STAT_TRIGGERSAWAITED:

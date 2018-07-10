@@ -17,18 +17,25 @@ package Dpkg::Vendor;
 
 use strict;
 use warnings;
+use feature qw(state);
 
 our $VERSION = '1.01';
+our @EXPORT_OK = qw(
+    get_current_vendor
+    get_vendor_info
+    get_vendor_file
+    get_vendor_dir
+    get_vendor_object
+    run_vendor_hook
+);
+
+use Exporter qw(import);
 
 use Dpkg ();
 use Dpkg::ErrorHandling;
 use Dpkg::Gettext;
-use Dpkg::BuildEnv;
+use Dpkg::Build::Env;
 use Dpkg::Control::HashCore;
-
-use Exporter qw(import);
-our @EXPORT_OK = qw(get_vendor_info get_current_vendor get_vendor_file
-                    get_vendor_dir get_vendor_object run_vendor_hook);
 
 my $origins = "$Dpkg::CONFDIR/origins";
 $origins = $ENV{DPKG_ORIGINS_DIR} if $ENV{DPKG_ORIGINS_DIR};
@@ -54,7 +61,10 @@ the relationship by listing the base distribution in the Parent field:
 
   Parent: Debian
 
-The file should be named according to the vendor name.
+The file should be named according to the vendor name. The usual convention
+is to name the vendor file using the vendor name in all lowercase, but some
+variation is permitted. Namely, spaces are mapped to dashes ('-'), and the
+file can have the same casing as the Vendor field, or it can be capitalized.
 
 =head1 FUNCTIONS
 
@@ -81,15 +91,15 @@ if there's no file for the given vendor.
 
 =cut
 
-my %VENDOR_CACHE;
 sub get_vendor_info(;$) {
     my $vendor = shift || 'default';
+    state %VENDOR_CACHE;
     return $VENDOR_CACHE{$vendor} if exists $VENDOR_CACHE{$vendor};
 
     my $file = get_vendor_file($vendor);
     return unless $file;
     my $fields = Dpkg::Control::HashCore->new();
-    $fields->load($file) or error(_g('%s is empty'), $file);
+    $fields->load($file) or error(g_('%s is empty'), $file);
     $VENDOR_CACHE{$vendor} = $fields;
     return $fields;
 }
@@ -124,8 +134,8 @@ If that file doesn't exist, it returns undef.
 
 sub get_current_vendor() {
     my $f;
-    if (Dpkg::BuildEnv::has('DEB_VENDOR')) {
-        $f = get_vendor_info(Dpkg::BuildEnv::get('DEB_VENDOR'));
+    if (Dpkg::Build::Env::has('DEB_VENDOR')) {
+        $f = get_vendor_info(Dpkg::Build::Env::get('DEB_VENDOR'));
         return $f->{'Vendor'} if defined $f;
     }
     $f = get_vendor_info();
@@ -142,9 +152,9 @@ object.
 
 =cut
 
-my %OBJECT_CACHE;
 sub get_vendor_object {
     my $vendor = shift || get_current_vendor() || 'Default';
+    state %OBJECT_CACHE;
     return $OBJECT_CACHE{$vendor} if exists $OBJECT_CACHE{$vendor};
 
     my ($obj, @names);
@@ -152,6 +162,7 @@ sub get_vendor_object {
 
     foreach my $name (@names) {
         eval qq{
+            pop \@INC if \$INC[-1] eq '.';
             require Dpkg::Vendor::$name;
             \$obj = Dpkg::Vendor::$name->new();
         };
@@ -184,13 +195,17 @@ sub run_vendor_hook {
 
 =head1 CHANGES
 
-=head2 Version 1.01
+=head2 Version 1.01 (dpkg 1.17.0)
 
 New function: get_vendor_dir().
 
-=head2 Version 1.00
+=head2 Version 1.00 (dpkg 1.16.1)
 
 Mark the module as public.
+
+=head1 SEE ALSO
+
+deb-origin(5).
 
 =cut
 

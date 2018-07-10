@@ -26,27 +26,23 @@ use Dpkg ();
 use Dpkg::Gettext;
 use Dpkg::Getopt;
 use Dpkg::ErrorHandling;
-use Dpkg::Arch qw(get_raw_build_arch get_raw_host_arch get_gcc_host_gnu_type
-                  debarch_to_cpuattrs
-                  get_valid_arches debarch_eq debarch_is debarch_to_debtriplet
-                  debarch_to_gnutriplet gnutriplet_to_debarch
-                  debarch_to_multiarch);
+use Dpkg::Arch qw(:getters :mappers debarch_eq debarch_is);
 
 textdomain('dpkg-dev');
 
 sub version {
-    printf _g("Debian %s version %s.\n"), $Dpkg::PROGNAME, $Dpkg::PROGVERSION;
+    printf g_("Debian %s version %s.\n"), $Dpkg::PROGNAME, $Dpkg::PROGVERSION;
 
-    printf _g('
+    printf g_('
 This is free software; see the GNU General Public License version 2 or
 later for copying conditions. There is NO warranty.
 ');
 }
 
 sub usage {
-    printf _g(
+    printf g_(
 'Usage: %s [<option>...] [<command>]')
-    . "\n\n" . _g(
+    . "\n\n" . g_(
 'Commands:
   -l, --list                list variables (default).
   -L, --list-known          list valid architectures (matching some criteria).
@@ -58,7 +54,7 @@ sub usage {
   -c, --command <command>   set environment and run the command in it.
   -?, --help                show this help message.
       --version             show the version.')
-    . "\n\n" . _g(
+    . "\n\n" . g_(
 'Options:
   -a, --host-arch <arch>    set host Debian architecture.
   -t, --host-type <type>    set host GNU system type.
@@ -80,24 +76,24 @@ sub check_arch_coherency
 
     if ($arch ne '' && $gnu_type eq '') {
         $gnu_type = debarch_to_gnutriplet($arch);
-        error(_g('unknown Debian architecture %s, you must specify ' .
+        error(g_('unknown Debian architecture %s, you must specify ' .
                  'GNU system type, too'), $arch)
             unless defined $gnu_type;
     }
 
     if ($gnu_type ne '' && $arch eq '') {
         $arch = gnutriplet_to_debarch($gnu_type);
-        error(_g('unknown GNU system type %s, you must specify ' .
+        error(g_('unknown GNU system type %s, you must specify ' .
                  'Debian architecture, too'), $gnu_type)
             unless defined $arch;
     }
 
     if ($gnu_type ne '' && $arch ne '') {
         my $dfl_gnu_type = debarch_to_gnutriplet($arch);
-        error(_g('unknown default GNU system type for Debian architecture %s'),
+        error(g_('unknown default GNU system type for Debian architecture %s'),
               $arch)
             unless defined $dfl_gnu_type;
-        warning(_g('default GNU system type %s for Debian arch %s does not ' .
+        warning(g_('default GNU system type %s for Debian arch %s does not ' .
                    'match specified GNU system type %s'), $dfl_gnu_type,
                 $arch, $gnu_type)
             if $dfl_gnu_type ne $gnu_type;
@@ -123,6 +119,8 @@ use constant DEB_ALL => DEB_BUILD | DEB_HOST | DEB_TARGET |
 
 my %arch_vars = (
     DEB_BUILD_ARCH => DEB_BUILD,
+    DEB_BUILD_ARCH_ABI => DEB_BUILD | DEB_ARCH_INFO,
+    DEB_BUILD_ARCH_LIBC => DEB_BUILD | DEB_ARCH_INFO,
     DEB_BUILD_ARCH_OS => DEB_BUILD | DEB_ARCH_INFO,
     DEB_BUILD_ARCH_CPU => DEB_BUILD | DEB_ARCH_INFO,
     DEB_BUILD_ARCH_BITS => DEB_BUILD | DEB_ARCH_ATTR,
@@ -132,6 +130,8 @@ my %arch_vars = (
     DEB_BUILD_GNU_SYSTEM => DEB_BUILD | DEB_GNU_INFO,
     DEB_BUILD_GNU_TYPE => DEB_BUILD | DEB_GNU_INFO,
     DEB_HOST_ARCH => DEB_HOST,
+    DEB_HOST_ARCH_ABI => DEB_HOST | DEB_ARCH_INFO,
+    DEB_HOST_ARCH_LIBC => DEB_HOST | DEB_ARCH_INFO,
     DEB_HOST_ARCH_OS => DEB_HOST | DEB_ARCH_INFO,
     DEB_HOST_ARCH_CPU => DEB_HOST | DEB_ARCH_INFO,
     DEB_HOST_ARCH_BITS => DEB_HOST | DEB_ARCH_ATTR,
@@ -141,6 +141,8 @@ my %arch_vars = (
     DEB_HOST_GNU_SYSTEM => DEB_HOST | DEB_GNU_INFO,
     DEB_HOST_GNU_TYPE => DEB_HOST | DEB_GNU_INFO,
     DEB_TARGET_ARCH => DEB_TARGET,
+    DEB_TARGET_ARCH_ABI => DEB_TARGET | DEB_ARCH_INFO,
+    DEB_TARGET_ARCH_LIBC => DEB_TARGET | DEB_ARCH_INFO,
     DEB_TARGET_ARCH_OS => DEB_TARGET | DEB_ARCH_INFO,
     DEB_TARGET_ARCH_CPU => DEB_TARGET | DEB_ARCH_INFO,
     DEB_TARGET_ARCH_BITS => DEB_TARGET | DEB_ARCH_ATTR,
@@ -166,7 +168,7 @@ my $action = 'list';
 my $force = 0;
 
 sub action_needs($) {
-  my ($bits) = @_;
+  my $bits = shift;
   return (($req_vars & $bits) == $bits);
 }
 
@@ -203,12 +205,13 @@ while (@ARGV) {
     } elsif ($arg eq '-l' or $arg eq '--list') {
 	$action = 'list';
     } elsif ($arg eq '-s' or $arg eq '--print-set') {
+	$req_vars = DEB_ALL;
 	$action = 'print-set';
     } elsif ($arg eq '-f' or $arg eq '--force') {
         $force=1;
     } elsif ($arg eq '-q' or $arg eq '--query') {
 	my $varname = shift;
-	error(_g('%s is not a supported variable name'), $varname)
+	error(g_('%s is not a supported variable name'), $varname)
 	    unless (exists $arch_vars{$varname});
 	$req_variable_to_print = "$varname";
 	$req_vars = $arch_vars{$varname};
@@ -226,12 +229,11 @@ while (@ARGV) {
         version();
        exit 0;
     } else {
-        usageerr(_g("unknown option \`%s'"), $arg);
+        usageerr(g_("unknown option '%s'"), $arg);
     }
 }
 
 my %v;
-my $abi;
 
 #
 # Set build variables
@@ -239,7 +241,8 @@ my $abi;
 
 $v{DEB_BUILD_ARCH} = get_raw_build_arch()
     if (action_needs(DEB_BUILD));
-($abi, $v{DEB_BUILD_ARCH_OS}, $v{DEB_BUILD_ARCH_CPU}) = debarch_to_debtriplet($v{DEB_BUILD_ARCH})
+($v{DEB_BUILD_ARCH_ABI}, $v{DEB_BUILD_ARCH_LIBC},
+ $v{DEB_BUILD_ARCH_OS}, $v{DEB_BUILD_ARCH_CPU}) = debarch_to_debtuple($v{DEB_BUILD_ARCH})
     if (action_needs(DEB_BUILD | DEB_ARCH_INFO));
 ($v{DEB_BUILD_ARCH_BITS}, $v{DEB_BUILD_ARCH_ENDIAN}) = debarch_to_cpuattrs($v{DEB_BUILD_ARCH})
     if (action_needs(DEB_BUILD | DEB_ARCH_ATTR));
@@ -264,7 +267,8 @@ if (action_needs(DEB_BUILD | DEB_GNU_INFO)) {
 
 $v{DEB_HOST_ARCH} = $req_host_arch || get_raw_host_arch()
     if (action_needs(DEB_HOST));
-($abi, $v{DEB_HOST_ARCH_OS}, $v{DEB_HOST_ARCH_CPU}) = debarch_to_debtriplet($v{DEB_HOST_ARCH})
+($v{DEB_HOST_ARCH_ABI}, $v{DEB_HOST_ARCH_LIBC},
+ $v{DEB_HOST_ARCH_OS}, $v{DEB_HOST_ARCH_CPU}) = debarch_to_debtuple($v{DEB_HOST_ARCH})
     if (action_needs(DEB_HOST | DEB_ARCH_INFO));
 ($v{DEB_HOST_ARCH_BITS}, $v{DEB_HOST_ARCH_ENDIAN}) = debarch_to_cpuattrs($v{DEB_HOST_ARCH})
     if (action_needs(DEB_HOST | DEB_ARCH_ATTR));
@@ -280,12 +284,12 @@ if (action_needs(DEB_HOST | DEB_GNU_INFO)) {
     }
     ($v{DEB_HOST_GNU_CPU}, $v{DEB_HOST_GNU_SYSTEM}) = split(/-/, $v{DEB_HOST_GNU_TYPE}, 2);
 
-    my $gcc = get_gcc_host_gnu_type();
+    my $host_gnu_type = get_host_gnu_type();
 
-    warning(_g('specified GNU system type %s does not match gcc system ' .
+    warning(g_('specified GNU system type %s does not match CC system ' .
                'type %s, try setting a correct CC environment variable'),
-            $v{DEB_HOST_GNU_TYPE}, $gcc)
-        if ($gcc ne '') && ($gcc ne $v{DEB_HOST_GNU_TYPE});
+            $v{DEB_HOST_GNU_TYPE}, $host_gnu_type)
+        if ($host_gnu_type ne '') && ($host_gnu_type ne $v{DEB_HOST_GNU_TYPE});
 }
 
 #
@@ -300,7 +304,8 @@ if (action_needs(DEB_HOST | DEB_GNU_INFO)) {
 
 $v{DEB_TARGET_ARCH} = $req_target_arch || $req_host_arch || get_raw_host_arch()
     if (action_needs(DEB_TARGET));
-($abi, $v{DEB_TARGET_ARCH_OS}, $v{DEB_TARGET_ARCH_CPU}) = debarch_to_debtriplet($v{DEB_TARGET_ARCH})
+($v{DEB_TARGET_ARCH_ABI}, $v{DEB_TARGET_ARCH_LIBC},
+ $v{DEB_TARGET_ARCH_OS}, $v{DEB_TARGET_ARCH_CPU}) = debarch_to_debtuple($v{DEB_TARGET_ARCH})
     if (action_needs(DEB_TARGET | DEB_ARCH_INFO));
 ($v{DEB_TARGET_ARCH_BITS}, $v{DEB_TARGET_ARCH_ENDIAN}) = debarch_to_cpuattrs($v{DEB_TARGET_ARCH})
     if (action_needs(DEB_TARGET | DEB_ARCH_ATTR));

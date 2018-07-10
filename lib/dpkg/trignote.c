@@ -3,7 +3,7 @@
  * trignote.c - trigger note handling
  *
  * Copyright © 2007 Canonical Ltd
- * Written by Ian Jackson <ian@chiark.greenend.org.uk>
+ * Written by Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 2008-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
@@ -96,7 +96,7 @@ trig_note_aw(struct pkginfo *pend, struct pkginfo *aw)
 	ta->pend = pend;
 	ta->samepend_next = pend->othertrigaw_head;
 	pend->othertrigaw_head = ta;
-	LIST_LINK_TAIL_PART(aw->trigaw, ta, sameaw.);
+	LIST_LINK_TAIL_PART(aw->trigaw, ta, sameaw);
 
 	return true;
 }

@@ -2,9 +2,9 @@
  * dselect - Debian package maintenance user interface
  * main.cc - main program
  *
- * Copyright © 1994-1996 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1994-1996 Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 2000,2001 Wichert Akkerman <wakkerma@debian.org>
- * Copyright © 2006-2012 Guillem Jover <guillem@debian.org>
+ * Copyright © 2006-2015 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -108,7 +108,7 @@ static const struct table_t screenparttable[]= {
   {"pkgstatesel",	selstatesel	},
   {"listhead",		colheads	},
   {"query",		query		},
-  {"info",		info		},
+  {"info",		info_body	},
   {"infodesc",		info_head	},
   {"infofoot",		whatinfo	},
   {"helpscreen",	helpscreen	},
@@ -127,7 +127,7 @@ struct colordata color[]= {
   {COLOR_WHITE,        COLOR_BLACK,    A_REVERSE | A_BOLD	}, // selstatesel
   {COLOR_WHITE,        COLOR_BLUE,     0			}, // colheads
   {COLOR_WHITE,        COLOR_RED,      0			}, // query
-  {COLOR_WHITE,        COLOR_BLACK,    0			}, // info
+  {COLOR_WHITE,        COLOR_BLACK,    0			}, // info_body
   {COLOR_WHITE,        COLOR_BLACK,    A_BOLD			}, // info_head
   {COLOR_WHITE,        COLOR_BLUE,     0			}, // whatinfo
   {COLOR_WHITE,        COLOR_BLACK,    0			}, // help
@@ -154,7 +154,7 @@ static const menuentry menuentries[]= {
 };
 
 static const char programdesc[]=
-      N_("Debian `%s' package handling frontend version %s.\n");
+      N_("Debian '%s' package handling frontend version %s.\n");
 
 static const char licensestring[]= N_(
       "This is free software; see the GNU General Public License version 2 or\n"
@@ -163,7 +163,7 @@ static const char licensestring[]= N_(
 static void DPKG_ATTR_NORET
 printversion(const struct cmdinfo *ci, const char *value)
 {
-  printf(gettext(programdesc), DSELECT, DPKG_VERSION_ARCH);
+  printf(gettext(programdesc), DSELECT, PACKAGE_RELEASE);
   printf("%s", gettext(licensestring));
 
   m_output(stdout, _("<standard output>"));
@@ -177,42 +177,44 @@ usage(const struct cmdinfo *ci, const char *value)
   int i;
 
   printf(_(
-"Usage: %s [<option> ...] [<action> ...]\n"
+"Usage: %s [<option>...] [<command>...]\n"
 "\n"), DSELECT);
+
+  printf(_("Commands:\n"));
+  for (i = 0; menuentries[i].command; i++)
+    printf("  %-10s  %s\n", menuentries[i].command, menuentries[i].menuent);
+  fputs("\n", stdout);
 
   printf(_(
 "Options:\n"
-"  --admindir <directory>     Use <directory> instead of %s.\n"
-"  --expert                   Turn on expert mode.\n"
-"  --debug <file> | -D<file>  Turn on debugging, sending output to <file>.\n"
-"  --colour | --color screenpart:[foreground],[background][:attr[+attr+...]]\n"
-"                             Configure screen colours.\n"
-"\n"), ADMINDIR);
+"      --admindir <directory>       Use <directory> instead of %s.\n"
+"      --expert                     Turn on expert mode.\n"
+"  -D, --debug <file>               Turn on debugging, send output to <file>.\n"
+"      --color <color-spec>         Configure screen colors.\n"
+"      --colour <color-spec>        Ditto.\n"
+), ADMINDIR);
 
   printf(_(
-"  --help                     Show this help message.\n"
-"  --version                  Show the version.\n"
+"  -?, --help                       Show this help message.\n"
+"      --version                    Show the version.\n"
 "\n"));
 
-  printf(_("Actions:\n"));
-  for (i = 0; menuentries[i].command; i++)
-    printf("  %s", menuentries[i].command);
-  fputs("\n\n", stdout);
+  printf(_("<color-spec> is <screen-part>:[<foreground>],[<background>][:<attr>[+<attr>]...]\n"));
 
-  printf(_("Screenparts:\n"));
+  printf(_("<screen-part> is:"));
   for (i=0; screenparttable[i].name; i++)
-    printf("  %s", screenparttable[i].name);
-  fputs("\n\n", stdout);
+    printf(" %s", screenparttable[i].name);
+  fputs("\n", stdout);
 
-  printf(_("Colours:\n"));
+  printf(_("<color> is:"));
   for (i=0; colourtable[i].name; i++)
-    printf("  %s", colourtable[i].name);
-  fputs("\n\n", stdout);
+    printf(" %s", colourtable[i].name);
+  fputs("\n", stdout);
 
-  printf(_("Attributes:\n"));
+  printf(_("<attr> is:"));
   for (i=0; attrtable[i].name; i++)
-    printf("  %s", attrtable[i].name);
-  fputs("\n\n", stdout);
+    printf(" %s", attrtable[i].name);
+  fputs("\n", stdout);
 
   m_output(stdout, _("<standard output>"));
 
@@ -229,7 +231,7 @@ extern "C" {
 
     fp = fopen(v, "a");
     if (!fp)
-      ohshite(_("couldn't open debug file `%.255s'\n"), v);
+      ohshite(_("couldn't open debug file '%.255s'\n"), v);
 
     debug_set_output(fp, v);
     debug_set_mask(dbg_general | dbg_depcon);
@@ -352,21 +354,6 @@ void cursesoff() {
   cursesareon = false;
 }
 
-extern void *
-operator new(size_t size) DPKG_ATTR_THROW(std::bad_alloc)
-{
-  void *p;
-  p= m_malloc(size);
-  assert(p);
-  return p;
-}
-
-extern void
-operator delete(void *p) DPKG_ATTR_NOEXCEPT
-{
-  free(p);
-}
-
 urqresult urq_list(void) {
   modstatdb_open((modstatdb_rw)(msdbrw_writeifposs |
                                 msdbrw_available_readonly));
@@ -379,16 +366,17 @@ urqresult urq_list(void) {
   delete l;
 
   modstatdb_shutdown();
-  pkg_db_reset();
+
   return urqr_normal;
 }
 
 static void
 dme(int i, int so)
 {
-  char buf[120];
   const menuentry *me= &menuentries[i];
-  sprintf(buf," %c %d. %-11.11s %-80.80s ",
+
+  varbuf buf;
+  buf.fmt(" %c %d. %-11.11s %-80.80s ",
           so ? '*' : ' ', i,
           gettext(me->option),
           gettext(me->menuent));
@@ -397,24 +385,24 @@ dme(int i, int so)
   getmaxyx(stdscr,y,x);
 
   attrset(so ? A_REVERSE : A_NORMAL);
-  mvaddnstr(i+2,0, buf,x-1);
+  mvaddnstr(i + 2, 0, buf.string(), x - 1);
   attrset(A_NORMAL);
 }
 
 static int
 refreshmenu(void)
 {
-  char buf[2048];
-
   curseson(); cbreak(); noecho(); nonl(); keypad(stdscr,TRUE);
 
   int x, y DPKG_ATTR_UNUSED;
   getmaxyx(stdscr,y,x);
 
+  varbuf buf;
+  buf.fmt(gettext(programdesc), DSELECT, PACKAGE_RELEASE);
+
   clear();
   attrset(A_BOLD);
-  sprintf(buf, gettext(programdesc), DSELECT, DPKG_VERSION_ARCH);
-  mvaddnstr(0,0,buf,x-1);
+  mvaddnstr(0, 0, buf.string(), x - 1);
 
   attrset(A_NORMAL);
   const struct menuentry *mep; int i;
@@ -535,7 +523,8 @@ main(int, const char *const *argv)
       const menuentry *me = menuentries;
       while (me->command && strcmp(me->command, a))
         me++;
-      if (!me->command) badusage(_("unknown action string `%.50s'"),a);
+      if (!me->command)
+        badusage(_("unknown action string '%.50s'"), a);
       me->fn();
     }
   } else {

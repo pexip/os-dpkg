@@ -2,7 +2,7 @@
  * libdpkg - Debian packaging suite library routines
  * dump.c - code to write in-core database to a file
  *
- * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 2001 Wichert Akkerman
  * Copyright © 2006,2008-2014 Guillem Jover <guillem@debian.org>
  * Copyright © 2011 Linaro Limited
@@ -32,7 +32,6 @@
 
 #include <assert.h>
 #include <errno.h>
-#include <ctype.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -469,7 +468,7 @@ writerecord(FILE *file, const char *filename,
     varbuf_add_pkgbin_name(&pkgname, pkg, pkgbin, pnaw_nonambig);
 
     errno = errno_saved;
-    ohshite(_("failed to write details of `%.50s' to `%.250s'"),
+    ohshite(_("failed to write details of '%.50s' to '%.250s'"),
             pkgname.buf, filename);
   }
 
@@ -481,7 +480,7 @@ writedb(const char *filename, enum writedb_flags flags)
 {
   static char writebuf[8192];
 
-  struct pkgiterator *it;
+  struct pkgiterator *iter;
   struct pkginfo *pkg;
   struct pkgbin *pkgbin;
   const char *which;
@@ -495,8 +494,8 @@ writedb(const char *filename, enum writedb_flags flags)
   if (setvbuf(file->fp, writebuf, _IOFBF, sizeof(writebuf)))
     ohshite(_("unable to set buffering on %s database file"), which);
 
-  it = pkg_db_iter_new();
-  while ((pkg = pkg_db_iter_next_pkg(it)) != NULL) {
+  iter = pkg_db_iter_new();
+  while ((pkg = pkg_db_iter_next_pkg(iter)) != NULL) {
     pkgbin = (flags & wdb_dump_available) ? &pkg->available : &pkg->installed;
     /* Don't dump records which have no useful content. */
     if (!pkg_is_informative(pkg, pkgbin))
@@ -509,7 +508,7 @@ writedb(const char *filename, enum writedb_flags flags)
               which, pkgbin_name(pkg, pkgbin, pnaw_nonambig), filename);
     varbuf_reset(&vb);
   }
-  pkg_db_iter_free(it);
+  pkg_db_iter_free(iter);
   varbuf_destroy(&vb);
   if (flags & wdb_must_sync)
     atomic_file_sync(file);

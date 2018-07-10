@@ -1,4 +1,4 @@
-# Copyright © 2008 Ian Jackson <ian@davenant.greenend.org.uk>
+# Copyright © 2008 Ian Jackson <ijackson@chiark.greenend.org.uk>
 # Copyright © 2008 Canonical, Ltd.
 #   written by Colin Watson <cjwatson@ubuntu.com>
 # Copyright © 2008 James Westby <jw+debian@jameswestby.net>
@@ -41,8 +41,8 @@ Dpkg::Vendor::Ubuntu - Ubuntu vendor object
 
 =head1 DESCRIPTION
 
-This vendor object customize the behaviour of dpkg-source
-to check that Maintainers have been modified if necessary.
+This vendor object customizes the behaviour of dpkg scripts for Ubuntu
+specific behavior and policies.
 
 =cut
 
@@ -59,22 +59,27 @@ sub run_hook {
            $fields->{'Version'} =~ /ubuntu/) {
            if ($fields->{'Maintainer'} !~ /ubuntu/i) {
                if (length $ENV{DEBEMAIL} and $ENV{DEBEMAIL} =~ /\@ubuntu\.com/) {
-                   error(_g('Version number suggests Ubuntu changes, but Maintainer: does not have Ubuntu address'));
+                   error(g_('Version number suggests Ubuntu changes, but Maintainer: does not have Ubuntu address'));
                } else {
-                   warning(_g('Version number suggests Ubuntu changes, but Maintainer: does not have Ubuntu address'));
+                   warning(g_('Version number suggests Ubuntu changes, but Maintainer: does not have Ubuntu address'));
                }
            }
            unless ($fields->{'Original-Maintainer'}) {
-               warning(_g('Version number suggests Ubuntu changes, but there is no XSBC-Original-Maintainer field'));
+               warning(g_('Version number suggests Ubuntu changes, but there is no XSBC-Original-Maintainer field'));
            }
         }
 
     } elsif ($hook eq 'keyrings') {
-        my @keyrings = $self->SUPER::run_hook($hook);
-
-        push(@keyrings, '/usr/share/keyrings/ubuntu-archive-keyring.gpg');
-        return @keyrings;
-
+        return $self->run_hook('package-keyrings', @params);
+    } elsif ($hook eq 'package-keyrings') {
+        return ($self->SUPER::run_hook($hook),
+                '/usr/share/keyrings/ubuntu-archive-keyring.gpg');
+    } elsif ($hook eq 'archive-keyrings') {
+        return ($self->SUPER::run_hook($hook),
+                '/usr/share/keyrings/ubuntu-archive-keyring.gpg');
+    } elsif ($hook eq 'archive-keyrings-historic') {
+        return ($self->SUPER::run_hook($hook),
+                '/usr/share/keyrings/ubuntu-archive-removed-keys.gpg');
     } elsif ($hook eq 'register-custom-fields') {
         my @field_ops = $self->SUPER::run_hook($hook);
         push @field_ops,
@@ -110,43 +115,6 @@ sub run_hook {
 
 	# Run the Debian hook to add hardening flags
 	$self->SUPER::run_hook($hook, $flags);
-
-	# Allow control of hardening-wrapper via dpkg-buildpackage DEB_BUILD_OPTIONS
-	my $hardening;
-	if ($build_opts->has('hardening')) {
-	    $hardening = $build_opts->get('hardening') // 1;
-	}
-	if ($build_opts->has('nohardening')) {
-	    $hardening = 0;
-	}
-	if (defined $hardening) {
-	    my $flag = 'DEB_BUILD_HARDENING';
-	    if ($hardening ne '0') {
-		if (!find_command('hardened-cc')) {
-		    syserr(_g("'hardening' flag found but 'hardening-wrapper' not installed"));
-		}
-		if ($hardening ne '1') {
-		    my @options = split(/,\s*/, $hardening);
-		    $hardening = 1;
-
-		    my @hardopts = qw(format fortify stackprotector pie relro);
-		    foreach my $item (@hardopts) {
-			my $upitem = uc($item);
-			foreach my $option (@options) {
-			    if ($option =~ /^(no)?$item$/) {
-				$flags->set($flag . '_' . $upitem,
-				            not defined $1 or $1 eq '', 'env');
-			    }
-			}
-		    }
-		}
-	    }
-	    if (defined $ENV{$flag}) {
-		info(_g('overriding %s in environment: %s'), $flag, $hardening);
-	    }
-	    $flags->set($flag, $hardening, 'env');
-	}
-
     } else {
         return $self->SUPER::run_hook($hook, @params);
     }
@@ -166,7 +134,7 @@ numbers in an array reference.
 =cut
 
 sub find_launchpad_closes {
-    my ($changes) = @_;
+    my $changes = shift;
     my %closes;
 
     while ($changes &&

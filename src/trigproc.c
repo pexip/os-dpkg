@@ -3,7 +3,7 @@
  * trigproc.c - trigger processing
  *
  * Copyright © 2007 Canonical Ltd
- * written by Ian Jackson <ian@chiark.greenend.org.uk>
+ * written by Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 2008-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
@@ -257,7 +257,7 @@ check_trigger_cycle(struct pkginfo *processing_now)
 	struct trigcyclenode *tcn;
 	struct trigcycleperpkg *tcpp, *tortoise_pkg;
 	struct trigpend *tortoise_trig;
-	struct pkgiterator *it;
+	struct pkgiterator *iter;
 	struct pkginfo *pkg, *giveup;
 	const char *sep;
 
@@ -268,8 +268,8 @@ check_trigger_cycle(struct pkginfo *processing_now)
 	tcn->pkgs = NULL;
 	tcn->then_processed = processing_now;
 
-	it = pkg_db_iter_new();
-	while ((pkg = pkg_db_iter_next_pkg(it))) {
+	iter = pkg_db_iter_new();
+	while ((pkg = pkg_db_iter_next_pkg(iter))) {
 		if (!pkg->trigpend_head)
 			continue;
 		tcpp = nfmalloc(sizeof(*tcpp));
@@ -278,7 +278,7 @@ check_trigger_cycle(struct pkginfo *processing_now)
 		tcpp->next = tcn->pkgs;
 		tcn->pkgs = tcpp;
 	}
-	pkg_db_iter_free(it);
+	pkg_db_iter_free(iter);
 	if (!hare) {
 		debug(dbg_triggersdetail, "check_triggers_cycle pnow=%s first",
 		      pkg_name(processing_now, pnaw_always));
@@ -354,6 +354,7 @@ trigproc(struct pkginfo *pkg, enum trigproc_type type)
 {
 	static struct varbuf namesarg;
 
+	struct varbuf depwhynot = VARBUF_INIT;
 	struct trigpend *tp;
 	struct pkginfo *gaveup;
 
@@ -364,12 +365,62 @@ trigproc(struct pkginfo *pkg, enum trigproc_type type)
 	pkg->clientdata->trigprocdeferred = NULL;
 
 	if (pkg->trigpend_head) {
+		enum dep_check ok;
+
 		assert(pkg->status == PKG_STAT_TRIGGERSPENDING ||
 		       pkg->status == PKG_STAT_TRIGGERSAWAITED);
 
-		gaveup = check_trigger_cycle(pkg);
-		if (gaveup == pkg)
+		if (dependtry > 1) {
+			gaveup = check_trigger_cycle(pkg);
+			if (gaveup == pkg)
+				return;
+
+			if (findbreakcycle(pkg))
+				sincenothing = 0;
+		}
+
+		ok = dependencies_ok(pkg, NULL, &depwhynot);
+		if (ok == DEP_CHECK_DEFER) {
+			varbuf_destroy(&depwhynot);
+			enqueue_package(pkg);
 			return;
+		} else if (ok == DEP_CHECK_HALT) {
+			/* We cannot process this package on this dpkg run,
+			 * and we can get here repeatedly if this package is
+			 * required to make progress for other packages. So
+			 * reset the trigger cycles tracking to avoid bogus
+			 * cycle detections. */
+			trigproc_reset_cycle();
+
+			/* When doing opportunistic trigger processing, nothing
+			 * requires us to be able to make progress; skip the
+			 * package and silently ignore the error due to
+			 * unsatisfiable dependencies. */
+			if (type == TRIGPROC_TRY) {
+				varbuf_destroy(&depwhynot);
+				return;
+			}
+
+			sincenothing = 0;
+			varbuf_end_str(&depwhynot);
+			notice(_("dependency problems prevent processing "
+			         "triggers for %s:\n%s"),
+			       pkg_name(pkg, pnaw_nonambig), depwhynot.buf);
+			varbuf_destroy(&depwhynot);
+			ohshit(_("dependency problems - leaving triggers unprocessed"));
+		} else if (depwhynot.used) {
+			varbuf_end_str(&depwhynot);
+			notice(_("%s: dependency problems, but processing "
+			         "triggers anyway as you requested:\n%s"),
+			       pkg_name(pkg, pnaw_nonambig), depwhynot.buf);
+			varbuf_destroy(&depwhynot);
+		}
+
+		if (dependtry <= 1) {
+			gaveup = check_trigger_cycle(pkg);
+			if (gaveup == pkg)
+				return;
+		}
 
 		printf(_("Processing triggers for %s (%s) ...\n"),
 		       pkg_name(pkg, pnaw_nonambig),
@@ -437,11 +488,11 @@ transitional_interest_callback(const char *trig, struct pkginfo *pkg,
 static void
 trig_transitional_activate(enum modstatdb_rw cstatus)
 {
-	struct pkgiterator *it;
+	struct pkgiterator *iter;
 	struct pkginfo *pkg;
 
-	it = pkg_db_iter_new();
-	while ((pkg = pkg_db_iter_next_pkg(it))) {
+	iter = pkg_db_iter_new();
+	while ((pkg = pkg_db_iter_next_pkg(iter))) {
 		if (pkg->status <= PKG_STAT_HALFINSTALLED)
 			continue;
 		debug(dbg_triggersdetail, "trig_transitional_activate %s %s",
@@ -468,7 +519,7 @@ trig_transitional_activate(enum modstatdb_rw cstatus)
 		else
 			pkg_set_status(pkg, PKG_STAT_INSTALLED);
 	}
-	pkg_db_iter_free(it);
+	pkg_db_iter_free(iter);
 
 	if (cstatus >= msdbrw_write) {
 		modstatdb_checkpoint();

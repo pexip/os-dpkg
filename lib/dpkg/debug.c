@@ -2,8 +2,8 @@
  * libdpkg - Debian packaging suite library routines
  * debug.c - debugging support
  *
- * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
- * Copyright © 2011 Guillem Jover <guillem@debian.orgian>
+ * Copyright © 1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
+ * Copyright © 2011 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
