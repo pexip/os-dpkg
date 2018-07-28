@@ -1,3 +1,58 @@
+dpkg (1.18.25pexip1) pexip; urgency=medium
+
+  * New upstream release
+
+ -- John-Mark Bell <jmb@pexip.com>  Sat, 28 Jul 2018 22:45:59 +0100
+
+dpkg (1.18.25) stretch; urgency=medium
+
+  [ Guillem Jover ]
+  * Parse start-stop-daemon usernames and groupnames starting with digits in
+    -u and -c correctly. Reported by Bodo Eggert <7eggert@online.de>.
+  * Always use the binary version for the .buildinfo filename in
+    dpkg-genbuildinfo. Reported by Raphaël Hertzog <hertzog@debian.org>.
+    Closes: #869236
+  * Fix integer overflow in deb(5) format version parser.
+    Closes: #868356
+  * Fix directory traversal with dpkg-deb --raw-extract, by guaranteeing
+    that the DEBIAN pathname does not exist. Closes: #879982
+    Reported by Jakub Wilk <jwilk@jwilk.net>.
+  * Do not try to recompute hashes for the .dsc file when signing binary-only
+    builds in dpkg-buildpackage. Reported by Ximin Luo <infinity0@debian.org>.
+  * Architecture support:
+    - Add support for riscv64 CPU. Closes: #822914
+      Thanks to Manuel A. Fernandez Montecelo <mafm@debian.org>
+  * Perl modules:
+    - Do not normalize args past a passthrough stop word in Dpkg::Getopt.
+      Some commands pass some arguments through to another command, and
+      those must not be normalized as that might break their invocation.
+      Reported by Helmut Grohne <helmut@subdivi.de>.
+  * Documentation:
+    - Update buildinfo information in dpkg-buildpackage man page to match
+      the current implementation.
+    - Use correct name for archname validator value in dpkg(1) man page.
+      Reported by Niels Thykier <niels@thykier.net.
+    - Update git URLs for move away from alioth.debian.org.
+  * Packaging:
+    - Add versioned Build-Depends on tar, due to the --clamp-mtime option
+      being used in Dpkg::Source::Archive which is used by dpkg-source,
+      used by the test suite. Closes: #877330
+
+  [ Updated programs translations ]
+  * Dutch (Frans Spiesschaert).
+  * German (Sven Joachim).
+  * Italian (Pietro Battiston, Milo Casagrande).
+  * Portuguese (Miguel Figueiredo).
+  * Simplified Chinese (Zhou Mo, Boyuan Yang).
+  * Spanish (Javier Fernandez-Sanguino).
+  * Turkish (Mert Dirik).
+
+  [ Updated man pages translations ]
+  * Dutch (Frans Spiesschaert).
+  * German (Helge Kreutzmann).
+
+ -- Guillem Jover <guillem@debian.org>  Tue, 26 Jun 2018 12:28:08 +0200
+
 dpkg (1.18.24pexip1) pexip; urgency=medium
 
   * Migrate to Stretch

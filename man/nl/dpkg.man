@@ -415,7 +415,7 @@ Valideert de opgegeven pakketnaam (sinds dpkg 1.18.16).
 \fBtrigname\fP
 Valideert de opgegeven triggernaam (sinds dpkg 1.18.16).
 .TP 
-\fBpkgname\fP
+\fBarchname\fP
 Valideert de opgegeven architectuurnaam (sinds dpkg 1.18.16).
 .TP 
 \fBversion\fP

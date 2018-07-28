@@ -49,11 +49,11 @@ spezifizierten OpenPGP\-ASCII\-Hülle eingeschlossen sein.
 Der Name der \fB.buildinfo\fP\-Datei wird von der Art des Baus abhängen und wird
 so spezifisch wie notwendig sein, aber nicht mehr; für einen Bau, der \fBany\fP
 enthält, wird der Name
-\fIQuellname\fP\fB_\fP\fIQuellversion\fP\fB_\fP\fIArch\fP\fB.buildinfo\fP oder andernfalls für
+\fIQuellname\fP\fB_\fP\fIBinärversion\fP\fB_\fP\fIArch\fP\fB.buildinfo\fP oder andernfalls für
 einen Bau, der \fBall\fP enthält, wird der Name
 \fIQuellname\fP\fB_\fP\fIQuellversion\fP\fB_\fP\fBall.buildinfo\fP oder andernfalls für
 einen Bau, der \fBsource\fP enthält, wird der Name
-\fIQuellname\fP\fB_\fP\fIQuellversion\fP\fB_\fP\fBsource.buildinfo\fP lauten.
+\fIQuellname\fP\fB_\fP\fIBinärversion\fP\fB_\fP\fBsource.buildinfo\fP lauten.
 .
 .SH FELDER
 .TP 

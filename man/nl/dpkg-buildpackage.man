@@ -68,8 +68,7 @@ gelijkwaardige opties), ofwel \fBbuild\-indep\fP en \fBbinary\-indep\fP (indien 
 bouw van het type \fBall\fP maar niet \fBany\fP aangevraagd werd met \fB\-\-build\fP of
 gelijkwaardige opties).
 .IP \fB6.\fP 3
-Tenzij een source\-only build (enkel een bouw van het broncodepakket)
-gevraagd werd, voert het de uitbreiding (hook) \fBbuildinfo\fP uit en roept
+Het voert de uitbreiding (hook) \fBbuildinfo\fP uit en roept
 \fBdpkg\-genbuildinfo\fP aan om een bestand \fB.buildinfo\fP aan te
 maken. Verschillende opties van \fBdpkg\-buildpackage\fP worden aan
 \fBdpkg\-genbuildinfo\fP overgemaakt.
@@ -78,12 +77,12 @@ Het voert de uitbreiding (hook) \fBchanges\fP uit en roept \fBdpkg\-genchanges\f
 aan om een bestand \fB.changes\fP aan te maken. De naam van het
 \&\fB.changes\fP\-bestand is afhankelijk van het bouwtype en zal zo specifiek als
 nodig zijn, maar niet meer dan dat. Voor een bouw die \fBany\fP bevat, zal de
-naam \fIbroncodenaam\fP\fB_\fP\fIbroncodeversie\fP\fB_\fP\fIarch\fP\fB.changes\fP zijn. Voor
+naam \fIbroncode\-naam\fP\fB_\fP\fIbinaire\-versie\fP\fB_\fP\fIarch\fP\fB.changes\fP zijn. Voor
 een bouw die \fBall\fP bevat, zal de naam
-\fIbroncodenaam\fP\fB_\fP\fIbroncodeversie\fP\fB_\fP\fBall.changes\fP zijn. En voor een
+\fIbroncode\-naam\fP\fB_\fP\fIbinaire\-versie\fP\fB_\fP\fBall.changes\fP zijn. En voor een
 bouw die \fBsource\fP bevat, zal de naam
-\fIbroncodenaam\fP\fB_\fP\fIbroncodeversie\fP\fB_\fP\fBsource.changes\fP zijn. Veel opties
-van \fBdpkg\-buildpackage\fP worden aan \fBdpkg\-genchanges\fP overgemaakt.
+\fIbroncode\-naam\fP\fB_\fP\fIbroncode\-versie\fP\fB_\fP\fBsource.changes\fP zijn. Veel
+opties van \fBdpkg\-buildpackage\fP worden aan \fBdpkg\-genchanges\fP overgemaakt.
 .IP \fB8.\fP 3
 Het voert de uitbreiding (hook) \fBpostclean\fP uit en als \fB\-tc\fP of
 \fB\-\-post\-clean\fP werd opgegeven zal het nogmaals \fBfakeroot debian/rules
@@ -342,7 +341,8 @@ onbedoelde consequenties.
 
 Momenteel worden de volgende \fIhook\-namen\fP ondersteund
 
-\fBinit preclean source build binary changes postclean check sign done\fP
+\fBinit preclean source build binary buildinfo changes postclean check sign
+done\fP
 
 Het \fIhook\-commando\fP ondersteunt de volgende
 substitutie\-indelingstekenreeksen, die er voorafgaand aan de uitvoering op

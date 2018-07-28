@@ -7,14 +7,16 @@ XSBC-Pexip-Original-Uploaders: Guillem Jover <guillem@debian.org>
 Origin: debian
 Bugs: debbugs://bugs.debian.org
 Homepage: https://wiki.debian.org/Teams/Dpkg
-Vcs-Browser: https://anonscm.debian.org/cgit/dpkg/dpkg.git
-Vcs-Git: https://anonscm.debian.org/git/dpkg/dpkg.git
+Vcs-Browser: https://git.dpkg.org/cgit/dpkg/dpkg.git
+Vcs-Git: https://git.dpkg.org/git/dpkg/dpkg.git
 Standards-Version: 3.9.8
 Build-Depends:
 # Needed for build profile usage below.
  dpkg-dev (>= 1.17.14),
  debhelper (>= 9.20141010),
  pkg-config,
+# Needed for --clamp-mtime in dpkg-source -b.
+ tar (>= 1.28-1) <!nocheck>,
 # Needed for --add-location.
  gettext (>= 0.19),
 # Needed for --porefs.

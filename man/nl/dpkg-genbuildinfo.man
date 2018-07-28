@@ -92,8 +92,8 @@ Geeft de indeling van het bestand changelog aan. Zie
 .TP 
 \fB\-O\fP[\fIbestandsnaam\fP]
 Geef het bestand buildinfo weer op de standaarduitvoer (of in
-\fIbestandsnaam\fP als dit opgegeven werd), eerder dan in
-\fImap\fP\fB/\fP\fIbroncodenaam\fP\fB_\fP\fIbroncodeversie\fP\fB_\fP\fIarch\fP\fB.buildinfo\fP
+\fIbestandsnaam\fP als dit opgegeven werd), in plaats van in
+\fImap\fP\fB/\fP\fIbroncode\-naam\fP\fB_\fP\fIbinaire\-versie\fP\fB_\fP\fIarch\fP\fB.buildinfo\fP
 (waarbij \fImap\fP standaard \fB..\fP is of \fImap\-upload\-bestanden\fP indien \fB\-u\fP
 gebruikt werd).
 .TP 
