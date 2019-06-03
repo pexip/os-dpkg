@@ -51,6 +51,7 @@ my @policies = qw(
     ControlStructures::ProhibitNegativeExpressionsInUnlessAndUntilConditions
     ControlStructures::ProhibitUntilBlocks
     Documentation::RequirePackageMatchesPodName
+    Documentation::RequirePodSections
     InputOutput::ProhibitBarewordFileHandles
     InputOutput::ProhibitInteractiveTest
     InputOutput::ProhibitJoinedReadline
@@ -61,6 +62,7 @@ my @policies = qw(
     InputOutput::RequireCheckedOpen
     InputOutput::RequireEncodingWithUTF8Layer
     Miscellanea::ProhibitFormats
+    Miscellanea::ProhibitTies
     Miscellanea::ProhibitUnrestrictedNoCritic
     Miscellanea::ProhibitUselessNoCritic
     Modules::ProhibitConditionalUseStatements
@@ -77,7 +79,9 @@ my @policies = qw(
     RegularExpressions::ProhibitUselessTopic
     RegularExpressions::RequireBracesForMultiline
     RegularExpressions::RequireExtendedFormatting
+    Subroutines::ProhibitAmpersandSigils
     Subroutines::ProhibitExplicitReturnUndef
+    Subroutines::ProhibitManyArgs
     Subroutines::ProhibitNestedSubs
     Subroutines::ProhibitReturnSort
     Subroutines::ProhibitUnusedPrivateSubroutines

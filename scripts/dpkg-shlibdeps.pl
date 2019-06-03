@@ -23,15 +23,15 @@
 
 use strict;
 use warnings;
+use feature qw(state);
 
-use POSIX qw(:errno_h);
+use List::Util qw(any none);
 use Cwd qw(realpath);
 use File::Basename qw(dirname);
 
 use Dpkg ();
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
-use Dpkg::Util qw(:list);
 use Dpkg::Path qw(relative_to_pkg_root guess_pkg_root_dir
 		  check_files_are_the_same get_control_path);
 use Dpkg::Version;
@@ -227,7 +227,6 @@ foreach my $file (keys %exec) {
     my $file2pkg = find_packages(keys %libfiles, keys %altlibfiles);
     my $symfile = Dpkg::Shlibs::SymbolFile->new();
     my $dumplibs_wo_symfile = Dpkg::Shlibs::Objdump->new();
-    my @soname_wo_symfile;
     SONAME: foreach my $soname (@sonames) {
       # Select the first good entry from the ordered list that we got from
       # find_library(), and skip to the next SONAME.
@@ -236,7 +235,7 @@ foreach my $file (keys %exec) {
 	if (none { $_ ne '' } @{$file2pkg->{$lib}}) {
 	    # The path of the library as calculated is not the
 	    # official path of a packaged file, try to fallback on
-	    # on the realpath() first, maybe this one is part of a package
+	    # the realpath() first, maybe this one is part of a package
 	    my $reallib = realpath($lib);
 	    if (exists $file2pkg->{$reallib}) {
 		$file2pkg->{$lib} = $file2pkg->{$reallib};
@@ -295,7 +294,6 @@ foreach my $file (keys %exec) {
 		    warning(g_('%s has an unexpected SONAME (%s)'), $lib, $id);
 		    $alt_soname{$id} = $soname;
 		}
-		push @soname_wo_symfile, $soname;
 
 		# Only try to generate a dependency for libraries with a SONAME
                 if (not $libobj->is_public_library()) {
@@ -482,8 +480,9 @@ foreach my $soname (keys %global_soname_needed) {
 # Quit now if any missing libraries
 if ($error_count >= 1) {
     my $note = g_('Note: libraries are not searched in other binary packages ' .
-	"that do not have any shlibs or symbols file.\nTo help dpkg-shlibdeps " .
-	'find private libraries, you might need to use -l.');
+                  "that do not have any shlibs or symbols file.\n" .
+                  'To help dpkg-shlibdeps find private libraries, you might ' .
+                  'need to use -l.');
     error(P_('cannot continue due to the error above',
              'cannot continue due to the errors listed above',
              $error_count) . "\n" . $note);
@@ -546,7 +545,8 @@ foreach my $field (reverse @depfields) {
 	    map {
 		# Translate dependency templates into real dependencies
 		my $templ = $_;
-		if ($dependencies{$field}{$templ}) {
+		if ($dependencies{$field}{$templ}->is_valid() and
+		    $dependencies{$field}{$templ}->as_string()) {
 		    $templ =~ s/#MINVER#/(>= $dependencies{$field}{$templ})/g;
 		} else {
 		    $templ =~ s/#MINVER#//g;
@@ -782,7 +782,12 @@ sub find_symbols_file {
     } else {
 	push @files, "$Dpkg::CONFDIR/symbols/$pkg.symbols.$host_arch",
 	    "$Dpkg::CONFDIR/symbols/$pkg.symbols";
-	my $control_file = get_control_path($pkg, 'symbols');
+
+	state %control_file_cache;
+	if (not exists $control_file_cache{$pkg}) {
+	    $control_file_cache{$pkg} = get_control_path($pkg, 'symbols');
+	}
+	my $control_file = $control_file_cache{$pkg};
 	push @files, $control_file if defined $control_file;
     }
 
@@ -818,7 +823,6 @@ sub symfile_has_soname {
 # find_library ($soname, \@rpath, $format)
 sub my_find_library {
     my ($lib, $rpath, $format, $execfile) = @_;
-    my $file;
 
     # Create real RPATH in case $ORIGIN is used
     # Note: ld.so also supports $PLATFORM and $LIB but they are

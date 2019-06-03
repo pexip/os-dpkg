@@ -88,14 +88,15 @@ wechselt, aber die eigentliche Umstellung in den Betreuerskripten in Version
 \fB3.0\-1\fP durchführt, sollte \fIvorhergehende_Version\fP auf \fB3.0\-1~\fP setzen.
 .TP 
 \fIPaket\fP
-Der Paketname. Wenn das Paket „Multi\-Arch: same“ ist, muss dieser Parameter
-die Architektur\-Spezifikation enthalten, andernfalls sollte er normalerweise
-die Architektur\-Spezifikation \fBnicht\fP enthalten (da dies Cross\-Grades
-verhindern oder die Umstellung von architekturspezifisch auf die Architektur
-\fBall\fP oder umgekehrt verhindern würde). Falls dieser Parameter leer oder
-nicht angegeben ist, werden die (von \fBdpkg\fP gesetzten) Umgebungsvariablen
-\fBDPKG_MAINTSCRIPT_PACKAGE\fP und \fBDPKG_MAINTSCRIPT_ARCH\fP verwandt, um den
-Architektur\-spezifizierten Paketnamen zu erstellen.
+Der Paketname, dem der Pfadname gehört. Wenn das Paket „Multi\-Arch: same“
+ist, muss dieser Parameter die Architektur\-Spezifikation enthalten,
+andernfalls sollte er normalerweise die Architektur\-Spezifikation \fBnicht\fP
+enthalten (da dies Cross\-Grades verhindern oder die Umstellung von
+architekturspezifisch auf die Architektur \fBall\fP oder umgekehrt verhindern
+würde). Falls dieser Parameter leer oder nicht angegeben ist, werden die
+(von \fBdpkg\fP bei der Ausführung der Betreuerskripte gesetzten)
+Umgebungsvariablen \fBDPKG_MAINTSCRIPT_PACKAGE\fP und \fBDPKG_MAINTSCRIPT_ARCH\fP
+verwandt, um den Architektur\-spezifizierten Paketnamen zu erstellen.
 .TP 
 \fB\-\-\fP
 Alle Parameter der Betreuerskripte müssen nach \fB\-\-\fP an das Programm
@@ -269,11 +270,18 @@ Der Befehl \fBsupports\fP liefert im Erfolgsfall 0, ansonsten 1 zurück. Der
 Befehl \fBsupports\fP überprüft, ob die durch Dpkg gesetzten und vom Skript
 benötigten Umgebungsvariablen vorhanden sind und betrachtet es als
 Fehlschlag, falls die Umgebung nicht ausreichend ist.
+.
+.SH UMGEBUNG
+.TP 
+\fBDPKG_COLORS\fP
+Setzt den Farbmodus (seit Dpkg 1.19.1). Die derzeit unterstützten Werte
+sind: \fBauto\fP (Vorgabe), \fBalways\fP und \fBnever\fP.
+.
 .SH "SIEHE AUCH"
 .ad l
 \fBdh_installdeb\fP(1).
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2017 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

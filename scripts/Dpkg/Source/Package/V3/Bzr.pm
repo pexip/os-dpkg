@@ -36,18 +36,15 @@ use Dpkg::Compression;
 use Dpkg::ErrorHandling;
 use Dpkg::Source::Archive;
 use Dpkg::Exit qw(push_exit_handler pop_exit_handler);
+use Dpkg::Path qw(find_command);
 use Dpkg::Source::Functions qw(erasedir);
 
 use parent qw(Dpkg::Source::Package);
 
 our $CURRENT_MINOR_VERSION = '0';
 
-sub import {
-    foreach my $dir (split(/:/, $ENV{PATH})) {
-        if (-x "$dir/bzr") {
-            return 1;
-        }
-    }
+sub prerequisites {
+    return 1 if find_command('bzr');
     error(g_('cannot unpack bzr-format source package because ' .
              'bzr is not in the PATH'));
 }
@@ -179,7 +176,7 @@ sub do_extract {
 
     my @files = $self->get_files();
     if (@files > 1) {
-        error(g_('format v3.0 uses only one source file'));
+        error(g_('format v3.0 (bzr) uses only one source file'));
     }
     my $tarfile = $files[0];
     my $comp_ext_regex = compression_get_file_extension_regex();

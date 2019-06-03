@@ -89,7 +89,7 @@ Gewoonlijk is dit het originele versienummer van het pakket, welke vorm de
 auteur van het programma er ook voor gebruikt. Het kan ook een
 Debian\-revisienummer bevatten (voor niet uit Debian stammende pakketten). De
 exacte indeling en het sorteringsalgoritme worden beschreven in
-\fBdeb\-version\fP(5).
+\fBdeb\-version\fP(7).
 .TP 
 \fBBinary\-Only\-Changes:\fP
 .TQ
@@ -134,6 +134,12 @@ worden. Gebruikelijke architecturen zijn \fBamd64\fP, \fBarmel\fP, \fBi386\fP, e
 De datum waarop het pakket gebouwd werd. Hij moet dezelfde indeling hebben
 als de datum in een \fBdeb\-changelog\fP(5)\-item.
 .TP 
+\fBBuild\-Kernel\-Version:\fP \fIbouwkernel\-versie\fP
+De uitgave en de versie (in een niet\-gespecificeerde indeling) van de kernel
+die op het bouwsysteem functioneert. Dit veld zal enkel aanwezig zijn als
+het bouwprogramma er expliciet om gevraagd heeft, om het eventueel weglekken
+van gevoelige informatie te voorkomen.
+.TP 
 \fBBuild\-Path:\fP \fIbouwpad\fP
 Het absoluut bouwpad, wat overeenkomt met de uitgepakte broncodeboom. Dit
 veld is enkel aanwezig als de leverancier het op de witte lijst geplaatst
@@ -142,6 +148,44 @@ van gevoelige informatie te voorkomen.
 
 Op Debian en zijn derivaten zullen enkel bouwpaden die beginnen met
 \fI/build/\fP aanleiding geven tot het aanmaken van dit veld.
+.TP 
+\fBBuild\-Tainted\-By:\fP
+.TQ
+\fIlijst\-met\-bezoedelingsredenen\fP
+Dit gevouwen veld bevat een niet\-exhaustieve lijst, met spatie als
+scheidingsteken, van labels (samengesteld uit alfanumerieke tekens en
+gedachtestreepjes) met redenen die aanduiden waarom de huidige bouw
+bezoedeld werd (sinds dpkg 1.19.5).
+.IP
+Op Debian en zijn derivaten kunnen de volgende reden\-labels gegeven worden:
+.RS
+.TP 
+\fBmerged\-usr\-via\-symlinks\fP
+Het systeem heeft een via symbolische koppelingen samengevoegde map
+\fI/usr\fP. Dit sticht verwarring bij \fBdpkg\-query\fP, \fBdpkg\-statoverride\fP,
+\fBdpkg\-trigger\fP, \fBupdate\-alternatives\fP en elk ander hulpmiddel dat in zijn
+databank gebruik maakt van padnamen als sleutel, omdat het zorgt voor
+problemen met aliassen in het bestandssysteem en knoeit met het overzicht
+van het bestandssysteem dat \fBdpkg\fP in zijn databank opgeslagen heeft. Met
+bouwsystemen die in de door hen gemaakte objecten gebruik maken van vaste
+padnamen naar specifieke uitvoerbare bestanden of bibliotheken, kan dit ook
+leiden tot pakketten die niet compatibel zijn met bestandssystemen zonder
+samengevoegde /usr\-map.
+.TP 
+\fBusr\-local\-has\-configs\fP
+Het systeem bevat configuratiebestanden onder \fI/usr/local/etc\fP.
+.TP 
+\fBusr\-local\-has\-includes\fP
+Het systeem bevat kopbestanden onder \fI/usr/local/include\fP.
+.TP 
+\fBusr\-local\-has\-programs\fP
+Op het systeem staan programma's onder \fI/usr/local/bin\fP of
+\fI/usr/local/sbin\fP.
+.TP 
+\fBusr\-local\-has\-libraries\fP
+Het systeem bevat statische of gedeelde bibliotheken onder
+\fI/usr/local/lib\fP.
+.RE
 .TP 
 \fBInstalled\-Build\-Depends:\fP (verplicht)
 .TQ
@@ -180,4 +224,4 @@ de backslashes worden gemaskeerd (‘\e\e’).
 .\" .RE
 .
 .SH "ZIE OOK"
-\fBdeb\-changes\fP(5), \fBdeb\-version\fP(5), \fBdpkg\-genbuildinfo\fP(1).
+\fBdeb\-changes\fP(5), \fBdeb\-version\fP(7), \fBdpkg\-genbuildinfo\fP(1).

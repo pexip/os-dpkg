@@ -76,14 +76,16 @@ maintainer scripts in version \fB3.0\-1\fP, should set \fIprior-version\fP
 to \fB3.0\-1~\fP.
 .TP
 .I package
-The package name. When the package is “Multi\-Arch: same” this parameter
+The package name owning the pathname(s).
+When the package is “Multi\-Arch: same” this parameter
 must include the architecture qualifier, otherwise it should \fBnot\fP
 usually include the architecture qualifier (as it would disallow
 cross-grades, or switching from being architecture specific to
 architecture \fBall\fP or vice versa).
 If the parameter is empty or omitted, the \fBDPKG_MAINTSCRIPT_PACKAGE\fP
-and \fBDPKG_MAINTSCRIPT_ARCH\fP environment variables (as set by \fBdpkg\fP)
-will be used to generate an arch-qualified package name.
+and \fBDPKG_MAINTSCRIPT_ARCH\fP environment variables (as set by \fBdpkg\fP
+when running the maintainer scripts) will be used to generate an
+arch-qualified package name.
 .TP
 .B \-\-
 All the parameters of the maintainer scripts have to be forwarded to the
@@ -252,6 +254,14 @@ The command \fBsupports\fP will return 0 on success, 1 otherwise. The
 \fBsupports\fP command will check if the environment variables as set
 by dpkg and required by the script are present, and will consider it a
 failure in case the environment is not sufficient.
+.
+.SH ENVIRONMENT
+.TP
+.B DPKG_COLORS
+Sets the color mode (since dpkg 1.19.1).
+The currently accepted values are: \fBauto\fP (default), \fBalways\fP and
+\fBnever\fP.
+.
 .SH SEE ALSO
 .ad l
 .BR dh_installdeb (1).

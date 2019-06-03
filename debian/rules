@@ -3,16 +3,16 @@
 # Copyright © 2004 Scott James Remnant <scott@netsplit.com>
 # Copyright © 2006-2012 Guillem Jover <guillem@debian.org>
 
-WFLAGS := -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers
-
-# XXX: Stack Protector Strong is only available in gcc >= 4.9
-cc_version = $(shell $(CC) -dumpversion 2>/dev/null)
-cc_version_lt = $(shell dpkg --compare-versions "$(cc_version)" lt-nl "$(1)" && echo yes)
-hardening_old = $(if $(call cc_version_lt,4.9),-stackprotectorstrong)
+WFLAGS := \
+	-Wall -Wextra \
+	-Wno-missing-field-initializers \
+	-Wno-nonnull-compare \
+	-Wno-unused-parameter \
+	$(nil)
 
 # Use the in-tree dpkg-buildflags
 dpkg_buildflags = \
-	DEB_BUILD_MAINT_OPTIONS="hardening=+all,$(hardening_old)" \
+	DEB_BUILD_MAINT_OPTIONS="hardening=+all" \
 	DEB_CFLAGS_MAINT_APPEND="$(WFLAGS)" \
 	DEB_CXXFLAGS_MAINT_APPEND="$(WFLAGS)" \
 	$(CURDIR)/run-script scripts/dpkg-buildflags.pl
@@ -33,8 +33,9 @@ endif
 ifeq ($(DEB_HOST_ARCH_OS),linux)
 	confflags += --with-libselinux
 endif
-ifeq (,$(filter maintainer-build,$(DEB_BUILD_OPTIONS)))
+ifeq (,$(filter terse,$(DEB_BUILD_OPTIONS)))
 	confflags += --disable-silent-rules
+	testflags += TESTSUITEFLAGS=--verbose
 endif
 
 # Enable parallel test suite
@@ -50,7 +51,7 @@ D := $(CURDIR)/debian/tmp
 configure:
 	dh_testdir
 
-	autoreconf -v -i
+	./autogen
 
 # Configure the build tree
 build-tree/config.status: configure
@@ -83,8 +84,7 @@ check: build
 	dh_testdir
 
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
-	cd build-tree && $(MAKE) VERBOSE=1 TESTSUITEFLAGS=--verbose \
-	                         TEST_PARALLEL=$(NUMJOBS) check
+	cd build-tree && $(MAKE) $(testflags) TEST_PARALLEL=$(NUMJOBS) check
 endif
 
 # Install the package underneath debian/tmp
@@ -95,6 +95,11 @@ install: check
 	dh_installdirs
 
 	cd build-tree && $(MAKE) DESTDIR=$(D) install
+
+	# Special-case the lintian profile, as dh cannot rename on install.
+	mkdir -p $(D)/usr/share/lintian/profiles/dpkg
+	cp debian/dpkg.lintian-profile \
+	   $(D)/usr/share/lintian/profiles/dpkg/main.profile
 
 define dpkg-installmanl10n
 for f in `sed -e 's:\*:*/*:' debian/$(1).manpages`; do \
@@ -110,12 +115,14 @@ binary-arch: install
 	dh_install -a
 	dh_installcron -a
 	dh_installlogrotate -a
+	dh_installlogrotate -a --name=alternatives
 	dh_installchangelogs -a ChangeLog*
 	dh_installdocs -a
 	$(call dpkg-installmanl10n,dpkg)
 	$(call dpkg-installmanl10n,dselect)
 	dh_installman -a
 	dh_link -a
+	dh_bugfiles -a -A
 	dh_lintian -a
 	dh_strip -a
 	dh_compress -a
@@ -137,6 +144,7 @@ binary-indep: install
 	$(call dpkg-installmanl10n,dpkg-dev)
 	dh_installman -i
 	dh_link -i
+	dh_bugfiles -i -A
 	dh_lintian -i
 	# The perl modules should not depend on a specific interpreter.
 	dh_perl -i -Nlibdpkg-perl

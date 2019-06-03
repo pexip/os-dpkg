@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 94;
+use Test::More tests => 102;
 use Test::Dpkg qw(:paths);
 
 use File::Basename;
@@ -29,21 +29,19 @@ BEGIN {
     use_ok('Dpkg::Vendor', qw(get_current_vendor));
 };
 
-my $datadir = test_get_data_path('t/Dpkg_Changelog');
+my $datadir = test_get_data_path();
 
 my $vendor = get_current_vendor();
 
 #########################
 
 foreach my $file ("$datadir/countme", "$datadir/shadow", "$datadir/fields",
-    "$datadir/regressions", "$datadir/date-format") {
+    "$datadir/regressions", "$datadir/date-format", "$datadir/stop-modeline") {
 
     my $changes = Dpkg::Changelog::Debian->new(verbose => 0);
     $changes->load($file);
 
-    open(my $clog_fh, '<', "$file") or die "can't open $file\n";
-    my $content = file_slurp($clog_fh);
-    close($clog_fh);
+    my $content = file_slurp($file);
     cmp_ok($content, 'eq', "$changes", "string output of Dpkg::Changelog on $file");
 
     my $errors = $changes->get_parse_errors();
@@ -60,110 +58,154 @@ foreach my $file ("$datadir/countme", "$datadir/shadow", "$datadir/fields",
 	my $all_versions = join( '/', map { $_->get_version() } @data);
 
 	sub check_options {
-	    my ($changes, $data, $options, $count, $versions,
-		$check_name) = @_;
+            my (%opts) = @_;
 
-	    my @cnt = $changes->get_range($options);
-	    cmp_ok( @cnt, '==', $count, "$check_name -> count" );
-	    if ($count == @$data) {
-		is_deeply( \@cnt, $data, "$check_name -> returns all" );
-
+            my @cnt = $changes->get_range($opts{range});
+            cmp_ok(@cnt, '==', $opts{count}, "$opts{name} -> count");
+            if ($opts{count} == @{$opts{data}}) {
+                is_deeply(\@cnt, $opts{data}, "$opts{name} -> returns all");
 	    } else {
-		is( join( '/', map { $_->get_version() } @cnt),
-		    $versions, "$check_name -> versions" );
+                is_deeply([ map { $_->get_version() } @cnt ],
+                          $opts{versions}, "$opts{name} -> versions" );
 	    }
 	}
 
-	check_options( $changes, \@data,
-		       { count => 3 }, 3, '2:2.0-1/1:2.0~rc2-3/1:2.0~rc2-2',
-		       'positive count' );
-	check_options( $changes, \@data,
-		       { count => -3 }, 3,
-		       '1:2.0~rc2-1sarge2/1:2.0~rc2-1sarge1/1.5-1',
-		       'negative count' );
-	check_options( $changes, \@data,
-		       { count => 1 }, 1, '2:2.0-1',
-		       'count 1' );
-	check_options( $changes, \@data,
-		       { count => 1, default_all => 1 }, 1, '2:2.0-1',
-		       'count 1 (d_a 1)' );
-	check_options( $changes, \@data,
-		       { count => -1 }, 1, '1.5-1',
-		       'count -1' );
+        my %ref = (
+            changes => $changes,
+            data => \@data,
+        );
 
-	check_options( $changes, \@data,
-		       { count => 3, offset => 2 }, 3,
-		       '1:2.0~rc2-2/1:2.0~rc2-1sarge3/1:2.0~rc2-1sarge2',
-		       'positive count + positive offset' );
-	check_options( $changes, \@data,
-		       { count => -3, offset => 4 }, 3,
-		       '1:2.0~rc2-3/1:2.0~rc2-2/1:2.0~rc2-1sarge3',
-		       'negative count + positive offset' );
+        check_options(%ref, range => { count => 3 },
+                      count => 3,
+                      versions => [ '2:2.0-1', '1:2.0~rc2-3', '1:2.0~rc2-2' ],
+                      name => 'positive count');
+        check_options(%ref, range => { count => 3, reverse => 1 },
+                      count => 3,
+                      versions => [ '1:2.0~rc2-2', '1:2.0~rc2-3', '2:2.0-1' ],
+                      name => 'positive reverse count');
+        check_options(%ref, range => { count => -3 },
+                      count => 3,
+                      versions => [
+                            '1:2.0~rc2-1sarge2',
+                            '1:2.0~rc2-1sarge1',
+                            '1.5-1',
+                      ],
+                      name => 'negative count');
+        check_options(%ref, range => { count => 1 },
+                      count => 1,
+                      versions => [ '2:2.0-1' ],
+                      name => 'count 1');
+        check_options(%ref, range => { count => 1, default_all => 1 },
+                      count => 1,
+                      versions => [ '2:2.0-1' ],
+                      name => 'count 1 (d_a 1)');
+        check_options(%ref, range => { count => -1 },
+                      count => 1,
+                      versions => [ '1.5-1' ],
+                      name => 'count -1');
 
-	check_options( $changes, \@data,
-		       { count => 4, offset => 5 }, 2,
-		       '1:2.0~rc2-1sarge1/1.5-1',
-		       'positive count + positive offset (>max)' );
-	check_options( $changes, \@data,
-		       { count => -4, offset => 2 }, 2,
-		       '2:2.0-1/1:2.0~rc2-3',
-		       'negative count + positive offset (<0)' );
+        check_options(%ref, range => { count => 3, offset => 2 },
+                      count => 3,
+                      versions => [
+                            '1:2.0~rc2-2',
+                            '1:2.0~rc2-1sarge3',
+                            '1:2.0~rc2-1sarge2',
+                      ],
+                      name => 'positive count + positive offset');
+        check_options(%ref, range => { count => -3, offset => 4 },
+                      count => 3,
+                      versions => [
+                            '1:2.0~rc2-3',
+                            '1:2.0~rc2-2',
+                            '1:2.0~rc2-1sarge3',
+                      ],
+                      name => 'negative count + positive offset');
 
-	check_options( $changes, \@data,
-		       { count => 3, offset => -4 }, 3,
-		       '1:2.0~rc2-1sarge3/1:2.0~rc2-1sarge2/1:2.0~rc2-1sarge1',
-		       'positive count + negative offset' );
-	check_options( $changes, \@data,
-		       { count => -3, offset => -3 }, 3,
-		       '1:2.0~rc2-3/1:2.0~rc2-2/1:2.0~rc2-1sarge3',
-		       'negative count + negative offset' );
+        check_options(%ref, range => { count => 4, offset => 5 },
+                      count => 2,
+                      versions => [ '1:2.0~rc2-1sarge1', '1.5-1' ],
+                      name => 'positive count + positive offset (>max)');
+        check_options(%ref, range =>  { count => -4, offset => 2 },
+                      count => 2,
+                      versions => [ '2:2.0-1', '1:2.0~rc2-3' ],
+                      name => 'negative count + positive offset (<0)');
 
-	check_options( $changes, \@data,
-		       { count => 5, offset => -2 }, 2,
-		       '1:2.0~rc2-1sarge1/1.5-1',
-		       'positive count + negative offset (>max)' );
-	check_options( $changes, \@data,
-		       { count => -5, offset => -4 }, 3,
-		       '2:2.0-1/1:2.0~rc2-3/1:2.0~rc2-2',
-		       'negative count + negative offset (<0)' );
+        check_options(%ref, range => { count => 3, offset => -4 },
+                      count => 3,
+                      versions => [
+                        '1:2.0~rc2-1sarge3',
+                        '1:2.0~rc2-1sarge2',
+                        '1:2.0~rc2-1sarge1',
+                      ],
+                      name => 'positive count + negative offset');
+        check_options(%ref, range => { count => -3, offset => -3 },
+                      count => 3,
+                      versions => [
+                          '1:2.0~rc2-3',
+                          '1:2.0~rc2-2',
+                          '1:2.0~rc2-1sarge3',
+                      ],
+                      name => 'negative count + negative offset');
 
-	check_options( $changes, \@data,
-		       { count => 7 }, 7, '',
-		       'count 7 (max)' );
-	check_options( $changes, \@data,
-		       { count => -7 }, 7, '',
-		       'count -7 (-max)' );
-	check_options( $changes, \@data,
-		       { count => 10 }, 7, '',
-		       'count 10 (>max)' );
-	check_options( $changes, \@data,
-		       { count => -10 }, 7, '',
-		       'count -10 (<-max)' );
+        check_options(%ref, range => { count => 5, offset => -2 },
+                      count => 2,
+                      versions => [ '1:2.0~rc2-1sarge1', '1.5-1' ],
+                      name => 'positive count + negative offset (>max)');
+        check_options(%ref, range => { count => -5, offset => -4 },
+                      count => 3,
+                      versions => [ '2:2.0-1', '1:2.0~rc2-3', '1:2.0~rc2-2' ],
+                      name => 'negative count + negative offset (<0)');
 
-	check_options( $changes, \@data,
-		       { from => '1:2.0~rc2-1sarge3' }, 4,
-		       '2:2.0-1/1:2.0~rc2-3/1:2.0~rc2-2/1:2.0~rc2-1sarge3',
-		       'from => "1:2.0~rc2-1sarge3"' );
-	check_options( $changes, \@data,
-		       { since => '1:2.0~rc2-1sarge3' }, 3,
-		       '2:2.0-1/1:2.0~rc2-3/1:2.0~rc2-2',
-		       'since => "1:2.0~rc2-1sarge3"' );
+        check_options(%ref, range => { count => 7 },
+                      count => 7,
+                      name => 'count 7 (max)');
+        check_options(%ref, range => { count => -7 },
+                      count => 7,
+                      name => 'count -7 (-max)');
+        check_options(%ref, range => { count => 10 },
+                      count => 7,
+                      name => 'count 10 (>max)');
+        check_options(%ref, range => { count => -10 },
+                      count => 7,
+                      name => 'count -10 (<-max)');
+
+        check_options(%ref, range => { from => '1:2.0~rc2-1sarge3' },
+                      count => 4,
+                      versions => [
+                          '2:2.0-1',
+                          '1:2.0~rc2-3',
+                          '1:2.0~rc2-2',
+                          '1:2.0~rc2-1sarge3',
+                      ],
+                      name => 'from => "1:2.0~rc2-1sarge3"');
+        check_options(%ref, range => { since => '1:2.0~rc2-1sarge3' },
+                      count => 3,
+                      versions => [
+                            '2:2.0-1',
+                            '1:2.0~rc2-3',
+                            '1:2.0~rc2-2',
+                      ],
+                      name => 'since => "1:2.0~rc2-1sarge3"');
         $SIG{__WARN__} = sub {};
-        check_options( $changes, \@data,
-                       { since => 0 }, 7, '',
-                       'since => 0 returns all');
+        check_options(%ref, range => { since => 0 },
+                      count => 7,
+                      name => 'since => 0 returns all');
         delete $SIG{__WARN__};
-	check_options( $changes, \@data,
-		       { to => '1:2.0~rc2-1sarge2' }, 3,
-		       '1:2.0~rc2-1sarge2/1:2.0~rc2-1sarge1/1.5-1',
-		       'to => "1:2.0~rc2-1sarge2"' );
-	## no critic (ControlStructures::ProhibitUntilBlocks)
-	check_options( $changes, \@data,
-		       { until => '1:2.0~rc2-1sarge2' }, 2,
-		       '1:2.0~rc2-1sarge1/1.5-1',
-		       'until => "1:2.0~rc2-1sarge2"' );
-	## use critic
-	#TODO: test combinations
+        check_options(%ref, range => { to => '1:2.0~rc2-1sarge2' },
+                      count => 3,
+                      versions => [
+                            '1:2.0~rc2-1sarge2',
+                            '1:2.0~rc2-1sarge1',
+                            '1.5-1',
+                      ],
+                      name => 'to => "1:2.0~rc2-1sarge2"');
+        ## no critic (ControlStructures::ProhibitUntilBlocks)
+        check_options(%ref, range => { until => '1:2.0~rc2-1sarge2' },
+                      count => 2,
+                      versions => [ '1:2.0~rc2-1sarge1', '1.5-1' ],
+                      name => 'until => "1:2.0~rc2-1sarge2"');
+        ## use critic
+        #TODO: test combinations
     }
     if ($file eq "$datadir/fields") {
 	my $str = $changes->format_range('dpkg', { all => 1 });
@@ -301,6 +343,10 @@ Xb-Userfield2: foobar
            'get date w/ DoW, and positive timezone offset');
         is($data[2]->get_timestamp(), 'Mon, 01 Jan 2000 00:00:00 +0000',
            'get date w/ DoW, and zero timezone offset');
+    }
+    if ($file eq "$datadir/stop-modeline") {
+        is($changes->get_unparsed_tail(), "vim: et\n",
+           'get unparsed modeline at EOF');
     }
     if ($file eq "$datadir/regressions") {
 	my $f = ($changes->format_range('dpkg'))[0];

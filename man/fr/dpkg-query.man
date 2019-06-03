@@ -38,13 +38,17 @@ connus par la base de données de \fBdpkg\fP.
 .SH COMMANDES
 .TP 
 \fB\-l\fP, \fB\-\-list\fP [\fImotif\-de\-nom\-de\-paquet\fP...]
-List packages matching given pattern. If no \fIpackage\-name\-pattern\fP is
-given, list all packages in \fI%ADMINDIR%/status\fP, excluding the ones marked
-as not\-installed (i.e. those which have been previously purged). Normal
-shell wildcard characters are allowed in \fIpackage\-name\-pattern\fP. Please
-note you will probably have to quote \fIpackage\-name\-pattern\fP to prevent the
-shell from performing filename expansion. For example this will list all
-package names starting with \*(lqlibc6\*(rq:
+Affiche les paquets correspondant à un ou plusieurs motifs, quelque soit
+leur statut, ce qui comprend tout paquet réel ou virtuel référencé dans tout
+champ de relation de dépendance (tel que \fBBreaks\fP, \fBEnhances\fP,\ etc.). Si
+aucun \fImotif\-de\-nom\-de\-paquet\fP n'est indiqué, affiche tous les paquets de
+\fI%ADMINDIR%/status\fP, sauf ceux qui ne sont pas installés (c'est\-à\-dire ceux
+qui ont été précédemment purgés). Les métacaractères ordinaires de
+l'interpréteur de commandes sont autorisés dans
+\fImotif\-de\-nom\-de\-paquet\fP. Il faudra sans doute mettre
+\fImotif\-de\-nom\-de\-paquet\fP entre apostrophes pour éviter l'expansion des noms
+de fichier par l'interpréteur de commandes. Par exemple, tous les paquets
+dont le nom commence par «\ libc6\ » seront affichés par la commande\ :
 
 .nf
 \fBdpkg\-query \-l 'libc6*'\fP
@@ -97,12 +101,14 @@ suivant\ : une ligne pour chaque paquet, avec le nom (éventuellement complété
 par l'identifiant d'architecture pour les paquets \fBMulti\-Arch\fP \fBsame\fP) et
 la version installée, séparés par une tabulation.
 .TP 
-\fB\-s\fP, \fB\-\-status\fP \fInom\-du\-paquet\fP ...
+\fB\-s\fP, \fB\-\-status\fP [\fInom\-du\-paquet\fP ...]
 Donne l'état du paquet indiqué. C'est simplement l'affichage de l'entrée de
-la base de données concernant les états des paquets installés. Lorsque des
-\fInoms\-de\-paquets\fP multiples sont indiqués, les entrées d'état demandées
-sont séparées par une ligne vide et sont dans l'ordre utilisé pour la liste
-de paramètres.
+la base de données concernant les états des paquets installés. Si aucun
+\fInom\-de\-paquet\fP n'est indiqué, toutes les entrées de paquet dans la base de
+données d'état seront affichées (depuis dpkg\ 1.19.1). Lorsque des entrées de
+\fInom\-de\-paquet\fP multiples sont indiquées, les entrées d'état demandées sont
+séparées par une ligne vide et sont dans l'ordre utilisé pour la liste de
+paramètres.
 .TP 
 \fB\-L\fP, \fB\-\-listfiles\fP \fInom\-du\-paquet\fP...
 Affiche la liste des fichiers du \fInom\-du\-paquet\fP installés sur le
@@ -113,19 +119,21 @@ fichiers créés par les scripts d'installation propres aux paquets ne sont
 pas affichés.
 .TP 
 \fB\-\-control\-list\fP \fInom\-du\-paquet\fP
-List control files installed to your system from \fIpackage\-name\fP (since dpkg
-1.16.5).  These can be used as input arguments to \fB\-\-control\-show\fP.
+Affiche les fichiers de contrôle installés sur le système à partir de
+\fInom\-du\-paquet\fP (depuis dpkg\ 1.16.5). Ceux\-ci peuvent être utilisés en
+paramètres d'entrée de \fB\-\-control\-show\fP.
 .TP 
 \fB\-\-control\-show\fP \fInom\-du\-paquet\fP \fIfichier\-de\-contrôle\fP
-Print the \fIcontrol\-file\fP installed to your system from \fIpackage\-name\fP to
-the standard output (since dpkg 1.16.5).
+Affiche sur la sortie standard le \fIfichier\-de\-contrôle\fP installé sur le
+système pour \fInom\-du\-paquet\fP (depuis dpkg\ 1.16.5).
 .TP 
 \fB\-c\fP, \fB\-\-control\-path\fP \fInom\-du\-paquet\fP [\fIfichier\-contrôle\fP]
-List paths for control files installed to your system from \fIpackage\-name\fP
-(since dpkg 1.15.4).  If \fIcontrol\-file\fP is specified then only list the
-path for that control file if it is present.
+Affiche les chemins pour les fichiers de contrôle installés sur votre
+système pour \fInom\-du\-paquet\fP (depuis dpkg\ 1.15.4). Si \fIfichier\-contrôle\fP
+est indiqué, seul le chemin pour ce fichier de contrôle sera affiché, s'il
+est présent.
 
-\fBAttention\fP\ :\ cette commande est obsolète parce qu'elle donne un accès
+\fBAttention\fP\ : cette commande est obsolète parce qu'elle donne un accès
 direct à la base de données interne de dpkg, et il est conseillé d'utiliser
 \fB\-\-control\-list\fP et \fB\-\-control\-show\fP à la place dans tous les cas où ces
 commandes peuvent donner le même résultat. Néanmoins,aussi longtemps qu'il y
@@ -135,26 +143,30 @@ qu'il n'y aura pas de bonne solution pour cela, cette commande ne sera pas
 supprimée.
 .TP 
 \fB\-S\fP, \fB\-\-search\fP \fImotif\-de\-nom\-à\-rechercher\fP...
-Search for packages that own files corresponding to the given pattern.
-Standard shell wildcard characters can be used in the pattern, where
-asterisk (\fB*\fP) and question mark (\fB?\fP) will match a slash, and blackslash
-(\fB\e\fP) will be used as an escape character.
+Recherche les paquets propriétaires de fichiers dont le nom correspond au
+motif indiqué. On peut utiliser tous les métacaractères de l'interpréteur de
+commandes dans le motif, où l'astérisque (\fB*\fP et le point d'interrogation
+(\fB?\fP) correspondront à une barre oblique et la barre oblique inverse sert
+de caractère d'échappement.
 
-If the first character in the \fIfilename\-search\-pattern\fP is none of
-‘\fB*[?/\fP’ then it will be considered a substring match and will be
-implicitly surrounded by ‘\fB*\fP’ (as in \fB*\fP\fIfilename\-search\-pattern\fP\fB*\fP).
-If the subsequent string contains any of ‘\fB*[?\e\fP’, then it will handled
-like a glob pattern, otherwise any trailing ‘\fB/\fP’ or ‘\fB/.\fP’ will be
-removed and a literal path lookup will be performed.
+Si le premier caractère du \fImotif\-de\-nom\-à\-rechercher\fP est aucun des
+caractères «\ \fB*[?/\fP\ », il sera alors considéré comme une sous\-chaîne de
+correspondance et sera implicitement entouré de «\ \fB*\fP\ » (comme
+\fB*\fP\fImotif\-de\-nom\-à\-rechercher\fP\fB*\fP). Si la chaîne suivante contient un des
+caractères «\ \fB*[?\e\fP\ », il sera géré comme un motif global, sinon tout
+«\ \fB/\fP\ » ou «\ \fB/.\fP\ » terminal sera supprimé et une recherche littérale de
+chemin sera exécutée.
 
-This command will not list extra files created by maintainer scripts, nor
-will it list alternatives.
+Cette commande ne donne pas les fichiers supplémentaires créés par les
+scripts du responsable de paquet, ni les alternatives.
 .TP 
-\fB\-p\fP, \fB\-\-print\-avail\fP \fInom\-du\-paquet\fP...
-Affiche les détails relatifs à \fInom\-du\-paquet\fP, tels que présents dans
-\fI/var/lib/dpkg/available\fP. Si des \fInom\-paquet\fP multiples sont indiqués,
-les entrées \fIavailable\fP correspondantes seront séparées par des lignes
-vides et apparaîtront dans l'ordre de la liste de paramètres.
+\fB\-p\fP, \fB\-\-print\-avail\fP [\fInom\-du\-paquet\fP...]
+Affiche les détails relatifs aux paquets, tels que présents dans
+\fI%ADMINDIR%/available\fP. Si aucun \fInom\-de\-paquet\fP n'est indiqué, toutes les
+entrées de paquet dans la base de données d'état seront affichées (depuis
+dpkg\ 1.19.1). Lorsque des entrées de \fInom\-de\-paquet\fP multiples sont
+indiquées, les entrées \fIavailable\fP demandées sont séparées par une ligne
+vide et sont dans l'ordre utilisé pour la liste de paramètres.
 
 Les utilisateurs des outils basés sur APT devraient plutôt utiliser la
 commande \fBapt\-cache show\fP \fInom\-du\-paquet\fP car le fichier \fIavailable\fP
@@ -168,20 +180,25 @@ Affiche le numéro de version puis quitte.
 .
 .SH OPTIONS
 .TP 
-\fB\-\-admindir\fP=\fIdir\fP
-Change the location of the \fBdpkg\fP database. The default location is
-\fI%ADMINDIR%\fP.
+\fB\-\-admindir\fP=\fIrépertoire\fP
+Change l'endroit où se trouve la base de données de \fBdpkg\fP. Par défaut,
+c'est \fI%ADMINDIR%\fP.
 .TP 
 \fB\-\-load\-avail\fP
-Also load the available file when using the \fB\-\-show\fP and \fB\-\-list\fP
-commands, which now default to only querying the status file (since dpkg
-1.16.2).
+Charge également le fichier \fIavailable\fP à l'utilisation des commandes
+\fB\-\-show\fP et \fB\-\-list\fP, ce qui désormais revient à n'interroger que le
+fichier d'état (depuis dpkg\ 1.16.2).
+.TP 
+\fB\-\-no\-pager\fP
+Désactive l'utilisation d'un afficheur pour montrer les informations (depuis
+dpkg\ 1.19.2).
 .TP 
 \fB\-f\fP, \fB\-\-showformat=\fP\fIformat\fP
-Cette option sert à spécifier le format de sortie de l'option \fB\-\-show\fP. Ce
-format sera utilisé pour chaque paquet listé.
+Cette option sert à spécifier le format de sortie de l'option \fB\-\-show\fP
+(option courte depuis dpkg\ 1.13.1). Ce format est une chaîne qui sera
+utilisée pour chaque paquet listé.
 
-Dans la chaîne, “\fB\e\fP” déspécifie le caractère\ :
+Dans la chaîne, «\ \fB\e\fP\ » préfixe des caractères de contrôle\ :
 
 .nf
     \fB\en\fP  nouvelle ligne
@@ -189,16 +206,16 @@ Dans la chaîne, “\fB\e\fP” déspécifie le caractère\ :
     \fB\et\fP  tabulation
 .fi
 
-“\fB\e\fP” avant un caractère supprime la signification du caractère qui
-suit. C'est utile pour les caractères “\fB\e\fP” et “\fB$\fP”.
+“\fB\e\fP” avant n'importe quel caractère supprime la signification spécial du
+caractère qui suit. C'est utile pour les caractères «\ \fB\e\fP\ » et «\ \fB$\fP\ ».
 
 L'information relative à un paquet peut être indiquée en insérant des appels
 de variables spécifiant des champs du paquet avec la syntaxe suivante\ :
-“\fB${\fP\fIfield\fP[\fB;\fP\fIwidth\fP]\fB}\fP”. Les champs sont alignés à droite, à moins
-que la largeur ne soit négative, auquel cas ils sont alignés à gauche. Les
-champs suivants sont reconnus, mais pas nécessairement disponibles dans le
-fichier d'état (seuls les champs internes ou les champs conservés avec le
-paquet binaire le sont)\ :
+«\ \fB${\fP\fIchamp\fP[\fB;\fP\fIlargeur\fP]\fB}\fP\ ». Les champs sont alignés à droite, à
+moins que la largeur ne soit négative, auquel cas ils sont alignés à
+gauche. Les champs suivants sont reconnus, mais pas nécessairement
+disponibles dans le fichier d'état (seuls les champs internes ou les champs
+conservés avec le paquet binaire le sont)\ :
 
 .nf
     \fBArchitecture\fP
@@ -230,7 +247,8 @@ paquet binaire le sont)\ :
     \fBSource\fP
     \fBStatus\fP (interne)
     \fBSuggests\fP
-    \fBTag\fP (en général pas dans le .deb mais dans les fichiers Packages des dépôts)
+    \fBTag\fP (en général pas dans le .deb mais dans les fichiers
+            Packages des dépôts)
     \fBTriggers\-Awaited\fP (interne)
     \fBTriggers\-Pending\fP (interne)
     \fBVersion\fP
@@ -242,47 +260,59 @@ sont pas valables comme noms de champs dans le fichiers de contrôle)\ :
 .RS
 .TP 
 \fBbinary:Package\fP
-It contains the binary package name with a possible architecture qualifier
-like “libc6:amd64” (since dpkg 1.16.2).  An architecture qualifier will be
-present to make the package name unambiguous, for example if the package has
-a \fBMulti\-Arch\fP field with a value of \fBsame\fP or the package is of a foreign
-architecture.
+Contient le nom du paquet binaire avec éventuellement le type d'architecture
+tel que «\ libc6:amd64\ » (depuis dpkg\ 1.16.2). Le type d'architecture sera
+présent pour rendre le nom de paquet non ambigu, par exemple si le champ
+\fBMulti\-Arch\fP du paquet a la valeur \fBsame\fP ou si le paquet appartient à une
+architecture différente.
+.TP 
+\fBbinary:Synopsis\fP
+Il contient la description courte du paquet (depuis dpkg\ 1.19.1).
 .TP 
 \fBbinary:Summary\fP
-Il contient la description courte du paquet (depuis dpkg 1.16.2).
+C'est un alias de \fBbinary:Synopsis\fP (depuis dpkg\ 1.16.2).
 .TP 
 \fBdb:Status\-Abbrev\fP
-It contains the abbreviated package status (as three characters), such as
-“ii ” or “iHR” (since dpkg 1.16.2).  See the \fB\-\-list\fP command description
-for more details.
+Il contient l'état du paquet dans sa forme abrégée en trois caractères,
+comme «\ ii\ \ » ou «\ iHR\ » (depuis dpkg\ 1.16.2). Voir la description de la
+commande \fB\-\-list\fP pour plus de détails.
 .TP 
 \fBdb:Status\-Want\fP
-Il contient le statut désiré du paquet, extrait du champ Status (depuis dpkg
-1.17.11).
+Il contient l'état désiré du paquet, extrait du champ Status (depuis
+dpkg\ 1.17.11).
 .TP 
 \fBdb:Status\-Status\fP
-Il contient le statut actuel du paquet, extrait du champ Status (depuis dpkg
-1.17.11).
+Il contient l'expression d'état du paquet, extrait du champ Status (depuis
+dpkg\ 1.17.11).
 .TP 
 \fBdb:Status\-Eflag\fP
-Il contient le drapeau d'erreur du statut du paquet, extrait du champ Status
-(depuis dpkg 1.17.11).
+Il contient le drapeau d'erreur d'état du paquet, extrait du champ Status
+(depuis dpkg\ 1.17.11).
+.TP 
+\fBdb\-fsys:Files\fP
+Il contient la liste des entrées de paquets du système de fichiers, séparées
+par des sauts de lignes (depuis dpkg\ 1.19.3).
+.TP 
+\fBdb\-fsys:Last\-Modified\fP
+Il contient l'horodatage en seconde de la dernière date à laquelle les
+entrées de paquets du système de fichiers ont été modifiées (depuis
+dpkg\ 1.19.3).
 .TP 
 \fBsource:Package\fP
-Il contient le nom du paquet source de ce paquet binaire (depuis dpkg
-1.16.2).
+Il contient le nom du paquet source de ce paquet binaire (depuis
+dpkg\ 1.16.2).
 .TP 
 \fBsource:Version\fP
-Il contient la version du paquet source de ce paquet binaire (depuis dpkg
-1.16.2).
+Il contient la version du paquet source de ce paquet binaire (depuis
+dpkg\ 1.16.2).
 .TP 
 \fBsource:Upstream\-Version\fP
-It contains the source package upstream version for this binary package
-(since dpkg 1.18.16)
+Il contient la version du paquet source amont de ce paquet binaire (depuis
+dpkg\ 1.18.16).
 .RE
 .IP
 Le format par défaut est le suivant\ :
-“\fB${binary:Package}\et${Version}\en\fP”. Tous les autres champs du fichier
+«\ \fB${binary:Package}\et${Version}\en\fP\ ». Tous les autres champs du fichier
 d'état, par exemple des champs définis par l'utilisateur, peuvent être
 demandés. Ils seront affichés mais sans aucune mise en forme et aucune
 conversion ou vérification n'est faite. Pour obtenir le nom du responsable
@@ -298,25 +328,47 @@ de \fBdpkg\fP et la version installée, exécutez par exemple\ :
 La requête demandée s'est correctement déroulée.
 .TP 
 \fB1\fP
-The requested query failed either fully or partially, due to no file or
-package being found (except for \fB\-\-control\-path\fP, \fB\-\-control\-list\fP and
-\fB\-\-control\-show\fP were such errors are fatal).
+La requête demandée a échoué soit totalement, soit partiellement, du fait
+qu'aucun fichier ni paquet n'a été trouvé (sauf pour \fB\-\-control\-path\fP,
+\fB\-\-control\-list\fP et \fB\-\-control\-show\fP où de telles erreurs sont fatales).
 .TP 
 \fB2\fP
-Fatal or unrecoverable error due to invalid command\-line usage, or
-interactions with the system, such as accesses to the database, memory
-allocations, etc.
+Erreur fatale ou irrécupérable due à l'utilisation d'une ligne de commande
+non valable, ou interactions avec le système, telles que des accès à la base
+de données, des allocations de mémoire,\ etc.
 .
 .SH ENVIRONNEMENT
+.SS "Environnement externe"
+.TP 
+\fBSHELL\fP
+Définit le programme à exécuter lors du lancement d'une commande avec un
+shell (depuis dpkg\ 1.19.2).
+.TP 
+\fBPAGER\fP
+.TQ
+\fBDPKG_PAGER\fP
+Définit la commande d'afficheur à utiliser (depuis dpkg\ 1.19.1) qui sera
+exécutée avec «\ \fB$SHELL \-c\fP\ ». Si \fBSHELL\fP n'est pas défini, «\ \fBsh\fP\ » sera
+utilisé à la place. \fBDPKG_PAGER\fP remplace la variable d'environnement
+\fBPAGER\fP (depuis dpkg\ 1.19.2).
 .TP 
 \fBDPKG_ADMINDIR\fP
 Si cette variable est positionnée et que l'option \fB\-\-admindir\fP n'est pas
 précisée, ce répertoire sera utilisé comme répertoire de données pour
 \fBdpkg\fP.
 .TP 
-\fBCOLUMNS\fP
-Ce réglage influence la sortie de l'option \fB\-\-list\fP en modifiant la largeur
-d'affichage.
+\fBDPKG_COLORS\fP
+Définit le mode de couleur (depuis dpkg\ 1.18.5). Les valeurs actuellement
+acceptées sont \fBauto\fP (par défaut), \fBalways\fP et \fBnever\fP.
+.SS "Environnement interne"
+.TP 
+\fBLESS\fP
+Définie à «\ \fB\-FRSXMQ\fP\ » par \fBdpkg\-query\fP, si elle n'est pas déjà fixée,
+lors du lancement d'un afficheur (depuis dpkg\ 1.19.2). Pour modifier le
+comportement par défaut, cette variable peut être réglée à une autre valeur
+y compris une chaîne vide, ou les variables \fBPAGER\fP ou \fBDPKG_PAGER\fP
+peuvent être fixées pour désactiver des options spécifiques avec «\ \fB\-+\fP\ »,
+par exemple \fBDPKG_PAGER="less \-+F"\fP.
 .
 .SH "VOIR AUSSI"
 \fBdpkg\fP(1).

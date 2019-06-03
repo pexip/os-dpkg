@@ -3,6 +3,9 @@
 PATH="@abs_top_builddir@/dpkg-deb:@abs_top_builddir@/dpkg-split:@abs_top_builddir@/src:@abs_top_builddir@/utils:$PATH"
 export PATH
 
+TESTDATA="@abs_top_srcdir@/t-func"
+export TESTDATA
+
 # Setup a sane environment
 
 umask 0022
@@ -10,7 +13,7 @@ umask 0022
 LC_ALL=C
 export LC_ALL
 
-TZ=UTC
+TZ=UTC0
 export TZ
 
 SOURCE_DATE_EPOCH=0
@@ -22,14 +25,3 @@ unset BZIP
 unset XZ_OPT
 unset XZ_DEFAULTS
 
-if [ "$(id -u)" = 0 ]; then
-  ASROOT=
-elif which fakeroot >/dev/null; then
-  ASROOT=fakeroot
-else
-  echo "skip: needs to run as root(ish)" >&2
-  exit 0
-fi
-export ASROOT
-
-TESTDATA="@abs_top_srcdir@/t-func"

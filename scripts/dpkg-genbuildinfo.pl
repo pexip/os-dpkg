@@ -25,6 +25,7 @@
 use strict;
 use warnings;
 
+use List::Util qw(any);
 use Cwd;
 use File::Basename;
 use POSIX qw(:fcntl_h :locale_h strftime);
@@ -45,8 +46,7 @@ use Dpkg::Control;
 use Dpkg::Changelog::Parse;
 use Dpkg::Deps;
 use Dpkg::Dist::Files;
-use Dpkg::Util qw(:list);
-use Dpkg::File;
+use Dpkg::Lock;
 use Dpkg::Version;
 use Dpkg::Vendor qw(get_current_vendor run_vendor_hook);
 
@@ -61,6 +61,7 @@ my $outputfile;
 my $stdout = 0;
 my $admindir = $Dpkg::ADMINDIR;
 my %use_feature = (
+    kernel => 0,
     path => 0,
 );
 my @build_profiles = get_build_profiles();
@@ -231,8 +232,7 @@ sub collect_installed_builddeps {
             # virtual package: we cannot know for sure which implementation
             # is the one that has been used, so let's add them all...
             foreach my $provided (@{$facts->{virtualpkg}->{$pkg_name}}) {
-                my ($provided_by, $provided_rel, $provided_ver) = @{$provided};
-                push @unprocessed_pkgs, $provided_by;
+                push @unprocessed_pkgs, $provided->{provider};
             }
         }
         # else: it is a package in an OR dependency that has been otherwise
@@ -294,6 +294,7 @@ sub usage {
   -F<changelog-format>     force changelog format.
   -O[<buildinfo-file>]     write to stdout (or <buildinfo-file>).
   -u<upload-files-dir>     directory with files (default is '..').
+  --always-include-kernel  always include Build-Kernel-Version.
   --always-include-path    always include Build-Path.
   --admindir=<directory>   change the administrative directory.
   -?, --help               show this help message.
@@ -325,6 +326,8 @@ while (@ARGV) {
     } elsif (m/^--buildinfo-id=.*$/) {
         # Deprecated option
         warning('--buildinfo-id is deprecated, it is without effect');
+    } elsif (m/^--always-include-kernel$/) {
+        $use_feature{kernel} = 1;
     } elsif (m/^--always-include-path$/) {
         $use_feature{path} = 1;
     } elsif (m/^--admindir=(.*)$/) {
@@ -415,7 +418,12 @@ $fields->{'Build-Origin'} = get_current_vendor();
 $fields->{'Build-Architecture'} = get_build_arch();
 $fields->{'Build-Date'} = get_build_date();
 
-my $cwd = cwd();
+if ($use_feature{kernel}) {
+    my (undef, undef, $kern_rel, $kern_ver, undef) = POSIX::uname();
+    $fields->{'Build-Kernel-Version'} = "$kern_rel $kern_ver";
+}
+
+my $cwd = getcwd();
 if ($use_feature{path}) {
     $fields->{'Build-Path'} = $cwd;
 } else {
@@ -428,6 +436,8 @@ if ($use_feature{path}) {
         }
     }
 }
+
+$fields->{'Build-Tainted-By'} = "\n" . join "\n", run_vendor_hook('build-tainted-by');
 
 $checksums->export_to_control($fields);
 

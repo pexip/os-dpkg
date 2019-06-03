@@ -154,10 +154,9 @@ angezeigt wird:
 Wähle und konfiguriere eine Zugriffsmethode für Paketdepots.
 .sp
 Standardmäßig stellt \fBdselect\fP mehrere Methoden wie \fIcdrom\fP, \fImulti_cd\fP,
-\fInfs\fP, \fImulti_nfs\fP, \fIharddisk\fP, \fImounted\fP, \fImulti_mount\fP, \fIfloppy\fP
-oder \fIftp\fP zur Verfügung, aber andere Pakete können zusätzliche Methoden
-bereitstellen, z.B. stellt das \fBapt\fP\-Paket die \fIapt\fP\-Zugriffsmethode
-bereit.
+\fInfs\fP, \fImulti_nfs\fP, \fIharddisk\fP, \fImounted\fP, \fImulti_mount\fP oder \fIftp\fP
+zur Verfügung, aber andere Pakete können zusätzliche Methoden bereitstellen,
+z.B. stellt das \fBapt\fP\-Paket die \fIapt\fP\-Zugriffsmethode bereit.
 .sp
 Die Verwendung der \fIapt\fP\-Zugriffsmethode wird nachdrücklich empfohlen.
 .sp
@@ -448,7 +447,7 @@ im Klaren sind.
 .sp
 Der gegenteilige Effekt, um alle Auswahländerungen zurückzusetzen und zurück
 auf die vorherige Auswahlliste zu gehen, wird durch Drücken der Tasten
-‚\fBX\fP’ oder \fB»Esc«\fP erreicht. Durch wiederholtes Drücken dieser Tasten
+‚\fBX\fP’ oder »\fBEsc\fP« erreicht. Durch wiederholtes Drücken dieser Tasten
 können möglicherweise schädliche Änderungen an der angeforderten
 Paketauswahl komplett auf die letzten bestehenden Einstellungen
 zurückgesetzt werden.
@@ -496,7 +495,7 @@ die eingebauten Zugriffsmethoden.
 .SH "SIEHE AUCH"
 \fBdpkg\fP(1), \fBapt\-get\fP(8), \fBsources.list\fP(5), \fBdeb\fP(5).
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2017 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

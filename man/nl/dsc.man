@@ -48,20 +48,21 @@ ASCII\-harnas volgens de specificatie RFC4880.
 \fBFormat:\fP \fIindelingsversie\fP (verplicht)
 De waarde van dit veld declareert de indelingsversie van het
 broncodepakket. De veldwaarde wordt door programma's die met een
-broncodepakket werken, gebruikt om de bestandslijst in het broncodepakket te
-interpreteren en te bepalen hoe het uitgepakt moet worden. De syntaxis van
-de veldwaarde is: een numerieke hoofdversie, een punt, een numerieke
-onderversie, en dan eventueel na witruimte een subtype dat, als het
-opgegeven wordt, bestaat uit een alfanumeriek woord tussen haakjes. Vanuit
-het oogpunt van syntaxis is het subtype optioneel, maar voor specifieke
-revisies van de indeling van broncodepakketten kan het een verplicht
-onderdeel zijn.
+broncodepakket werken, gebruikt om de bestandenlijst in het broncodepakket
+te interpreteren en te bepalen hoe het uitgepakt moet worden. De syntaxis
+van de veldwaarde is: een numerieke hoofdversie (“0\-9”), een punt (“.”), een
+numerieke onderversie (“0\-9”), en dan eventueel na witruimte (“\ \et”) een
+subtype dat, als het opgegeven wordt, bestaat uit een alfanumeriek
+(“a\-z0\-9”) woord tussen haakjes (“()”). Vanuit het oogpunt van syntaxis is
+het subtype optioneel, maar voor specifieke revisies van de indeling van
+broncodepakketten kan het een verplicht onderdeel zijn.
 
-De indelingen van broncodepakketten die momenteel ondersteund worden door
-\fBdpkg\fP zijn \fB1.0\fP, \fB2.0\fP, \fB3.0 (native)\fP, \fB3.0 (quilt)\fP, \fB3.0 (git)\fP,
-\fB3.0 (bzr)\fP en \fB3.0 (custom)\fP.
+De indelingen van de broncode die momenteel ondersteund worden door \fBdpkg\fP
+zijn \fB1.0\fP, \fB2.0\fP, \fB3.0 (native)\fP, \fB3.0 (quilt)\fP, \fB3.0 (git)\fP, \fB3.0
+(bzr)\fP en \fB3.0 (custom)\fP. Raadpleeg \fBdpkg\-source\fP(1) voor de beschrijving
+ervan.
 .TP 
-\fBSource:\fP \fIbroncodepakket\-naam\fP (verplicht)
+\fBSource:\fP \fIbroncode\-naam\fP (verplicht)
 De waarde van dit veld bepaalt de pakketnaam en wordt door de meeste
 installatiegereedschappen gebruikt om bestandsnamen te genereren.
 .TP 
@@ -97,7 +98,7 @@ Gewoonlijk is dit het originele versienummer van het pakket, welke vorm de
 auteur van het programma er ook voor gebruikt. Het kan ook een
 Debian\-revisienummer bevatten (voor niet uit Debian stammende pakketten). De
 exacte indeling en het sorteringsalgoritme worden beschreven in
-\fBdeb\-version\fP(5).
+\fBdeb\-version\fP(7).
 .TP 
 \fBOrigin:\fP\fI naam\fP
 De naam van de distributie waaruit dit pakket afkomstig is.
@@ -112,6 +113,17 @@ Somt al de namen en de e\-mailadressen op van de personen die het pakket mee
 onderhouden volgens dezelfde indeling als van het veld
 \fBMaintainer\fP. Meerdere mede\-onderhouders moeten onderling door een komma
 gescheiden worden.
+.TP 
+\fBDescription:\fP \fIkorte\-beschrijving\fP
+.TQ
+\fB \fP\fIuitgebreide\-beschrijving\fP
+De indeling van een pakketbeschrijving bestaat uit een beknopte korte
+samenvatting op de eerste regel (na de veldmarkering \fBDescription\fP). De
+daaropvolgende regels moeten gebruikt worden voor een langere, meer
+gedetailleerde beschrijving. Elke regel van de uitgebreide beschrijving moet
+voorafgegaan worden door een spatie, en lege regels in de uitgebreide
+beschrijving moeten één enkele ‘\fB.\fP’ bevatten die volgt op de eraan
+voorafgaande spatie.
 .TP 
 \fBHomepage:\fP\fI URL\fP
 De \fIURL\fP van de homepage van het toeleverend project (upstream).
@@ -145,7 +157,7 @@ versiecontrolesysteem dat gebruikt wordt om dit pakket te onderhouden. Zie
 .TP 
 \fBTestsuite:\fP\fI namenlijst\fP
 Dit veld declareert dat het broncodepakket de opgegeven testsuites bevat. De
-waarde is een lijst van onderling door spaties gescheiden testsuites. Indien
+waarde is een lijst van onderling door komma's gescheiden testsuites. Indien
 de waarde \fBautopkgtest\fP bestaat, wordt verondersteld dat het bestand
 \fIdebian/tests/control\fP bestaat. Indien het bestand bestaat, maar de waarde
 niet, dan zal \fBdpkg\-source\fP die automatisch toevoegen met behoud van de
@@ -154,9 +166,10 @@ vroegere waarden.
 \fBTestsuite\-Triggers:\fP\fI pakketlijst\fP
 Dit veld declareert de door komma's gescheiden unie van alle testvereisten
 (de velden \fBDepends\fP uit het bestand \fIdebian/tests/control\fP), waaruit alle
-restricties verwijderd en alle OR\-vereisten uitgevlakt werden, met
-uitzondering van die welke gelden voor de binaire pakketten die dit
-broncodepakket genereert en van meta\-vereisten zoals \fB@\fP of \fB@builddeps@\fP.
+restricties verwijderd en alle OR\-vereisten uitgevlakt werden (dit betekent
+omgezet naar aparte AND\-relaties), uitgezonderd voor de binaire pakketten,
+gegenereerd door dit broncodepakket en het equivalent van zijn meta\-vereiste
+\fB@\fP.
 
 Motivering: dit veld is noodzakelijk omdat anders elk broncodepakket
 uitgepakt zou moeten worden om de testvereisten te kunnen achterhalen.
@@ -243,4 +256,4 @@ lijst bestanden in de andere verwante velden.
 Het veld \fBFormat\fP combineert de indeling van het \fB.dsc\fP\-bestand zelf en de
 indeling van het uitgepakte broncodepakket.
 .SH "ZIE OOK"
-\fBdeb\-src\-control\fP(5), \fBdeb\-version\fP(5), \fBdpkg\-source\fP(1).
+\fBdeb\-src\-control\fP(5), \fBdeb\-version\fP(7), \fBdpkg\-source\fP(1).

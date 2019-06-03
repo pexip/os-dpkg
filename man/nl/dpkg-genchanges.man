@@ -127,10 +127,11 @@ bespreking van uitvoersubstitutie.
 \fB\-T\fP\fIsubstvars\-bestand\fP
 Lees de substitutievariabelen uit \fIsubstvars\-bestand\fP. Standaard is dat
 \fBdebian/substvars\fP. Er wordt geen variabelesubstitutie toegepast op de
-velden uit de uitvoer. Nochtans zal de bijzondere variabele \fIFormat\fP het
-veld met dezelfde naam vervangen. Deze optie kan meermaals gebruikt worden
-om substitutievariabelen uit verschillende bestanden te lezen (sinds dpkg
-1.15.6).
+velden uit de uitvoer, behalve voor de inhoud die geëxtraheerd werd uit het
+veld \fBDescription\fP van elk binair pakket (sinds dpkg 1.19.0). Nochtans zal
+de bijzondere variabele \fIFormat\fP het veld met dezelfde naam vervangen. Deze
+optie kan meermaals gebruikt worden om substitutievariabelen uit
+verschillende bestanden te lezen (sinds dpkg 1.15.6).
 
 .TP 
 \fB\-D\fP\fIveld\fP\fB=\fP\fIwaarde\fP
@@ -176,6 +177,18 @@ Toon info over het gebruik en sluit af.
 .TP 
 \fB\-\-version\fP
 Toon de versie en sluit af.
+.
+.SH OMGEVING
+.TP 
+\fBDPKG_COLORS\fP
+Stelt de kleurmodus in (sinds dpkg 1.18.5). Waarden die momenteel gebruikt
+mogen worden zijn: \fBauto\fP (standaard), \fBalways\fP en \fBnever\fP.
+.TP 
+\fBDPKG_NLS\fP
+Indien dit ingesteld is, zal het gebruikt worden om te beslissen over het
+activeren van moedertaalondersteuning, ook gekend als
+internationaliseringsondersteuning (of i18n) (sinds dpkg 1.19.0). Geldige
+waarden zijn: \fB0\fP and \fB1\fP (standaard).
 .
 .SH BESTANDEN
 .TP 

@@ -26,10 +26,7 @@ our $VERSION = '0.01';
 
 use Dpkg::ErrorHandling;
 use Dpkg::Gettext;
-use Dpkg::Path qw(find_command);
 use Dpkg::Control::Types;
-use Dpkg::BuildOptions;
-use Dpkg::Arch qw(debarch_eq get_host_arch);
 
 use parent qw(Dpkg::Vendor::Debian);
 
@@ -100,21 +97,29 @@ sub run_hook {
 
     } elsif ($hook eq 'update-buildflags') {
 	my $flags = shift @params;
+
+        # Run the Debian hook to add hardening flags
+        $self->SUPER::run_hook($hook, $flags);
+
+        require Dpkg::BuildOptions;
+
 	my $build_opts = Dpkg::BuildOptions->new();
 
 	if (!$build_opts->has('noopt')) {
-	    if (debarch_eq(get_host_arch(), 'ppc64el')) {
+            require Dpkg::Arch;
+
+            my $arch = Dpkg::Arch::get_host_arch();
+            if (Dpkg::Arch::debarch_eq($arch, 'ppc64el')) {
 		for my $flag (qw(CFLAGS CXXFLAGS OBJCFLAGS OBJCXXFLAGS GCJFLAGS
 		                 FFLAGS FCFLAGS)) {
-		    $flags->set($flag, '-g -O3', 'vendor');
+                    my $value = $flags->get($flag);
+                    $value =~ s/-O[0-9]/-O3/;
+                    $flags->set($flag, $value);
 		}
 	    }
 	}
 	# Per https://wiki.ubuntu.com/DistCompilerFlags
-	$flags->set('LDFLAGS', '-Wl,-Bsymbolic-functions', 'vendor');
-
-	# Run the Debian hook to add hardening flags
-	$self->SUPER::run_hook($hook, $flags);
+        $flags->prepend('LDFLAGS', '-Wl,-Bsymbolic-functions');
     } else {
         return $self->SUPER::run_hook($hook, @params);
     }

@@ -52,6 +52,18 @@ Affiche un message d'aide puis quitte.
 \fB\-\-version\fP
 Affiche le numéro de version puis quitte.
 .
+.SH ENVIRONNEMENT
+.TP 
+\fBDPKG_COLORS\fP
+Définit le mode de couleur (depuis dpkg\ 1.18.5). Les valeurs actuellement
+acceptées sont \fBauto\fP (par défaut), \fBalways\fP et \fBnever\fP.
+.TP 
+\fBDPKG_NLS\fP
+Si cette variable est définie, elle sera utilisée pour décider l'activation
+de la prise en charge des langues (NLS –\ Native Language Support), connu
+aussi comme la gestion de l'internationalisation (ou i18n) (depuis
+dpkg\ 1.19.0). Les valeurs permises sont\ : \fB0\fP et \fB1\fP (par défaut).
+.
 .SH FICHIERS
 .TP 
 \fBdebian/files\fP
