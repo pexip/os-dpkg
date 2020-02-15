@@ -27,7 +27,7 @@ Build-Depends:
  libselinux1-dev [linux-any],
  libncursesw5-dev,
  libio-string-perl <!nocheck>,
-XS-Pexip-Upstream: http://ftp.debian.org/debian/ stretch
+XS-Pexip-Upstream: http://ftp.debian.org/debian/ buster
 
 Package: dpkg
 Architecture: any
