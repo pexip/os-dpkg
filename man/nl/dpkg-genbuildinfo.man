@@ -103,6 +103,12 @@ eerder dan in \fB..\fP (\fBdpkg\-genbuildinfo\fP moet deze bestanden kunnen vind
 zodat het hun grootte en hun controlesom kan opnemen in het bestand
 \&\fB.buildinfo\fP)
 .TP 
+\fB\-\-always\-include\-kernel\fP
+Standaard wordt het veld \fBBuild\-Kernel\-Version\fP niet opgeschreven.
+
+Geef deze optie op (sinds dpkg 1.19.0) om steeds een veld
+\fBBuild\-Kernel\-Version\fP aan te maken als \fB.buildinfo\fP gegenereerd wordt.
+.TP 
 \fB\-\-always\-include\-path\fP
 Standaard zal het veld \fBBuild\-Path\fP enkel opgeschreven worden als de
 huidige map begint met een expliciet toegestaan patroon.
@@ -110,7 +116,7 @@ huidige map begint met een expliciet toegestaan patroon.
 O Debian en zijn derivaten moet het patroon beantwoorden aan \fB/build/\fP als
 begin van de padnaam.
 
-Geef deze optie op om steeds een veld \fBBuild\-Path\fP op te schrijven als
+Geef deze optie op om steeds een veld \fBBuild\-Path\fP aan te maken als
 \&\fB.buildinfo\fP gegenereerd wordt.
 .TP 
 \fB\-\-admindir=\fP\fImap\fP
@@ -139,6 +145,16 @@ aangeven of die functie al dan niet geactiveerd moet worden. De bijzondere
 functie “\fBall\fP” kan gebruikt worden om alle overige functies te activeren
 of te deactiveren. De functie “\fBpath\fP” regelt of het veld \fBBuild\-Path\fP
 onvoorwaardelijk mee opgenomen moet worden.
+.TP 
+\fBDPKG_COLORS\fP
+Stelt de kleurmodus in (sinds dpkg 1.18.5). Waarden die momenteel gebruikt
+mogen worden zijn: \fBauto\fP (standaard), \fBalways\fP en \fBnever\fP.
+.TP 
+\fBDPKG_NLS\fP
+Indien dit ingesteld is, zal het gebruikt worden om te beslissen over het
+activeren van moedertaalondersteuning, ook gekend als
+internationaliseringsondersteuning (of i18n) (sinds dpkg 1.19.0). Geldige
+waarden zijn: \fB0\fP and \fB1\fP (standaard).
 .
 .SH BESTANDEN
 .TP 

@@ -3,29 +3,37 @@
 m4_pattern_forbid([^_?DPKG_])
 
 AC_PREREQ(2.60)
-AC_INIT([dpkg], m4_esyscmd([./get-version]), [debian-dpkg@lists.debian.org])
+AC_INIT([dpkg], m4_esyscmd([./get-version]), [debian-dpkg@lists.debian.org],
+        [dpkg], [https://wiki.debian.org/Teams/Dpkg])
+DPKG_DIST_IS_RELEASE
 AC_SUBST([PACKAGE_COPYRIGHT_HOLDER], ['Dpkg Developers'])
+AC_SUBST([PACKAGE_VCS_TYPE], [git])
+AC_SUBST([PACKAGE_VCS_URL], [https://git.dpkg.org/git/dpkg/dpkg.git])
+AC_SUBST([PACKAGE_VCS_WEB], [https://git.dpkg.org/cgit/dpkg/dpkg.git])
+AC_SUBST([PACKAGE_BUG_WEB], [https://bugs.debian.org/src:dpkg])
+AC_SUBST([PACKAGE_CPAN_NAME], [Dpkg])
 AC_CONFIG_SRCDIR([lib/dpkg/dpkg.h])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-aux])
 
 AC_USE_SYSTEM_EXTENSIONS
 
-AM_INIT_AUTOMAKE([1.11 -Wall foreign nostdinc no-dist-gzip dist-xz])
+AM_INIT_AUTOMAKE(
+  [1.11]
+  [-Wall]
+  [foreign]
+  [nostdinc]
+  [tar-ustar no-dist-gzip dist-xz]
+)
 AM_SILENT_RULES([yes])
 
-# Do not unconditionally use the following macro, as Debian jessie does not
-# have a recent enough gettext.
-m4_ifdef([
-  AM_GNU_GETTEXT_REQUIRE_VERSION
-], [
-  AM_GNU_GETTEXT_REQUIRE_VERSION([0.19])
-])
-# We cannot remove the following macro due to backwards compatibility reasons.
-# In the future when the gettext version is bumped, we have to set the above
-# macro unconditionally to the minimal version, and set the below to 0.19.6,
-# the first version introducing the AM_GNU_GETTEXT_REQUIRE_VERSION macro.
-AM_GNU_GETTEXT_VERSION([0.19])
+# Require at least this gettext version, but will take any later version too.
+AM_GNU_GETTEXT_REQUIRE_VERSION([0.19.7])
+# XXX: We cannot remove the following macro due to backwards compatibility
+# reasons. The above macro is set unconditionally to the minimal version
+# required, and the below is set to 0.19.6, the first version introducing
+# the AM_GNU_GETTEXT_REQUIRE_VERSION macro.
+AM_GNU_GETTEXT_VERSION([0.19.6])
 AM_GNU_GETTEXT([external])
 DPKG_DIST_CHECK([test "$GMSGFMT" = ":" && test "$USE_NLS" = "yes"],
   [gettext required when NLS support enabled])
@@ -129,7 +137,6 @@ AC_C_VOLATILE
 AC_TYPE_MODE_T
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
-DPKG_TYPES_U_INT_T
 DPKG_TYPE_PTRDIFF_T
 AC_CHECK_SIZEOF([unsigned int])
 AC_CHECK_SIZEOF([unsigned long])
@@ -152,6 +159,7 @@ DPKG_CHECK_COMPAT_FUNCS([\
   getopt \
   getopt_long \
   obstack_free \
+  strchrnul \
   strnlen \
   strndup \
   strerror \
@@ -214,6 +222,7 @@ AC_CONFIG_FILES([
   doc/Doxyfile
   man/Makefile
   po/Makefile.in
+  scripts/Build.PL
   scripts/Makefile
   scripts/mk/Makefile
   scripts/po/Makefile.in

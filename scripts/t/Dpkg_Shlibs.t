@@ -21,9 +21,7 @@ use Test::Dpkg qw(:needs :paths);
 
 use Cwd;
 
-test_needs_module('IO::String');
-
-plan tests => 148;
+plan tests => 150;
 
 use Dpkg::Path qw(find_command);
 
@@ -33,7 +31,7 @@ my $tmp;
 my @tmp;
 my %tmp;
 
-my $datadir = test_get_data_path('t/Dpkg_Shlibs');
+my $datadir = test_get_data_path();
 
 my @librarypaths;
 
@@ -56,7 +54,7 @@ Dpkg::Shlibs::blank_library_paths();
 # We want relative paths inside the ld.so.conf fragments to work, and $srcdir
 # is usually a relative path, so let's temporarily switch directory.
 # XXX: An alternative would be to make parse_ldso_conf relative path aware.
-my $cwd = cwd();
+my $cwd = getcwd();
 test_needs_srcdir_switch();
 Dpkg::Shlibs::parse_ldso_conf('t/Dpkg_Shlibs/ld.so.conf');
 chdir($cwd);
@@ -106,7 +104,7 @@ $obj->parse_objdump_output($objdump);
 close $objdump;
 
 ok($obj->is_public_library(), 'libc6 is a public library');
-ok(!$obj->is_executable(), 'libc6 is not an executable');
+ok($obj->is_executable(), 'libc6 is an executable');
 
 is($obj->{SONAME}, 'libc.so.6', 'SONAME');
 is($obj->{HASH}, '0x13d99c', 'HASH');
@@ -328,10 +326,13 @@ is_deeply($sym, Dpkg::Shlibs::Symbol->new(symbol => 'symbol1_fake2@Base',
 is($sym_file->get_smallest_version('libfake.so.1'), '1.0',
    'get_smallest_version');
 
+my $io_data;
+my $io;
+
 # Check dump output
-my $io = IO::String->new();
+open $io, '>', \$io_data or die "cannot open io string\n";
 $sym_file->output($io, package => 'libfake1');
-is(${$io->string_ref()},
+is($io_data,
 'libfake.so.1 libfake1 #MINVER#
 | libvirtualfake
 * Build-Depends-Package: libfake-dev
@@ -349,6 +350,8 @@ open $objdump, '<', "$datadir/objdump.glib-ia64"
   or die "$datadir/objdump.glib-ia64: $!";
 $obj->parse_objdump_output($objdump);
 close $objdump;
+ok($obj->is_public_library(), 'glib-ia64 is a public library');
+ok(!$obj->is_executable(), 'glib-ia64 is not an executable');
 
 $sym = $obj->get_symbol('IA__g_free');
 is_deeply( $sym, { name => 'IA__g_free', version => '',
@@ -379,7 +382,8 @@ sub check_spacesym {
                       debug => '', type => 'F', weak => '',
                       local => '', global => 1, visibility => $visibility,
                       hidden => '', defined => 1 }, $name);
-    ok(defined $obj->{dynrelocs}{$name}, "dynreloc found for $name");
+    ok(defined $obj->{dynrelocs}{$name . "@@" . $version},
+       "dynreloc found for $name");
 }
 
 check_spacesym('symdefaultvernospacedefault', 'Base');
@@ -403,9 +407,9 @@ $sym_file = Dpkg::Shlibs::SymbolFile->new(file => "$datadir/basictags.symbols", 
 save_load_test($sym_file, 'template save -> load', template_mode => 1);
 
 # Dumping in non-template mode (amd64) (test for arch tags)
-$io = IO::String->new();
+open $io, '>', \$io_data or die "cannot open io string\n";
 $sym_file->output($io);
-is(${$io->string_ref()},
+is($io_data,
 'libbasictags.so.1 libbasictags1 #MINVER#
 | libbasictags1 (>= 1.1)
  symbol11_optional@Base 1.1 1
@@ -417,10 +421,10 @@ is(${$io->string_ref()},
 ', 'template vs. non-template on amd64');
 
 # Dumping in non-template mode (mips) (test for arch tags)
-$io = IO::String->new();
+open $io, '>', \$io_data or die "cannot open io string\n";
 $sym_file = Dpkg::Shlibs::SymbolFile->new(file => "$datadir/basictags.symbols", arch => 'mips');
 $sym_file->output($io);
-is(${$io->string_ref()},
+is($io_data,
 'libbasictags.so.1 libbasictags1 #MINVER#
 | libbasictags1 (>= 1.1)
  symbol11_optional@Base 1.1 1
@@ -433,11 +437,11 @@ is(${$io->string_ref()},
 ', 'template vs. non-template on mips');
 
 # Dumping in non-template mode (i386) (test for arch tags)
-$io = IO::String->new();
+open $io, '>', \$io_data or die "cannot open io string\n";
 $sym_file = Dpkg::Shlibs::SymbolFile->new(file => "$datadir/basictags.symbols", arch => 'i386');
 $sym_file_dup = Dpkg::Shlibs::SymbolFile->new(file => "$datadir/basictags.symbols", arch => 'i386');
 $sym_file->output($io);
-is(${$io->string_ref()},
+is($io_data,
 'libbasictags.so.1 libbasictags1 #MINVER#
 | libbasictags1 (>= 1.1)
  symbol11_optional@Base 1.1 1

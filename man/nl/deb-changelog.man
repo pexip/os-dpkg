@@ -7,7 +7,7 @@
 .\" Copyright © 2008, 2010 Russ Allbery <rra@debian.org>
 .\" Copyright © 2010 Charles Plessy <plessy@debian.org>
 .\" Copyright © 2014 Bill Allombert <ballombe@debian.org>
-.\" Copyright © 2015 Guillem Jover <guillem@debian.org>
+.\" Copyright © 2015-2017 Guillem Jover <guillem@debian.org>
 .\"
 .\" This is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -155,7 +155,16 @@ linkermarge. De “volgende” regel met de gegevens over de onderhouder en de
 datum moet door exact één spatie voorafgegaan worden. Tussen de informatie
 over de onderhouder en de datum moeten exact twee spaties staan.
 .PP
-Het volledige changelog\-bestand moet in UTF\-8 op gemaakt zijn.
+Elke regel die volledig (d.w.z. zonder voorafgaande witruimte) bestaat uit
+commentaar in de vorm van \fB#\fP\- of \fB/* */\fP of RCS\-trefwoorden.
+.PP
+Modusregels van Vim of lokale variabelen van Emacs en oudere
+changelog\-elementen met een andere indeling aan het einde van het bestand,
+moeten aanvaard worden en in de uitvoer behouden blijven, maar de inhoud
+ervan kan verder genegeerd worden en het ontleden kan op dat punt gestopt
+worden.
+.PP
+Het volledige changelog\-bestand moet in UTF\-8 opgemaakt zijn.
 .SH BESTANDEN
 .TP 
 \fIdebian/changelog\fP
@@ -179,4 +188,4 @@ dpkg (1.17.18) unstable; urgency=low
 .fi
 .
 .SH "ZIE OOK"
-\fBdeb\-version\fP(5), \fBdeb\-changes\fP(5), \fBdpkg\-parsechangelog\fP(1).
+\fBdeb\-version\fP(7), \fBdeb\-changes\fP(5), \fBdpkg\-parsechangelog\fP(1).

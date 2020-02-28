@@ -20,6 +20,7 @@ use warnings;
 
 our $VERSION = '0.02';
 
+use List::Util qw(any none);
 use File::Spec;
 use File::Copy;
 use File::Find;
@@ -28,9 +29,8 @@ use File::Basename;
 
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
-use Dpkg::Util qw(:list);
 use Dpkg::Source::Patch;
-use Dpkg::Source::Functions qw(erasedir fs_time);
+use Dpkg::Source::Functions qw(erasedir chmod_if_needed fs_time);
 use Dpkg::Vendor qw(get_current_vendor);
 
 sub new {
@@ -374,7 +374,7 @@ sub restore_quilt_backup_files {
                 unless (link($_, $target)) {
                     copy($_, $target)
                         or syserr(g_('failed to copy %s to %s'), $_, $target);
-                    chmod((stat(_))[2], $target)
+                    chmod_if_needed((stat _)[2], $target)
                         or syserr(g_("unable to change permission of '%s'"), $target);
                 }
             } else {

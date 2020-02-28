@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dpkg 1.17.0\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2018-06-26 10:10+0000\n"
+"POT-Creation-Date: 2019-06-03 23:21+0200\n"
 "PO-Revision-Date: 2017-05-06 12:49+0200\n"
 "Last-Translator: Miroslav Kure <kurem@debian.cz>\n"
 "Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
@@ -138,7 +138,8 @@ msgstr "chyba při odstranění starého záložního souboru „%s“"
 msgid "error creating new backup file '%s'"
 msgstr "chyba při vytváření nového záložního souboru „%s“"
 
-#: lib/dpkg/atomic-file.c lib/dpkg/triglib.c src/infodb-upgrade.c src/remove.c
+#: lib/dpkg/atomic-file.c lib/dpkg/db-ctrl-upgrade.c lib/dpkg/triglib.c
+#: src/remove.c
 #, c-format
 msgid "cannot remove '%.250s'"
 msgstr "nelze odstranit „%.250s“"
@@ -342,20 +343,37 @@ msgid "unable to seek to start of %.250s after padding"
 msgstr "nelze se přesunout na začátek %.250s"
 
 #: lib/dpkg/dbmodify.c
-#, c-format
-msgid "unable to open lock file %s for testing"
-msgstr "nelze otevřít zámkový soubor %s pro test"
+#, fuzzy, c-format
+#| msgid "unable to get file descriptor for directory '%s'"
+msgid "unable to check lock file for dpkg database directory %s"
+msgstr "nelze získat popisovač souboru pro adresář „%s“"
 
 #: lib/dpkg/dbmodify.c
-msgid "unable to open/create status database lockfile"
+#, fuzzy, c-format
+#| msgid "unable to open/create status database lockfile"
+msgid "unable to open/create dpkg frontend lock for directory %s"
 msgstr "zámek stavové databáze nelze otevřít nebo vytvořit"
 
 #: lib/dpkg/dbmodify.c
-msgid "you do not have permission to lock the dpkg status database"
+#, fuzzy, c-format
+#| msgid "unable to open/create status database lockfile"
+msgid "unable to open/create dpkg database lock file for directory %s"
+msgstr "zámek stavové databáze nelze otevřít nebo vytvořit"
+
+#: lib/dpkg/dbmodify.c
+#, fuzzy, c-format
+#| msgid "you do not have permission to lock the dpkg status database"
+msgid "you do not have permission to lock the dpkg database directory %s"
 msgstr "nemáte právo k uzamčení stavové databáze dpkg"
 
 #: lib/dpkg/dbmodify.c
-msgid "dpkg status database"
+msgid "dpkg frontend lock"
+msgstr ""
+
+#: lib/dpkg/dbmodify.c
+#, fuzzy
+#| msgid "dpkg status database"
+msgid "dpkg database lock"
 msgstr "stavová databáze dpkg"
 
 #: lib/dpkg/dbmodify.c
@@ -363,11 +381,15 @@ msgid "requested operation requires superuser privilege"
 msgstr "požadovaná operace vyžaduje správcovská oprávnění"
 
 #: lib/dpkg/dbmodify.c
-msgid "unable to access dpkg status area"
+#, fuzzy, c-format
+#| msgid "unable to access dpkg status area"
+msgid "unable to access the dpkg database directory %s"
 msgstr "ke stavové oblasti dpkg nelze přistoupit"
 
 #: lib/dpkg/dbmodify.c
-msgid "operation requires read/write access to dpkg status area"
+#, fuzzy, c-format
+#| msgid "operation requires read/write access to dpkg status area"
+msgid "required read/write access to the dpkg database directory %s"
 msgstr "operace požaduje zápisová práva do stavové oblasti dpkg"
 
 #: lib/dpkg/dbmodify.c
@@ -404,6 +426,189 @@ msgstr "nelze uzavřít změněný stav balíku „%.250s“"
 #, c-format
 msgid "unable to install updated status of '%.250s'"
 msgstr "nelze nainstalovat změněný stav balíku „%.250s“"
+
+#: lib/dpkg/db-ctrl-access.c
+#, c-format
+msgid "unable to check existence of '%.250s'"
+msgstr "nelze zkontrolovat existenci „%.250s“"
+
+#: lib/dpkg/db-ctrl-access.c lib/dpkg/db-ctrl-upgrade.c
+msgid "cannot read info directory"
+msgstr "nelze přečíst adresář info"
+
+#: lib/dpkg/db-ctrl-format.c src/unpack.c
+#, c-format
+msgid "error trying to open %.250s"
+msgstr "chyba při pokusu o otevření %.250s"
+
+#: lib/dpkg/db-ctrl-format.c
+#, c-format
+msgid "corrupt info database format file '%s'"
+msgstr "porušený info soubor „%s“ obsahující verzi formátu"
+
+#: lib/dpkg/db-ctrl-format.c
+#, c-format
+msgid "info database format (%d) is bogus or too new; try getting a newer dpkg"
+msgstr ""
+"verze formátu info databáze (%d) je falešná nebo příliš nová; zkuste novější "
+"dpkg"
+
+#: lib/dpkg/db-ctrl-upgrade.c
+#, c-format
+msgid "info file %s/%s not associated to any package"
+msgstr "info soubor %s/%s není přiřazen žádnému balíku"
+
+#: lib/dpkg/db-ctrl-upgrade.c src/archives.c
+#, c-format
+msgid "error creating hard link '%.255s'"
+msgstr "chyba při vytváření pevného odkazu „%.255s“"
+
+#: lib/dpkg/db-ctrl-upgrade.c
+#, c-format
+msgid "error while writing '%s'"
+msgstr "chyba při zápisu „%s“"
+
+#: lib/dpkg/db-fsys-digest.c
+#, c-format
+msgid "control file '%s' for package '%s' is missing final newline"
+msgstr "řídící soubor „%s“ balíku „%s“ neobsahuje závěrečný nový řádek"
+
+#: lib/dpkg/db-fsys-digest.c
+#, c-format
+msgid "control file '%s' for package '%s' is missing value"
+msgstr "řídící soubor „%s“ balíku „%s“ neobsahuje hodnotu"
+
+#: lib/dpkg/db-fsys-digest.c
+#, c-format
+msgid "control file '%s' for package '%s' is missing value separator"
+msgstr "řídící soubor „%s“ balíku „%s“ neobsahuje oddělovač hodnoty"
+
+#: lib/dpkg/db-fsys-digest.c
+#, c-format
+msgid "control file '%s' for package '%s' contains empty filename"
+msgstr "řídící soubor „%s“ balíku „%s“ obsahuje prázdné jméno souboru"
+
+#: lib/dpkg/db-fsys-digest.c
+#, fuzzy, c-format
+#| msgid "cannot read control file '%s' for package '%s'"
+msgid "loading control file '%s' for package '%s'"
+msgstr "nelze číst řídící soubor „%s“ balíku „%s“"
+
+#: lib/dpkg/db-fsys-divert.c
+msgid "failed to open diversions file"
+msgstr "nelze otevřít soubor s odsuny"
+
+#: lib/dpkg/db-fsys-divert.c
+msgid "failed to fstat diversions file"
+msgstr "nelze volat fstat na soubor s odsuny"
+
+#: lib/dpkg/db-fsys-divert.c
+#, c-format
+msgid "conflicting diversions involving '%.250s' or '%.250s'"
+msgstr "odsuny „%.250s“ a „%.250s“ v konfliktu"
+
+#: lib/dpkg/db-fsys-files.c
+#, fuzzy, c-format
+#| msgid "error closing files list file for package '%.250s'"
+msgid "loading files list file for package '%s'"
+msgstr "chyba při zavírání seznamu souborů pro balík „%.250s“"
+
+#: lib/dpkg/db-fsys-files.c
+#, c-format
+msgid ""
+"files list file for package '%.250s' missing; assuming package has no files "
+"currently installed"
+msgstr ""
+"seznam souborů balíku „%.250s“ chybí, předpokládám, že program nemá "
+"nainstalované žádné soubory."
+
+#: lib/dpkg/db-fsys-files.c
+#, c-format
+msgid "files list file for package '%.250s' is missing final newline"
+msgstr "seznam souborů balíku „%.250s“ neobsahuje závěrečný nový řádek"
+
+#: lib/dpkg/db-fsys-files.c
+#, c-format
+msgid "files list file for package '%.250s' contains empty filename"
+msgstr "seznam souborů balíku „%.250s“ obsahuje prázdné jméno souboru"
+
+#: lib/dpkg/db-fsys-files.c
+msgid "(Reading database ... "
+msgstr "(Načítá se databáze … "
+
+#: lib/dpkg/db-fsys-files.c
+#, c-format
+msgid "%d file or directory currently installed.)\n"
+msgid_plural "%d files and directories currently installed.)\n"
+msgstr[0] "nyní je nainstalován %d soubor nebo adresář.)\n"
+msgstr[1] "nyní jsou nainstalovány %d soubory a adresáře.)\n"
+msgstr[2] "nyní je nainstalováno %d souborů a adresářů.)\n"
+
+#: lib/dpkg/db-fsys-override.c
+#, c-format
+msgid "invalid statoverride uid %s"
+msgstr "neplatné uid %s ve statoverride"
+
+#: lib/dpkg/db-fsys-override.c
+#, c-format
+msgid "invalid statoverride gid %s"
+msgstr "neplatné gid %s ve statoverride"
+
+#: lib/dpkg/db-fsys-override.c
+#, c-format
+msgid "invalid statoverride mode %s"
+msgstr "neplatný režim %s ve statoverride"
+
+#: lib/dpkg/db-fsys-override.c
+msgid "failed to open statoverride file"
+msgstr "nelze otevřít soubor statoverride"
+
+#: lib/dpkg/db-fsys-override.c
+msgid "failed to fstat statoverride file"
+msgstr "nelze získat fstat souboru statoverride"
+
+#: lib/dpkg/db-fsys-override.c
+#, c-format
+msgid "reading statoverride file '%.250s'"
+msgstr "načítá se statoverride soubor „%.250s“"
+
+#: lib/dpkg/db-fsys-override.c
+msgid "statoverride file is missing final newline"
+msgstr "soubor statoverride neobsahuje závěrečný nový řádek"
+
+#: lib/dpkg/db-fsys-override.c
+msgid "statoverride file contains empty line"
+msgstr "soubor statoverride obsahuje prázdný řádek"
+
+#: lib/dpkg/db-fsys-override.c
+msgid "syntax error in statoverride file"
+msgstr "syntaktická chyba v souboru statoverride"
+
+#: lib/dpkg/db-fsys-override.c
+#, c-format
+msgid ""
+"unknown system user '%s' in statoverride file; the system user got removed\n"
+"before the override, which is most probably a packaging bug, to recover you\n"
+"can remove the override manually with %s"
+msgstr ""
+
+#: lib/dpkg/db-fsys-override.c
+msgid "unexpected end of line in statoverride file"
+msgstr "neočekávaný konec řádku v souboru statoverride"
+
+#: lib/dpkg/db-fsys-override.c
+#, c-format
+msgid ""
+"unknown system group '%s' in statoverride file; the system group got "
+"removed\n"
+"before the override, which is most probably a packaging bug, to recover you\n"
+"can remove the override manually with %s"
+msgstr ""
+
+#: lib/dpkg/db-fsys-override.c
+#, c-format
+msgid "multiple statoverrides present for file '%.250s'"
+msgstr "pro soubor „%.250s“ existuje více statoverride"
 
 #: lib/dpkg/deb-version.c
 #, fuzzy
@@ -520,60 +725,73 @@ msgid "internal error"
 msgstr "vnitřní chyba"
 
 #: lib/dpkg/fields.c
-#, c-format
-msgid "%s is missing"
-msgstr "%s chybí"
+#, fuzzy
+#| msgid "missing package"
+msgid "is missing a value"
+msgstr "chybí balík"
 
 #: lib/dpkg/fields.c
-#, c-format
-msgid "'%.50s' is not allowed for %s"
-msgstr "„%.50s“ není v %s povoleno"
+#, fuzzy, c-format
+#| msgid "Skip invalid line: %s"
+msgid "has invalid value '%.50s'"
+msgstr "Přeskočení neplatného řádku: %s"
 
 #: lib/dpkg/fields.c
-#, c-format
-msgid "junk after %s"
-msgstr "nesmyslná data za %s"
+msgid "has trailing junk"
+msgstr ""
 
 #: lib/dpkg/fields.c
-#, c-format
-msgid "invalid package name (%.250s)"
-msgstr "chybné jméno balíku (%.250s)"
+#, fuzzy, c-format
+#| msgid "package name '%s' is invalid: %s"
+msgid "invalid package name in '%s' field: %s"
+msgstr "jméno balíku „%s“ není platné: %s"
 
 #: lib/dpkg/fields.c
-#, c-format
-msgid "empty file details field '%s'"
+#, fuzzy, c-format
+#| msgid "empty file details field '%s'"
+msgid "empty archive details '%s' field"
 msgstr "prázdné pole podrobností o souboru „%s“"
 
 #: lib/dpkg/fields.c
-#, c-format
-msgid "file details field '%s' not allowed in status file"
+#, fuzzy, c-format
+#| msgid "file details field '%s' not allowed in status file"
+msgid "archive details '%s' field not allowed in status file"
 msgstr "pole podrobností o souboru „%s“ není ve stavovém souboru dovoleno"
 
 #: lib/dpkg/fields.c
-#, c-format
-msgid "too many values in file details field '%s' (compared to others)"
+#, fuzzy, c-format
+#| msgid "too many values in file details field '%s' (compared to others)"
+msgid "too many values in archive details '%s' field (compared to others)"
 msgstr "příliš mnoho hodnot v položce „%s“ (vzhledem k ostatním)"
 
 #: lib/dpkg/fields.c
-#, c-format
-msgid "too few values in file details field '%s' (compared to others)"
+#, fuzzy, c-format
+#| msgid "too few values in file details field '%s' (compared to others)"
+msgid "too few values in archive details '%s' field (compared to others)"
 msgstr "příliš málo hodnot v položce „%s“ (vzhledem k ostatním)"
 
 #: lib/dpkg/fields.c
-msgid "yes/no in boolean field"
-msgstr "yes/no v dvouhodnotovém poli"
+#, fuzzy, c-format
+#| msgid "obsolete '%s' or '%s' field used"
+msgid "boolean (yes/no) '%s' field: %s"
+msgstr "použito zastaralé pole „%s“ nebo „%s“"
 
 #: lib/dpkg/fields.c
-msgid "foreign/allowed/same/no in quadstate field"
+#, fuzzy, c-format
+#| msgid "foreign/allowed/same/no in quadstate field"
+msgid "quadstate (foreign/allowed/same/no) '%s' field: %s"
 msgstr "foreign/allowed/same/no ve čtyřstavovém poli"
 
 #: lib/dpkg/fields.c
-#, c-format
-msgid "'%s' is not a valid architecture name: %s"
+#, fuzzy, c-format
+#| msgid "'%s' is not a valid architecture name: %s"
+msgid "'%s' is not a valid architecture name in '%s' field: %s"
 msgstr "„%s“ není platné jméno architektury: %s"
 
 #: lib/dpkg/fields.c
-msgid "word in 'Priority' field"
+#, fuzzy, c-format
+#| msgid "word in 'Priority' field"
+msgid "word in '%s' field: %s"
 msgstr "slovo v poli „Priority“"
 
 #: lib/dpkg/fields.c
@@ -582,25 +800,33 @@ msgid "value for '%s' field not allowed in this context"
 msgstr "hodnota pole „%s“ není v tomto místě přípustná"
 
 #: lib/dpkg/fields.c
-msgid "first (want) word in 'Status' field"
+#, fuzzy, c-format
+#| msgid "first (want) word in 'Status' field"
+msgid "first (want) word in '%s' field: %s"
 msgstr "první slovo (want) v poli „Status“"
 
 #: lib/dpkg/fields.c
-msgid "second (error) word in 'Status' field"
+#, fuzzy, c-format
+#| msgid "second (error) word in 'Status' field"
+msgid "second (error) word in '%s' field: %s"
 msgstr "druhé slovo (error) v poli „Status“"
 
 #: lib/dpkg/fields.c
-msgid "third (status) word in 'Status' field"
+#, fuzzy, c-format
+#| msgid "third (status) word in 'Status' field"
+msgid "third (status) word in '%s' field: %s"
 msgstr "třetí slovo (status) v poli „Status“"
 
 #: lib/dpkg/fields.c
-#, c-format
-msgid "error in '%s' field string '%.250s'"
+#, fuzzy, c-format
+#| msgid "error in '%s' field string '%.250s'"
+msgid "'%s' field value '%.250s'"
 msgstr "chyba v poli „%s“ v řetězci „%.250s“"
 
 #: lib/dpkg/fields.c
-#, c-format
-msgid "obsolete '%s' or '%s' field used"
+#, fuzzy, c-format
+#| msgid "obsolete '%s' or '%s' field used"
+msgid "obsolete '%s' field used"
 msgstr "použito zastaralé pole „%s“ nebo „%s“"
 
 #: lib/dpkg/fields.c
@@ -609,12 +835,15 @@ msgid "value for '%s' field has malformed line '%.*s'"
 msgstr "hodnota pole „%s“ obsahuje zkomolený řádek „%.*s“"
 
 #: lib/dpkg/fields.c
-#, c-format
-msgid "value for '%s' has line starting with non-space '%c'"
+#, fuzzy, c-format
+#| msgid "value for '%s' has line starting with non-space '%c'"
+msgid "value for '%s' field has line starting with non-space '%c'"
 msgstr "hodnota „%s“ obsahuje řádek nezačínající mezerou „%c“"
 
 #: lib/dpkg/fields.c
-msgid "root or null directory is listed as a conffile"
+#, fuzzy, c-format
+#| msgid "root or null directory is listed as a conffile"
+msgid "root or empty directory listed as a conffile in '%s' field"
 msgstr "kořenový nebo prázdný adresář uveden jako conffile"
 
 #: lib/dpkg/fields.c
@@ -694,9 +923,10 @@ msgid "'%s' field, reference to '%.255s': version unterminated"
 msgstr "položka „%s“, odkaz na „%.255s“: neurčitelná verze"
 
 #: lib/dpkg/fields.c
-#, c-format
-msgid "'%s' field, reference to '%.255s': error in version"
-msgstr "položka „%s“, odkaz na „%.255s“: chyba ve verzi"
+#, fuzzy, c-format
+#| msgid "'%s' field, reference to '%.255s': version contains '%c'"
+msgid "'%s' field, reference to '%.255s': version '%s'"
+msgstr "položka „%s“, odkaz na „%.255s“: verze obsahuje „%c“"
 
 #: lib/dpkg/fields.c
 #, c-format
@@ -704,8 +934,9 @@ msgid "'%s' field, syntax error after reference to package '%.255s'"
 msgstr "položka „%s“, syntaktická chyba po referenci na balík „%.255s“"
 
 #: lib/dpkg/fields.c
-#, c-format
-msgid "alternatives ('|') not allowed in %s field"
+#, fuzzy, c-format
+#| msgid "alternatives ('|') not allowed in %s field"
+msgid "alternatives ('|') not allowed in '%s' field"
 msgstr "alternativy („|“) nejsou v položce %s povoleny"
 
 #: lib/dpkg/fields.c
@@ -744,6 +975,30 @@ msgid "unable to set mode of target file '%.250s'"
 msgstr "nelze nastavit mód cílového souboru „%.250s“"
 
 #: lib/dpkg/file.c
+#, fuzzy, c-format
+#| msgid "cannot stat %s: %s"
+msgid "cannot stat %s"
+msgstr "nelze volat stat na %s: %s"
+
+#: lib/dpkg/file.c
+#, fuzzy, c-format
+#| msgid "archive '%s' is not a regular file"
+msgid "%s is not a regular file"
+msgstr "archiv „%s“ není obyčejný soubor"
+
+#: lib/dpkg/file.c
+#, fuzzy, c-format
+#| msgid "cannot write %s: %s"
+msgid "cannot read %s"
+msgstr "nelze zapsat %s: %s"
+
+#: lib/dpkg/file.c
+#, fuzzy, c-format
+#| msgid "cannot append to '%s'"
+msgid "cannot open %s"
+msgstr "nelze připojit k „%s“"
+
+#: lib/dpkg/file.c
 #, c-format
 msgid "unable to unlock %s"
 msgstr "nelze odemknout %s"
@@ -764,8 +1019,22 @@ msgid "unable to lock %s"
 msgstr "nelze zamknout %s"
 
 #: lib/dpkg/file.c
-msgid "showing file on pager"
-msgstr "soubor se zobrazuje ve stránkovači"
+#, fuzzy, c-format
+#| msgid "cannot append to '%s'"
+msgid "cannot open file %s"
+msgstr "nelze připojit k „%s“"
+
+#: lib/dpkg/file.c
+#, fuzzy
+#| msgid "unable to flush file '%s'"
+msgid "pager to show file"
+msgstr "nelze vyprázdnit soubor „%s“"
+
+#: lib/dpkg/file.c
+#, fuzzy, c-format
+#| msgid "cannot divert file '%s' to itself"
+msgid "cannot write file %s into the pager"
+msgstr "nelze odklonit soubor „%s“ sám na sebe"
 
 #: lib/dpkg/log.c
 #, c-format
@@ -787,13 +1056,13 @@ msgstr "selhala alokace paměti"
 
 #: lib/dpkg/mlib.c
 #, c-format
-msgid "failed to dup for std%s"
-msgstr "dup selhal pro std%s"
+msgid "failed to dup for fd %d"
+msgstr "dup selhal pro fd %d"
 
 #: lib/dpkg/mlib.c
 #, c-format
-msgid "failed to dup for fd %d"
-msgstr "dup selhal pro fd %d"
+msgid "failed to dup for std%s"
+msgstr "dup selhal pro std%s"
 
 #: lib/dpkg/mlib.c
 msgid "failed to create pipe"
@@ -813,6 +1082,11 @@ msgstr "nelze přečíst příznaky popisovače souboru pro „%.250s“"
 #, c-format
 msgid "unable to set close-on-exec flag for %.250s"
 msgstr "nelze nastavit příznak zavřít-při-spuštění pro „%.250s“"
+
+#: lib/dpkg/options-parsers.c
+#, c-format
+msgid "--%s needs a valid package name but '%.250s' is not: %s"
+msgstr "--%s vyžaduje platné jméno balíku, což „%.250s“ není: %s"
 
 #: lib/dpkg/options.c
 #, c-format
@@ -909,11 +1183,6 @@ msgstr "zastaralá volba „--%s“"
 msgid "conflicting actions -%c (--%s) and -%c (--%s)"
 msgstr "odporující si akce -%c (--%s) a -%c (--%s)"
 
-#: lib/dpkg/options-parsers.c
-#, c-format
-msgid "--%s needs a valid package name but '%.250s' is not: %s"
-msgstr "--%s vyžaduje platné jméno balíku, což „%.250s“ není: %s"
-
 #: lib/dpkg/parse.c
 #, c-format
 msgid "duplicate value for '%s' field"
@@ -930,27 +1199,33 @@ msgid "duplicate value for user-defined field '%.*s'"
 msgstr "zdvojená hodnota uživatelem definované položky „%.*s“"
 
 #: lib/dpkg/parse.c lib/dpkg/parsehelp.c
-#, c-format
-msgid "missing %s"
+#, fuzzy, c-format
+#| msgid "missing %s"
+msgid "missing '%s' field"
 msgstr "chybí %s"
 
 #: lib/dpkg/parse.c lib/dpkg/parsehelp.c
-#, c-format
-msgid "empty value for %s"
-msgstr "položka „%s“ je prázdná"
+#, fuzzy, c-format
+#| msgid "duplicate value for '%s' field"
+msgid "empty value for '%s' field"
+msgstr "zdvojená hodnota položky „%s“"
 
 #: lib/dpkg/parse.c
-#, c-format
-msgid "package has field '%s' but is missing architecture"
+#, fuzzy, c-format
+#| msgid "package has field '%s' but is missing architecture"
+msgid "package has '%s' field but is missing architecture"
 msgstr "balík má položku „%s“, ale postrádá architekturu"
 
 #: lib/dpkg/parse.c
-#, c-format
-msgid "package has field '%s' but is architecture all"
+#, fuzzy, c-format
+#| msgid "package has field '%s' but is architecture all"
+msgid "package has '%s' field but is architecture '%s'"
 msgstr "balík má položku „%s“, ale architektura je all"
 
 #: lib/dpkg/parse.c
-msgid "Config-Version for package with inappropriate Status"
+#, fuzzy, c-format
+#| msgid "Config-Version for package with inappropriate Status"
+msgid "'%s' field present for package with inappropriate '%s' field"
 msgstr "Config-Version pro balík s neodpovídajícím Stavem"
 
 #: lib/dpkg/parse.c
@@ -959,9 +1234,10 @@ msgid "package has status %s but triggers are awaited"
 msgstr "balík je ve stavu %s, ale očekávají se spouštěče"
 
 #: lib/dpkg/parse.c
-msgid "package has status triggers-awaited but no triggers awaited"
-msgstr ""
-"balík je ve stavu „čekání na spouštěče“, ale žádné spouštěče nejsou očekávány"
+#, fuzzy, c-format
+#| msgid "package has status %s but triggers are awaited"
+msgid "package has status %s but no triggers awaited"
+msgstr "balík je ve stavu %s, ale očekávají se spouštěče"
 
 #: lib/dpkg/parse.c
 #, c-format
@@ -969,12 +1245,15 @@ msgid "package has status %s but triggers are pending"
 msgstr "balík je ve stavu %s, ale spouštěče zatím nejsou vyřízené"
 
 #: lib/dpkg/parse.c
-msgid "package has status triggers-pending but no triggers pending"
-msgstr ""
-"balík je ve stavu „nevyřízené spouštěče“, ale všechny spouštěče jsou vyřízeny"
+#, fuzzy, c-format
+#| msgid "package has status %s but triggers are pending"
+msgid "package has status %s but no triggers pending"
+msgstr "balík je ve stavu %s, ale spouštěče zatím nejsou vyřízené"
 
 #: lib/dpkg/parse.c
-msgid "Package which in state not-installed has conffiles, forgetting them"
+#, fuzzy, c-format
+#| msgid "Package which in state not-installed has conffiles, forgetting them"
+msgid "package has status %s and has conffiles, forgetting them"
 msgstr ""
 "Balík je ve stavu nenainstalovaný a má konfigurační soubory, vypouštím je"
 
@@ -995,10 +1274,13 @@ msgstr ""
 "být nainstalovány současně; pravděpodobně kvůli přechodu z neoficiálního dpkg"
 
 #: lib/dpkg/parse.c
-#, c-format
+#, fuzzy, c-format
+#| msgid ""
+#| "%s %s (Multi-Arch: %s) is not co-installable with %s which has multiple "
+#| "installed instances"
 msgid ""
-"%s %s (Multi-Arch: %s) is not co-installable with %s which has multiple "
-"installed instances"
+"package %s (%s) with field '%s: %s' is not co-installable with %s which has "
+"multiple installed instances"
 msgstr ""
 "%s %s (Multi-Arch: %s) se nedá nainstalovat spolu s %s, který má vícero "
 "nainstalovaných instancí"
@@ -1176,11 +1458,6 @@ msgstr "nelze bezpečně odstranit „%.255s“"
 msgid "rm command for cleanup"
 msgstr "příkaz rm pro úklid"
 
-#: lib/dpkg/pkg-db.c lib/dpkg/pkg-spec.c
-#, c-format
-msgid "ambiguous package name '%s' with more than one installed instance"
-msgstr "víceznačné jméno balíku „%s“ s vícero instalovanými instancemi"
-
 #: lib/dpkg/pkg-format.c
 #, c-format
 msgid "invalid character '%c' in field width"
@@ -1193,6 +1470,16 @@ msgstr "šířka položky je mimo rozsah"
 #: lib/dpkg/pkg-format.c
 msgid "missing closing brace"
 msgstr "chybí uzavírací závorka"
+
+#: lib/dpkg/pkg-format.c
+#, c-format
+msgid "cannot get package %s filesystem last modification time"
+msgstr ""
+
+#: lib/dpkg/pkg-hash.c lib/dpkg/pkg-spec.c
+#, c-format
+msgid "ambiguous package name '%s' with more than one installed instance"
+msgstr "víceznačné jméno balíku „%s“ s vícero instalovanými instancemi"
 
 #: lib/dpkg/pkg-show.c
 msgid "(no description available)"
@@ -1246,19 +1533,22 @@ msgstr "%s (podproces): %s\n"
 msgid "fork failed"
 msgstr "fork selhal"
 
-#: lib/dpkg/subproc.c src/unpack.c
-#, c-format
-msgid "subprocess %s returned error exit status %d"
+#: lib/dpkg/subproc.c
+#, fuzzy, c-format
+#| msgid "subprocess %s returned error exit status %d"
+msgid "%s subprocess returned error exit status %d"
 msgstr "podproces %s vrátil chybový status %d"
 
 #: lib/dpkg/subproc.c
-#, c-format
-msgid "subprocess %s was interrupted"
+#, fuzzy, c-format
+#| msgid "subprocess %s was interrupted"
+msgid "%s subprocess was interrupted"
 msgstr "podproces %s byl přerušen"
 
 #: lib/dpkg/subproc.c
-#, c-format
-msgid "subprocess %s was killed by signal (%s)%s"
+#, fuzzy, c-format
+#| msgid "subprocess %s was killed by signal (%s)%s"
+msgid "%s subprocess was killed by signal (%s)%s"
 msgstr "podproces %s byl zabit signálem (%s)%s"
 
 #: lib/dpkg/subproc.c
@@ -1266,14 +1556,80 @@ msgid ", core dumped"
 msgstr ", core dumped"
 
 #: lib/dpkg/subproc.c
-#, c-format
-msgid "subprocess %s failed with wait status code %d"
+#, fuzzy, c-format
+#| msgid "subprocess %s failed with wait status code %d"
+msgid "%s subprocess failed with wait status code %d"
 msgstr "podproces %s vrátil čekací chybový status %d"
 
-#: lib/dpkg/subproc.c utils/update-alternatives.c
-#, c-format
-msgid "wait for subprocess %s failed"
+#: lib/dpkg/subproc.c
+#, fuzzy, c-format
+#| msgid "wait for subprocess %s failed"
+msgid "wait for %s subprocess failed"
 msgstr "čekání na podproces %s selhalo"
+
+#: lib/dpkg/tarfn.c
+#, fuzzy
+#| msgid "invalid character '%c' in field width"
+msgid "invalid tar header size field"
+msgstr "šířka položky obsahuje neplatný znak „%c“"
+
+#: lib/dpkg/tarfn.c
+#, fuzzy
+#| msgid "invalid character '%c' in field width"
+msgid "invalid tar header mtime field"
+msgstr "šířka položky obsahuje neplatný znak „%c“"
+
+#: lib/dpkg/tarfn.c
+#, fuzzy
+#| msgid "invalid statoverride uid %s"
+msgid "invalid tar header uid field"
+msgstr "neplatné uid %s ve statoverride"
+
+#: lib/dpkg/tarfn.c
+#, fuzzy
+#| msgid "invalid statoverride gid %s"
+msgid "invalid tar header gid field"
+msgstr "neplatné gid %s ve statoverride"
+
+#: lib/dpkg/tarfn.c
+#, fuzzy
+#| msgid "invalid character '%c' in field width"
+msgid "invalid tar header checksum field"
+msgstr "šířka položky obsahuje neplatný znak „%c“"
+
+#: lib/dpkg/tarfn.c
+msgid "invalid tar header checksum"
+msgstr ""
+
+#: lib/dpkg/tarfn.c
+msgid "partially read tar header"
+msgstr ""
+
+#: lib/dpkg/tarfn.c
+msgid "invalid tar header with empty name field"
+msgstr ""
+
+#: lib/dpkg/tarfn.c
+#, c-format
+msgid "unsupported GNU tar header type '%c'"
+msgstr ""
+
+#: lib/dpkg/tarfn.c
+#, fuzzy, c-format
+#| msgid "unsupported options in file header"
+msgid "unsupported Solaris tar header type '%c'"
+msgstr "nepodporované volby v hlavičce souboru"
+
+#: lib/dpkg/tarfn.c
+#, c-format
+msgid "unsupported PAX tar header type '%c'"
+msgstr ""
+
+#: lib/dpkg/tarfn.c
+#, fuzzy, c-format
+#| msgid "unknown compression type '%s'!"
+msgid "unknown tar header type '%c'"
+msgstr "neznámý typ komprese „%s“!"
 
 #: lib/dpkg/treewalk.c
 #, c-format
@@ -1291,12 +1647,15 @@ msgid "treewalk root %s is not a directory"
 msgstr "vrcholový adresář %s není adresářem"
 
 #: lib/dpkg/trigdeferred.c
-#, c-format
-msgid "unable to open/create triggers lockfile '%.250s'"
+#, fuzzy, c-format
+#| msgid "unable to open/create triggers lockfile '%.250s'"
+msgid "unable to open/create triggers lock file '%.250s'"
 msgstr "nelze otevřít/vytvořit zámek pro spouštěče (%.250s)"
 
 #: lib/dpkg/trigdeferred.c
-msgid "triggers area"
+#, fuzzy
+#| msgid "triggers area"
+msgid "triggers database lock"
 msgstr "oblast spouštěčů"
 
 #: lib/dpkg/trigdeferred.c
@@ -1516,11 +1875,6 @@ msgstr "chyba při vytváření roury „%.255s“"
 #, c-format
 msgid "error creating device '%.255s'"
 msgstr "chyba při vytváření spec. souboru „%.255s“"
-
-#: src/archives.c src/infodb-upgrade.c
-#, c-format
-msgid "error creating hard link '%.255s'"
-msgstr "chyba při vytváření pevného odkazu „%.255s“"
 
 #: src/archives.c utils/update-alternatives.c
 #, c-format
@@ -1827,10 +2181,10 @@ msgstr "nelze přistoupit k archivu „%s“"
 msgid "archive '%s' is not a regular file"
 msgstr "archiv „%s“ není obyčejný soubor"
 
-#: src/archives.c src/divertcmd.c src/enquiry.c src/main.c src/packages.c
-#: src/querycmd.c src/select.c src/statcmd.c src/trigcmd.c dpkg-deb/build.c
-#: dpkg-deb/extract.c dpkg-deb/info.c dpkg-deb/main.c dpkg-split/info.c
-#: dpkg-split/main.c dpkg-split/queue.c
+#: src/archives.c src/divertcmd.c src/enquiry.c src/force.c src/main.c
+#: src/packages.c src/querycmd.c src/select.c src/statcmd.c src/trigcmd.c
+#: src/verify.c dpkg-deb/build.c dpkg-deb/extract.c dpkg-deb/info.c
+#: dpkg-deb/main.c dpkg-split/info.c dpkg-split/main.c dpkg-split/queue.c
 msgid "<standard output>"
 msgstr "<standardní výstup>"
 
@@ -2010,6 +2364,10 @@ msgstr "konec souboru na stdin při otázce na konfigurační soubory"
 #: src/configure.c
 msgid "conffile difference visualizer"
 msgstr "zobrazovač rozdílů konfiguračních souborů"
+
+#: src/configure.c
+msgid "Useful environment variables:\n"
+msgstr ""
 
 #: src/configure.c
 msgid "Type 'exit' when you're done.\n"
@@ -2366,7 +2724,21 @@ msgstr ""
 "\n"
 
 #: src/divertcmd.c
-#, c-format
+#, fuzzy, c-format
+#| msgid ""
+#| "Options:\n"
+#| "  --package <package>      name of the package whose copy of <file> will "
+#| "not\n"
+#| "                             be diverted.\n"
+#| "  --local                  all packages' versions are diverted.\n"
+#| "  --divert <divert-to>     the name used by other packages' versions.\n"
+#| "  --rename                 actually move the file aside (or back).\n"
+#| "  --admindir <directory>   set the directory with the diversions file.\n"
+#| "  --test                   don't do anything, just demonstrate.\n"
+#| "  --quiet                  quiet operation, minimal output.\n"
+#| "  --help                   show this help message.\n"
+#| "  --version                show the version.\n"
+#| "\n"
 msgid ""
 "Options:\n"
 "  --package <package>      name of the package whose copy of <file> will "
@@ -2375,7 +2747,10 @@ msgid ""
 "  --local                  all packages' versions are diverted.\n"
 "  --divert <divert-to>     the name used by other packages' versions.\n"
 "  --rename                 actually move the file aside (or back).\n"
+"  --no-rename              do not move the file aside (or back) (default).\n"
 "  --admindir <directory>   set the directory with the diversions file.\n"
+"  --instdir <directory>    set the root directory, but not the admin dir.\n"
+"  --root <directory>       set the directory of the root filesystem.\n"
 "  --test                   don't do anything, just demonstrate.\n"
 "  --quiet                  quiet operation, minimal output.\n"
 "  --help                   show this help message.\n"
@@ -2408,6 +2783,12 @@ msgstr ""
 "(jsou-li použity).\n"
 "Před/poinstalační skripty balíku by měly vždy používat --package a --"
 "divert.\n"
+
+#: src/divertcmd.c
+msgid ""
+"please specify --no-rename explicitly, the default will change to --rename "
+"in 1.20.x"
+msgstr ""
 
 #: src/divertcmd.c utils/update-alternatives.c
 #, c-format
@@ -2530,6 +2911,13 @@ msgstr ""
 
 #: src/divertcmd.c
 #, c-format
+msgid ""
+"diverting file '%s' from an Essential package with rename is dangerous, use "
+"--no-rename"
+msgstr ""
+
+#: src/divertcmd.c
+#, c-format
 msgid "No diversion '%s', none removed.\n"
 msgstr "Odklonění „%s“ neexistuje, tedy nebylo odstraněno\n"
 
@@ -2572,19 +2960,6 @@ msgstr "jméno balíku nemůže obsahovat znak nového řádku"
 #: src/divertcmd.c
 msgid "divert-to may not contain newlines"
 msgstr "kam-odklonit nemůže obsahovat znak nového řádku"
-
-#: src/divertdb.c
-msgid "failed to open diversions file"
-msgstr "nelze otevřít soubor s odsuny"
-
-#: src/divertdb.c
-msgid "failed to fstat diversions file"
-msgstr "nelze volat fstat na soubor s odsuny"
-
-#: src/divertdb.c
-#, c-format
-msgid "conflicting diversions involving '%.250s' or '%.250s'"
-msgstr "odsuny „%.250s“ a „%.250s“ v konfliktu"
 
 #: src/enquiry.c
 msgid ""
@@ -2679,7 +3054,7 @@ msgstr ""
 "problémy s různými nadstavbami balíčkovacího systému. Můžete to opravit\n"
 "zaregistrováním této cizí architektury příkazem dpkg --add-architecture:\n"
 
-#: src/enquiry.c src/querycmd.c
+#: src/enquiry.c src/querycmd.c src/verify.c
 #, c-format
 msgid "package '%s' is not installed"
 msgstr "balík „%s“ není nainstalován"
@@ -2872,110 +3247,172 @@ msgid ""
 msgstr ""
 "Balík %s je ve stavu hold, ponechávám. K vynucení použijte --force-hold.\n"
 
-#: src/errors.c
-msgid "overriding problem because --force enabled:"
-msgstr "potlačuje se problém, protože je nastaveno --force:"
+#: src/force.c
+msgid "Set all force options"
+msgstr "nastaví všechny donucovací volby"
 
-#: src/filesdb.c
-#, c-format
-msgid "unable to open files list file for package '%.250s'"
-msgstr "seznam souborů balíku „%.250s“ nelze otevřít"
+#: src/force.c
+msgid "Use MAC based security if available"
+msgstr ""
 
-#: src/filesdb.c
+#: src/force.c
+msgid "Replace a package with a lower version"
+msgstr "nahradí balík nižší verzí"
+
+#: src/force.c
+msgid "Configure any package which may help this one"
+msgstr "nakonfiguruje všechny balíky, které mohou pomoci tomuto balíku"
+
+#: src/force.c
+msgid "Process incidental packages even when on hold"
+msgstr "zpracuje balíky, i když jsou podrženy"
+
+#: src/force.c
+msgid "Try to (de)install things even when not root"
+msgstr "zkusí (od|na)instalovat balík, i když není root"
+
+#: src/force.c
+msgid "PATH is missing important programs, problems likely"
+msgstr "v PATH chybí důležité programy, očekávejte potíže"
+
+#: src/force.c
+msgid "Install a package even if it fails authenticity check"
+msgstr "nainstaluje balík, i když selže kontrola autenticity"
+
+#: src/force.c
+msgid "Process even packages with wrong versions"
+msgstr "zpracuje i balíky s chybnou verzí"
+
+#: src/force.c
+msgid "Overwrite an existing stat override when adding it"
+msgstr ""
+
+#: src/force.c
+msgid "Ignore a missing stat override when removing it"
+msgstr ""
+
+#: src/force.c
+msgid "Overwrite a file from one package with another"
+msgstr "přepíše soubory patřící jinému balíku"
+
+#: src/force.c
+msgid "Overwrite a diverted file with an undiverted version"
+msgstr "přepíše odkloněný soubor neodkloněnou verzí"
+
+#: src/force.c
+msgid "Overwrite one package's directory with another's file"
+msgstr "přepíše adresář balíku souborem z jiného balíku"
+
+#: src/force.c
+msgid "Do not perform safe I/O operations when unpacking"
+msgstr "při rozbalování nepoužije bezpečné V/V operace"
+
+#: src/force.c
+msgid "Do not chroot into maintainer script environment"
+msgstr "nepřejde do speciálního chrootu"
+
+#: src/force.c
+msgid "Always use the new config files, don't prompt"
+msgstr "vždy bez dotazu použije nový konfigurační soubor"
+
+#: src/force.c
+msgid "Always use the old config files, don't prompt"
+msgstr "vždy bez dotazu použije starý konfigurační soubor"
+
+#: src/force.c
+msgid ""
+"Use the default option for new config files if one\n"
+"is available, don't prompt. If no default can be found,\n"
+"you will be prompted unless one of the confold or\n"
+"confnew options is also given"
+msgstr ""
+"pokud existuje, použije pro nové konfigurační\n"
+"soubory výchozí volbu a neptá se. Pokud žádná\n"
+"výchozí volba neexistuje, budete dotázáni, ale\n"
+"pouze pokud nebyly zadány přepínače confold nebo\n"
+"confnew"
+
+#: src/force.c
+msgid "Always install missing config files"
+msgstr "vždy nainstaluje chybějící konfigurační soubory"
+
+#: src/force.c
+msgid "Offer to replace config files with no new versions"
+msgstr "nabídne nahrazení i konfig. souborů bez nové verze"
+
+#: src/force.c
+msgid "Process even packages with wrong or no architecture"
+msgstr "zpracuje i balík s chybnou nebo žádnou architekturou"
+
+#: src/force.c
+msgid "Install even if it would break another package"
+msgstr "instaluje, i když tím poruší jiný balík"
+
+#: src/force.c
+msgid "Allow installation of conflicting packages"
+msgstr "umožní instalaci konfliktních balíků"
+
+#: src/force.c
+msgid "Turn all dependency problems into warnings"
+msgstr "převede všechny problémy se závislostmi na varování"
+
+#: src/force.c
+msgid "Turn dependency version problems into warnings"
+msgstr "převede problémy se závislostmi na verzi na varování"
+
+#: src/force.c
+msgid "Remove packages which require installation"
+msgstr "odstraní balíky vyžadující instalaci"
+
+#: src/force.c
+msgid "Remove an essential package"
+msgstr "odstraní nezbytný balík"
+
+#: src/force.c
 #, c-format
 msgid ""
-"files list file for package '%.250s' missing; assuming package has no files "
-"currently installed"
+"%s forcing options - control behaviour when problems found:\n"
+"  warn but continue:  --force-<thing>,<thing>,...\n"
+"  stop with error:    --refuse-<thing>,<thing>,... | --no-force-<thing>,...\n"
+" Forcing things:\n"
 msgstr ""
-"seznam souborů balíku „%.250s“ chybí, předpokládám, že program nemá "
-"nainstalované žádné soubory."
+"%s donucovací volby - usměrňují chování při výskytu problémů:\n"
+"  varuje ale pokračuje:  --force-<něco>,<něco>,…\n"
+"  zastaví s chybou:      --refuse-<něco>,<něco>,… | --no-force-<něco>,…\n"
+" Donucovací <něco>:\n"
 
-#: src/filesdb.c
+#: src/force.c
 #, c-format
-msgid "unable to stat files list file for package '%.250s'"
-msgstr "nelze zjistit stav seznamu souborů balíku „%.250s“"
+msgid ""
+"\n"
+"WARNING - use of options marked [!] can seriously damage your installation.\n"
+"Forcing options marked [*] are enabled by default.\n"
+msgstr ""
+"\n"
+"VAROVÁNÍ - použití voleb označených [!] může vážně poškodit instalaci.\n"
+"Implicitně zapnuté donucovací volby jsou označeny [*].\n"
 
-#: src/filesdb.c
+#: src/force.c
 #, c-format
-msgid "files list for package '%.250s' is not a regular file"
-msgstr "seznam souborů balíku „%.250s“ není běžným souborem"
+msgid ""
+"\n"
+"Currently enabled options:\n"
+" %s\n"
+msgstr ""
 
-#: src/filesdb.c
+#: src/force.c
 #, c-format
-msgid "reading files list for package '%.250s'"
-msgstr "čte se seznam souborů balíku „%.250s“"
+msgid "unknown force/refuse option '%.*s'"
+msgstr "neznámá donucovací volba „%.*s“"
 
-#: src/filesdb.c
+#: src/force.c
 #, c-format
-msgid "files list file for package '%.250s' is missing final newline"
-msgstr "seznam souborů balíku „%.250s“ neobsahuje závěrečný nový řádek"
+msgid "obsolete force/refuse option '%s'"
+msgstr "zastaralá donucovací volba „%s“"
 
-#: src/filesdb.c
-#, c-format
-msgid "files list file for package '%.250s' contains empty filename"
-msgstr "seznam souborů balíku „%.250s“ obsahuje prázdné jméno souboru"
-
-#: src/filesdb.c
-#, c-format
-msgid "error closing files list file for package '%.250s'"
-msgstr "chyba při zavírání seznamu souborů pro balík „%.250s“"
-
-#: src/filesdb.c
-msgid "(Reading database ... "
-msgstr "(Načítá se databáze … "
-
-#: src/filesdb.c
-#, c-format
-msgid "%d file or directory currently installed.)\n"
-msgid_plural "%d files and directories currently installed.)\n"
-msgstr[0] "nyní je nainstalován %d soubor nebo adresář.)\n"
-msgstr[1] "nyní jsou nainstalovány %d soubory a adresáře.)\n"
-msgstr[2] "nyní je nainstalováno %d souborů a adresářů.)\n"
-
-#: src/filesdb-hash.c
-#, c-format
-msgid "control file '%s' for package '%s' is missing final newline"
-msgstr "řídící soubor „%s“ balíku „%s“ neobsahuje závěrečný nový řádek"
-
-#: src/filesdb-hash.c
-#, c-format
-msgid "control file '%s' for package '%s' is missing value"
-msgstr "řídící soubor „%s“ balíku „%s“ neobsahuje hodnotu"
-
-#: src/filesdb-hash.c
-#, c-format
-msgid "control file '%s' for package '%s' is missing value separator"
-msgstr "řídící soubor „%s“ balíku „%s“ neobsahuje oddělovač hodnoty"
-
-#: src/filesdb-hash.c
-#, c-format
-msgid "control file '%s' for package '%s' contains empty filename"
-msgstr "řídící soubor „%s“ balíku „%s“ obsahuje prázdné jméno souboru"
-
-#: src/filesdb-hash.c
-#, c-format
-msgid "cannot open control file '%s' for package '%s'"
-msgstr "nelze otevřít řídící soubor „%s“ balíku „%s“"
-
-#: src/filesdb-hash.c
-#, c-format
-msgid "cannot stat control file '%s' for package '%s'"
-msgstr "nelze zjistit stav řídícího souboru „%s“ balíku „%s“"
-
-#: src/filesdb-hash.c
-#, c-format
-msgid "control file '%s' for package '%s' is not a regular file"
-msgstr "řídící soubor „%s“ balíku „%s“ není běžným souborem"
-
-#: src/filesdb-hash.c
-#, c-format
-msgid "cannot read control file '%s' for package '%s'"
-msgstr "nelze číst řídící soubor „%s“ balíku „%s“"
-
-#: src/filesdb-hash.c
-#, c-format
-msgid "cannot close control file '%s' for package '%s'"
-msgstr "nelze zavřít řídící soubor „%s“ balíku „%s“"
+#: src/force.c
+msgid "overriding problem because --force enabled:"
+msgstr "potlačuje se problém, protože je nastaveno --force:"
 
 #: src/help.c
 msgid "not installed"
@@ -3043,72 +3480,78 @@ msgstr ""
 "Pozn: PATH uživatele root by měla obsahovat /usr/local/sbin, /usr/sbin a /"
 "sbin"
 
-#: src/infodb-access.c
-#, c-format
-msgid "unable to check existence of '%.250s'"
-msgstr "nelze zkontrolovat existenci „%.250s“"
-
-#: src/infodb-access.c src/infodb-upgrade.c
-msgid "cannot read info directory"
-msgstr "nelze přečíst adresář info"
-
-#: src/infodb-format.c src/unpack.c
-#, c-format
-msgid "error trying to open %.250s"
-msgstr "chyba při pokusu o otevření %.250s"
-
-#: src/infodb-format.c
-#, c-format
-msgid "corrupt info database format file '%s'"
-msgstr "porušený info soubor „%s“ obsahující verzi formátu"
-
-#: src/infodb-format.c
-#, c-format
-msgid "info database format (%d) is bogus or too new; try getting a newer dpkg"
-msgstr ""
-"verze formátu info databáze (%d) je falešná nebo příliš nová; zkuste novější "
-"dpkg"
-
-#: src/infodb-upgrade.c
-#, c-format
-msgid "info file %s/%s not associated to any package"
-msgstr "info soubor %s/%s není přiřazen žádnému balíku"
-
-#: src/infodb-upgrade.c
-#, c-format
-msgid "error while writing '%s'"
-msgstr "chyba při zápisu „%s“"
-
 #: src/main.c
 #, c-format
 msgid "Debian '%s' package management program version %s.\n"
 msgstr "Debian „%s“ - program pro správu balíků verze %s.\n"
 
 #: src/main.c
-#, c-format
+#, fuzzy, c-format
+#| msgid ""
+#| "Commands:\n"
+#| "  -i|--install       <.deb file name> ... | -R|--recursive "
+#| "<directory> ...\n"
+#| "  --unpack           <.deb file name> ... | -R|--recursive "
+#| "<directory> ...\n"
+#| "  -A|--record-avail  <.deb file name> ... | -R|--recursive "
+#| "<directory> ...\n"
+#| "  --configure        <package> ... | -a|--pending\n"
+#| "  --triggers-only    <package> ... | -a|--pending\n"
+#| "  -r|--remove        <package> ... | -a|--pending\n"
+#| "  -P|--purge         <package> ... | -a|--pending\n"
+#| "  -V|--verify <package> ...        Verify the integrity of package(s).\n"
+#| "  --get-selections [<pattern> ...] Get list of selections to stdout.\n"
+#| "  --set-selections                 Set package selections from stdin.\n"
+#| "  --clear-selections               Deselect every non-essential package.\n"
+#| "  --update-avail [<Packages-file>] Replace available packages info.\n"
+#| "  --merge-avail [<Packages-file>]  Merge with info from file.\n"
+#| "  --clear-avail                    Erase existing available info.\n"
+#| "  --forget-old-unavail             Forget uninstalled unavailable pkgs.\n"
+#| "  -s|--status <package> ...        Display package status details.\n"
+#| "  -p|--print-avail <package> ...   Display available version details.\n"
+#| "  -L|--listfiles <package> ...     List files 'owned' by package(s).\n"
+#| "  -l|--list [<pattern> ...]        List packages concisely.\n"
+#| "  -S|--search <pattern> ...        Find package(s) owning file(s).\n"
+#| "  -C|--audit [<package> ...]       Check for broken package(s).\n"
+#| "  --yet-to-unpack                  Print packages selected for "
+#| "installation.\n"
+#| "  --predep-package                 Print pre-dependencies to unpack.\n"
+#| "  --add-architecture <arch>        Add <arch> to the list of "
+#| "architectures.\n"
+#| "  --remove-architecture <arch>     Remove <arch> from the list of "
+#| "architectures.\n"
+#| "  --print-architecture             Print dpkg architecture.\n"
+#| "  --print-foreign-architectures    Print allowed foreign architectures.\n"
+#| "  --assert-<feature>               Assert support for the specified "
+#| "feature.\n"
+#| "  --validate-<thing> <string>      Validate a <thing>'s <string>.\n"
+#| "  --compare-versions <a> <op> <b>  Compare version numbers - see below.\n"
+#| "  --force-help                     Show help on forcing.\n"
+#| "  -Dh|--debug=help                 Show help on debugging.\n"
+#| "\n"
 msgid ""
 "Commands:\n"
-"  -i|--install       <.deb file name> ... | -R|--recursive <directory> ...\n"
-"  --unpack           <.deb file name> ... | -R|--recursive <directory> ...\n"
-"  -A|--record-avail  <.deb file name> ... | -R|--recursive <directory> ...\n"
-"  --configure        <package> ... | -a|--pending\n"
-"  --triggers-only    <package> ... | -a|--pending\n"
-"  -r|--remove        <package> ... | -a|--pending\n"
-"  -P|--purge         <package> ... | -a|--pending\n"
-"  -V|--verify <package> ...        Verify the integrity of package(s).\n"
-"  --get-selections [<pattern> ...] Get list of selections to stdout.\n"
+"  -i|--install       <.deb file name>... | -R|--recursive <directory>...\n"
+"  --unpack           <.deb file name>... | -R|--recursive <directory>...\n"
+"  -A|--record-avail  <.deb file name>... | -R|--recursive <directory>...\n"
+"  --configure        <package>... | -a|--pending\n"
+"  --triggers-only    <package>... | -a|--pending\n"
+"  -r|--remove        <package>... | -a|--pending\n"
+"  -P|--purge         <package>... | -a|--pending\n"
+"  -V|--verify [<package>...]       Verify the integrity of package(s).\n"
+"  --get-selections [<pattern>...]  Get list of selections to stdout.\n"
 "  --set-selections                 Set package selections from stdin.\n"
 "  --clear-selections               Deselect every non-essential package.\n"
 "  --update-avail [<Packages-file>] Replace available packages info.\n"
 "  --merge-avail [<Packages-file>]  Merge with info from file.\n"
 "  --clear-avail                    Erase existing available info.\n"
 "  --forget-old-unavail             Forget uninstalled unavailable pkgs.\n"
-"  -s|--status <package> ...        Display package status details.\n"
-"  -p|--print-avail <package> ...   Display available version details.\n"
-"  -L|--listfiles <package> ...     List files 'owned' by package(s).\n"
-"  -l|--list [<pattern> ...]        List packages concisely.\n"
-"  -S|--search <pattern> ...        Find package(s) owning file(s).\n"
-"  -C|--audit [<package> ...]       Check for broken package(s).\n"
+"  -s|--status [<package>...]       Display package status details.\n"
+"  -p|--print-avail [<package>...]  Display available version details.\n"
+"  -L|--listfiles <package>...      List files 'owned' by package(s).\n"
+"  -l|--list [<pattern>...]         List packages concisely.\n"
+"  -S|--search <pattern>...         Find package(s) owning file(s).\n"
+"  -C|--audit [<package>...]        Check for broken package(s).\n"
 "  --yet-to-unpack                  Print packages selected for "
 "installation.\n"
 "  --predep-package                 Print pre-dependencies to unpack.\n"
@@ -3320,115 +3763,6 @@ msgstr ""
 "Volby označené [*] produkují obsáhlý výstup - použijte „less“ nebo „more“!"
 
 #: src/main.c
-msgid "Set all force options"
-msgstr "nastaví všechny donucovací volby"
-
-#: src/main.c
-msgid "Replace a package with a lower version"
-msgstr "nahradí balík nižší verzí"
-
-#: src/main.c
-msgid "Configure any package which may help this one"
-msgstr "nakonfiguruje všechny balíky, které mohou pomoci tomuto balíku"
-
-#: src/main.c
-msgid "Process incidental packages even when on hold"
-msgstr "zpracuje balíky, i když jsou podrženy"
-
-#: src/main.c
-msgid "Try to (de)install things even when not root"
-msgstr "zkusí (od|na)instalovat balík, i když není root"
-
-#: src/main.c
-msgid "PATH is missing important programs, problems likely"
-msgstr "v PATH chybí důležité programy, očekávejte potíže"
-
-#: src/main.c
-msgid "Install a package even if it fails authenticity check"
-msgstr "nainstaluje balík, i když selže kontrola autenticity"
-
-#: src/main.c
-msgid "Process even packages with wrong versions"
-msgstr "zpracuje i balíky s chybnou verzí"
-
-#: src/main.c
-msgid "Overwrite a file from one package with another"
-msgstr "přepíše soubory patřící jinému balíku"
-
-#: src/main.c
-msgid "Overwrite a diverted file with an undiverted version"
-msgstr "přepíše odkloněný soubor neodkloněnou verzí"
-
-#: src/main.c
-msgid "Overwrite one package's directory with another's file"
-msgstr "přepíše adresář balíku souborem z jiného balíku"
-
-#: src/main.c
-msgid "Do not perform safe I/O operations when unpacking"
-msgstr "při rozbalování nepoužije bezpečné V/V operace"
-
-#: src/main.c
-msgid "Do not chroot into maintainer script environment"
-msgstr "nepřejde do speciálního chrootu"
-
-#: src/main.c
-msgid "Always use the new config files, don't prompt"
-msgstr "vždy bez dotazu použije nový konfigurační soubor"
-
-#: src/main.c
-msgid "Always use the old config files, don't prompt"
-msgstr "vždy bez dotazu použije starý konfigurační soubor"
-
-#: src/main.c
-msgid ""
-"Use the default option for new config files if one\n"
-"is available, don't prompt. If no default can be found,\n"
-"you will be prompted unless one of the confold or\n"
-"confnew options is also given"
-msgstr ""
-"pokud existuje, použije pro nové konfigurační\n"
-"soubory výchozí volbu a neptá se. Pokud žádná\n"
-"výchozí volba neexistuje, budete dotázáni, ale\n"
-"pouze pokud nebyly zadány přepínače confold nebo\n"
-"confnew"
-
-#: src/main.c
-msgid "Always install missing config files"
-msgstr "vždy nainstaluje chybějící konfigurační soubory"
-
-#: src/main.c
-msgid "Offer to replace config files with no new versions"
-msgstr "nabídne nahrazení i konfig. souborů bez nové verze"
-
-#: src/main.c
-msgid "Process even packages with wrong or no architecture"
-msgstr "zpracuje i balík s chybnou nebo žádnou architekturou"
-
-#: src/main.c
-msgid "Install even if it would break another package"
-msgstr "instaluje, i když tím poruší jiný balík"
-
-#: src/main.c
-msgid "Allow installation of conflicting packages"
-msgstr "umožní instalaci konfliktních balíků"
-
-#: src/main.c
-msgid "Turn all dependency problems into warnings"
-msgstr "převede všechny problémy se závislostmi na varování"
-
-#: src/main.c
-msgid "Turn dependency version problems into warnings"
-msgstr "převede problémy se závislostmi na verzi na varování"
-
-#: src/main.c
-msgid "Remove packages which require installation"
-msgstr "odstraní balíky vyžadující instalaci"
-
-#: src/main.c
-msgid "Remove an essential package"
-msgstr "odstraní nezbytný balík"
-
-#: src/main.c
 msgid "Generally helpful progress information"
 msgstr "obecně užitečné informace o průběhu"
 
@@ -3555,40 +3889,6 @@ msgstr "odstraňovaná architektura „%s“ je momentálně používána"
 #, c-format
 msgid "cannot remove architecture '%s' currently in use by the database"
 msgstr "nelze odstranit aktuálně používanou architekturu „%s“"
-
-#: src/main.c
-#, c-format
-msgid ""
-"%s forcing options - control behaviour when problems found:\n"
-"  warn but continue:  --force-<thing>,<thing>,...\n"
-"  stop with error:    --refuse-<thing>,<thing>,... | --no-force-<thing>,...\n"
-" Forcing things:\n"
-msgstr ""
-"%s donucovací volby - usměrňují chování při výskytu problémů:\n"
-"  varuje ale pokračuje:  --force-<něco>,<něco>,…\n"
-"  zastaví s chybou:      --refuse-<něco>,<něco>,… | --no-force-<něco>,…\n"
-" Donucovací <něco>:\n"
-
-#: src/main.c
-#, c-format
-msgid ""
-"\n"
-"WARNING - use of options marked [!] can seriously damage your installation.\n"
-"Forcing options marked [*] are enabled by default.\n"
-msgstr ""
-"\n"
-"VAROVÁNÍ - použití voleb označených [!] může vážně poškodit instalaci.\n"
-"Implicitně zapnuté donucovací volby jsou označeny [*].\n"
-
-#: src/main.c
-#, c-format
-msgid "unknown force/refuse option '%.*s'"
-msgstr "neznámá donucovací volba „%.*s“"
-
-#: src/main.c
-#, c-format
-msgid "obsolete force/refuse option '%s'"
-msgstr "zastaralá donucovací volba „%s“"
 
 #: src/main.c
 #, c-format
@@ -3772,6 +4072,12 @@ msgid "Description"
 msgstr "Popis"
 
 #: src/querycmd.c
+#, fuzzy
+#| msgid "showing file on pager"
+msgid "showing package list on pager"
+msgstr "soubor se zobrazuje ve stránkovači"
+
+#: src/querycmd.c
 #, c-format
 msgid "diversion by %s from: %s\n"
 msgstr "odkloněno balíkem %s z: %s\n"
@@ -3806,6 +4112,16 @@ msgid "package '%s' is not installed and no information is available"
 msgstr "balík „%s“ není nainstalován a není dostupná žádná informace"
 
 #: src/querycmd.c
+#, fuzzy
+#| msgid ""
+#| "Use dpkg --info (= dpkg-deb --info) to examine archive files,\n"
+#| "and dpkg --contents (= dpkg-deb --contents) to list their contents.\n"
+msgid "Use dpkg --info (= dpkg-deb --info) to examine archive files.\n"
+msgstr ""
+"Použijte dpkg --info (= dpkg-deb --info) k prozkoumání archivu\n"
+"a dpkg --contents (= dpkg-deb --contents) k vypsání jeho obsahu.\n"
+
+#: src/querycmd.c
 #, c-format
 msgid "package '%s' is not available"
 msgstr "balík „%s“ není dostupný"
@@ -3831,9 +4147,12 @@ msgid "diverted by %s to: %s\n"
 msgstr "odkloněno balíkem %s do: %s\n"
 
 #: src/querycmd.c
+#, fuzzy
+#| msgid ""
+#| "Use dpkg --info (= dpkg-deb --info) to examine archive files,\n"
+#| "and dpkg --contents (= dpkg-deb --contents) to list their contents.\n"
 msgid ""
-"Use dpkg --info (= dpkg-deb --info) to examine archive files,\n"
-"and dpkg --contents (= dpkg-deb --contents) to list their contents.\n"
+"Use dpkg --contents (= dpkg-deb --contents) to list archive files contents.\n"
 msgstr ""
 "Použijte dpkg --info (= dpkg-deb --info) k prozkoumání archivu\n"
 "a dpkg --contents (= dpkg-deb --contents) k vypsání jeho obsahu.\n"
@@ -3874,19 +4193,33 @@ msgid "Debian %s package management program query tool version %s.\n"
 msgstr "Debian „%s“ - nástroj pro dotazování se na balíky verze %s.\n"
 
 #: src/querycmd.c
-#, c-format
+#, fuzzy, c-format
+#| msgid ""
+#| "Commands:\n"
+#| "  -s|--status <package> ...        Display package status details.\n"
+#| "  -p|--print-avail <package> ...   Display available version details.\n"
+#| "  -L|--listfiles <package> ...     List files 'owned' by package(s).\n"
+#| "  -l|--list [<pattern> ...]        List packages concisely.\n"
+#| "  -W|--show [<pattern> ...]        Show information on package(s).\n"
+#| "  -S|--search <pattern> ...        Find package(s) owning file(s).\n"
+#| "     --control-list <package>      Print the package control file list.\n"
+#| "     --control-show <package> <file>\n"
+#| "                                   Show the package control file.\n"
+#| "  -c|--control-path <package> [<file>]\n"
+#| "                                   Print path for package control file.\n"
+#| "\n"
 msgid ""
 "Commands:\n"
-"  -s|--status <package> ...        Display package status details.\n"
-"  -p|--print-avail <package> ...   Display available version details.\n"
-"  -L|--listfiles <package> ...     List files 'owned' by package(s).\n"
-"  -l|--list [<pattern> ...]        List packages concisely.\n"
-"  -W|--show [<pattern> ...]        Show information on package(s).\n"
-"  -S|--search <pattern> ...        Find package(s) owning file(s).\n"
-"     --control-list <package>      Print the package control file list.\n"
-"     --control-show <package> <file>\n"
+"  -s, --status [<package>...]      Display package status details.\n"
+"  -p, --print-avail [<package>...] Display available version details.\n"
+"  -L, --listfiles <package>...     List files 'owned' by package(s).\n"
+"  -l, --list [<pattern>...]        List packages concisely.\n"
+"  -W, --show [<pattern>...]        Show information on package(s).\n"
+"  -S, --search <pattern>...        Find package(s) owning file(s).\n"
+"      --control-list <package>     Print the package control file list.\n"
+"      --control-show <package> <file>\n"
 "                                   Show the package control file.\n"
-"  -c|--control-path <package> [<file>]\n"
+"  -c, --control-path <package> [<file>]\n"
 "                                   Print path for package control file.\n"
 "\n"
 msgstr ""
@@ -4064,6 +4397,12 @@ msgid "admindir must be inside instdir for dpkg to work properly"
 msgstr "aby dpkg pracovalo správně, musí se admindir nacházet uvnitř instdir"
 
 #: src/script.c
+msgid ""
+"not enough privileges to change root directory with --force-not-root, "
+"consider using --force-script-chrootless?"
+msgstr ""
+
+#: src/script.c
 #, c-format
 msgid "failed to chroot to '%.250s'"
 msgstr "chroot na „%.250s“ selhal"
@@ -4082,8 +4421,9 @@ msgid "cannot set security execution context for maintainer script"
 msgstr "nelze nastavit bezpečnostní kontext pro konfigurační skript"
 
 #: src/script.c
-#, c-format
-msgid "installed %s script"
+#, fuzzy, c-format
+#| msgid "installed %s script"
+msgid "installed %s package %s script"
 msgstr "instalovaný %s skript"
 
 #: src/script.c
@@ -4092,13 +4432,15 @@ msgid "unable to stat %s '%.250s'"
 msgstr "nelze zjistit stav %s „%.250s“"
 
 #: src/script.c
-#, c-format
-msgid "new %s script"
+#, fuzzy, c-format
+#| msgid "new %s script"
+msgid "new %s package %s script"
 msgstr "nový %s skript"
 
 #: src/script.c
-#, c-format
-msgid "old %s script"
+#, fuzzy, c-format
+#| msgid "old %s script"
+msgid "old %s package %s script"
 msgstr "starý %s skript"
 
 #: src/script.c
@@ -4207,12 +4549,26 @@ msgstr ""
 "\n"
 
 #: src/statcmd.c
-#, c-format
+#, fuzzy, c-format
+#| msgid ""
+#| "Options:\n"
+#| "  --admindir <directory>   set the directory with the statoverride file.\n"
+#| "  --update                 immediately update <path> permissions.\n"
+#| "  --force                  force an action even if a sanity check fails.\n"
+#| "  --quiet                  quiet operation, minimal output.\n"
+#| "  --help                   show this help message.\n"
+#| "  --version                show the version.\n"
+#| "\n"
 msgid ""
 "Options:\n"
 "  --admindir <directory>   set the directory with the statoverride file.\n"
+"  --instdir <directory>    set the root directory, but not the admin dir.\n"
+"  --root <directory>       set the directory of the root filesystem.\n"
 "  --update                 immediately update <path> permissions.\n"
-"  --force                  force an action even if a sanity check fails.\n"
+"  --force                  deprecated alias for --force-all.\n"
+"  --force-...              override problems (see --force-help).\n"
+"  --no-force-...           stop when problems encountered.\n"
+"  --refuse-...             ditto.\n"
 "  --quiet                  quiet operation, minimal output.\n"
 "  --help                   show this help message.\n"
 "  --version                show the version.\n"
@@ -4273,64 +4629,11 @@ msgstr "žádné přepsání neexistuje"
 msgid "--update is useless for --remove"
 msgstr "pro --remove je --update zbytečné"
 
-#: src/statdb.c
-#, c-format
-msgid "invalid statoverride uid %s"
-msgstr "neplatné uid %s ve statoverride"
-
-#: src/statdb.c
-#, c-format
-msgid "invalid statoverride gid %s"
-msgstr "neplatné gid %s ve statoverride"
-
-#: src/statdb.c
-#, c-format
-msgid "invalid statoverride mode %s"
-msgstr "neplatný režim %s ve statoverride"
-
-#: src/statdb.c
-msgid "failed to open statoverride file"
-msgstr "nelze otevřít soubor statoverride"
-
-#: src/statdb.c
-msgid "failed to fstat statoverride file"
-msgstr "nelze získat fstat souboru statoverride"
-
-#: src/statdb.c
-#, c-format
-msgid "reading statoverride file '%.250s'"
-msgstr "načítá se statoverride soubor „%.250s“"
-
-#: src/statdb.c
-msgid "statoverride file is missing final newline"
-msgstr "soubor statoverride neobsahuje závěrečný nový řádek"
-
-#: src/statdb.c
-msgid "statoverride file contains empty line"
-msgstr "soubor statoverride obsahuje prázdný řádek"
-
-#: src/statdb.c
-msgid "syntax error in statoverride file"
-msgstr "syntaktická chyba v souboru statoverride"
-
-#: src/statdb.c
-#, c-format
-msgid "unknown user '%s' in statoverride file"
-msgstr "neznámý uživatel „%s“ v souboru statoverride"
-
-#: src/statdb.c
-msgid "unexpected end of line in statoverride file"
-msgstr "neočekávaný konec řádku v souboru statoverride"
-
-#: src/statdb.c
-#, c-format
-msgid "unknown group '%s' in statoverride file"
-msgstr "neznámá skupina „%s“ v souboru statoverride"
-
-#: src/statdb.c
-#, c-format
-msgid "multiple statoverrides present for file '%.250s'"
-msgstr "pro soubor „%.250s“ existuje více statoverride"
+#: src/statcmd.c
+#, fuzzy, c-format
+#| msgid "obsolete option '--%s'; please use '--%s' instead"
+msgid "deprecated --%s option; use --%s instead"
+msgstr "zastaralá volba „--%s“, použijte místo ní „--%s“"
 
 #: src/trigcmd.c
 msgid "Type dpkg-trigger --help for help about this utility."
@@ -4482,6 +4785,11 @@ msgstr "sestavený balík"
 
 #: src/unpack.c
 #, c-format
+msgid "subprocess %s returned error exit status %d"
+msgstr "podproces %s vrátil chybový status %d"
+
+#: src/unpack.c
+#, c-format
 msgid "Authenticating %s ...\n"
 msgstr "Ověřuje se pravost %s …\n"
 
@@ -4536,6 +4844,12 @@ msgstr "Dekonfiguruje se %s (%s), aby mohl být odstraněn %s (%s) …\n"
 #, c-format
 msgid "De-configuring %s (%s) ...\n"
 msgstr "Dekonfiguruje se %s (%s) …\n"
+
+#: src/unpack.c
+#, fuzzy
+#| msgid "statoverride file contains empty line"
+msgid "conffile file contains an empty line"
+msgstr "soubor statoverride obsahuje prázdný řádek"
 
 #: src/unpack.c dpkg-deb/build.c
 #, c-format
@@ -4673,11 +4987,9 @@ msgid "package filesystem archive extraction"
 msgstr "rozbalení balíku"
 
 #: src/unpack.c
-msgid "error reading dpkg-deb tar output"
-msgstr "chyba při čtení tar výstupu z dpkg-deb"
-
-#: src/unpack.c
-msgid "corrupted filesystem tarfile - corrupted package archive"
+#, fuzzy
+#| msgid "corrupted filesystem tarfile - corrupted package archive"
+msgid "corrupted filesystem tarfile in package archive"
 msgstr "poškozený systémový tar soubor - poškozený balík"
 
 #: src/unpack.c
@@ -4691,14 +5003,20 @@ msgid "--%s takes at most one Packages-file argument"
 msgstr "--%s akceptuje nejvýše jedno jméno souboru Packages"
 
 #: src/update.c
-msgid "unable to access dpkg status area for bulk available update"
+#, fuzzy, c-format
+#| msgid "unable to access dpkg status area for bulk available update"
+msgid "unable to access dpkg database directory '%s' for bulk available update"
 msgstr ""
 "nelze přistoupit ke stavové oblasti dpkg pro objemnou dostupnou aktualizaci"
 
 #: src/update.c
-msgid "bulk available update requires write access to dpkg status area"
+#, fuzzy, c-format
+#| msgid "unable to access dpkg status area for bulk available update"
+msgid ""
+"required write access to dpkg database directory '%s' for bulk available "
+"update"
 msgstr ""
-"objemná dostupná aktualizace vyžaduje práva zápisu do stavové oblasti dpkg"
+"nelze přistoupit ke stavové oblasti dpkg pro objemnou dostupnou aktualizaci"
 
 #: src/update.c
 #, c-format
@@ -4930,8 +5248,9 @@ msgid "file '%.250s' is corrupt - bad archive header magic"
 msgstr "soubor „%.250s“ je poškozen - špatná hlavička archivu"
 
 #: dpkg-deb/extract.c
-#, c-format
-msgid "file '%.250s' is not a debian binary archive (try dpkg-split?)"
+#, fuzzy, c-format
+#| msgid "file '%.250s' is not a debian binary archive (try dpkg-split?)"
+msgid "file '%.250s' is not a Debian binary archive (try dpkg-split?)"
 msgstr "soubor „%.250s“ není binárním balíkem (zkuste dpkg-split?)"
 
 #: dpkg-deb/extract.c
@@ -4973,9 +5292,12 @@ msgid "archive '%.250s' contains two control members, giving up"
 msgstr "archiv „%.250s“ obsahuje dvě řídící části, vzdávám to"
 
 #: dpkg-deb/extract.c
-#, c-format
+#, fuzzy, c-format
+#| msgid ""
+#| " new debian package, version %d.%d.\n"
+#| " size %jd bytes: control archive=%jd bytes.\n"
 msgid ""
-" new debian package, version %d.%d.\n"
+" new Debian package, version %d.%d.\n"
 " size %jd bytes: control archive=%jd bytes.\n"
 msgstr ""
 " nový formát balíku, verze %d.%d.\n"
@@ -4996,9 +5318,12 @@ msgid "cannot skip archive control member from '%s': %s"
 msgstr "nelze přeskočit řídící část archivu z „%s“: %s"
 
 #: dpkg-deb/extract.c
-#, c-format
+#, fuzzy, c-format
+#| msgid ""
+#| " old debian package, version %d.%d.\n"
+#| " size %jd bytes: control archive=%jd, main archive=%jd.\n"
 msgid ""
-" old debian package, version %d.%d.\n"
+" old Debian package, version %d.%d.\n"
 " size %jd bytes: control archive=%jd, main archive=%jd.\n"
 msgstr ""
 " starý debianí balík, verze %d.%d.\n"
@@ -5013,8 +5338,9 @@ msgstr ""
 " stahováním v ASCII módu"
 
 #: dpkg-deb/extract.c
-#, c-format
-msgid "'%.255s' is not a debian format archive"
+#, fuzzy, c-format
+#| msgid "'%.255s' is not a debian format archive"
+msgid "'%.255s' is not a Debian format archive"
 msgstr "„%.255s“ nemá formát debianího balíku"
 
 #: dpkg-deb/extract.c
@@ -5195,7 +5521,31 @@ msgstr ""
 "\n"
 
 #: dpkg-deb/main.c
-#, c-format
+#, fuzzy, c-format
+#| msgid ""
+#| "Options:\n"
+#| "  -v, --verbose                    Enable verbose output.\n"
+#| "  -D, --debug                      Enable debugging output.\n"
+#| "      --showformat=<format>        Use alternative format for --show.\n"
+#| "      --deb-format=<format>        Select archive format.\n"
+#| "                                     Allowed values: 0.939000, 2.0 "
+#| "(default).\n"
+#| "      --nocheck                    Suppress control file check (build "
+#| "bad\n"
+#| "                                     packages).\n"
+#| "      --uniform-compression        Use the compression params on all "
+#| "members.\n"
+#| "  -z#                              Set the compression level when "
+#| "building.\n"
+#| "  -Z<type>                         Set the compression type used when "
+#| "building.\n"
+#| "                                     Allowed types: gzip, xz, none.\n"
+#| "  -S<strategy>                     Set the compression strategy when "
+#| "building.\n"
+#| "                                     Allowed values: none; extreme (xz);\n"
+#| "                                     filtered, huffman, rle, fixed "
+#| "(gzip).\n"
+#| "\n"
 msgid ""
 "Options:\n"
 "  -v, --verbose                    Enable verbose output.\n"
@@ -5206,7 +5556,8 @@ msgid ""
 "(default).\n"
 "      --nocheck                    Suppress control file check (build bad\n"
 "                                     packages).\n"
-"      --uniform-compression        Use the compression params on all "
+"      --root-owner-group           Forces the owner and groups to root.\n"
+"      --[no-]uniform-compression   Use the compression params on all "
 "members.\n"
 "  -z#                              Set the compression level when building.\n"
 "  -Z<type>                         Set the compression type used when "
@@ -5832,7 +6183,21 @@ msgstr ""
 "\n"
 
 #: utils/update-alternatives.c
-#, c-format
+#, fuzzy, c-format
+#| msgid ""
+#| "Options:\n"
+#| "  --altdir <directory>     change the alternatives directory.\n"
+#| "  --admindir <directory>   change the administrative directory.\n"
+#| "  --log <file>             change the log file.\n"
+#| "  --force                  allow replacing files with alternative links.\n"
+#| "  --skip-auto              skip prompt for alternatives correctly "
+#| "configured\n"
+#| "                           in automatic mode (relevant for --config "
+#| "only)\n"
+#| "  --verbose                verbose operation, more output.\n"
+#| "  --quiet                  quiet operation, minimal output.\n"
+#| "  --help                   show this help message.\n"
+#| "  --version                show the version.\n"
 msgid ""
 "Options:\n"
 "  --altdir <directory>     change the alternatives directory.\n"
@@ -5842,8 +6207,9 @@ msgid ""
 "  --skip-auto              skip prompt for alternatives correctly "
 "configured\n"
 "                           in automatic mode (relevant for --config only)\n"
-"  --verbose                verbose operation, more output.\n"
 "  --quiet                  quiet operation, minimal output.\n"
+"  --verbose                verbose operation, more output.\n"
+"  --debug                  debug output, way more output.\n"
 "  --help                   show this help message.\n"
 "  --version                show the version.\n"
 msgstr ""
@@ -5878,6 +6244,11 @@ msgstr "zadány dva příkazy: --%s a --%s"
 #, c-format
 msgid "cannot append to '%s'"
 msgstr "nelze připojit k „%s“"
+
+#: utils/update-alternatives.c
+#, c-format
+msgid "wait for subprocess %s failed"
+msgstr "čekání na podproces %s selhalo"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6323,8 +6694,87 @@ msgstr "automatické aktualizace %s/%s jsou zakázány, ponechávám bez změn"
 msgid "to return to automatic updates use '%s --auto %s'"
 msgstr "k automatickým aktualizacím se vrátíte příkazem „%s --auto %s“"
 
-#~ msgid "obsolete option '--%s'; please use '--%s' instead"
-#~ msgstr "zastaralá volba „--%s“, použijte místo ní „--%s“"
+#: utils/update-alternatives.polkit.in
+msgid "Run update-alternatives to modify system alternative selections"
+msgstr ""
+
+#: utils/update-alternatives.polkit.in
+msgid "Authentication is required to run update-alternatives"
+msgstr ""
+
+#~ msgid "unable to open lock file %s for testing"
+#~ msgstr "nelze otevřít zámkový soubor %s pro test"
+
+#~ msgid "unknown user '%s' in statoverride file"
+#~ msgstr "neznámý uživatel „%s“ v souboru statoverride"
+
+#~ msgid "unknown group '%s' in statoverride file"
+#~ msgstr "neznámá skupina „%s“ v souboru statoverride"
+
+#~ msgid "%s is missing"
+#~ msgstr "%s chybí"
+
+#~ msgid "'%.50s' is not allowed for %s"
+#~ msgstr "„%.50s“ není v %s povoleno"
+
+#~ msgid "junk after %s"
+#~ msgstr "nesmyslná data za %s"
+
+#~ msgid "invalid package name (%.250s)"
+#~ msgstr "chybné jméno balíku (%.250s)"
+
+#~ msgid "yes/no in boolean field"
+#~ msgstr "yes/no v dvouhodnotovém poli"
+
+#~ msgid "'%s' field, reference to '%.255s': error in version"
+#~ msgstr "položka „%s“, odkaz na „%.255s“: chyba ve verzi"
+
+#~ msgid "empty value for %s"
+#~ msgstr "položka „%s“ je prázdná"
+
+#~ msgid "package has status triggers-awaited but no triggers awaited"
+#~ msgstr ""
+#~ "balík je ve stavu „čekání na spouštěče“, ale žádné spouštěče nejsou "
+#~ "očekávány"
+
+#~ msgid "package has status triggers-pending but no triggers pending"
+#~ msgstr ""
+#~ "balík je ve stavu „nevyřízené spouštěče“, ale všechny spouštěče jsou "
+#~ "vyřízeny"
+
+#~ msgid "bulk available update requires write access to dpkg status area"
+#~ msgstr ""
+#~ "objemná dostupná aktualizace vyžaduje práva zápisu do stavové oblasti dpkg"
+
+#~ msgid "error reading dpkg-deb tar output"
+#~ msgstr "chyba při čtení tar výstupu z dpkg-deb"
+
+#~ msgid "cannot open control file '%s' for package '%s'"
+#~ msgstr "nelze otevřít řídící soubor „%s“ balíku „%s“"
+
+#~ msgid "cannot stat control file '%s' for package '%s'"
+#~ msgstr "nelze zjistit stav řídícího souboru „%s“ balíku „%s“"
+
+#~ msgid "control file '%s' for package '%s' is not a regular file"
+#~ msgstr "řídící soubor „%s“ balíku „%s“ není běžným souborem"
+
+#~ msgid "cannot close control file '%s' for package '%s'"
+#~ msgstr "nelze zavřít řídící soubor „%s“ balíku „%s“"
+
+#~ msgid "unable to open files list file for package '%.250s'"
+#~ msgstr "seznam souborů balíku „%.250s“ nelze otevřít"
+
+#~ msgid "unable to stat files list file for package '%.250s'"
+#~ msgstr "nelze zjistit stav seznamu souborů balíku „%.250s“"
+
+#~ msgid "files list for package '%.250s' is not a regular file"
+#~ msgstr "seznam souborů balíku „%.250s“ není běžným souborem"
+
+#~ msgid "reading files list for package '%.250s'"
+#~ msgstr "čte se seznam souborů balíku „%.250s“"
+
+#~ msgid "failed to chdir to directory after creating it"
+#~ msgstr "nelze se přepnout do právě vytvořeného adresáře"
 
 #~ msgid "control file '%s' missing value"
 #~ msgstr "v řídícím souboru „%s“ chybí hodnota"
@@ -6391,9 +6841,6 @@ msgstr "k automatickým aktualizacím se vrátíte příkazem „%s --auto %s“
 
 #~ msgid "EOF on stdin at conffile prompt"
 #~ msgstr "EOF na stdin při otázce na konfigurační soubor"
-
-#~ msgid "unexpected eof in package name at line %d"
-#~ msgstr "neočekávaný konec souboru ve jménu balíku na řádku %d"
 
 #~ msgid "unexpected eof after package name at line %d"
 #~ msgstr "neočekávaný konec souboru za jménem balíku na řádku %d"
@@ -6630,9 +7077,6 @@ msgstr "k automatickým aktualizacím se vrátíte příkazem „%s --auto %s“
 #~ msgid "it is a slave of %s"
 #~ msgstr "je to závislost %s"
 
-#~ msgid "cannot stat %s: %s"
-#~ msgstr "nelze volat stat na %s: %s"
-
 #~ msgid "readlink(%s) failed: %s"
 #~ msgstr "volání readlink(%s) selhalo: %s"
 
@@ -6656,9 +7100,6 @@ msgstr "k automatickým aktualizacím se vrátíte příkazem „%s --auto %s“
 
 #~ msgid "unable to close %s: %s"
 #~ msgstr "nelze zavřít %s: %s"
-
-#~ msgid "cannot write %s: %s"
-#~ msgstr "nelze zapsat %s: %s"
 
 #~ msgid "unable to rename file '%s' to '%s'"
 #~ msgstr "nelze přejmenovat „%s“ na „%s“"
@@ -6979,9 +7420,6 @@ msgstr "k automatickým aktualizacím se vrátíte příkazem „%s --auto %s“
 
 #~ msgid "cannot open diversions: %s"
 #~ msgstr "nelze otevřít soubor s odsuny: %s"
-
-#~ msgid "missing package"
-#~ msgstr "chybí balík"
 
 #~ msgid "rename: rename `%s' to `%s': %s"
 #~ msgstr "přejmenování: přejmenování „%s“ na „%s“: %s"

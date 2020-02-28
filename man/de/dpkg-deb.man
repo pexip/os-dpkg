@@ -44,7 +44,7 @@ Sie an \fBdpkg\-deb\fP übergeben wollen, aufrufen. \fBdpkg\fP erkennt, dass Sie
 .PP
 Bei den meisten Befehlen, die ein Archiv als Eingabeargument erwarten, kann
 der Archivname von der Standardeingabe gelesen werden, wenn er als einzelnes
-Minuszeichen (»\fB\-\fP«) angegeben ist. Falls dies nicht unterstützt wird, ist
+Minuszeichen („\fB\-\fP“) angegeben ist. Falls dies nicht unterstützt wird, ist
 dies in der jeweiligen Beschreibung des Befehls dokumentiert.
 .
 .SH BEFEHLE
@@ -72,7 +72,7 @@ Falls das zweite Argument ein Verzeichnis ist, wird \fBdpkg\-deb\fP in die Datei
 \fIVerzeichnis\fP\fB/\fP\fIPaket\fP\fB_\fP\fIVersion\fP\fB_\fP\fIArch\fP\fB.deb.\fP schreiben. Wenn
 ein Zielverzeichnis statt einer Datei angegeben ist, darf die Option
 \fB\-\-nocheck\fP nicht verwendet werden (da \fBdpkg\-deb\fP die Paketsteuerdatei
-lesen und auswerten muss, um den zu verwendenden Dateinamen zu bestimmen).
+lesen und auswerten muss, um den zu verwendenen Dateinamen zu bestimmen).
 .TP 
 \fB\-I\fP, \fB\-\-info\fP \fIArchiv\fP [\fISteuer\-Dateiname\fP …]
 Stellt Informationen über ein Binärpaketarchiv bereit.
@@ -123,7 +123,7 @@ angelegt. Seine Rechte werden angepasst, um mit dem Inhalt des Pakets
 .TP 
 \fB\-X\fP, \fB\-\-vextract\fP \fIArchiv\-Verzeichnis\fP
 Ist wie \fB\-\-extract\fP (\fB\-x\fP) mit \fB\-\-verbose\fP (\fB\-v\fP), das beim Arbeiten
-eine Liste von extrahierten Dateien ausgibt.
+eine Liste von entpackten Dateien ausgibt.
 .TP 
 \fB\-R\fP, \fB\-\-raw\-extract\fP \fIArchiv\-Verzeichnis\fP
 Extrahiert den Dateisystembaum aus einem Paketarchiv in ein angegebenes
@@ -135,7 +135,7 @@ Das Zielverzeichnis (aber nicht übergeordnete) wird, falls notwendig,
 angelegt.
 
 Das Eingebearchiv wird (derzeit) nicht sequenziell verarbeitet, daher wird
-das Einlesen von der Standardeingabe (»\fB\-\fP«) \fBnicht\fP unterstützt.
+das Einlesen von der Standardeingabe („\fB\-\fP“) \fBnicht\fP unterstützt.
 .TP 
 \fB\-\-ctrl\-tarfile\fP \fIArchiv\fP
 Extrahiert die Steuerdaten aus einem Binärpaket und schickt sie zur
@@ -200,12 +200,25 @@ für Xz.
 Gibt die Art der Komprimierung beim Bau eines Pakets an. Erlaubte Werte sind
 \fBgzip\fP, \fBxz\fP (seit Dpkg 1.15.6) und \fBnone\fP (voreingestellt ist \fBxz\fP).
 .TP 
-\fB\-\-uniform\-compression\fP
+\fB\-\-[no\-]uniform\-compression\fP
 Gibt an, dass die gleichen Komprimierungsparameter für alle Archivteile
 (d.h. \fBcontrol.tar\fP und \fBdata.tar\fP; seit Dpkg 1.17.6) verwandt werden
 sollen. Andernfalls wird nur der Teil \fBdata.tar\fP diese Parameter
 verwenden. Die einzigen unterstützten Kompressionstypen, die übergreifend
-benutzt werden dürfen, sind \fBnone\fP, \fBgzip\fP und \fBxz\fP.
+benutzt werden dürfen, sind \fBnone\fP, \fBgzip\fP und \fBxz\fP. Die Option
+\fB\-\-no\-uniform\-compression\fP deaktiviert die übergreifende Komprimierung
+(seit Dpkg 1.19.0). Übergreifende Komprimierung ist die Vorgabe (seit Dpkg
+1.19.0).
+.TP 
+\fB\-\-root\-owner\-group\fP
+Setzt für jeden Eintrag in den Dateisystembaumdaten den Eigentümer und die
+Gruppe auf Kennung 0 (seit Dpkg 1.19.0).
+
+\fBHinweis\fP: Diese Option kann für rootloses Bauen (siehe
+\fIrootless\-builds.txt\fP) nützlich sein, sollte aber \fBnicht\fP verwandt werden,
+wenn Einträge eine von root verschiedenen Eigentümer oder Gruppe haben. Die
+Unterstützung hierfür wird später in der Form eines Meta\-Manifests
+hinzugefügt.
 .TP 
 \fB\-\-deb\-format=\fP\fIFormat\fP
 Setzt das beim Bau verwandte Archivformat (seit Dpkg 1.17.0). Erlaubte Werte
@@ -241,6 +254,10 @@ die Datenbank, Speicherzuweisungen usw.
 .
 .SH UMGEBUNG
 .TP 
+\fBDPKG_COLORS\fP
+Setzt den Farbmodus (seit Dpkg 1.18.5). Die derzeit unterstützten Werte
+sind: \fBauto\fP (Vorgabe), \fBalways\fP und \fBnever\fP.
+.TP 
 \fBTMPDIR\fP
 Falls gesetzt, wird \fBdpkg\-deb\fP es als das Verzeichnis verwenden, in dem
 temporäre Dateien und Verzeichnisse erstellt werden.
@@ -270,7 +287,7 @@ direkt unterstützt.)
 .SH "SIEHE AUCH"
 \fBdeb\fP(5), \fBdeb\-control\fP(5), \fBdpkg\fP(1), \fBdselect\fP(1).
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2017 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

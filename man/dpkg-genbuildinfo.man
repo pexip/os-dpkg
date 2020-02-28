@@ -104,6 +104,12 @@ rather than
 (\fBdpkg\-genbuildinfo\fP needs to find these files so that it can include
 their sizes and checksums in the \fB.buildinfo\fP file).
 .TP
+.BI \-\-always\-include\-kernel
+By default, the \fBBuild\-Kernel-Version\fR field will not be written out.
+
+Specify this option (since dpkg 1.19.0) to always write a
+\fBBuild\-Kernel\-Version\fR field when generating the \fB.buildinfo\fR.
+.TP
 .BI \-\-always\-include\-path
 By default, the \fBBuild\-Path\fR field will only be written if the current
 directory starts with a whitelisted pattern.
@@ -143,6 +149,16 @@ The special feature “\fBall\fP” can be used to enable or disable all other
 features.
 The feature “\fBpath\fP” controls whether to unconditionally include the
 \fBBuild\-Path\fP field.
+.TP
+.B DPKG_COLORS
+Sets the color mode (since dpkg 1.18.5).
+The currently accepted values are: \fBauto\fP (default), \fBalways\fP and
+\fBnever\fP.
+.TP
+.B DPKG_NLS
+If set, it will be used to decide whether to activate Native Language Support,
+also known as internationalization (or i18n) support (since dpkg 1.19.0).
+The accepted values are: \fB0\fP and \fB1\fP (default).
 .
 .SH FILES
 .TP

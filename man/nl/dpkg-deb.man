@@ -206,12 +206,23 @@ Geef op welk compressietype bij het bouwen van een pakket gebruikt moet
 worden. Toegestane waarden zijn \fBgzip\fP, \fBxz\fP (sinds dpkg 1.15.6) en
 \fBnone\fP (standaard is \fBxz\fP).
 .TP 
-\fB\-\-uniform\-compression\fP
+\fB\-\-[no\-]uniform\-compression\fP
 Geef aan dat dezelfde compressieparameters gebruikt moeten worden voor alle
 archiefonderdelen (d.w.z. \fBcontrol.tar\fP en \fBdata.tar\fP; sinds dpkg
 1.17.6). Anders zullen die parameters enkel voor het onderdeel \fBdata.tar\fP
-gebruikt worden. De enige compressietypes waarvan het eenvormig gebruik
-toegelaten is, zijn \fBnone\fP, \fBgzip\fP en \fBxz\fP.
+gebruikt worden. De enige ondersteunde compressietypes waarvan het eenvormig
+gebruik toegelaten is, zijn \fBnone\fP, \fBgzip\fP en \fBxz\fP. De optie
+\fB\-\-no\-uniform\-compression\fP schakelt uniforme compressie uit (sinds dpkg
+1.19.0). Uniforme compressie is de standaard (sinds dpkg 1.19.0).
+.TP 
+\fB\-\-root\-owner\-group\fP
+Stel voor elk gegevensitem van de bestandssysteemboom de eigenaar en de
+groep in op 'root' met het id 0 (sinds dpkg 1.19.0).
+
+\fBNoot\fP: Deze optie kan nuttig zijn voor een root\-loze bouw (zie
+\fIrootless\-builds.txt\fP), maar zou \fBniet\fP gebruikt mogen worden wanneer de
+eigenaar of de groep van de items niet 'root' is. Daarvoor zal later
+ondersteuning toegevoegd worden in de vorm van een meta\-manifest.
 .TP 
 \fB\-\-deb\-format=\fP\fIindeling\fP
 Stel in welke versie van archiefindeling bij het bouwen gebruikt moet worden
@@ -248,6 +259,10 @@ commandoregel of aan interacties met het systeem, zoals het benaderen van de
 database, het toewijzen van geheugen, enz.
 .
 .SH OMGEVING
+.TP 
+\fBDPKG_COLORS\fP
+Stelt de kleurmodus in (sinds dpkg 1.18.5). Waarden die momenteel gebruikt
+mogen worden zijn: \fBauto\fP (standaard), \fBalways\fP en \fBnever\fP.
 .TP 
 \fBTMPDIR\fP
 Indien dit ingesteld werd, zal \fBdpkg\-deb\fP het gebruiken als de map waarin

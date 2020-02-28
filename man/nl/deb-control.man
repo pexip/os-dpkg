@@ -49,12 +49,19 @@ voor het veld \fBDescription\fP; zie hierna)
 De waarde van dit veld bepaalt de pakketnaam en wordt door de meeste
 installatiegereedschappen gebruikt om bestandsnamen te genereren.
 .TP 
+\fBPackage\-Type:\fP \fBdeb\fP|\fBudeb\fP|\fItype\fP
+Dit veld definieert het pakkettype. \fBudeb\fP is voor pakketten waarvan de
+omvang aan beperkingen onderworpen is en die door het installatieprogramma
+van Debian gebruikt worden. \fBdeb\fP is de standaardwaarde, die verondersteld
+wordt als het veld ontbreekt. In de toekomst kunnen nog andere types
+toegevoegd worden.
+.TP 
 \fBVersion:\fP \fIversie\-tekenreeks\fP (verplicht)
 Gewoonlijk is dit het originele versienummer van het pakket, welke vorm de
 auteur van het programma er ook aan geeft. Het kan ook een
 Debian\-revisienummer bevatten (voor niet uit Debian stammende pakketten). De
 exacte indeling en het sorteringsalgoritme worden beschreven in
-\fBdeb\-version\fP(5).
+\fBdeb\-version\fP(7).
 .TP 
 \fBMaintainer:\fP \fIvolledige\-naam\-en\-e\-mail\fP (aanbevolen)
 Moet opgemaakt worden volgens de indeling “Joe Bloggs
@@ -264,6 +271,10 @@ facultatief een versienummer toegevoegd worden volgens dezelfde syntaxis als
 hierboven werd beschreven.
 .
 .TP 
+\fBEnhances:\fP\fI pakketlijst\fP
+Dit is een lijst met pakketten waarvoor dit pakket uitbreidingen biedt. Het
+is vergelijkbaar met \fBSuggests\fP, maar in de omgekeerde richting.
+.TP 
 \fBProvides:\fP\fI pakketlijst\fP
 Dit is een lijst van virtuele pakketten waarin door dit pakket voorzien
 wordt. Gewoonlijk wordt dit gebruikt in het geval meerdere pakketten
@@ -313,21 +324,29 @@ dit veld gemarkeerd werden, zullen niet te vinden zijn in het
 hoofdcontrolebestand \fIdebian/control\fP van de broncode. De enige reden die
 momenteel gebruikt wordt, is \fBdebug\-symbols\fP.
 .
+.TP 
+\fBBuild\-Ids:\fP\fI lijst met elf\-bouw\-id's\fP
+Dit veld geeft een lijst op van door witruimte van elkaar gescheiden
+ELF\-bouw\-id's. Dit zijn unieke identificatiesymbolen voor semantisch
+identieke ELF\-objecten, voor elk ervan in het pakket.
+.
+De indeling of de berekeningswijze voor elke bouw\-id ligt niet vast bij
+ontwerp.
+.
 .SH VOORBEELD
 .\" .RS
 .nf
-# Commentaar
-Package: grep
-Essential: yes
-Priority: required
-Section: base
-Maintainer: Wichert Akkerman <wakkerma@debian.org>
-Architecture: sparc
-Version: 2.4\-1
-Pre\-Depends: libc6 (>= 2.0.105)
-Provides: rgrep
-Conflicts: rgrep
-Description: GNU grep, egrep en fgrep.
+Pakket: grep
+Essentieel: ja
+Prioriteit: vereist
+Sectie: base
+Onderhouder: Wichert Akkerman <wakkerma@debian.org>
+Architectuur: sparc
+Versie: 2.4\-1
+Voorvereiste: libc6 (>= 2.0.105)
+Voorziet in: rgrep
+Conflicteert met: rgrep
+Beschrijving: GNU grep, egrep en fgrep.
  De GNU familie van grep\-hulpprogramma's is misschien wel de "fastest grep in
  the west". GNU grep is gebaseerd op een snel `lazy\-state deterministic
  matcher' (ongeveer twee keer zo snel als een gewone Unix grep), gekruist met
@@ -339,5 +358,11 @@ Description: GNU grep, egrep en fgrep.
 .fi
 .\" .RE
 .
+.SH BUGS
+Voor het veld \fBBuild\-Ids\fP wordt een eerder generieke naam gebruikt vanuit
+zijn originele context binnen een ELF\-object, welke een zeer specifieke
+functie en uitvoerbaar formaat heeft.
+.
 .SH "ZIE OOK"
-\fBdeb\fP(5), \fBdeb\-version\fP(5), \fBdebtags\fP(1), \fBdpkg\fP(1), \fBdpkg\-deb\fP(1).
+\fBdeb\-src\-control\fP(5), \fBdeb\fP(5), \fBdeb\-version\fP(7), \fBdebtags\fP(1),
+\fBdpkg\fP(1), \fBdpkg\-deb\fP(1).

@@ -1,7 +1,7 @@
 # Copied from /usr/share/perl5/Debconf/Gettext.pm
 #
 # Copyright © 2000 Joey Hess <joeyh@debian.org>
-# Copyright © 2007, 2009-2010, 2012-2015 Guillem Jover <guillem@debian.org>
+# Copyright © 2007, 2009-2010, 2012-2017 Guillem Jover <guillem@debian.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -28,8 +28,9 @@ package Dpkg::Gettext;
 
 use strict;
 use warnings;
+use feature qw(state);
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 our @EXPORT = qw(
     textdomain
     ngettext
@@ -52,6 +53,17 @@ Dpkg::Gettext - convenience wrapper around Locale::gettext
 The Dpkg::Gettext module is a convenience wrapper over the Locale::gettext
 module, to guarantee we always have working gettext functions, and to add
 some commonly used aliases.
+
+=head1 ENVIRONMENT
+
+=over 4
+
+=item DPKG_NLS
+
+When set to 0, this environment variable will disable the National Language
+Support in all Dpkg modules.
+
+=back
 
 =head1 VARIABLES
 
@@ -77,6 +89,19 @@ our $DEFAULT_TEXT_DOMAIN = 'dpkg-dev';
 
 =over 4
 
+=item $domain = textdomain($new_domain)
+
+Compatibility textdomain() fallback when Locale::gettext is not available.
+
+If $new_domain is not undef, it will set the current domain to $new_domain.
+Returns the current domain, after possibly changing it.
+
+=item $trans = ngettext($msgid, $msgid_plural, $n)
+
+Compatibility ngettext() fallback when Locale::gettext is not available.
+
+Returns $msgid if $n is 1 or $msgid_plural otherwise.
+
 =item $trans = g_($msgid)
 
 Calls dgettext() on the $msgid and returns its translation for the current
@@ -98,46 +123,52 @@ or $msgid_plural otherwise.
 use constant GETTEXT_CONTEXT_GLUE => "\004";
 
 BEGIN {
-    eval q{
-        pop @INC if $INC[-1] eq '.';
-        use Locale::gettext;
-    };
-    if ($@) {
+    my $use_gettext = $ENV{DPKG_NLS} // 1;
+    if ($use_gettext) {
         eval q{
-            sub g_ {
-                return shift;
-            }
-            sub textdomain {
-            }
-            sub ngettext {
-                my ($msgid, $msgid_plural, $n) = @_;
-                if ($n == 1) {
-                    return $msgid;
-                } else {
-                    return $msgid_plural;
-                }
-            }
-            sub C_ {
-                my ($msgctxt, $msgid) = @_;
+            pop @INC if $INC[-1] eq '.';
+            use Locale::gettext;
+        };
+        $use_gettext = not $@;
+    }
+    if (not $use_gettext) {
+        *g_ = sub {
+            return shift;
+        };
+        *textdomain = sub {
+            my $new_domain = shift;
+            state $domain = $DEFAULT_TEXT_DOMAIN;
+
+            $domain = $new_domain if defined $new_domain;
+
+            return $domain;
+        };
+        *ngettext = sub {
+            my ($msgid, $msgid_plural, $n) = @_;
+            if ($n == 1) {
                 return $msgid;
-            }
-            sub P_ {
-                return ngettext(@_);
+            } else {
+                return $msgid_plural;
             }
         };
+        *C_ = sub {
+            my ($msgctxt, $msgid) = @_;
+            return $msgid;
+        };
+        *P_ = sub {
+            return ngettext(@_);
+        };
     } else {
-        eval q{
-            sub g_ {
-                return dgettext($DEFAULT_TEXT_DOMAIN, shift);
-            }
-            sub C_ {
-                my ($msgctxt, $msgid) = @_;
-                return dgettext($DEFAULT_TEXT_DOMAIN,
-                                $msgctxt . GETTEXT_CONTEXT_GLUE . $msgid);
-            }
-            sub P_ {
-                return dngettext($DEFAULT_TEXT_DOMAIN, @_);
-            }
+        *g_ = sub {
+            return dgettext($DEFAULT_TEXT_DOMAIN, shift);
+        };
+        *C_ = sub {
+            my ($msgctxt, $msgid) = @_;
+            return dgettext($DEFAULT_TEXT_DOMAIN,
+                            $msgctxt . GETTEXT_CONTEXT_GLUE . $msgid);
+        };
+        *P_ = sub {
+            return dngettext($DEFAULT_TEXT_DOMAIN, @_);
         };
     }
 }
@@ -170,6 +201,10 @@ sub _g ## no critic (Subroutines::ProhibitUnusedPrivateSubroutines)
 }
 
 =head1 CHANGES
+
+=head2 Version 1.03 (dpkg 1.19.0)
+
+New envvar: Add support for new B<DPKG_NLS> environment variable.
 
 =head2 Version 1.02 (dpkg 1.18.3)
 

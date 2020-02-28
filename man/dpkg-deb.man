@@ -65,7 +65,7 @@ the files in it will be put in the binary package's control
 information area.
 
 Unless you specify
-.BR \-\-nocheck ", " dpkg\-deb "
+.BR \-\-nocheck ", " dpkg\-deb
 will read
 .B DEBIAN/control
 and parse it. It will check the file for syntax errors and other problems,
@@ -173,7 +173,7 @@ subdirectory of the specified directory (since dpkg 1.16.1).
 The target directory (but not its parents) will be created if necessary.
 
 The input archive is not (currently) processed sequentially, so reading
-it from standard input («\fB-\fP») is \fBnot\fP supported.
+it from standard input («\fB\-\fP») is \fBnot\fP supported.
 .TP
 .BR \-\-ctrl\-tarfile " \fIarchive\fP"
 Extracts the control data from a binary package and sends it to standard
@@ -207,7 +207,7 @@ necessary.
 .BR \-? ", " \-\-help
 Show the usage message and exit.
 .TP
-.BR \-\-version
+.B \-\-version
 Show the version and exit.
 .
 .SH OPTIONS
@@ -246,13 +246,25 @@ Specify which compression type to use when building a package.
 Allowed values are \fBgzip\fP, \fBxz\fP (since dpkg 1.15.6),
 and \fBnone\fP (default is \fBxz\fP).
 .TP
-.B \-\-uniform\-compression
+.B \-\-[no\-]uniform\-compression
 Specify that the same compression parameters should be used for all archive
 members (i.e. \fBcontrol.tar\fP and \fBdata.tar\fP; since dpkg 1.17.6).
 Otherwise only the
 \fBdata.tar\fP member will use those parameters. The only supported
 compression types allowed to be uniformly used are \fBnone\fP, \fBgzip\fP
 and \fBxz\fP.
+The \fB\-\-no\-uniform\-compression\fP option disables uniform compression
+(since dpkg 1.19.0).
+Uniform compression is the default (since dpkg 1.19.0).
+.TP
+.B \-\-root\-owner\-group
+Set the owner and group for each entry in the filesystem tree data to
+root with id 0 (since dpkg 1.19.0).
+
+\fBNote\fP: This option can be useful for rootless builds (see
+\fIrootless\-builds.txt\fP), but should \fBnot\fP be used when the
+entries have an owner or group that is not root.
+Support for these will be added later in the form of a meta manifest.
 .TP
 .BI \-\-deb\-format= format
 Set the archive format version used when building (since dpkg 1.17.0).
@@ -264,7 +276,7 @@ now obsolete; its only use is when building packages to be parsed by
 versions of dpkg older than 0.93.76 (September 1995), which was released
 as i386 a.out only.
 .TP
-.BR \-\-nocheck
+.B \-\-nocheck
 Inhibits
 .BR "dpkg\-deb \-\-build" 's
 usual checks on the proposed contents of an archive. You can build
@@ -289,6 +301,11 @@ interactions with the system, such as accesses to the database,
 memory allocations, etc.
 .
 .SH ENVIRONMENT
+.TP
+.B DPKG_COLORS
+Sets the color mode (since dpkg 1.18.5).
+The currently accepted values are: \fBauto\fP (default), \fBalways\fP and
+\fBnever\fP.
 .TP
 .B TMPDIR
 If set, \fBdpkg\-deb\fP will use it as the directory in which to create

@@ -31,9 +31,11 @@ dist_pkgdata_DATA = \
 	$(nil)
 
 EXTRA_DIST = \
+	.gitlab-ci.yml \
 	.mailmap \
 	ChangeLog.old \
 	README.l10n \
+	autogen \
 	get-version \
 	run-script \
 	doc/README.api \
@@ -41,7 +43,9 @@ EXTRA_DIST = \
 	doc/coding-style.txt \
 	doc/frontend.txt \
 	doc/lcov-inject.pl \
+	doc/rootless-builds.txt \
 	doc/triggers.txt \
+	debian/bug-script \
 	debian/changelog \
 	debian/compat \
 	debian/control \
@@ -49,8 +53,7 @@ EXTRA_DIST = \
 	debian/dpkg-dev.docs \
 	debian/dpkg-dev.install \
 	debian/dpkg-dev.manpages \
-	debian/dpkg-dev.preinst \
-	debian/dpkg-dev.lintian-overrides \
+	debian/dpkg.alternatives.logrotate \
 	debian/dpkg.cfg \
 	debian/dpkg.cron.daily \
 	debian/dpkg.docs \
@@ -58,28 +61,27 @@ EXTRA_DIST = \
 	debian/dpkg.manpages \
 	debian/dpkg.postinst \
 	debian/dpkg.postrm \
-	debian/dpkg.prerm \
 	debian/dpkg.logrotate \
 	debian/dpkg.lintian-overrides \
+	debian/dpkg.lintian-profile \
 	debian/dselect.cfg \
 	debian/dselect.docs \
 	debian/dselect.install \
 	debian/dselect.manpages \
-	debian/dselect.preinst \
-	debian/dselect.lintian-overrides \
 	debian/libdpkg-dev.docs \
 	debian/libdpkg-dev.install \
-	debian/libdpkg-dev.lintian-overrides \
 	debian/libdpkg-perl.docs \
 	debian/libdpkg-perl.install \
-	debian/libdpkg-perl.lintian-overrides \
-	debian/source/lintian-overrides \
 	debian/source/format \
-	debian/source/options \
 	debian/usertags \
 	debian/rules \
 	debian/shlibs.default \
 	debian/shlibs.override \
+	debian/tests/control \
+	debian/tests/test-not-root \
+	debian/tests/test-root \
+	po/its/polkit.its \
+	po/its/polkit.loc \
 	$(test_scripts) \
 	$(test_data) \
 	$(nil)
@@ -148,18 +150,25 @@ coverage-clean:
 endif
 
 test_scripts = \
+	t/po.t \
 	t/pod.t \
 	t/pod-spell.t \
 	t/pod-coverage.t \
 	t/synopsis.t \
 	t/minimum-version.t \
+	t/module-version.t \
 	t/syntax.t \
 	t/strict.t \
 	t/critic.t \
+	t/codespell.t \
+	t/shellcheck.t \
+	t/cppcheck.t \
 	$(nil)
 
 test_data = \
 	t/critic/perlcriticrc \
+	t/codespell/stopwords \
+	t/cppcheck/cppcheck.supp \
 	$(nil)
 
 # We need to use absolute paths here due to strict.t invoking a sub-perl,
@@ -178,9 +187,11 @@ update-po:
 	$(MAKE) -C dselect/po update-po
 	$(MAKE) -C man update-po
 
+include $(top_srcdir)/cpan.am
+
 # If we create the dist tarball from the git repository, make sure
 # that we're not forgetting some files...
-dist-hook:
+dist-hook: dist-cpan
 	echo $(VERSION) >$(distdir)/.dist-version
 	if [ -e .git ]; then \
 	  for file in `git ls-files | grep -v .gitignore`; do \

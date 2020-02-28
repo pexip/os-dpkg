@@ -27,7 +27,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#include <assert.h>
 #include <errno.h>
 #include <limits.h>
 #include <string.h>
@@ -51,6 +50,7 @@ static bool db_initialized;
 
 static enum modstatdb_rw cstatus=-1, cflags=0;
 static char *lockfile;
+static char *frontendlockfile;
 static char *statusfile, *availablefile;
 static char *importanttmpfile=NULL;
 static FILE *importanttmp;
@@ -140,6 +140,7 @@ static const struct fni {
   char **store;
 } fnis[] = {
   {   LOCKFILE,                   &lockfile           },
+  {   FRONTENDLOCKFILE,           &frontendlockfile   },
   {   STATUSFILE,                 &statusfile         },
   {   AVAILFILE,                  &availablefile      },
   {   UPDATESDIR,                 &updatesdir         },
@@ -185,6 +186,7 @@ modstatdb_done(void)
 }
 
 static int dblockfd = -1;
+static int frontendlockfd = -1;
 
 bool
 modstatdb_is_locked(void)
@@ -195,7 +197,8 @@ modstatdb_is_locked(void)
   if (dblockfd == -1) {
     lockfd = open(lockfile, O_RDONLY);
     if (lockfd == -1)
-      ohshite(_("unable to open lock file %s for testing"), lockfile);
+      ohshite(_("unable to check lock file for dpkg database directory %s"),
+              dpkg_db_get_dir());
   } else {
     lockfd = dblockfd;
   }
@@ -216,12 +219,26 @@ modstatdb_can_lock(void)
   if (dblockfd >= 0)
     return true;
 
+  if (getenv("DPKG_FRONTEND_LOCKED") == NULL) {
+    frontendlockfd = open(frontendlockfile, O_RDWR | O_CREAT | O_TRUNC, 0660);
+    if (frontendlockfd == -1) {
+      if (errno == EACCES || errno == EPERM)
+        return false;
+      else
+        ohshite(_("unable to open/create dpkg frontend lock for directory %s"),
+                dpkg_db_get_dir());
+    }
+  } else {
+    frontendlockfd = -1;
+  }
+
   dblockfd = open(lockfile, O_RDWR | O_CREAT | O_TRUNC, 0660);
   if (dblockfd == -1) {
     if (errno == EACCES || errno == EPERM)
       return false;
     else
-      ohshite(_("unable to open/create status database lockfile"));
+      ohshite(_("unable to open/create dpkg database lock file for directory %s"),
+              dpkg_db_get_dir());
   }
 
   return true;
@@ -231,9 +248,14 @@ void
 modstatdb_lock(void)
 {
   if (!modstatdb_can_lock())
-    ohshit(_("you do not have permission to lock the dpkg status database"));
+    ohshit(_("you do not have permission to lock the dpkg database directory %s"),
+           dpkg_db_get_dir());
 
-  file_lock(&dblockfd, FILE_LOCK_NOWAIT, lockfile, _("dpkg status database"));
+  if (frontendlockfd != -1)
+    file_lock(&frontendlockfd, FILE_LOCK_NOWAIT, frontendlockfile,
+              _("dpkg frontend lock"));
+  file_lock(&dblockfd, FILE_LOCK_NOWAIT, lockfile,
+            _("dpkg database lock"));
 }
 
 void
@@ -241,8 +263,11 @@ modstatdb_unlock(void)
 {
   /* Unlock. */
   pop_cleanup(ehflag_normaltidy);
+  if (frontendlockfd != -1)
+    pop_cleanup(ehflag_normaltidy);
 
   dblockfd = -1;
+  frontendlockfd = -1;
 }
 
 enum modstatdb_rw
@@ -262,9 +287,11 @@ modstatdb_open(enum modstatdb_rw readwritereq)
   case msdbrw_write: case msdbrw_writeifposs:
     if (access(dpkg_db_get_dir(), W_OK)) {
       if (errno != EACCES)
-        ohshite(_("unable to access dpkg status area"));
+        ohshite(_("unable to access the dpkg database directory %s"),
+                dpkg_db_get_dir());
       else if (readwritereq == msdbrw_write)
-        ohshit(_("operation requires read/write access to dpkg status area"));
+        ohshit(_("required read/write access to the dpkg database directory %s"),
+               dpkg_db_get_dir());
       cstatus= msdbrw_readonly;
     } else {
       modstatdb_lock();
@@ -307,13 +334,19 @@ modstatdb_get_status(void)
 void modstatdb_checkpoint(void) {
   int i;
 
-  assert(cstatus >= msdbrw_write);
+  if (cstatus < msdbrw_write)
+    internerr("modstatdb status '%d' is not writable", cstatus);
+
   writedb(statusfile, wdb_must_sync);
 
   for (i=0; i<nextupdate; i++) {
     sprintf(updatefnrest, IMPORTANTFMT, i);
+
     /* Have we made a real mess? */
-    assert(strlen(updatefnrest) <= IMPORTANTMAXLEN);
+    if (strlen(updatefnrest) > IMPORTANTMAXLEN)
+      internerr("modstatdb update entry name '%s' longer than %d",
+                updatefnrest, IMPORTANTMAXLEN);
+
     if (unlink(updatefnbuf))
       ohshite(_("failed to remove my own update file %.255s"),updatefnbuf);
   }
@@ -341,7 +374,7 @@ void modstatdb_shutdown(void) {
     break;
   }
 
-  pkg_db_reset();
+  pkg_hash_reset();
 
   modstatdb_done();
 }
@@ -349,7 +382,8 @@ void modstatdb_shutdown(void) {
 static void
 modstatdb_note_core(struct pkginfo *pkg)
 {
-  assert(cstatus >= msdbrw_write);
+  if (cstatus < msdbrw_write)
+    internerr("modstatdb status '%d' is not writable", cstatus);
 
   varbuf_reset(&uvb);
   varbufrecord(&uvb, pkg, &pkg->installed);
@@ -377,7 +411,9 @@ modstatdb_note_core(struct pkginfo *pkg)
   dir_sync_path(updatesdir);
 
   /* Have we made a real mess? */
-  assert(strlen(updatefnrest) <= IMPORTANTMAXLEN);
+  if (strlen(updatefnrest) > IMPORTANTMAXLEN)
+    internerr("modstatdb update entry name '%s' longer than %d",
+              updatefnrest, IMPORTANTMAXLEN);
 
   nextupdate++;
 
@@ -413,11 +449,15 @@ void modstatdb_note(struct pkginfo *pkg) {
     pkg->trigaw.head = pkg->trigaw.tail = NULL;
   }
 
-  log_message("status %s %s %s", pkg_status_name(pkg),
-              pkg_name(pkg, pnaw_always),
-	      versiondescribe(&pkg->installed.version, vdew_nonambig));
-  statusfd_send("status: %s: %s", pkg_name(pkg, pnaw_nonambig),
-                pkg_status_name(pkg));
+  if (pkg->status_dirty) {
+    log_message("status %s %s %s", pkg_status_name(pkg),
+                pkg_name(pkg, pnaw_always),
+                versiondescribe(&pkg->installed.version, vdew_nonambig));
+    statusfd_send("status: %s: %s", pkg_name(pkg, pnaw_nonambig),
+                  pkg_status_name(pkg));
+
+    pkg->status_dirty = false;
+  }
 
   if (cstatus >= msdbrw_write)
     modstatdb_note_core(pkg);

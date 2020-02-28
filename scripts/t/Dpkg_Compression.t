@@ -17,12 +17,12 @@ use strict;
 use warnings;
 
 use Test::More tests => 13;
+use Test::Dpkg qw(:paths);
 
 use_ok('Dpkg::Compression');
 use_ok('Dpkg::Compression::FileHandle');
 
-my $tmpdir = 't.tmp/Dpkg_Compression';
-mkdir $tmpdir;
+my $tmpdir = test_get_temp_path();
 my @lines = ("One\n", "Two\n", "Three\n");
 my $fh;
 
@@ -36,7 +36,7 @@ sub test_write {
     printf { $fh } '%s', $lines[2];
     close $fh or die 'close failed';
 
-    &$check_result($filename, 'std functions');
+    $check_result->($filename, 'std functions');
 
     unlink $filename or die "cannot unlink $filename";
 
@@ -47,7 +47,7 @@ sub test_write {
     $fh->printf('%s', $lines[2]);
     $fh->close() or die 'close failed';
 
-    &$check_result($filename, 'IO::Handle methods');
+    $check_result->($filename, 'IO::Handle methods');
 }
 
 sub check_uncompressed {

@@ -21,49 +21,30 @@ use warnings;
 
 our $VERSION = '0.01';
 our @EXPORT = qw(
-    file_lock
     file_slurp
 );
 
 use Exporter qw(import);
-use Fcntl qw(:flock);
+use Scalar::Util qw(openhandle);
 
-use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
-
-sub file_lock($$) {
-    my ($fh, $filename) = @_;
-
-    # A strict dependency on libfile-fcntllock-perl being it an XS module,
-    # and dpkg-dev indirectly making use of it, makes building new perl
-    # package which bump the perl ABI impossible as these packages cannot
-    # be installed alongside.
-    eval q{
-        pop @INC if $INC[-1] eq '.';
-        use File::FcntlLock;
-    };
-    if ($@) {
-        # On Linux systems the flock() locks get converted to file-range
-        # locks on NFS mounts.
-        if ($^O ne 'linux') {
-            warning(g_('File::FcntlLock not available; using flock which is not NFS-safe'));
-        }
-        flock($fh, LOCK_EX)
-            or syserr(g_('failed to get a write lock on %s'), $filename);
-    } else {
-        eval q{
-            my $fs = File::FcntlLock->new(l_type => F_WRLCK);
-            $fs->lock($fh, F_SETLKW)
-                or syserr(g_('failed to get a write lock on %s'), $filename);
-        }
-    }
-}
+use Dpkg::Gettext;
 
 sub file_slurp {
-    my $fh = shift;
+    my $file = shift;
+    my $fh;
+    my $doclose = 0;
 
+    if (openhandle($file)) {
+        $fh = $file;
+    } else {
+        open $fh, '<', $file or syserr(g_('cannot read %s'), $fh);
+        $doclose = 1;
+    }
     local $/;
     my $data = <$fh>;
+    close $fh if $doclose;
+
     return $data;
 }
 

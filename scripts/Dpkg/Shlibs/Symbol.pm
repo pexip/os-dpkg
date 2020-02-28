@@ -22,16 +22,20 @@ use warnings;
 our $VERSION = '0.01';
 
 use Storable ();
+use List::Util qw(any);
 
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
-use Dpkg::Util qw(:list);
-use Dpkg::Arch qw(debarch_is_concerned debarch_to_cpuattrs);
+use Dpkg::Arch qw(debarch_is_concerned debarch_to_abiattrs);
 use Dpkg::Version;
 use Dpkg::Shlibs::Cppfilt;
 
 # Supported alias types in the order of matching preference
 use constant ALIAS_TYPES => qw(c++ symver);
+
+# Needed by the deprecated key, which is a correct use.
+no if $Dpkg::Version::VERSION ge '1.02',
+    warnings => qw(Dpkg::Version::semantic_change::overload::bool);
 
 sub new {
     my ($this, %args) = @_;
@@ -298,7 +302,7 @@ sub arch_is_concerned {
     return 0 if defined $arch && defined $arches &&
                 !debarch_is_concerned($arch, split /[\s,]+/, $arches);
 
-    my ($bits, $endian) = debarch_to_cpuattrs($arch);
+    my ($bits, $endian) = debarch_to_abiattrs($arch);
     return 0 if defined $bits && defined $self->{tags}{'arch-bits'} &&
                 $bits ne $self->{tags}{'arch-bits'};
     return 0 if defined $endian && defined $self->{tags}{'arch-endian'} &&

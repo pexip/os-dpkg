@@ -1,4 +1,4 @@
-.\" dpkg manual page - deb-version(5)
+.\" dpkg manual page - deb-version(7)
 .\"
 .\" Copyright © 1996-1998 Ian Jackson and Christian Schwarz
 .\"   for parts of the text reused from the Debian Policy
@@ -23,7 +23,7 @@
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH deb\-version 5 %RELEASE_DATE% %VERSION% dpkg\-Programmsammlung
+.TH deb\-version 7 %RELEASE_DATE% %VERSION% dpkg\-Programmsammlung
 .nh
 .SH BEZEICHNUNG
 deb\-version \- Versionsnummer\-Format von Debian\-Paketen
@@ -122,7 +122,7 @@ in der 1.10.x\-Serie Unterstützung dafür erhalten.
 .SH "SIEHE AUCH"
 \fBdeb\-control\fP(5), \fBdeb\fP(5), \fBdpkg\fP(1)
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2017 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

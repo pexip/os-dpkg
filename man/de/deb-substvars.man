@@ -40,10 +40,12 @@ durch.
 
 Eine Variablensubstitution hat die Form
 \fB${\fP\fIVariablenname\fP\fB}\fP. Variablennamen bestehen aus alphanumerischen
-Zeichen (womit sie auch beginnen), Gedankenstrichen und
-Doppelpunkten. Variablensubstitutionen werden wiederholt durchgeführt, bis
-keine übrig geblieben sind; der komplette Text des Feldes nach der
-Substitution wird erneut auf weitere Substitutionen geprüft.
+Zeichen (a\-zA\-Z0\-9, womit sie auch beginnen), Gedankenstrichen (\-) und
+Doppelpunkten (:). Bei Variablennamen ist die Klein\-/Großschreibung
+relevant, auch wenn sie sich auf Gebilde beziehen, die die
+Klein\-/Großschreibung erhalten. Variablensubstitutionen werden wiederholt
+durchgeführt, bis keine übrig geblieben sind; der komplette Text des Feldes
+nach der Substitution wird erneut auf weitere Substitutionen geprüft.
 
 Nachdem alle Substitutionen erfolgt sind, wird jedes Auftreten der
 Zeichenkette \fB${}\fP (die keine erlaubte Substitution ist) durch das
@@ -95,14 +97,22 @@ Die Paketversion der Originalautoren, einschließlich der Epoche der
 Debian\-Version, falls vorhanden (seit Dpkg 1.13.19).
 .TP 
 \fBbinary:Version\fP
-Die Binärpaketversion (die z.B. in einem binNMU von source:Version abweichen
-kann; seit Dpkg 1.13.19).
+Die Binärpaketversion (die z.B. in einem binNMU von \fBsource:Version\fP
+abweichen kann; seit Dpkg 1.13.19).
 .TP 
 \fBSource\-Version\fP
 Die Quellpaketversion (aus der changelog\-Datei). Diese Variable ist jetzt
 \fBveraltet\fP und gibt bei der Benutzung einen Fehler aus, da ihre Bedeutung
 von ihrer Funktion abweicht, bitte verwenden Sie \fBsource:Version\fP oder
 \fBbinary:Version\fP wo zutreffend.
+.TP 
+\fBsource:Synopsis\fP
+Die Quellpaketzusammenfassung, aus dem Feld \fBDescription\fP der Quellabsatzes
+entnommen, falls dieses existiert (seit Dpkg 1.19.0).
+.TP 
+\fBsource:Extended\-Description\fP
+Die erweiterte Quellpaketbeschreibung, aus dem Feld \fBDescription\fP des
+Quellabsatzes entnommen, falls dieses existiert (seit Dpkg 1.19.0).
 .TP 
 \fBInstalled\-Size\fP
 Die ungefähre Gesamtgröße der vom Paket installierten Dateien. Dieser Wert
@@ -168,7 +178,7 @@ Liste von Substitutionsvariablen und \-werten.
 \fBdpkg\fP(1), \fBdpkg\-genchanges\fP(1), \fBdpkg\-gencontrol\fP(1),
 \fBdpkg\-shlibdeps\fP(1), \fBdpkg\-source\fP(1).
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2017 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

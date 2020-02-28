@@ -30,12 +30,12 @@ our @EXPORT_OK = qw(
 );
 
 use Exporter qw(import);
+use List::Util qw(none);
 use File::Spec;
 
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
 use Dpkg::Shlibs::Objdump;
-use Dpkg::Util qw(:list);
 use Dpkg::Path qw(resolve_symlink canonpath);
 use Dpkg::Arch qw(get_build_arch get_host_arch :mappers);
 
@@ -90,8 +90,20 @@ sub setup_library_paths {
 
     # XXX: Deprecated. Update library paths with LD_LIBRARY_PATH.
     if ($ENV{LD_LIBRARY_PATH}) {
+        require Cwd;
+        my $cwd = Cwd::getcwd;
+
         foreach my $path (split /:/, $ENV{LD_LIBRARY_PATH}) {
             $path =~ s{/+$}{};
+
+            my $realpath = Cwd::realpath($path);
+            next unless defined $realpath;
+            if ($realpath =~ m/^\Q$cwd\E/) {
+                warning(g_('deprecated use of LD_LIBRARY_PATH with private ' .
+                           'library directory which interferes with ' .
+                           'cross-building, please use -l option instead'));
+            }
+
             # XXX: This should be added to @custom_librarypaths, but as this
             # is deprecated we do not care as the code will go away.
             push @system_librarypaths, $path;

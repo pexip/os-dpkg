@@ -73,7 +73,7 @@ subproc_signals_ignore(const char *name)
 	for (i = 0; i < array_count(signo_ignores); i++)
 		subproc_set_signal(signo_ignores[i], &sa, &sa_save[i], name);
 
-	push_cleanup(subproc_signals_cleanup, ~0, NULL, 0, 0);
+	push_cleanup(subproc_signals_cleanup, ~0, 0);
 	onerr_abort--;
 }
 
@@ -136,7 +136,7 @@ subproc_check(int status, const char *desc, enum subproc_flags flags)
 		if (flags & SUBPROC_RETERROR)
 			return n;
 
-		out(_("subprocess %s returned error exit status %d"), desc, n);
+		out(_("%s subprocess returned error exit status %d"), desc, n);
 	} else if (WIFSIGNALED(status)) {
 		n = WTERMSIG(status);
 		if (!n)
@@ -147,16 +147,16 @@ subproc_check(int status, const char *desc, enum subproc_flags flags)
 			return n;
 
 		if (n == SIGINT)
-			out(_("subprocess %s was interrupted"), desc);
+			out(_("%s subprocess was interrupted"), desc);
 		else
-			out(_("subprocess %s was killed by signal (%s)%s"),
+			out(_("%s subprocess was killed by signal (%s)%s"),
 			    desc, strsignal(n),
 			    WCOREDUMP(status) ? _(", core dumped") : "");
 	} else {
 		if (flags & SUBPROC_RETERROR)
 			return -1;
 
-		out(_("subprocess %s failed with wait status code %d"), desc,
+		out(_("%s subprocess failed with wait status code %d"), desc,
 		    status);
 	}
 
@@ -173,7 +173,7 @@ subproc_wait(pid_t pid, const char *desc)
 
 	if (dead_pid != pid) {
 		onerr_abort++;
-		ohshite(_("wait for subprocess %s failed"), desc);
+		ohshite(_("wait for %s subprocess failed"), desc);
 	}
 
 	return status;

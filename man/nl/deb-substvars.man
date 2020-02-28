@@ -39,10 +39,12 @@ in het geval van \fBdpkg\-source\fP en naar standaarduitvoer in het geval van
 variabelesubstituties uit op het uitvoerbestand.
 
 Een variabelesubstitutie heeft als vorm
-\fB${\fP\fIvariabelenaam\fP\fB}\fP. Variabelenamen bestaan uit alfanumerieke tekens,
-koppeltekens en dubbele punten en beginnen met een alfanumeriek
-teken. Variabelesubstituties worden bij herhaling uitgevoerd tot er geen
-meer overblijven. Na een substitutie wordt de volledige tekst van het veld
+\fB${\fP\fIvariabelenaam\fP\fB}\fP. Variabelenamen bestaan uit alfanumerieke tekens
+(a\-zA\-Z0\-9), koppeltekens (\-) en dubbele punten (:) en beginnen met een
+alfanumeriek teken. Ze zijn ook hoofdlettergevoelig, ook al kunnen ze
+verwijzen naar andere entiteiten die hoofdletterbehoudend
+zijn. Variabelesubstituties worden bij herhaling uitgevoerd tot er geen meer
+overblijven. Na een substitutie wordt de volledige tekst van het veld
 opnieuw doorzocht op nog meer uit te voeren substituties.
 
 Nadat alle substituties uitgevoerd werden, wordt de tekenreeks \fB${}\fP
@@ -96,13 +98,23 @@ van de versie\-epoche van Debian (sinds dpkg 1.13.19).
 .TP 
 \fBbinary:Version\fP
 De versie van het binaire pakket (dat verschillend kan zijn van
-source:Version in geval van een binNMU bijvoorbeeld; sinds dpkg 1.13.19).
+\fBsource:Version\fP, in geval van een binNMU bijvoorbeeld; sinds dpkg
+1.13.19).
 .TP 
 \fBSource\-Version\fP
 De versie van het broncodepakket (uit het bestand changelog). Deze variabele
 is nu \fBverouderd\fP en geeft aanleiding tot een foutmelding als hij gebruikt
 wordt, aangezien de betekenis ervan verschilt van zijn functie. U moet
 naargelang het geval nu \fBsource:Version\fP of \fBbinary:Version\fP gebruiken.
+.TP 
+\fBsource:Synopsis\fP
+De synopsis van het bronpakket, gehaald uit het veld \fBDescription\fP van het
+broncode\-element, als het bestaat (sinds dpkg 1.19.0).
+.TP 
+\fBsource:Extended\-Description\fP
+De uitgebreide beschrijving van het bronpakket, gehaald uit het veld
+\fBDescription\fP van het broncode\-element, als het bestaat (sinds dpkg
+1.19.0).
 .TP 
 \fBInstalled\-Size\fP
 De geschatte totale grootte van de uit het pakket geïnstalleerde

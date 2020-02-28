@@ -78,9 +78,9 @@ using eval.
 .BR \-u ", " \-\-print\-unset
 Print a similar command to \fB\-\-print\-unset\fP but to unset all variables.
 .TP
-.BR \-c ", " \-\-command " \fIcommand\fP"
-Execute a \fIcommand\fP in an environment which has all variables set to
-the determined value.
+.BR \-c ", " \-\-command " \fIcommand-string\fP"
+Execute a \fIcommand-string\fP in an environment which has all variables
+set to the determined value.
 .TP
 .BR \-L ", " \-\-list\-known
 Print a list of valid architecture names.
@@ -175,7 +175,8 @@ Examples: i386\-linux\-gnu, x86_64\-linux\-gnu.
 Example paths: /lib/powerpc64le-linux-gnu/, /usr/lib/i386-kfreebsd-gnu/.
 .
 .SH VARIABLES
-The following variables are set by \fBdpkg\-architecture\fP:
+The following variables are set by \fBdpkg\-architecture\fP (see the
+\fBTERMS\fP section for a description of the naming scheme):
 .IP "\fBDEB_BUILD_ARCH\fP" 4
 The Debian architecture of the build machine.
 .IP "\fBDEB_BUILD_ARCH_ABI\fP" 4
@@ -362,9 +363,19 @@ architecture information during a package build.
 If set, it will be used as the \fBdpkg\fP data directory, where the
 architecture tables are located (since dpkg 1.14.17).
 Defaults to «%PKGDATADIR%».
+.TP
+.B DPKG_COLORS
+Sets the color mode (since dpkg 1.18.5).
+The currently accepted values are: \fBauto\fP (default), \fBalways\fP and
+\fBnever\fP.
+.TP
+.B DPKG_NLS
+If set, it will be used to decide whether to activate Native Language Support,
+also known as internationalization (or i18n) support (since dpkg 1.19.0).
+The accepted values are: \fB0\fP and \fB1\fP (default).
+.
 .SH NOTES
 All long command and option names available only since dpkg 1.17.17.
 .
 .SH SEE ALSO
-.BR dpkg\-buildpackage (1),
-.BR dpkg\-cross (1).
+.BR dpkg\-buildpackage (1).

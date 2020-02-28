@@ -113,7 +113,7 @@ sub add_diff_file {
     while (<$diffgen>) {
         if (m/^(?:binary|[^-+\@ ].*\bdiffer\b)/i) {
             $binary = 1;
-            &$handle_binary($self, $old, $new, %opts);
+            $handle_binary->($self, $old, $new, %opts);
             last;
         } elsif (m/^[-+\@ ]/) {
             $difflinefound++;
@@ -148,7 +148,6 @@ sub add_diff_directory {
     # TODO: make this function more configurable
     # - offer to disable some checks
     my $basedir = $opts{basedirname} || basename($new);
-    my $inc_removal = $opts{include_removal} // 0;
     my $diff_ignore;
     if ($opts{diff_ignore_func}) {
         $diff_ignore = $opts{diff_ignore_func};
@@ -162,7 +161,7 @@ sub add_diff_directory {
     my %files_in_new;
     my $scan_new = sub {
         my $fn = (length > length($new)) ? substr($_, length($new) + 1) : '.';
-        return if &$diff_ignore($fn);
+        return if $diff_ignore->($fn);
         $files_in_new{$fn} = 1;
         lstat("$new/$fn") or syserr(g_('cannot stat file %s'), "$new/$fn");
         my $mode = S_IMODE((lstat(_))[2]);
@@ -222,15 +221,17 @@ sub add_diff_directory {
     };
     my $scan_old = sub {
         my $fn = (length > length($old)) ? substr($_, length($old) + 1) : '.';
-        return if &$diff_ignore($fn);
+        return if $diff_ignore->($fn);
         return if $files_in_new{$fn};
         lstat("$old/$fn") or syserr(g_('cannot stat file %s'), "$old/$fn");
         if (-f _) {
-            if ($inc_removal) {
+            if (not defined $opts{include_removal}) {
+                warning(g_('ignoring deletion of file %s'), $fn);
+            } elsif (not $opts{include_removal}) {
+                warning(g_('ignoring deletion of file %s, use --include-removal to override'), $fn);
+            } else {
                 push @diff_files, [$fn, 0, 0, "$old/$fn", '/dev/null',
                                    "$basedir.orig/$fn", '/dev/null'];
-            } else {
-                warning(g_('ignoring deletion of file %s, use --include-removal to override'), $fn);
             }
         } elsif (-d _) {
             warning(g_('ignoring deletion of directory %s'), $fn);

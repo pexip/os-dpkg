@@ -19,9 +19,7 @@ package Dpkg::Substvars;
 use strict;
 use warnings;
 
-our $VERSION = '1.05';
-
-use POSIX qw(:errno_h);
+our $VERSION = '1.06';
 
 use Dpkg ();
 use Dpkg::Arch qw(get_host_arch);
@@ -41,8 +39,7 @@ Dpkg::Substvars - handle variable substitution in strings
 
 =head1 DESCRIPTION
 
-It provides some an object which is able to substitute variables in
-strings.
+It provides an object which is able to substitute variables in strings.
 
 =cut
 
@@ -186,10 +183,6 @@ sub no_warn {
     $self->mark_as_used($key);
 }
 
-=item $s->load($file)
-
-Add new substitutions read from $file.
-
 =item $s->parse($fh, $desc)
 
 Add new substitutions read from the filehandle. $desc is used to identify
@@ -218,6 +211,10 @@ sub parse {
 
     return $count
 }
+
+=item $s->load($file)
+
+Add new substitutions read from $file.
 
 =item $s->set_version_substvars($sourceversion, $binaryversion)
 
@@ -268,6 +265,26 @@ sub set_arch_substvars {
     my $attr = SUBSTVAR_ATTR_USED | SUBSTVAR_ATTR_AUTO;
 
     $self->set('Arch', get_host_arch(), $attr);
+}
+
+=item $s->set_desc_substvars()
+
+Defines source description variables: ${source:Synopsis} and
+${source:Extended-Description}.
+
+These will never be warned about when unused.
+
+=cut
+
+sub set_desc_substvars {
+    my ($self, $desc) = @_;
+
+    my ($synopsis, $extended) = split /\n/, $desc, 2;
+
+    my $attr = SUBSTVAR_ATTR_USED | SUBSTVAR_ATTR_AUTO;
+
+    $self->set('source:Synopsis', $synopsis, $attr);
+    $self->set('source:Extended-Description', $extended, $attr);
 }
 
 =item $s->set_field_substvars($ctrl, $prefix)
@@ -324,7 +341,8 @@ sub substvars {
                       g_('obsolete substitution variable ${%s}'), $vn);
             }
         } else {
-            warning($opts{msg_prefix} . g_('unknown substitution variable ${%s}'),
+            warning($opts{msg_prefix} .
+                    g_('substitution variable ${%s} used, but is not defined'),
 	            $vn) unless $opts{no_warn};
             $v = $lhs . $rhs;
         }
@@ -342,13 +360,14 @@ sub warn_about_unused {
     my ($self, %opts) = @_;
     $opts{msg_prefix} //= $self->{msg_prefix};
 
-    foreach my $vn (keys %{$self->{vars}}) {
+    foreach my $vn (sort keys %{$self->{vars}}) {
         next if $self->{attr}{$vn} & SUBSTVAR_ATTR_USED;
         # Empty substitutions variables are ignored on the basis
         # that they are not required in the current situation
         # (example: debhelper's misc:Depends in many cases)
         next if $self->{vars}{$vn} eq '';
-        warning($opts{msg_prefix} . g_('unused substitution variable ${%s}'),
+        warning($opts{msg_prefix} .
+                g_('substitution variable ${%s} unused, but is defined'),
                 $vn);
     }
 }
@@ -385,20 +404,15 @@ sub filter {
     }
 }
 
-=item $s->save($file)
-
-Store all substitutions variables except the automatic ones in the
-indicated file.
-
 =item "$s"
 
 Return a string representation of all substitutions variables except the
 automatic ones.
 
-=item $str = $s->output($fh)
+=item $str = $s->output([$fh])
 
-Print all substitutions variables except the automatic ones in the
-filehandle and return the content written.
+Return all substitutions variables except the automatic ones. If $fh
+is passed print them into the filehandle.
 
 =cut
 
@@ -415,9 +429,18 @@ sub output {
     return $str;
 }
 
+=item $s->save($file)
+
+Store all substitutions variables except the automatic ones in the
+indicated file.
+
 =back
 
 =head1 CHANGES
+
+=head2 Version 1.06 (dpkg 1.19.0)
+
+New method: $s->set_desc_substvars().
 
 =head2 Version 1.05 (dpkg 1.18.11)
 
