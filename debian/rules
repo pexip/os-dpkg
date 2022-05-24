@@ -47,15 +47,10 @@ endif
 
 D := $(CURDIR)/debian/tmp
 
-# Create configure script if necessary, automake handles rebuilding it.
-configure:
-	dh_testdir
-
-	./autogen
-
 # Configure the build tree
-build-tree/config.status: configure
+build-tree/config.status:
 	dh_testdir
+	dh_autoreconf
 
 	install -d build-tree
 	cd build-tree && ../configure $(confflags) \
@@ -102,9 +97,10 @@ install: check
 	   $(D)/usr/share/lintian/profiles/dpkg/main.profile
 
 define dpkg-installmanl10n
-for f in `sed -e 's:\*:*/*:' debian/$(1).manpages`; do \
-	test -e $$f && \
-	install -D $$f `echo $$f | sed -e 's:^debian/tmp:debian/$(1):'`; \
+for f in `sed -e 's:\*:*/*:' -e 's:^:$(D)/:' debian/$(1).manpages`; do \
+  if [ -e $$f ]; then \
+    install -D $$f `echo $$f | sed -e 's:^$(D):debian/$(1):'`; \
+  fi; \
 done
 endef
 
@@ -140,14 +136,14 @@ binary-indep: install
 	dh_install -i
 	dh_installcron -i
 	dh_installchangelogs -i ChangeLog*
-	dh_installdocs -i
+	dh_installdocs -i -Ndpkg-dev
+	dh_installdocs -pdpkg-dev --doc-main-package=dpkg
 	$(call dpkg-installmanl10n,dpkg-dev)
 	dh_installman -i
 	dh_link -i
 	dh_bugfiles -i -A
 	dh_lintian -i
-	# The perl modules should not depend on a specific interpreter.
-	dh_perl -i -Nlibdpkg-perl
+	dh_perl -i
 	dh_compress -i
 	dh_fixperms -i
 	dh_installdeb -i
@@ -164,6 +160,7 @@ clean:
 
 	[ ! -f Makefile ] || $(MAKE) distclean
 	rm -rf build-tree
+	dh_autoreconf_clean
 	dh_clean
 
 

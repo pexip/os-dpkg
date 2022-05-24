@@ -18,6 +18,20 @@ SUBDIRS = \
 
 ACLOCAL_AMFLAGS = -I m4
 
+aclocaldir = $(datadir)/aclocal
+
+dist_aclocal_DATA = \
+	m4/dpkg-arch.m4 \
+	m4/dpkg-build.m4 \
+	m4/dpkg-compiler.m4 \
+	m4/dpkg-coverage.m4 \
+	m4/dpkg-funcs.m4 \
+	m4/dpkg-libs.m4 \
+	m4/dpkg-linker.m4 \
+	m4/dpkg-progs.m4 \
+	m4/dpkg-types.m4 \
+	m4/dpkg-unicode.m4 \
+	$(nil)
 
 dist_pkgdata_DATA = \
 	data/pie-compile.specs \
@@ -30,24 +44,29 @@ dist_pkgdata_DATA = \
 	data/tupletable \
 	$(nil)
 
+dist_doc_DATA = \
+	doc/README.api \
+	doc/README.feature-removal-schedule \
+	doc/frontend.txt \
+	doc/protected-field.txt \
+	doc/rootless-builds.txt \
+	doc/triggers.txt \
+	$(nil)
+
 EXTRA_DIST = \
 	.gitlab-ci.yml \
 	.mailmap \
 	ChangeLog.old \
 	README.l10n \
 	autogen \
+	gen-changelog \
 	get-version \
 	run-script \
-	doc/README.api \
-	doc/README.feature-removal-schedule \
 	doc/coding-style.txt \
-	doc/frontend.txt \
 	doc/lcov-inject.pl \
-	doc/rootless-builds.txt \
-	doc/triggers.txt \
+	debian/README.bug-usertags \
 	debian/bug-script \
 	debian/changelog \
-	debian/compat \
 	debian/control \
 	debian/copyright \
 	debian/dpkg-dev.docs \
@@ -59,7 +78,6 @@ EXTRA_DIST = \
 	debian/dpkg.docs \
 	debian/dpkg.install \
 	debian/dpkg.manpages \
-	debian/dpkg.postinst \
 	debian/dpkg.postrm \
 	debian/dpkg.logrotate \
 	debian/dpkg.lintian-overrides \
@@ -68,20 +86,21 @@ EXTRA_DIST = \
 	debian/dselect.docs \
 	debian/dselect.install \
 	debian/dselect.manpages \
-	debian/libdpkg-dev.docs \
+	debian/dselect.postrm \
 	debian/libdpkg-dev.install \
-	debian/libdpkg-perl.docs \
 	debian/libdpkg-perl.install \
 	debian/source/format \
-	debian/usertags \
 	debian/rules \
 	debian/shlibs.default \
 	debian/shlibs.override \
 	debian/tests/control \
+	debian/tests/test-func \
+	debian/tests/test-func-root \
 	debian/tests/test-not-root \
 	debian/tests/test-root \
 	po/its/polkit.its \
 	po/its/polkit.loc \
+	tests \
 	$(test_scripts) \
 	$(test_data) \
 	$(nil)

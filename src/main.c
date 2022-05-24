@@ -58,11 +58,15 @@
 static void DPKG_ATTR_NORET
 printversion(const struct cmdinfo *ci, const char *value)
 {
-  printf(_("Debian '%s' package management program version %s.\n"),
-         DPKG, PACKAGE_RELEASE);
-  printf(_(
+  if (f_robot) {
+    printf("%s", PACKAGE_VERSION);
+  } else {
+    printf(_("Debian '%s' package management program version %s.\n"),
+           DPKG, PACKAGE_RELEASE);
+    printf(_(
 "This is free software; see the GNU General Public License version 2 or\n"
 "later for copying conditions. There is NO warranty.\n"));
+  }
 
   m_output(stdout, _("<standard output>"));
 
@@ -78,7 +82,7 @@ static void DPKG_ATTR_NORET
 usage(const struct cmdinfo *ci, const char *value)
 {
   printf(_(
-"Usage: %s [<option> ...] <command>\n"
+"Usage: %s [<option>...] <command>\n"
 "\n"), DPKG);
 
   printf(_(
@@ -124,7 +128,7 @@ usage(const struct cmdinfo *ci, const char *value)
 
   printf(_(
 "Assertable features: support-predepends, working-epoch, long-filenames,\n"
-"  multi-conrep, multi-arch, versioned-provides.\n"
+"  multi-conrep, multi-arch, versioned-provides, protected-field.\n"
 "\n"));
 
   printf(_(
@@ -142,6 +146,8 @@ usage(const struct cmdinfo *ci, const char *value)
 "  --admindir=<directory>     Use <directory> instead of %s.\n"
 "  --root=<directory>         Install on a different root directory.\n"
 "  --instdir=<directory>      Change installation dir without changing admin dir.\n"
+"  --pre-invoke=<command>     Set a pre-invoke hook.\n"
+"  --post-invoke=<command>    Set a post-invoke hook.\n"
 "  --path-exclude=<pattern>   Do not install paths which match a shell pattern.\n"
 "  --path-include=<pattern>   Re-include a pattern after a previous exclusion.\n"
 "  -O|--selected-only         Skip packages not selected for install/upgrade.\n"
@@ -150,6 +156,7 @@ usage(const struct cmdinfo *ci, const char *value)
 "  -B|--auto-deconfigure      Install even if it would break some other package.\n"
 "  --[no-]triggers            Skip or force consequential trigger processing.\n"
 "  --verify-format=<format>   Verify output format (supported: 'rpm').\n"
+"  --no-pager                 Disables the use of any pager.\n"
 "  --no-debsig                Do not try to verify package signatures.\n"
 "  --no-act|--dry-run|--simulate\n"
 "                             Just say what we would do - don't do it.\n"
@@ -157,12 +164,13 @@ usage(const struct cmdinfo *ci, const char *value)
 "  --status-fd <n>            Send status change updates to file descriptor <n>.\n"
 "  --status-logger=<command>  Send status change updates to <command>'s stdin.\n"
 "  --log=<filename>           Log status changes and actions to <filename>.\n"
-"  --ignore-depends=<package>,...\n"
+"  --ignore-depends=<package>[,...]\n"
 "                             Ignore dependencies involving <package>.\n"
-"  --force-...                Override problems (see --force-help).\n"
-"  --no-force-...|--refuse-...\n"
-"                             Stop when problems encountered.\n"
+"  --force-<thing>[,...]      Override problems (see --force-help).\n"
+"  --no-force-<thing>[,...]   Stop when problems encountered.\n"
+"  --refuse-<thing>[,...]     Ditto.\n"
 "  --abort-after <n>          Abort after encountering <n> errors.\n"
+"  --robot                    Use machine-readable output on some commands.\n"
 "\n"), ADMINDIR);
 
   printf(_(
@@ -189,12 +197,13 @@ static const char printforhelp[] = N_(
 "\n"
 "Options marked [*] produce a lot of output - pipe it through 'less' or 'more' !");
 
+int f_robot = 0;
 int f_pending=0, f_recursive=0, f_alsoselect=1, f_skipsame=0, f_noact=0;
 int f_autodeconf=0, f_nodebsig=0;
 int f_triggers = 0;
 
 int errabort = 50;
-static const char *admindir = ADMINDIR;
+static const char *admindir;
 const char *instdir= "";
 struct pkg_list *ignoredependss = NULL;
 
@@ -350,9 +359,18 @@ is_invoke_action(enum action action)
   }
 }
 
-struct invoke_list pre_invoke_hooks = { .head = NULL, .tail = &pre_invoke_hooks.head };
-struct invoke_list post_invoke_hooks = { .head = NULL, .tail = &post_invoke_hooks.head };
-struct invoke_list status_loggers = { .head = NULL, .tail = &status_loggers.head };
+static struct invoke_list pre_invoke_hooks = {
+  .head = NULL,
+  .tail = &pre_invoke_hooks.head,
+};
+static struct invoke_list post_invoke_hooks = {
+  .head = NULL,
+  .tail = &post_invoke_hooks.head,
+};
+static struct invoke_list status_loggers = {
+  .head = NULL,
+  .tail = &status_loggers.head,
+};
 
 static void
 set_invoke_hook(const struct cmdinfo *cip, const char *value)
@@ -549,6 +567,7 @@ static const struct cmdinfo cmdinfos[]= {
   ACTION( "assert-multi-conrep",             0,  act_assertmulticonrep,    assertmulticonrep ),
   ACTION( "assert-multi-arch",               0,  act_assertmultiarch,      assertmultiarch ),
   ACTION( "assert-versioned-provides",       0,  act_assertverprovides,    assertverprovides ),
+  ACTION( "assert-protected-field",          0,  act_assert_protected,     assert_protected ),
   ACTION( "add-architecture",                0,  act_arch_add,             arch_add        ),
   ACTION( "remove-architecture",             0,  act_arch_remove,          arch_remove     ),
   ACTION( "print-architecture",              0,  act_printarch,            printarch   ),
@@ -587,6 +606,7 @@ static const struct cmdinfo cmdinfos[]= {
   { "no-also-select",    'N', 0, &f_alsoselect, NULL,      NULL,    0 },
   { "skip-same-version", 'E', 0, &f_skipsame,   NULL,      NULL,    1 },
   { "auto-deconfigure",  'B', 0, &f_autodeconf, NULL,      NULL,    1 },
+  { "robot",             0,   0, &f_robot,      NULL,      NULL,    1 },
   { "root",              0,   1, NULL,          NULL,      set_root,      0 },
   { "abort-after",       0,   1, &errabort,     NULL,      set_integer,   0 },
   { "admindir",          0,   1, NULL,          &admindir, NULL,          0 },
@@ -723,8 +743,6 @@ commandfd(const char *const *argv)
     dpkg_options_parse((const char *const **)&endargs, cmdinfos, printforhelp);
     if (!cipaction) badusage(_("need an action option"));
 
-    fsys_hash_init();
-
     ret |= cipaction->action(endargs);
 
     fsys_hash_reset();
@@ -738,6 +756,7 @@ commandfd(const char *const *argv)
 }
 
 int main(int argc, const char *const *argv) {
+  char *force_string;
   int ret;
 
   dpkg_locales_init(PACKAGE);
@@ -761,8 +780,10 @@ int main(int argc, const char *const *argv) {
     ohshite(_("unable to setenv for subprocesses"));
   if (setenv("DPKG_ROOT", instdir, 1) < 0)
     ohshite(_("unable to setenv for subprocesses"));
-  if (setenv("DPKG_FORCE", get_force_string(), 1) < 0)
+  force_string = get_force_string();
+  if (setenv("DPKG_FORCE", force_string, 1) < 0)
     ohshite(_("unable to setenv for subprocesses"));
+  free(force_string);
 
   if (!f_triggers)
     f_triggers = (cipaction->arg_int == act_triggers && *argv) ? -1 : 1;
@@ -771,8 +792,6 @@ int main(int argc, const char *const *argv) {
     run_invoke_hooks(cipaction->olong, &pre_invoke_hooks);
     run_status_loggers(&status_loggers);
   }
-
-  fsys_hash_init();
 
   ret = cipaction->action(argv);
 
@@ -783,6 +802,7 @@ int main(int argc, const char *const *argv) {
   free_invoke_hooks(&post_invoke_hooks);
 
   dpkg_program_done();
+  dpkg_locales_done();
 
   return reportbroken_retexitstatus(ret);
 }

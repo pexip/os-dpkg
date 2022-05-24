@@ -40,9 +40,9 @@
 /* Define to 1 if the 'snprintf' family is C99 conformant */
 #undef HAVE_C99_SNPRINTF
 
-/* Define to 1 if you have the Mac OS X function CFLocaleCopyCurrent in the
-   CoreFoundation framework. */
-#undef HAVE_CFLOCALECOPYCURRENT
+/* Define to 1 if you have the Mac OS X function
+   CFLocaleCopyPreferredLanguages in the CoreFoundation framework. */
+#undef HAVE_CFLOCALECOPYPREFERREDLANGUAGES
 
 /* Define to 1 if you have the Mac OS X function CFPreferencesCopyAppValue in
    the CoreFoundation framework. */
@@ -274,11 +274,17 @@
 /* Define to 1 if you have the `unsetenv' function. */
 #undef HAVE_UNSETENV
 
+/* Define to 1 if you have the `uselocale' function. */
+#undef HAVE_USELOCALE
+
 /* Define to 1 if the 'va_copy' macro exists */
 #undef HAVE_VA_COPY
 
 /* Define to 1 if 'WCOREDUMP' is declared in <sys/wait.h> */
 #undef HAVE_WCOREDUMP
+
+/* Define to 1 if you have the <xlocale.h> header file. */
+#undef HAVE_XLOCALE_H
 
 /* Define to 1 if you have the `__cxa_pure_virtual' function. */
 #undef HAVE___CXA_PURE_VIRTUAL

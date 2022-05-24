@@ -28,7 +28,7 @@ AM_INIT_AUTOMAKE(
 AM_SILENT_RULES([yes])
 
 # Require at least this gettext version, but will take any later version too.
-AM_GNU_GETTEXT_REQUIRE_VERSION([0.19.7])
+AM_GNU_GETTEXT_REQUIRE_VERSION([0.19.8])
 # XXX: We cannot remove the following macro due to backwards compatibility
 # reasons. The above macro is set unconditionally to the minimal version
 # required, and the below is set to 0.19.6, the first version introducing
@@ -106,17 +106,29 @@ AC_CHECK_HEADERS([\
   error.h \
   err.h \
   locale.h \
+  xlocale.h \
   libintl.h \
   kvm.h \
   sys/sysmacros.h \
   sys/param.h \
-  sys/sysctl.h \
   sys/syscall.h \
   sys/user.h \
   sys/procfs.h \
   sys/pstat.h \
   linux/fiemap.h \
 ])
+AS_CASE([$host_os],
+  [linux-gnu*], [
+    # The glibc project has deprecated the <sys/sysctl.h> header and emits
+    # warnings on its usage, and removed it in 2.32. The Linux kernel removed
+    # support for it in 5.5.
+  ], [
+    # On other systems, we need to check whether to use it.
+    AC_CHECK_HEADERS([\
+      sys/sysctl.h \
+    ])
+  ]
+)
 AC_CHECK_HEADERS([sys/proc.h], [], [], [
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
@@ -182,6 +194,7 @@ AC_CHECK_FUNCS([\
   fallocate \
   posix_fallocate \
   posix_fadvise \
+  uselocale \
 ])
 
 AS_IF([test "x$build_dselect" = "xyes"], [
@@ -224,6 +237,7 @@ AC_CONFIG_FILES([
   po/Makefile.in
   scripts/Build.PL
   scripts/Makefile
+  scripts/README.cpan
   scripts/mk/Makefile
   scripts/po/Makefile.in
   src/Makefile

@@ -346,10 +346,11 @@ f_conffiles(struct pkginfo *pkg, struct pkgbin *pkgbin,
             const char *value, const struct fieldinfo *fip)
 {
   static const char obsolete_str[]= "obsolete";
+  static const char remove_on_upgrade_str[] = "remove-on-upgrade";
   struct conffile **lastp, *newlink;
   const char *endent, *endfn, *hashstart;
   int c, namelen, hashlen;
-  bool obsolete;
+  bool obsolete, remove_on_upgrade;
   char *newptr;
 
   lastp = &pkgbin->conffiles;
@@ -364,6 +365,12 @@ f_conffiles(struct pkginfo *pkg, struct pkgbin *pkgbin,
     conffvalue_lastword(value, endent, endent,
 			&hashstart, &hashlen, &endfn,
                         ps);
+    remove_on_upgrade = (hashlen == sizeof(remove_on_upgrade_str) - 1 &&
+                         memcmp(hashstart, remove_on_upgrade_str, hashlen) == 0);
+    if (remove_on_upgrade)
+      conffvalue_lastword(value, endfn, endent, &hashstart, &hashlen, &endfn,
+                          ps);
+
     obsolete= (hashlen == sizeof(obsolete_str)-1 &&
                memcmp(hashstart, obsolete_str, hashlen) == 0);
     if (obsolete)
@@ -387,6 +394,7 @@ f_conffiles(struct pkginfo *pkg, struct pkgbin *pkgbin,
     newptr[hashlen] = '\0';
     newlink->hash= newptr;
     newlink->obsolete= obsolete;
+    newlink->remove_on_upgrade = remove_on_upgrade;
     newlink->next =NULL;
     *lastp= newlink;
     lastp= &newlink->next;
@@ -573,18 +581,15 @@ f_dependency(struct pkginfo *pkg, struct pkgbin *pkgbin,
 	versionlength= p - versionstart;
         while (c_isspace(*p))
           p++;
-        if (*p == '(')
-          parse_error(ps,
-                      _("'%s' field, reference to '%.255s': "
-                        "version contains '%c'"), fip->name, depname.buf, ')');
-        else if (*p != ')')
-          parse_error(ps,
-                      _("'%s' field, reference to '%.255s': "
-                        "version contains '%c'"), fip->name, depname.buf, ' ');
-        else if (*p == '\0')
+        if (*p == '\0')
           parse_error(ps,
                       _("'%s' field, reference to '%.255s': "
                         "version unterminated"), fip->name, depname.buf);
+        else if (*p != ')')
+          parse_error(ps,
+                      _("'%s' field, reference to '%.255s': "
+                        "version contains '%c' instead of '%c'"),
+                      fip->name, depname.buf, *p, ')');
         varbuf_reset(&version);
         varbuf_add_buf(&version, versionstart, versionlength);
         varbuf_end_str(&version);
