@@ -1,3 +1,222 @@
+commit 99902811cf1b1f41eed3bce2fc7ab8a4f02c364b
+Author: Guillem Jover <guillem@debian.org>
+Date:   Tue May 24 13:40:52 2022 +0200
+
+    Release 1.19.8
+
+ debian/changelog | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+commit 006f6affa80906193f3c680861f99927154de48c
+Author: Guillem Jover <guillem@debian.org>
+Date:   Tue May 24 13:40:08 2022 +0200
+
+    po: Regenerate .pot files and merge .po files with them
+
+ dselect/po/bs.po        |  2 +-
+ dselect/po/ca.po        |  2 +-
+ dselect/po/cs.po        |  2 +-
+ dselect/po/da.po        |  2 +-
+ dselect/po/de.po        |  2 +-
+ dselect/po/dselect.pot  |  4 ++--
+ dselect/po/el.po        |  2 +-
+ dselect/po/es.po        |  2 +-
+ dselect/po/et.po        |  2 +-
+ dselect/po/eu.po        |  2 +-
+ dselect/po/fr.po        |  2 +-
+ dselect/po/gl.po        |  2 +-
+ dselect/po/hu.po        |  2 +-
+ dselect/po/id.po        |  2 +-
+ dselect/po/it.po        |  2 +-
+ dselect/po/ja.po        |  2 +-
+ dselect/po/ko.po        |  2 +-
+ dselect/po/nb.po        |  2 +-
+ dselect/po/nl.po        |  2 +-
+ dselect/po/nn.po        |  2 +-
+ dselect/po/pl.po        |  2 +-
+ dselect/po/pt.po        |  2 +-
+ dselect/po/pt_BR.po     |  2 +-
+ dselect/po/ro.po        |  2 +-
+ dselect/po/ru.po        |  2 +-
+ dselect/po/sk.po        |  2 +-
+ dselect/po/sv.po        |  2 +-
+ dselect/po/tl.po        |  2 +-
+ dselect/po/vi.po        |  2 +-
+ dselect/po/zh_CN.po     |  2 +-
+ dselect/po/zh_TW.po     |  2 +-
+ man/po/dpkg-man.pot     |  4 ++--
+ po/ast.po               |  2 +-
+ po/bs.po                |  2 +-
+ po/ca.po                |  2 +-
+ po/cs.po                |  2 +-
+ po/da.po                |  2 +-
+ po/de.po                |  2 +-
+ po/dpkg.pot             |  4 ++--
+ po/dz.po                |  2 +-
+ po/el.po                |  2 +-
+ po/eo.po                |  2 +-
+ po/es.po                |  2 +-
+ po/et.po                |  2 +-
+ po/eu.po                |  2 +-
+ po/fr.po                |  2 +-
+ po/gl.po                |  2 +-
+ po/hu.po                |  2 +-
+ po/id.po                |  2 +-
+ po/it.po                |  2 +-
+ po/ja.po                |  2 +-
+ po/km.po                |  2 +-
+ po/ko.po                |  2 +-
+ po/ku.po                |  2 +-
+ po/lt.po                |  2 +-
+ po/mr.po                |  2 +-
+ po/nb.po                |  2 +-
+ po/ne.po                |  2 +-
+ po/nl.po                |  2 +-
+ po/nn.po                |  2 +-
+ po/pa.po                |  2 +-
+ po/pl.po                |  2 +-
+ po/pt.po                |  2 +-
+ po/pt_BR.po             |  2 +-
+ po/ro.po                |  2 +-
+ po/ru.po                |  2 +-
+ po/sk.po                |  2 +-
+ po/sv.po                |  2 +-
+ po/th.po                |  2 +-
+ po/tl.po                |  2 +-
+ po/tr.po                |  2 +-
+ po/vi.po                |  2 +-
+ po/zh_CN.po             |  2 +-
+ po/zh_TW.po             |  2 +-
+ scripts/po/ca.po        | 52 +++++++++++++++++++++++++++++++++++++++++++-
+ scripts/po/de.po        | 57 +++++++++++++++++++++++++++++++++++++++++++++----
+ scripts/po/dpkg-dev.pot | 49 ++++++++++++++++++++++++++++++++++++++++--
+ scripts/po/es.po        | 52 +++++++++++++++++++++++++++++++++++++++++++-
+ scripts/po/fr.po        | 57 +++++++++++++++++++++++++++++++++++++++++++++----
+ scripts/po/pl.po        | 57 +++++++++++++++++++++++++++++++++++++++++++++----
+ scripts/po/ru.po        | 57 +++++++++++++++++++++++++++++++++++++++++++++----
+ scripts/po/sv.po        | 57 +++++++++++++++++++++++++++++++++++++++++++++----
+ 82 files changed, 491 insertions(+), 101 deletions(-)
+
+commit 1f23dddc17f69c9598477098c7fb9936e15fa495
+Author: Guillem Jover <guillem@debian.org>
+Date:   Tue May 3 02:09:32 2022 +0200
+
+    Dpkg::Source::Archive: Prevent directory traversal for in-place extracts
+    
+    For untrusted v2 and v3 source package formats that include a debian.tar
+    archive, when we are extracting it, we do that as an in-place extraction,
+    which can lead to directory traversal situations on specially crafted
+    orig.tar and debian.tar tarballs.
+    
+    GNU tar replaces entries on the filesystem by the entries present on
+    the tarball, but it will follow symlinks when the symlink pathname
+    itself is not present as an actual directory on the tarball.
+    
+    This means we can create an orig.tar where there's a symlink pointing
+    out of the source tree root directory, and then a debian.tar that
+    contains an entry within that symlink as if it was a directory, without
+    a directory entry for the symlink pathname itself, which will be
+    extracted following the symlink outside the source tree root.
+    
+    This is currently noted as expected in GNU tar documentation. But even
+    if there was a new extraction mode avoiding this problem we'd need such
+    new version. Using perl's Archive::Tar would solve the problem, but
+    switching to such different pure perl implementation, could cause
+    compatibility or performance issues.
+    
+    What we do is when we are requested to perform an in-place extract, we
+    instead still use a temporary directory, then walk that directory and
+    remove any matching entry in the destination directory, replicating what
+    GNU tar would do, but in addition avoiding the directory traversal issue
+    for symlinks. Which should work with any tar implementation and be safe.
+    
+    Reported-by: Max Justicz <max@justi.cz>
+    Stable-Candidates: 1.18.x 1.19.x 1.20.x
+    Fixes: commit 0c0057a27fecccab77d2b3cffa9a7d172846f0b4 (1.14.17)
+    Fixes: CVE-2022-1664
+    (cherry picked from commit 7a6c03cb34d4a09f35df2f10779cbf1b70a5200b)
+
+ scripts/Dpkg/Source/Archive.pm  | 122 +++++++++++++++++++++++++++++++---------
+ scripts/t/Dpkg_Source_Archive.t | 110 +++++++++++++++++++++++++++++++++++-
+ 2 files changed, 204 insertions(+), 28 deletions(-)
+
+commit 9994817895fe72ea068c1bdf078e71515dde66fe
+Author: Helge Kreutzmann <debian@helgefjell.de>
+Date:   Mon Jun 1 08:56:04 2020 +0200
+
+    Fix further errors found in man/po/de.po
+
+ man/po/de.po | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+commit 73c31ed5fc4b55371724dc9b3a9ab03c688d0dca
+Author: Helge Kreutzmann <debian@helgefjell.de>
+Date:   Sun Apr 26 15:10:05 2020 +0200
+
+    Proofreading of German man apges on debian-l10n-de (Part 4)
+
+ man/po/de.po | 576 ++++++++++++++++++++++++++++++-----------------------------
+ 1 file changed, 290 insertions(+), 286 deletions(-)
+
+commit cfda9530c285880db6bd96b7eaef6c54327e53ab
+Author: Helge Kreutzmann <debian@helgefjell.de>
+Date:   Sun Mar 1 15:03:06 2020 +0100
+
+    Proofreading of German man apges on debian-l10n-de (Part 3)
+
+ man/po/de.add |   7 +-
+ man/po/de.po  | 814 +++++++++++++++++++++++++++++-----------------------------
+ 2 files changed, 416 insertions(+), 405 deletions(-)
+
+commit e94236b3d24163ce2d102cd09ded21132cfa4d47
+Author: Helge Kreutzmann <debian@helgefjell.de>
+Date:   Fri Jan 31 21:26:10 2020 +0100
+
+    Proofreading of German man apges on debian-l10n-de (Part 2)
+
+ man/po/de.po | 327 +++++++++++++++++------------------------------------------
+ 1 file changed, 95 insertions(+), 232 deletions(-)
+
+commit 33affc57f6fc9b82e847a26e345f7268b88e65fb
+Author: Guillem Jover <guillem@debian.org>
+Date:   Fri Jan 17 00:15:03 2020 +0100
+
+    build: Build gitlab CI images for buster instead of sid
+
+ .gitlab-ci.yml   | 2 +-
+ debian/changelog | 4 ++++
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+commit 1873bcb9d3b4d7aa9482b24ee1f600ccc0a1b16f
+Author: Helge Kreutzmann <debian@helgefjell.de>
+Date:   Wed Jan 8 21:44:45 2020 +0100
+
+    Update German translation of manual pages
+    
+    Update to 2997t1f.
+
+ man/po/de.po | 140 +++++++++++------------------------------------------------
+ 1 file changed, 25 insertions(+), 115 deletions(-)
+
+commit 01cf53b30189144f57ac19b8e5935aee99b4f911
+Author: Helge Kreutzmann <debian@helgefjell.de>
+Date:   Wed Jan 8 18:12:23 2020 +0100
+
+    Proofreading of German man apges on debian-l10n-de (Part 1)
+
+ debian/changelog |    3 +-
+ man/po/de.po     | 5070 +++++++++++++-----------------------------------------
+ 2 files changed, 1166 insertions(+), 3907 deletions(-)
+
+commit 15ede8be079e9aefaae80a01382e44e08a6feffc
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sun Dec 29 03:03:41 2019 +0100
+
+    Bump version to 1.19.8
+
+ debian/changelog | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
 commit edd4b837356860fe3c5f83c0eca88c452a1cc8c8
 Author: Guillem Jover <guillem@debian.org>
 Date:   Mon Jun 3 23:22:38 2019 +0200
@@ -18828,9 +19047,6 @@ Date:   Mon Jun 6 02:56:06 2016 +0200
     dpkg-buildpackage: Use arch:all in .changes filename when not building arch:any
     
     Closes: #826161
-
-Notes:
-    Stable-Candidate: 1.17.x
 
  debian/changelog             |  3 +++
  scripts/dpkg-buildpackage.pl | 10 +++++-----
@@ -82018,12 +82234,6 @@ Date:   Sat Feb 27 19:55:25 2010 +0100
     Closes: #430958
     
     Based-on-patch-by: Jean-Baptiste Lallement <jeanbaptiste.lallement@gmail.com>
-
-Notes:
-    The crashes and user intervention comment here, refer to abrupt
-    termination of the system, and not just the program, due to an overall
-    malfunction of the kernel, the hardware or the user pulling the plug,
-    for example.
 
  debian/changelog          |  4 ++++
  dpkg-deb/build.c          |  4 ++++

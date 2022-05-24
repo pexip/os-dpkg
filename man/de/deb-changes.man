@@ -35,9 +35,9 @@ Jeder Debian\-Upload besteht aus einer .changes\-Steuerdatei, die eine Reihe
 von Feldern enthält. Jedes Feld beginnt mit einer Markierung wie \fBSource\fP
 oder \fBBinary\fP (Groß\-/Kleinschreibung ist egal), gefolgt von einem
 Doppelpunkt und dem Inhalt des Feldes. Felder werden nur durch
-Feldmarkierungen abgegrenzt. Mit anderen Worten: Der Feldtext kann über
-mehrere Zeilen gehen, wobei die Installationswerkzeuge die Zeilen bei der
-Verarbeitung des Feldinhaltes zusammenfügen werden (Ausnahmen sind die
+Feldmarkierungen abgegrenzt. Mit anderen Worten: Der Feldtext kann sich über
+mehrere Zeilen erstrecken, wobei die Installationswerkzeuge die Zeilen bei
+der Verarbeitung des Feldinhaltes zusammenfügen werden (Ausnahmen sind die
 mehrzeiligen Felder \fBDescription\fP, \fBChanges\fP, \fBFiles\fP, \fBChecksums\-Sha1\fP
 und \fBChecksums\-Sha256\fP, siehe unten).
 .PP
@@ -47,7 +47,7 @@ spezifizierten OpenPGP\-ASCII\-Hülle eingeschlossen sein.
 .SH FELDER
 .TP 
 \fBFormat:\fP \fIFormatversion\fP (verpflichtend)
-Das Wert dieses Feldes legt die Formatversion der Datei fest. Die Syntax des
+Der Wert dieses Feldes gibt die Formatversion der Datei an. Die Syntax des
 Feldwertes ist eine Versionsnummer mit einer Haupt\- und einer
 Nebenkomponente. Rückwärtsinkompatible Änderungen im Format führen zu einer
 Erhöhung der Hauptversion und rückwärtskompatible Änderungen (wie die
@@ -63,12 +63,13 @@ entnommen.
 .TP 
 \fBSource:\fP \fIQuellname\fP [\fB(\fP\fIQuellversion\fP\fB)\fP] (verpflichtend)
 Der Name des Quellpakets. Falls sich die Quellversion von der Binärversion
-unterscheidet folgt dem \fIQuellname\fPn in Klammern eine \fIQuellversion\fP. Dies
-kann passieren, falls dies ein rein\-binärer\-nicht\-Betreuer\-Upload ist.
+unterscheidet, folgt dem \fIQuellname\fPn in Klammern eine
+\fIQuellversion\fP. Dies kann passieren, falls dies ein rein\-binärer
+nicht\-Betreuer\-Upload ist.
 .TP 
 \fBBinary:\fP \fIBinärpaketliste\fP (verpflichtend im Kontext)
 Dieses gefaltete Feld ist eine durch Leerzeichen getrennte Liste von
-hochzuladenen binären Paketen. Falls es sich um einen reinen Quell\-Upload
+hochzuladenden binären Paketen. Falls es sich um einen reinen Quell\-Upload
 handelt, wird dieses Feld ausgelassen (seit Dpkg 1.19.3).
 .TP 
 \fBArchitecture:\fP \fIArchitekturliste\fP
@@ -86,8 +87,8 @@ enthalten (für nicht aus Debian stammende Pakete). Das genaue Format und der
 Sortieralgorithmus sind in \fBdeb\-version\fP(7) beschrieben.
 .TP 
 \fBDistribution:\fP \fIDistribution\fPen (verpflichtend)
-Listet eine oder mehrere durch Leerzeichen getrennte Distributiionen auf,
-bei denen diese Version installiert werden sollte, wenn es in das Archiv
+Listet eine oder mehrere durch Leerzeichen getrennte Distributionen auf, bei
+denen diese Version installiert werden sollte, wenn es in das Archiv
 hochgeladen wird.
 .TP 
 \fBUrgency:\fP \fIDringlichkeit\fP (empfohlen)
@@ -109,15 +110,16 @@ Paket vorgenommen hat.
 .TQ
  \fIBinärpaketname\fP \fB\-\fP \fIBinärpaketzusammenfassung\fP
 Dieses mehrzeilige Feld enthält eine Liste von Binärpaketnamen, gefolgt von
-einem Leerzeichen, einem Gedankenstrich (‚\fB\-\fP’) und ihren, möglicherweise
+einem Leerzeichen, einem Bindestrich (‚\fB\-\fP’) und ihren, möglicherweise
 abgeschnittenen, Kurzbeschreibungen. Falls es sich um einen reinen
 Quell\-Upload handelt, wird dieses Feld ausgelassen (seit Dpkg 1.19.3).
 .TP 
 \fBCloses:\fP\fI Fehlernummernliste\fP
-Eine durch Leerzeichen getrennte Liste von Fehlerberichtsnummern, die mit
-diesem Upload behoben wurden. Die Software des Distributionsarchivs könnte
-dieses Feld benutzen, um automatisch die referenzierten Fehlernummern in der
-Fehlerdatenbank der Distribution zu schließen.
+Eine durch Leerzeichen getrennte Liste von Fehlerberichtsnummern von
+Fehlern, die mit diesem Upload behoben wurden. Die Software des
+Distributionsarchivs könnte dieses Feld benutzen, um automatisch die Nummern
+der referenzierten Fehler in der Fehlerdatenbank der Distribution zu
+schließen.
 .TP 
 \fBBinary\-Only: yes\fP
 Das Feld kennzeichnet, dass der Upload ein rein binärer,
@@ -133,7 +135,7 @@ denen dieser Upload gebaut wurde.
 \fIChangelog\-Einträge\fP
 Das mehrzeilige Feld enthält den aneinandergehängten Text aller
 Changelog\-Einträge, die Teil dieses Uploads sind. Um ein gültiges
-mehrzeiliges Feld zu erhalten, werden leere Zeilen durch ein einzelnen
+mehrzeiliges Feld zu erhalten, werden leere Zeilen durch einen einzelnen
 Satzpunkt (‚.’) ersetzt und alle Zeilen mit einem Leerzeichen
 eingerückt. Der genaue Inhalt hängt vom Changelog\-Format ab.
 .TP 
@@ -164,11 +166,11 @@ Prüfsumme und Größe für jede. Diese Felder haben die gleiche Syntax und
 unterscheiden sich nur im verwandten Prüfsummenalgorithmus: SHA\-1 für
 \fBChecksums\-Sha1\fP und SHA\-256 für \fBChecksums\-Sha256\fP.
 
-Die erste Zeile des Feldwertes (der Teil auf dem durch ein Doppelpunkt
-gefolgten Namen) ist immer leer. Der Inhalt des Feldes wird durch
-Fortsetzungszeilen ausgedrückt, eine Zeile pro Datei. Jede Zeile besteht aus
-durch Leerzeichen getrennten Einträgen, die die Datei beschreiben: der
-Prüfsumme, der Dateigröße und dem Dateinamen.
+Die erste Zeile des Feldwertes (der Teil auf der gleichen Zeile wie der
+durch einen Doppelpunkt gefolgte Feldname) ist immer leer. Der Inhalt des
+Feldes wird durch Fortsetzungszeilen ausgedrückt, eine Zeile pro Datei. Jede
+Zeile besteht aus durch Leerzeichen getrennten Einträgen, die die Datei
+beschreiben: der Prüfsumme, der Dateigröße und dem Dateinamen.
 
 Diese Felder führen alle Dateien auf, aus denen der Upload besteht. Die
 Liste der Dateien in diesen Feldern muss zu der Liste in dem Feld \fBFiles\fP
@@ -189,9 +191,10 @@ was normalerweise als Suite bezeichnet wird.
 .SH "SIEHE AUCH"
 \fBdeb\-src\-control\fP(5), \fBdeb\-version\fP(7).
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
-<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
-2008 von Sven Joachim <svenjoac@gmx.de>
+Die deutsche Übersetzung wurde 2004, 2006-2020 von Helge Kreutzmann
+<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de>,
+2008 von Sven Joachim <svenjoac@gmx.de> und 2019,2020 von Mario 
+Blättermann <mario.blaettermann@gmail.com> 
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die
 GNU General Public License Version 2 oder neuer für die Kopierbedingungen.
 Es gibt KEINE HAFTUNG.

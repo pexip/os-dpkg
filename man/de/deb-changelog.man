@@ -92,13 +92,13 @@ in den Änderungsdetails auftaucht. Der genaue reguläre Perl\-Ausdruck lautet
 Information wird über das Feld \fBCloses\fP in der \fI.changes\fP\-Datei
 vermittelt.
 .PP
-Der im Changelog\-Eintrag verwandte Name des Betreuers und die E\-Mail\-Adresse
-sollten die Details der Person sein, die diese Veröffentlichung des Pakets
-erstellt hat. Sie stimmen \fBnicht\fP notwendigerweise mit denen des
-Hochladenden oder des normalen Paketbetreuers überein. Die Informationen
-werden von hier in das Feld \fBChanged\-By\fP in der \fI.changes\fP\-Datei kopiert
-und könnten dann später zum Versand der Bestätigung verwandt werden, wenn
-der Upload im Archiv der Distribution aufgenommen wurde.
+Der im Changelog verwandte Name des Betreuers und die E\-Mail\-Adresse sollten
+die Details der Person sein, die diese Veröffentlichung des Pakets erstellt
+hat. Sie stimmen \fBnicht\fP notwendigerweise mit denen des Hochladenden oder
+des normalen Paketbetreuers überein. Die Informationen werden von hier in
+das Feld \fBChanged\-By\fP in der \fI.changes\fP\-Datei kopiert und könnten dann
+später zum Versand der Bestätigung verwandt werden, wenn der Upload im
+Archiv der Distribution aufgenommen wurde.
 .PP
 Das \fIDatum\fP hat das folgende Format (kompatibel zu und mit der gleichen
 Semantik von RFC2822 und RFC5322 bzw. der Ausgabe von „date \-R“):
@@ -131,21 +131,21 @@ ist die zweistellige Minute (\fB00\fP\-\fB59\fP).
 ist die zweistellige Sekunde (\fB00\fP\-\fB60\fP).
 .TP 
 [\fB+\-\fP]\fIzzzz\fP
-ist der Zeitzonenversatz der koordinierten Weltzeit (UTC). ‚\fB+\fP’ gibt an,
+ist der Zeitzonenversatz zur koordinierten Weltzeit (UTC). ‚\fB+\fP’ gibt an,
 dass die Zeit voraus (d.h. östlich von UTC) ist und ‚\fB\-\fP’, dass die Zeit
-zurück (d.h. westliche von UTC) ist. Die ersten zwei Ziffern geben den
+zurück (d.h. westlich von UTC) ist. Die ersten zwei Ziffern geben den
 Unterschied in Stunden von UTC und die letzten zwei Ziffern die Anzahl von
 zusätzlichen Minuten zu UTC an. Die letzten zwei Ziffern müssen im Bereich
 \fB00\fP\-\fB59\fP liegen.
 .PP
 Die erste „Titel“\-Zeile muss am linken Rand anfangen. Die „Schluss“\-Zeile
-mit den Betreuer\- und Datumsdetails müssen durch genau ein Leerzeichen
+mit den Betreuer\- und Datumsdetails muss durch genau ein Leerzeichen
 eingeleitet werden. Die Details zum Betreuer und das Datum müssen durch
 genau zwei Leerzeichen getrennt sein.
 .PP
-Jede Zeile, die komplett (d.h. ohne einführende Leerzeichen) aus Kommentaren
-im Stil \fB#\fP oder \fB/* */\fP oder RCS\-Schlüsselwörtern besteht, sollte
-ignoriert werden.
+Jede Zeile, die komplett (d.h. ohne vorangestellte Leerzeichen) aus
+Kommentaren im Stil \fB#\fP oder \fB/* */\fP oder RCS\-Schlüsselwörtern besteht,
+sollte ignoriert werden.
 .PP
 Modelines von Vim oder lokale Emacs\-Variablen sowie uralte
 Changelog\-Einträge in anderen Formaten am Ende der Datei sollten akzeptiert
@@ -178,9 +178,10 @@ dpkg (1.17.18) unstable; urgency=low
 .SH "SIEHE AUCH"
 \fBdeb\-version\fP(7), \fBdeb\-changes\fP(5), \fBdpkg\-parsechangelog\fP(1).
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
-<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
-2008 von Sven Joachim <svenjoac@gmx.de>
+Die deutsche Übersetzung wurde 2004, 2006-2020 von Helge Kreutzmann
+<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de>,
+2008 von Sven Joachim <svenjoac@gmx.de> und 2019,2020 von Mario 
+Blättermann <mario.blaettermann@gmail.com> 
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die
 GNU General Public License Version 2 oder neuer für die Kopierbedingungen.
 Es gibt KEINE HAFTUNG.

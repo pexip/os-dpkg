@@ -31,7 +31,7 @@ deb\-src\-control \- Dateiformat der Hauptsteuerdatei von Debian\-Quellpaketen
 debian/control
 .
 .SH BESCHREIBUNG
-Jedes Debian\-Quellpaket enhält die Hauptsteuerdatei „control“, die
+Jedes Debian\-Quellpaket enhält die Hauptsteuerdatei \fBcontrol\fP, die
 mindestens zwei Absätze enthält, die durch eine Leerzeile getrennt
 werden. Der erste Absatz führt alle allgemeinen Informationen über das
 Quellpaket auf, während jeder folgende Absatz genau ein Binärpaket
@@ -50,8 +50,8 @@ werden als Kommentare betrachtet.
 .TP 
 \fBSource:\fP \fIQuellpaketname\fP (verpflichtend)
 Der Wert dieses Feldes ist der Name des Quellpakets und sollte mit dem Namen
-des Quellpakets in der Datei debian/changelog übereinstimmen. Ein Paketname
-darf nur aus Kleinbuchstaben (a\-z), Ziffern (0\-9), Plus\- (+) und
+des Quellpakets in der Datei \fIdebian/changelog\fP übereinstimmen. Ein
+Paketname darf nur aus Kleinbuchstaben (a\-z), Ziffern (0\-9), Plus\- (+) und
 Minuszeichen (\-) und Satzpunkten (.) bestehen. Paketnamen müssen mindestens
 zwei Zeichen lang sein und mit einem klein geschriebenen alphanumerischen
 Zeichen (a\-z0\-9) beginnen.
@@ -70,7 +70,7 @@ durch Kommata getrennt werden.
 
 .TP 
 \fBStandards\-Version:\fP \fI Versionszeichenkette\fP
-Dies dokumentiert die neuste Version der Standards der Distribution, an den
+Dies dokumentiert die neuste Version der Standards der Distribution, an die
 sich das Paket hält.
 
 .TP 
@@ -106,7 +106,7 @@ Die Binärziele werden überhaupt kein (fake)root benötigen.
 .TP 
 \fBbinary\-targets\fP
 Die Binärziele müssen immer unter (fake)root ausgeführt werden. Dieser Wert
-ist die Vorgabe, wenn die Datei fehlt. Die Aufnahme dieses Feld mit einem
+ist die Vorgabe, wenn die Datei fehlt. Die Aufnahme dieses Feldes mit einem
 expliziten \fBbinary\-targets\fP ist zwar streng genommen nicht notwendig,
 markiert aber, dass es darauf untersucht wurde.
 .TP 
@@ -115,17 +115,17 @@ Dies ist eine durch Leerzeichen getrennte Liste von Schlüsselwörtern, die
 festlegen, wann (fake)root benötigt wird.
 
 Schlüsselwörter bestehen aus \fINamensraum\fP/\fIFälle\fP. Der Teil \fINamensraum\fP
-kann kein »/« oder Leerraum enthalten. Der Teil \fIFälle\fP kann kein Leerraum
-enthalten. Desweiteren müssen beide Teile ausschließlich aus druckbaren
+kann kein „/“ oder Leerraum enthalten. Der Teil \fIFälle\fP kann kein Leerraum
+enthalten. Desweiteren müssen beide Teile ausschließlich aus darstellbaren
 ASCII\-Zeichen bestehen.
 
 Jedes Werkzeug/Paket wird einen Namensraum nach sich selbst definieren und
 eine Reihe von Fällen bereitstellen, in denen (fake)root benötigt wird
-(siehe »Implementation provided keywords« in \fIrootless\-builds.txt\fP).
+(siehe „Implementation provided keywords“ in \fIrootless\-builds.txt\fP).
 
 Wenn das Feld auf eines der \fIImpl\-Schlüsselwörter\fP gesetzt wird, wird das
 Bauprogramm eine Schnittstelle bereitstellen, die zur Ausführung unter
-(fake)root verwandt wird (siehe »Gain Root API« in \fIrootless\-builds.txt\fP).
+(fake)root verwandt wird (siehe „Gain Root API“ in \fIrootless\-builds.txt\fP).
 .RE
 
 .TP 
@@ -134,7 +134,7 @@ Bauprogramm eine Schnittstelle bereitstellen, die zur Ausführung unter
 \fBTestsuite\-Triggers:\fP\fI Paketliste\fP
 Diese Felder sind in der Handbuchseite \fBdsc\fP(5) beschrieben, da sie aus
 Informationen, die aus \fBdebian/tests/control\fP abgeleitet sind, erstellt
-oder wörtlich in die control\-Datei der Quellen kopiert werden.
+oder wörtlich in die \fBcontrol\fP\-Datei der Quellen kopiert werden.
 
 .TP 
 \fBVcs\-Arch*:\fP\fI URL\fP
@@ -170,9 +170,9 @@ Feld wird normalerweise nicht benötigt.
 
 .TP 
 \fBSection:\fP\fI Sektion\fP
-Dies ist ein allgemeines Feld, das dem Paket eine Kategorie gibt, basierend
-auf der Software, die es installiert. Einige übliche Sektionen sind
-\fButils\fP, \fBnet\fP, \fBmail\fP, \fBtext\fP, \fBx11\fP usw.
+Dies ist ein allgemeines Feld, das das Paket in eine Kategorie einordnet,
+basierend auf der Software, die es installiert. Einige übliche Sektionen
+sind \fButils\fP, \fBnet\fP, \fBmail\fP, \fBtext\fP, \fBx11\fP usw.
 
 .TP 
 \fBPriority:\fP\fI Priorität\fP
@@ -235,25 +235,25 @@ Paketen. Jede Gruppe ist eine Liste von durch vertikale Striche (oder
 ‚\fB,\fP’ getrennt. Sie können mit einem abschließenden Komma enden, das beim
 Erstellen der Felder für \fBdeb\-control\fP(5) entfernt wird (seit Dpkg
 1.10.14). Kommata müssen als „UND“, vertikale Striche als „ODER“ gelesen
-werden, wobei die vertikalen Striche stärker binden. Jeder Paketname wird
-optional von einer Architektur\-Spezifikation gefolgt, die nach einem
-Doppelpunkt ‚\fB:\fP’ angehängt wird, optional gefolgt von einer
-Versionsnummer\-Spezifikation in Klammern ‚\fB(\fP’ und ‚\fB)\fP’, einer
-Architekturspezifikation in eckigen Klammern ‚\fB[\fP’ und ‚\fB]\fP’ und einer
-Einschränkungsformel, die aus einer oder mehr Listen von Profilnamen in
-spitzen Klammern ‚\fB<\fP’ und ‚\fB>\fP’ besteht.
+werden, wobei die vertikalen Striche stärker binden. Jedem Paketnamen folgt
+optional eine Architekturspezifikation, die nach einem Doppelpunkt ‚\fB:\fP’
+angehängt wird, optional gefolgt von einer Versionsnummer\-Spezifikation in
+Klammern ‚\fB(\fP’ und ‚\fB)\fP’, einer Architekturspezifikation in eckigen
+Klammern ‚\fB[\fP’ und ‚\fB]\fP’ und einer Einschränkungsformel, die aus einer
+oder mehr Listen von Profilnamen in spitzen Klammern ‚\fB<\fP’ und
+‚\fB>\fP’ besteht.
 
 Syntaxtisch werden die Felder \fBBuild\-Conflicts\fP, \fBBuild\-Conflicts\-Arch\fP
-und \fBBuild\-Conflicts\-Indep\fP durch eine Komma\-separierte Liste von
+und \fBBuild\-Conflicts\-Indep\fP durch eine Kommata\-getrennte Liste von
 Paketnamen dargestellt, wobei das Komma als „UND“ verstanden wird. Die Liste
 kann mit einem abschließenden Komma enden, das beim Erstellen der Felder für
 \fBdeb\-control\fP(5) entfernt wird (seit Dpkg 1.10.14). Die Angabe alternativer
 Pakete mit dem „Pipe“\-Symbol wird nicht unterstützt. Jedem Paketnamen folgt
-optional eine Versionnummerangabe in Klammern, eine Architekturspezifikation
-in eckigen Klammern und einer Einschränkungsformel, die aus einer oder mehr
-Listen von Profilnamen in spitzen Klammern besteht.
+optional eine Versionsnummerangabe in Klammern, eine
+Architekturspezifikation in eckigen Klammern und einer Einschränkungsformel,
+die aus einer oder mehr Listen von Profilnamen in spitzen Klammern besteht.
 
-Eine Architektur\-Spezifikation kann ein echter Debian\-Architekturname sein
+Eine Architekturspezifikation kann ein echter Debian\-Architekturname sein
 (seit Dpkg 1.16.5), \fBany\fP (seit Dpkg 1.16.2) oder \fBnative\fP (seit Dpkg
 1.16.5). Falls er fehlt, ist die Vorgabe für das Feld \fBBuild\-Depends\fP die
 aktuelle Host\-Architektur, die Vorgabe für das Feld \fBBuild\-Conflicts\fP ist
@@ -279,7 +279,7 @@ getrennten Einschränkungslisten. Jede Einschränkungsliste wird in spitze
 Klammern eingeschlossen. Einträge in den Einschränkungslisten sind
 Bauprofilnamen, getrennt durch Leerraum. Diesen Listen kann ein
 Ausrufezeichen vorangestellt werden, das „NICHT“ bedeutet. Eine
-Einschränkungsformel stellt einen Ausdruck in einer disjunkte Normalform
+Einschränkungsformel stellt einen Ausdruck in einer disjunkten Normalform
 dar.
 
 Beachten Sie, dass die Abhängigkeiten von Paketen aus der Menge der
@@ -331,7 +331,7 @@ baut.
 Mit anderen Worten: Falls der Absatz eines Binärpaketes mit einem nicht
 leeren Feld \fBBuild\-Profiles\fP kommentiert wird, dann wird dieses Binärpaket
 erstellt, falls und nur falls der Ausdruck in konjunktiver Normalform sich
-auf »wahr« berechnet.
+auf „wahr“ berechnet.
 
 .TP 
 \fBEssential:\fP \fByes\fP|\fBno\fP
@@ -344,7 +344,7 @@ auf »wahr« berechnet.
 .TQ
 \fBDescription:\fP \fIKurzbeschreibung\fP (empfohlen)
 Diese Felder sind in der Handbuchseite \fBdeb\-control\fP(5) beschrieben, da sie
-wörtlich in die control\-Datei des Binärpakets kopiert werden.
+wörtlich in die \fBcontrol\fP\-Datei des Binärpakets kopiert werden.
 
 .TP 
 \fBDepends:\fP \fI Paketliste\fP
@@ -389,7 +389,7 @@ hinzuzufügen. Die Werkzeuge werden diese Felder ignorieren. Falls Sie
 möchten, dass diese Felder in die Ausgabedateien, wie das Binärpaket,
 rüberkopiert werden sollen, müssen Sie ein angepasstes Namensschema
 verwenden: Die Felder sollten mit einem \fBX\fP, gefolgt von Null oder mehreren
-Buchstaben aus \fBSBC\fP und einem Gedankenstrich, beginnen.
+Buchstaben aus \fBSBC\fP und einem Bindestrich, beginnen.
 
 .TP 
 \fBS\fP
@@ -410,7 +410,7 @@ die Felder in die Ausgabedateien rüberkopiert werden. Ein Feld
 \fBXC\-Approved\-By\fP wird als \fBApproved\-By\fP in der .changes\-Datei und nicht in
 der Steuerdatei des Binär\- und Quellpakets auftauchen.
 
-Beachten Sie, dass diese Benutzer\-definierten Felder den globalen Namensraum
+Beachten Sie, dass diese benutzerdefinierten Felder den globalen Namensraum
 nutzen werden und somit in der Zukunft mit offiziell erkannten Feldern
 kollidieren könnten. Um solche möglichen Situationen zu vermeiden, können
 Sie den Feldern \fBPrivate\-\fP, wie in \fBXB\-Private\-Neues\-Feld\fP, voranstellen.
@@ -457,9 +457,10 @@ Description: Debian package development tools
 .SH "SIEHE AUCH"
 \fBdeb\-control\fP(5), \fBdeb\-version\fP(7), \fBdpkg\-source\fP(1)
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
-<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
-2008 von Sven Joachim <svenjoac@gmx.de>
+Die deutsche Übersetzung wurde 2004, 2006-2020 von Helge Kreutzmann
+<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de>,
+2008 von Sven Joachim <svenjoac@gmx.de> und 2019,2020 von Mario 
+Blättermann <mario.blaettermann@gmail.com> 
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die
 GNU General Public License Version 2 oder neuer für die Kopierbedingungen.
 Es gibt KEINE HAFTUNG.

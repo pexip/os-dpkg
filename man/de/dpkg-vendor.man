@@ -30,7 +30,7 @@ dpkg\-vendor \- fragt Informationen über den Distributionslieferanten ab
 .
 .SH BESCHREIBUNG
 \fBdpkg\-vendor\fP ist ein Werkzeug, um Informationen über in
-\fB%PKGCONFDIR%/origins\fP aufgeführte Lieferanten (engl. »vendor«)
+\fB%PKGCONFDIR%/origins\fP aufgeführte Lieferanten (engl. „vendor“)
 abzufragen. \fB%PKGCONFDIR%/origins/default\fP enthält Informationen über den
 aktuellen Lieferanten.
 .
@@ -50,10 +50,10 @@ Gibt auf der Standardausgabe den Wert des Lieferanten\-spezifischen \fIFeld\fPes
 für den aktuellen Lieferanten aus.
 .TP 
 \fB\-\-help\fP
-Zeige den Bedienungshinweis und beende.
+Zeigt einen Hinweis zum Aufruf und beendet das Programm.
 .TP 
 \fB\-\-version\fP
-Gebe die Version aus und beende sich.
+Gibt die Version aus und beendet das Programm.
 .
 .SH OPTIONEN
 .TP 
@@ -74,16 +74,17 @@ sind: \fBauto\fP (Vorgabe), \fBalways\fP und \fBnever\fP.
 .TP 
 \fBDPKG_NLS\fP
 Falls dies gesetzt ist, wird es zur Entscheidung, ob Native Language
-Support, auch als Internationalisierung (oder i18n) Unterstützung bekannt,
-aktiviert wird (seit Dpkg 1.19.0). Die akzeptierten Werte sind: \fB0\fP und
-\fB1\fP (Vorgabe).
+Support, auch als Unterstützung für Internationalisierung (oder i18n)
+bekannt, aktiviert wird (seit Dpkg 1.19.0). Die akzeptierten Werte sind:
+\fB0\fP und \fB1\fP (Vorgabe).
 .
 .SH "SIEHE AUCH"
 \fBdeb\-origin\fP(5).
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
-<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
-2008 von Sven Joachim <svenjoac@gmx.de>
+Die deutsche Übersetzung wurde 2004, 2006-2020 von Helge Kreutzmann
+<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de>,
+2008 von Sven Joachim <svenjoac@gmx.de> und 2019,2020 von Mario 
+Blättermann <mario.blaettermann@gmail.com> 
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die
 GNU General Public License Version 2 oder neuer für die Kopierbedingungen.
 Es gibt KEINE HAFTUNG.

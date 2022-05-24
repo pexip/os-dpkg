@@ -38,8 +38,8 @@ Standardwerten für Befehle
 .
 .SH BESCHREIBUNG
 \fBupdate\-alternatives\fP erzeugt, entfernt, verwaltet und zeigt die
-Informationen über die symbolischen Links, die das »Debian
-Alternativ\-System« bilden, an.
+Informationen über die symbolischen Links, die das „Debian
+Alternativ\-System“ bilden, an.
 .PP
 Es ist möglich, mehrere Programme, die die gleiche oder ähnliche
 Funktionalität bereitstellen, gleichzeitig auf einem System zu
@@ -53,21 +53,21 @@ getroffen hat.
 Debians Alternativ\-System hat das Ziel, dieses Problem zu lösen. Ein
 generischer Name im Dateisystem wird von allen Dateien, die austauschbare
 Funktionalität bereitstellen, verwendet. Das Alternativ\-System bestimmt
-zusammen mit dem Systemadministrator welche Datei tatsächlich durch diesen
+zusammen mit dem Systemadministrator, welche Datei tatsächlich durch diesen
 generischen Namen referenziert wird. Falls beispielsweise sowohl der
 Texteditor \fBed\fP(1) als auch \fBnvi\fP(1) im System installiert sind, wird das
 Alternativ\-System dafür sorgen, dass der generische Name \fI/usr/bin/editor\fP
 standardmäßig auf \fI/usr/bin/nvi\fP zeigt. Der Systemadministrator kann dies
-Ändern und dafür sorgen, dass er stattdessen auf \fI/usr/bin/ed\fP zeigt, und
+ändern und dafür sorgen, dass er stattdessen auf \fI/usr/bin/ed\fP zeigt, und
 das Alternativ\-System wird diese Einstellung nicht verändern, bis es
 explizit dazu aufgefordert wird.
 .PP
-Der generische Name ist nicht ein direkter symbolischer Link auf die
-ausgewählte Alternative. Stattdessen ist es ein symbolischer Link auf einen
-Namen im \fIAlternativ\-Verzeichnis\fP, welches wiederum ein symbolischer Link
-auf die tatsächlich referenzierte Datei ist. Dies ist so realisiert, damit
-die Änderungen des Systemadministrators auf das \fI%CONFDIR%\fP Verzeichnis
-beschränkt bleiben: der FHS (siehe dort) erklärt warum dies eine Gute Idee
+Der generische Name ist kein direkter symbolischer Link auf die ausgewählte
+Alternative. Stattdessen ist es ein symbolischer Link auf einen Namen im
+\fIAlternativ\-Verzeichnis\fP, welches wiederum ein symbolischer Link auf die
+tatsächlich referenzierte Datei ist. Dies ist so realisiert, damit die
+Änderungen des Systemadministrators auf das \fI%CONFDIR%\fP\-Verzeichnis
+beschränkt bleiben: der FHS (siehe dort) erklärt, warum dies eine gute Idee
 ist.
 .PP
 Für jedes Paket, das eine Datei mit einer bestimmten Funktionalität
@@ -104,7 +104,7 @@ Jede Alternative hat eine ihr zugeordnete \fIPriorität\fP. Befindet sich eine
 Linkgruppe im automatischen Modus, zeigen die Mitglieder einer Gruppe auf
 die Alternative mit der höchsten Priorität.
 .PP
-Wird die \fB\-\-config\fP\-Option verwendet, dann zeigt \fBupdate\-alternatives\fP
+Wird die Option \fB\-\-config\fP verwendet, dann zeigt \fBupdate\-alternatives\fP
 alle Auswahlmöglichkeiten für die Link\-Gruppe an, für die der gegebene
 \fIName\fP der Master\-Alternative\-Name ist. Die aktuelle Auswahl ist mit ‚*’
 markiert. Sie werden dann aufgefordert, Ihre Auswahl bezüglich der
@@ -152,7 +152,7 @@ Ein Satz zusammengehörender Symlinks, die als Gruppe aktualisiert werden
 sollen.
 .TP 
 Master\-Link
-Der Alternativ\-Link in einer Linkgruppe der bestimmt, wie die anderen Links
+Der Alternativ\-Link in einer Linkgruppe, der bestimmt, wie die anderen Links
 in der Gruppe konfiguriert werden.
 .TP 
 Slave\-Link
@@ -171,7 +171,7 @@ keine Änderungen an den Einstellungen des Systemadministrators durch.
 .SH BEFEHLE
 .TP 
 \fB\-\-install\fP \fILink Name Pfad Priorität\fP [\fB\-\-slave\fP \fILink Name Pfad\fP] …
-Füge eine Gruppe von Alternativen zum System hinzu. \fILink\fP ist der
+Fügt eine Gruppe von Alternativen zum System hinzu. \fILink\fP ist der
 generische Name des Master\-Links, \fIName\fP ist der Name seines Symlinks im
 Alternativ\-Verzeichnis und \fIPfad\fP ist die Alternative, die für den
 Master\-Link eingeführt wird. Die Argumente nach \fB\-\-slave\fP sind der
@@ -179,7 +179,7 @@ generische Name, Symlink\-Name in dem Alternativ\-Verzeichnis und der
 Alternativ\-Pfad für den Slave\-Link. Null oder mehrere \fB\-\-slave\fP\-Optionen,
 jede von drei Argumenten gefolgt, können spezifiziert werden. Beachten Sie,
 dass die Master\-Alternative existieren muss, ansonsten schlägt der Aufruf
-fehl. Falls allerdings eine Slave\-Alternative nicht existiert wird der
+fehl. Falls allerdings eine Slave\-Alternative nicht existiert, wird der
 zugehörige Slave\-Alternative\-Link einfach nicht installiert (es wird noch
 eine Warnung ausgegeben). Falls eine echte Datei an einer Stelle installiert
 wird, an der ein Alternativ\-Link installiert werden muss, wird diese
@@ -191,16 +191,16 @@ Satz von Alternativen für die Gruppe hinzugefügt. Andernfalls wird eine neue
 Gruppe, eingestellt im automatischen Modus, mit dieser Information
 hinzugefügt. Falls die Gruppe sich im automatischen Modus befindet und die
 Priorität der neu hinzugefügten Alternative höher ist als die jeder anderen
-installierten Alternative für diese Gruppe werden die Symlinks aktualisiert,
-so dass sie auf die neu hinzugefügte Alternative zeigen.
+installierten Alternative für diese Gruppe, werden die Symlinks
+aktualisiert, so dass sie auf die neu hinzugefügte Alternative zeigen.
 .TP 
 \fB\-\-set\fP \fIName Pfad\fP
 Setzt das Programm \fIPfad\fP als Alternative für \fIName\fP. Dies ist äquivalent
 zu \fB\-\-config\fP, ist aber nicht interaktiv und kann somit geskriptet werden.
 .TP 
 \fB\-\-remove\fP \fIName Pfad\fP
-Entferne eine Alternative und alle zugehörigen Slave\-Links. \fIName\fP ist ein
-Name im Alternativ\-Verzeichnis, und \fIPfad\fP ist ein absoluter Dateiname zu
+Entfernt eine Alternative und alle zugehörigen Slave\-Links. \fIName\fP ist ein
+Name im Alternativ\-Verzeichnis, und \fIPfad\fP ist ein absoluter Dateiname, zu
 dem \fIName\fP gelinkt werden könnte. Falls \fIName\fP tatsächlich nach \fIPfad\fP
 gelinkt ist, dann wird \fIName\fP aktualisiert, um auf eine andere geeignete
 Alternative zu zeigen (und die Gruppe wird wieder in den automatischen Modus
@@ -210,16 +210,16 @@ entfernt. Falls der Link derzeit nicht auf \fIPfad\fP zeigt, werden keine Links
 geändert; nur die Information über die Alternative wird entfernt.
 .TP 
 \fB\-\-remove\-all\fP \fIName\fP
-Entferne alle Alternativen und deren zugehörige Slave\-Links. \fIName\fP ist ein
+Entfernt alle Alternativen und deren zugehörige Slave\-Links. \fIName\fP ist ein
 Name im Alternativ\-Verzeichnis.
 .TP 
 \fB\-\-all\fP
 Ruft \fB\-\-config\fP für alle Alternativen auf. In der Kombination mit
 \fB\-\-skip\-auto\fP kann dies nützlich sein, um alle Alternativen zu prüfen und
 zu konfigurieren, die sich nicht im automatischen Modus befinden. Defekte
-Alternativen werden auch angezeigt. Um alle defekten Alternativen zu
-reparieren dient daher ein einfacher Aufruf von \fByes \*(rq |
-update\-alternatives \-\-force \-\-all\fP.
+Alternativen werden auch angezeigt. Ein Aufruf von \fByes \*(rq |
+update\-alternatives \-\-force \-\-all\fP ist daher eine einfache Art, um alle
+defekten Alternativen zu reparieren.
 .TP 
 \fB\-\-auto\fP \fIName\fP
 Überführt die Linkgruppe hinter der Alternative mit Name \fIName\fP in den
@@ -228,7 +228,7 @@ Slave\-Links aktualisiert, um auf die installierte Alternative mit höchster
 Priorität zu zeigen.
 .TP 
 \fB\-\-display\fP \fIName\fP
-Zeige Informationen über die Linkgruppe an. Die angezeigten Informationen
+Zeigt Informationen über die Linkgruppe an. Die angezeigten Informationen
 enthalten den Modus der Gruppe (automatisch oder manuell), die Master\- und
 Slave\-Links, auf welche Alternative der Master\-Link derzeit zeigt, welche
 weiteren Alternativen zur Verfügung stehen (und ihre zugehörigen
@@ -236,7 +236,7 @@ Slave\-Alternativen), und die installierte Alternative mit der höchsten
 Priorität.
 .TP 
 \fB\-\-get\-selections\fP
-Führe alle Master\-Alternativ\-Namen (die eine Linkgruppe steuern) mit ihrem
+Führt alle Master\-Alternativ\-Namen (die eine Linkgruppe steuern) mit ihrem
 Status auf (seit Version 1.15.0). Jede Zeile enthält bis zu 3 Felder
 (getrennt durch mindestens ein Leerzeichen). Im ersten Feld steht der
 Alternativ\-Name, im zweiten der Status (entweder \fBauto\fP oder \fBmanual\fP) und
@@ -244,28 +244,28 @@ im letzten die derzeitige Wahl der Alternative (Achtung: Dies ist ein
 Dateiname, der Leerzeichen enthalten kann).
 .TP 
 \fB\-\-set\-selections\fP
-Lese eine Konfiguration von Alternativen über die Standardeingabe im von
-»\fB\-\-get\-selections\fP« generierten Format und konfiguriere die Alternativen
+Liest eine Konfiguration von Alternativen über die Standardeingabe im von
+„\fB\-\-get\-selections\fP“ generierten Format und konfiguriert die Alternativen
 entsprechend neu (seit Version 1.15.0).
 .TP 
 \fB\-\-query\fP \fIName\fP
-Zeige alle Informationen über die Linkgruppe an, wie dies auch von
+Zeigt alle Informationen über die Linkgruppe an, wie dies auch von
 \fB\-\-display\fP erfolgt, allerdings in einem maschinenlesbaren Format (seit
-Version 1.15.0, siehe Abschnitt \fBABFRAGE\-FORMAT\fP unten).
+Version 1.15.0, siehe nachfolgenden Abschnitt \fBABFRAGE\-FORMAT\fP).
 .TP 
 \fB\-\-list\fP \fIName\fP
-Zeige alle Ziele der Linkgruppe an.
+Zeigt alle Ziele der Linkgruppe an.
 .TP 
 \fB\-\-config\fP \fIName\fP
-Zeige die verfügbaren Alternativen für eine Linkgruppe an und erlaube es dem
-Benutzer interaktiv auszuwählen, welche zu benutzen ist. Die Linkgruppe wird
-aktualisiert.
+Zeigt die verfügbaren Alternativen für eine Linkgruppe an und erlaubt es dem
+Benutzer, interaktiv auszuwählen, welche zu benutzen ist. Die Linkgruppe
+wird aktualisiert.
 .TP 
 \fB\-\-help\fP
-Zeige den Bedienungshinweis und beende.
+Zeigt einen Hinweis zum Aufruf und beendet das Programm.
 .TP 
 \fB\-\-version\fP
-Gebe die Version aus und beende sich.
+Gibt die Version aus und beendet das Programm.
 .
 .SH OPTIONEN
 .TP 
@@ -287,11 +287,11 @@ Stellen befinden, an denen ein Alternativ\-Link installiert werden muss.
 .TP 
 \fB\-\-skip\-auto\fP
 Überspringt die Konfigurationsabfrage für Alternativen, die korrekt im
-automatische Modus konfiguriert sind. Diese Option ist nur mit \fB\-\-config\fP
+automatischen Modus konfiguriert sind. Diese Option ist nur mit \fB\-\-config\fP
 oder \fB\-\-all\fP relevant.
 .TP 
 \fB\-\-quiet\fP
-Erzeuge keine Kommentare, es sei denn, ein Fehler tritt auf.
+Erzeugt keine Kommentare, es sei denn, ein Fehler tritt auf.
 .TP 
 \fB\-\-verbose\fP
 Erzeugt mehr Kommentare darüber, was getan wird.
@@ -338,10 +338,11 @@ Der alternative Name im Alternativ\-Verzeichnis.
 Der generische Name der Alternative.
 .TP 
 \fBSlaves:\fP\fI Liste\-von\-Slaves\fP
-Wenn diese Feld vorhanden ist enthält die \fBnächste\fP Zeile alle Slave\-Links,
-die dem Masterlink dieser Alternativen zugeordnet sind. Pro Zeile wird ein
-Slave aufgeführt. Jede Zeile enthält ein Leerzeichen, den generischen Namen
-des Slaves, ein weiteres Leerzeichen und den Pfad zu dem Slave\-Link.
+Wenn diese Feld vorhanden ist, enthält die \fBnächste\fP Zeile alle
+Slave\-Links, die dem Master\-Link dieser Alternativen zugeordnet sind. Pro
+Zeile wird ein Slave aufgeführt. Jede Zeile enthält ein Leerzeichen, den
+generischen Namen des Slaves, ein weiteres Leerzeichen und den Pfad zu dem
+Slave\-Link.
 .TP 
 \fBStatus:\fP\fI Status\fP
 Der Status der Alternative (\fBauto\fP oder \fBmanual\fP).
@@ -358,14 +359,14 @@ Die anderen Blöcke beschreiben die verfügbaren Alternativen in der
 abgefragten Linkgruppe:
 .TP 
 \fBAlternative:\fP\fI Pfad\-dieser\-Alternativen\fP
-Pfad zum Block dieser Alternativen.
+Pfad zu der Alternative dieses Blocks.
 .TP 
 \fBPriority:\fP\fI Prioritätswert\fP
 Wert der Priorität dieser Alternativen.
 .TP 
 \fBSlaves:\fP\fI Liste\-von\-Slaves\fP
-Wenn dieses Feld vorhanden ist enthält die \fBnächste\fP Zeile alle
-Slave\-Alternativen, die dem Masterlink dieser Alternativen zugeordnet
+Wenn dieses Feld vorhanden ist, enthält die \fBnächste\fP Zeile alle
+Slave\-Alternativen, die dem Master\-Link dieser Alternativen zugeordnet
 sind. Pro Zeile wird ein Slave aufgeführt. Jede Zeile enthält ein
 Leerzeichen, den generischen Namen des Slaves, ein weiteres Leerzeichen und
 den Pfad zu der Slave\-Alternative.
@@ -401,7 +402,7 @@ Slaves:
 .fi
 .
 .SH DIAGNOSE
-Mit \fB\-\-verbose\fP quatscht \fBupdate\-alternatives\fP ohne Unterlass über seine
+Mit \fB\-\-verbose\fP berichtet \fBupdate\-alternatives\fP fortwährend über seine
 Aktivitäten auf seinem Standardausgabekanal. Falls Probleme auftreten, gibt
 \fBupdate\-alternatives\fP eine Fehlermeldung auf seinem Standardfehlerkanal aus
 und beendet sich mit dem Exit\-Status 2. Die Diagnostiken sollten
@@ -409,7 +410,7 @@ selbsterklärend sein; falls Sie dies nicht so empfinden, melden Sie dies
 bitte als Fehler.
 .
 .SH BEISPIELE
-Es gibt mehrere Pakete, die einen zum \fBvi\fP\-kompatiblen Texteditor
+Es gibt mehrere Pakete, die einen \fBvi\fP\-kompatiblen Texteditor
 bereitstellen, beispielsweise \fBnvi\fP und \fBvim\fP. Welcher benutzt wird, wird
 durch die Linkgruppe \fBvi\fP eingestellt, welche Links für das Programm selber
 und die zugehörige Handbuchseite beinhaltet.
@@ -429,19 +430,20 @@ den folgenden Befehl und wählen dann eine Zahl aus der Liste aus:
 .RE
 .PP
 Um zur automatischen Auswahl der \fBvi\fP\-Implementation zurückzukehren, führen
-Sie folgendes als Root aus:
+Sie Folgendes als Root aus:
 .PP
 .RS
 \fBupdate\-alternatives \-\-auto vi\fP
 .RE
 .
 .SH "SIEHE AUCH"
-\fBln\fP(1), FHS, der Dateisystem Hierarchie\-Standard (Filesystem Hierarchy
+\fBln\fP(1), FHS, der Dateisystem\-Hierarchie\-Standard (Filesystem Hierarchy
 Standard).
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
-<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
-2008 von Sven Joachim <svenjoac@gmx.de>
+Die deutsche Übersetzung wurde 2004, 2006-2020 von Helge Kreutzmann
+<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de>,
+2008 von Sven Joachim <svenjoac@gmx.de> und 2019,2020 von Mario 
+Blättermann <mario.blaettermann@gmail.com> 
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die
 GNU General Public License Version 2 oder neuer für die Kopierbedingungen.
 Es gibt KEINE HAFTUNG.

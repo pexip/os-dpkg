@@ -27,15 +27,15 @@
 .TH dpkg\-shlibdeps 1 %RELEASE_DATE% %VERSION% dpkg\-Programmsammlung
 .nh
 .SH BEZEICHNUNG
-dpkg\-shlibdeps \- erstelle Substvar\-Abhängigkeiten für Laufzeitbibliotheken
+dpkg\-shlibdeps \- Substvar\-Abhängigkeiten für Laufzeitbibliotheken erstellen
 .
 .SH ÜBERSICHT
 \fBdpkg\-shlibdeps\fP [\fIOption\fP …] [\fB\-e\fP]\fIProgramm\fP [\fIOption\fP …]
 .
 .SH BESCHREIBUNG
 \fBdpkg\-shlibdeps\fP berechnet Abhängigkeiten von Laufzeitbibliotheken für
-Programme, deren Name als Argument übergeben werden. Die Abhängigkeiten
-werden zu der Datei der Substitutionsvariablen \fBdebian/substvars\fP als
+Programme, deren Namen als Argument übergeben werden. Die Abhängigkeiten
+werden zu der Datei der Ersetzungsvariablen \fBdebian/substvars\fP als
 Variablennamen \fBshlibs:\fP\fIAbhängigkeitsfeld\fP hinzugefügt, wobei
 \fIAbhängigkeitsfeld\fP der Feldname einer Abhängigkeit ist. Alle anderen
 Variablen, die mit \fBshlibs:\fP beginnen, werden aus der Datei entfernt.
@@ -44,10 +44,10 @@ Variablen, die mit \fBshlibs:\fP beginnen, werden aus der Datei entfernt.
 Abhängigkeitsinformationen. Entweder \fISymbol\fP\- oder
 \fIShlibs\fP\-Dateien. \fBdpkg\-shlibdeps\fP findet für jedes Programm, das es
 analysiert, die Bibliotheken heraus, gegen die es gelinkt ist. Bei jeder
-Bibliothek schaut es entweder in die \fISymbol\fP\- oder in in \fIShlibs\fP\-Datei
-(falls erstere nicht existiert odr falls debian/shlibs.local die relevanten
-Abhängigkeiten enthält). Beide Dateien sollten von dem Bibliothekspaket
-bereitgestellt werden und sollten daher als
+Bibliothek schaut es entweder in die \fISymbol\fP\- oder in die \fIShlibs\fP\-Datei
+(falls Erstere nicht existiert oder falls \fBdebian/shlibs.local\fP die
+relevanten Abhängigkeiten enthält). Beide Dateien sollten von dem
+Bibliothekspaket bereitgestellt werden und sollten daher als
 %ADMINDIR%/info/\fIPaket\fP.\fISymbol\fP oder %ADMINDIR%/info/\fIPaket\fP.\fIShlibs\fP
 verfügbar sein. Der Paketname wird in zwei Schritten identifiziert: zuerst
 wird die Bibliotheksdatei auf dem System gefunden (durch Prüfung der
@@ -57,7 +57,7 @@ bereitstellt, zu ermitteln.
 .SS Symboldateien
 Symboldateien enthalten feiner\-granulare Abhängigkeitsinformationen, indem
 sie die Minimalabhängigkeit für jedes von der Bibliothek exportierte Symbol
-beschreiben. Das Skript versucht, eine Symboldatei die zu dem
+beschreiben. Das Skript versucht, eine Symboldatei, die zu dem
 Bibliothekspaket gehört, an den folgenden Orten zuzuordnen (der erste
 Treffer wird verwendet):
 .IP debian/*/DEBIAN/symbols
@@ -77,13 +77,13 @@ Laufzeitbibliotheken. Falls nicht durch \fB\-\-admindir\fP überschrieben,
 befinden sich solche Dateien unter %ADMINDIR%.
 .P
 Während des Durchsuchens aller vom Programm verwendeten Symbole erinnert
-sich \fBdpkg\-shlibdeps\fP an die größte Minimalversion, die von jeder
+sich \fBdpkg\-shlibdeps\fP an die (höchste) Minimalversion, die von jeder
 Bibliothek benötigt wird. Am Ende des Prozesses ist es in der Lage, die
 minimale Abhängigkeit für jede eingesetzte Bibliothek zu schreiben
 (vorausgesetzt, die Informationen in den \fISymbol\fP\-Dateien sind korrekt).
 .P
 Als Sicherheitsmaßnahme kann eine Symbols\-Datei ein Meta\-Informationsfeld
-\fBBuild\-Depends\-Package\fP enthalten. \fBdpkg\-shlibdeps\fP extrahiert dann die
+\fBBuild\-Depends\-Package\fP enthalten. \fBdpkg\-shlibdeps\fP entnimmt dann die
 minimale Version, die von dem korrespondierenden Paket im Feld
 \fBBuild\-Depends\fP benötigt wird, und verwendet diese Version, falls sie höher
 ist als die minimale Version, die beim Durchsuchen der Symbole ermittelt
@@ -93,7 +93,7 @@ Shlibs\-Dateien ordnen Bibliotheken direkt Abhängigkeiten zu (ohne auf die
 Symbole zu schauen). Daher ist dies oft stärker als benötigt, aber dafür
 sicher und leicht zu handhaben.
 .P
-Die Abhängigkeiten für eine Bibliothek wird an verschiedenen Stellen
+Die Abhängigkeiten für eine Bibliothek werden an verschiedenen Stellen
 nachgeschlagen. Die erste Datei, die Informationen für die betrachtete
 Bibliothek bereitstellt, wird verwendet:
 .IP debian/shlibs.local
@@ -116,7 +116,7 @@ befinden sich solche Dateien unter %ADMINDIR%.
 Systemabhängige Vorgaben für Abhängigkeitsinformationen von
 Laufzeitbibliotheken.
 .P
-Die entnommenen Abhängigkeiten werden direkt verwendet (es sei den, sie
+Die entnommenen Abhängigkeiten werden direkt verwendet (es sei denn, sie
 werden als Dubletten herausgefiltert oder sie sind schwächer als eine andere
 Abhängigkeit).
 .SH OPTIONEN
@@ -125,7 +125,7 @@ ausführbaren Programmen, als ob diese mit \fB\-e\fP\fIProgramm\fP übergeben wo
 wären.
 .TP 
 \fB\-e\fP\fIProgramm\fP
-Abhängigkeiten aufnehmen, die für von \fIProgramm\fP benötigte
+Nimmt Abhängigkeiten auf, die für von \fIProgramm\fP benötigte
 Laufzeitbibliotheken angemessen sind. Diese Option kann mehrfach angegeben
 werden.
 .TP 
@@ -134,15 +134,15 @@ Stellt \fIVerzeichnis\fP der Liste der zu durchsuchenden privaten
 Laufzeitbibliotheken voran (seit Dpkg 1.17.0). Diese Option kann mehrfach
 angegeben werden.
 
-Hinweis: Verwenden Sie diese Variable, statt \fBLD_LIBRARY_PATH\fP zu setzten,
+Hinweis: Verwenden Sie diese Variable, statt \fBLD_LIBRARY_PATH\fP zu setzen,
 da diese Umgebungsvariable verwandt wird, um den Laufzeit\-Linker zu steuern
 und ihr Missbrauch zum Setzen von Pfaden zu Laufzeitbibliotheken zur Bauzeit
-kann beispielsweise beim Cross\-Übersetzen problematisch werden.
+kann beispielsweise beim Cross\-Kompilieren problematisch werden.
 .TP 
 \fB\-d\fP\fIAbhängigkeitsfeld\fP
-Füge Abhängigkeiten hinzu, die zum Abhängigkeitsfeld \fIAbhängigkeitsfeld\fP
-der Steuerdatei hinzugefügt werden sollen. (Die Abhängigkeiten für dieses
-Feld werden in die Variable \fBshlibs:\fP\fIAbhängigkeitsfeld\fP geschrieben.)
+Fügt Abhängigkeiten hinzu, die zum \fIAbhängigkeitsfeld\fP der Steuerdatei
+hinzugefügt werden sollen. (Die Abhängigkeiten für dieses Feld werden in die
+Variable \fBshlibs:\fP\fIAbhängigkeitsfeld\fP geschrieben.)
 
 Die Option \fB\-d\fP\fIAbhängigkeitsfeld\fP betrifft alle Programme, die danach
 angegeben werden, bis zum nächsten \fB\-d\fP\fIAbhängigkeitsfeld\fP. Der
@@ -155,19 +155,18 @@ als einmal in den erkannten Abhängigkeitsfeldnamen \fBPre\-Depends\fP,
 wichtigsten Abhängigkeiten repräsentiert, entfernen.
 .TP 
 \fB\-p\fP\fIVariablennamepräfix\fP
-Beginn die Substitutionsvariablen mit \fIVariablennamepräfix\fP\fB:\fP statt mit
-\fBshlibs:\fP. Entsprechend werden alle Substitutionsvariablen, die mit
-\fIVariablennamepräfix\fP\fB:\fP (statt mit \fBshlibs:\fP) beginnen, aus den
-Substitutionsvariablen entfernt.
+Beginnt die Ersetzungsvariablen mit \fIVariablennamepräfix\fP\fB:\fP statt mit
+\fBshlibs:\fP. Entsprechend werden alle Ersetzungsvariablen, die mit
+\fIVariablennamepräfix\fP\fB:\fP (statt mit \fBshlibs:\fP) beginnen, aus der
+Ersetzungsvariablendatei entfernt.
 .TP 
 \fB\-O\fP[\fIDateiname\fP]
-Gebe die Variableneinstellung in die Standardausgabe (oder nach
+Gibt die Ersetzungsvariableneinstellung in die Standardausgabe (oder nach
 \fIDateiname\fP, falls angegeben, seit Dpkg 1.17.2) aus, statt sie zu der
-Substitutionsvariablendatei (standardmäßig (\fBdebian/substvars\fP)
-hinzuzufügen.
+Ersetzungsvariablendatei (standardmäßig (\fBdebian/substvars\fP) hinzuzufügen.
 .TP 
 \fB\-t\fP\fITyp\fP
-Bevorzuge Abhängigkeitsinformationen für Laufzeitbibliotheken, die für ein
+Bevorzugt Abhängigkeitsinformationen für Laufzeitbibliotheken, die für ein
 vorgegebenes Paket markiert sind. Falls keine Markierungsinformation
 verfügbar ist, fällt dies auf unmarkierte Informationen zurück. Der
 Standard\-Pakettyp ist \fBdeb\fP. Abhängigkeitsinformationen für
@@ -176,27 +175,27 @@ sie der Namen des Typs, ein Doppelpunkt und ein Leerraumzeichen gesetzt
 wird.
 .TP 
 \fB\-L\fP\fIlokale_shlibs\-Datei\fP
-Lese die Hinwegsetz\-Abhängigkeiten von Laufzeitbibliotheken aus
+Liest die Hinwegsetz\-Abhängigkeiten von Laufzeitbibliotheken aus
 \fIlokale_shlibs\-Datei\fP statt aus \fBdebian/shlibs.local\fP.
 .TP 
 \fB\-T\fP\fISubstvars\-Datei\fP
-Schreibe Substitutionsvariablen in \fISubstvars\-Datei\fP; standardmäßig
+Schreibt Ersetzungsvariablen in \fISubstvars\-Datei\fP; standardmäßig
 \fBdebian/substvars\fP.
 .TP 
 \fB\-v\fP
-Aktiviere ausführlichen Modus (seit Dpkg 1.14.8). Eine Vielzahl von
-Nachrichten wird angezeigt, um zu erklären, was \fBdpkg\-shlibdeps\fP
-durchführt.
+Aktiviert ausführlichen Modus (seit Dpkg 1.14.8). Eine Vielzahl von
+Meldungen wird angezeigt, um zu erklären, was \fBdpkg\-shlibdeps\fP durchführt.
 .TP 
 \fB\-x\fP\fIPaket\fP
-Schließe das Paket von den generierten Abhängigkeiten aus (seit Dpkg
+Schließt das Paket von den generierten Abhängigkeiten aus (seit Dpkg
 1.14.8). Dies ist für Pakete nützlich, die ELF\-Programmdateien (Programme
 oder Bibliothekserweiterungen) bereitstellen, die eine Bibliothek im
-gleichen Paket verwenden, um selbst\-Abhängigkeiten zu vermeiden. Diese
-Option kann mehrfach verwendet werden, um mehrere Pakete auszuschließen.
+gleichen Paket verwendet, um Abhängigkeiten des Pakets zu sich selbst zu
+vermeiden. Diese Option kann mehrfach verwendet werden, um mehrere Pakete
+auszuschließen.
 .TP 
 \fB\-S\fP\fIPaketbauverzeichnis\fP
-Schaue beim Versuch, eine Bibliothek zu finden, zuerst in
+Schaut beim Versuch, eine Bibliothek zu finden, zuerst in
 \fIPaketbauverzeichnis\fP (seit Dpkg 1.14.15). Dies ist nützlich, wenn das
 Quellpaket mehrere Spielarten der gleichen Bibliothek baut und Sie
 sicherstellen wollen, dass Sie die Abhängigkeit aus einem bestimmten
@@ -205,14 +204,14 @@ Verzeichnisse werden in der gleichen Reihenfolge vor Verzeichnissen anderer
 Binärpakete probiert.
 .TP 
 \fB\-I\fP\fIPaketbauverzeichnis\fP
-Ignoriert \fIPaketbauverzeichnis\fP bei Schauen nach Shlibs, Symbolen und
+Ignoriert \fIPaketbauverzeichnis\fP beim Schauen nach Shlibs, Symbolen und
 gemeinsam benutzten Bibliotheken (seit Dpkg 1.18.5). Sie können diese Option
 mehrfach verwenden.
 .TP 
 \fB\-\-ignore\-missing\-info\fP
 Falls keine Abhängigkeitsinformationen für die Laufzeitbibliothek gefunden
 werden kann, erfolgt kein Fehlschlag (seit Dpkg 1.14.8). Von der Verwendung
-dieser Option wird abgearten, da alle Bibliotheken
+dieser Option wird abgeraten, da alle Bibliotheken
 Abhängigkeitsinformationen bereitstellen sollten (entweder über
 shlibs\-Dateien oder über symbols\-Dateien), selbst falls diese noch nicht von
 anderen Paketen verwendet werden.
@@ -225,7 +224,7 @@ keiner der Bibliotheken gefunden.“, Bit 1 (Wert=2) aktiviert die Warnung
 „Das Paket könnte eine nutzlose Abhängigkeit vermeiden“ und Bit 2 (Wert=4)
 aktiviert die Warnung „\fIProgramm\fP sollte nicht gegen \fIBibliothek\fP gelinkt
 werden“. Standardmäßig ist \fIWert\fP 3: die ersten zwei Warnungen sind
-standardmäßig aktiv, die letzte nicht. Setzten Sie \fIWert\fP auf 7, falls Sie
+standardmäßig aktiv, die letzte nicht. Setzen Sie \fIWert\fP auf 7, falls Sie
 möchten, dass alle Warnungen aktiv sein sollen.
 .TP 
 \fB\-\-admindir=\fP\fIVerz\fP
@@ -233,10 +232,10 @@ möchten, dass alle Warnungen aktiv sein sollen.
 Standardort ist \fI%ADMINDIR%\fP.
 .TP 
 \fB\-?\fP, \fB\-\-help\fP
-Zeige den Bedienungshinweis und beende.
+Zeigt einen Hinweis zum Aufruf und beendet das Programm.
 .TP 
 \fB\-\-version\fP
-Gebe die Version aus und beende sich.
+Gibt die Version aus und beendet das Programm.
 .
 .SH UMGEBUNG
 .TP 
@@ -246,9 +245,9 @@ sind: \fBauto\fP (Vorgabe), \fBalways\fP und \fBnever\fP.
 .TP 
 \fBDPKG_NLS\fP
 Falls dies gesetzt ist, wird es zur Entscheidung, ob Native Language
-Support, auch als Internationalisierung (oder i18n) Unterstützung bekannt,
-aktiviert wird (seit Dpkg 1.19.0). Die akzeptierten Werte sind: \fB0\fP und
-\fB1\fP (Vorgabe).
+Support, auch als Unterstützung für Internationalisierung (oder i18n)
+bekannt, aktiviert wird (seit Dpkg 1.19.0). Die akzeptierten Werte sind:
+\fB0\fP und \fB1\fP (Vorgabe).
 .
 .SH DIAGNOSE
 .SS Warnungen
@@ -272,7 +271,7 @@ Erweiterung und das Symbol wird von dem Programm bereitgestellt, das diese
 Erweiterung lädt. Theoretisch verfügt eine Erweiterung nicht über einen
 SONAMEn, allerdings ist dies bei diesem Programm der Fall und daher konnte
 es nicht eindeutig als Erweiterung erkannt werden. Die Tatsache, dass dieses
-Programm in einem nicht\-öffentlichen Verzeichnis gespeichert wird ist
+Programm in einem nicht\-öffentlichen Verzeichnis gespeichert wird, ist
 allerdings ein starkes Anzeichen dafür, dass es keine normale gemeinsam
 benutzte Bibliothek ist. Falls dieses Programm tatsächlich eine Erweiterung
 ist, ignorieren Sie die Warnung. Allerdings besteht immer die Möglichkeit,
@@ -281,11 +280,11 @@ einen RPATH verwenden, so dass der dynamische Lader sie findet. In diesem
 Fall ist die Bibliothek beschädigt und muss repariert werden.
 .TP 
 \fBDas Paket könnte eine nutzlose Abhängigkeit vermeiden, falls \fP\fIProgramm\fP\fB nicht gegen \fP\fIBibliothek\fP\fB gelinkt wäre (es verwendet keines der Symbole der Bibliothek).\fP
-Keines der \fIProgramme\fP die gegen \fIBibliothek\fP gelinkt sind verwendet eines
-der von der Bibliothek bereitgestellten Symbole. Indem Sie die Programme
-korrigierten, vermieden Sie die Abhängigkeit, die mit dieser Bibliothek
-verbunden ist (es sei denn, die Abhängigkeit wird auch durch eine andere
-Bibliothek generiert, die diese Bibliothek wirklich verwendet).
+Keines der \fIProgramme\fP, die gegen \fIBibliothek\fP gelinkt sind, verwendet
+eines der von der Bibliothek bereitgestellten Symbole. Indem Sie die
+Programme korrigierten, vermieden Sie die Abhängigkeit, die mit dieser
+Bibliothek verbunden ist (es sei denn, die Abhängigkeit wird auch durch eine
+andere Bibliothek generiert, die diese Bibliothek wirklich verwendet).
 .TP 
 \fBDas Paket könnte eine nutzlose Abhängigkeit vermeiden, falls \fP\fIProgramme\fP\fB nicht gegen \fP\fIBibliothek\fP\fB gelinkt wären (sie verwenden keines der Symbole der Bibliothek).\fP
 Exakt das gleiche wie die obige Warnung, aber für mehrere Programme.
@@ -302,11 +301,11 @@ wie die vorhergehende, allerdings für jedes Programm statt global für alle
 öffentliche Bibliothek nicht finden kann oder falls diese Bibliothek keine
 zugeordneten Abhängigkeitsinformationen hat (entweder eine Shlibs\- oder
 Symbols\-Datei). Eine öffentliche Bibliothek hat einen SONAME und ist
-versioniert (libirgendwas.so.\fIX\fP). Eine private Bibliothek (wie z.B. ein
+versioniert (libirgendwas.so.\fIX\fP). Eine private Bibliothek (wie z.B. eine
 Erweiterung) sollte keinen SONAME haben und braucht nicht versioniert zu
 sein.
 .TP 
-\fBkonnte Bibliothek \fP\fISONAME\-der\-Bibliothek\fP\fB benötigt von \fP\fIProgramm\fP\fB nicht finden (ihr RPATH ist »\fP\fIrpath\fP\fB«).\fP
+\fBkonnte Bibliothek \fP\fISONAME\-der\-Bibliothek\fP\fB benötigt von \fP\fIProgramm\fP\fB nicht finden (ihr RPATH ist „\fP\fIrpath\fP\fB“).\fP
 Das \fIProgramm\fP verwendet eine Bibliothek mit Namen
 \fISONAME\-der\-Bibliothek\fP, aber \fBdpkg\-shlibdeps\fP konnte diese Bibliothek
 nicht finden. \fBdpkg\-shlibdeps\fP erstellt folgendermaßen eine Liste der zu
@@ -326,9 +325,9 @@ gefunden wird, erhalten Sie diesen Fehler.
 Falls sich die nicht gefundene Bibliothek in einem privaten Verzeichnis des
 gleichen Pakets befindet, müssen Sie das Verzeichnis mit \fB\-l\fP
 hinzufügen. Falls sie sich in einem anderen gerade zu bauenden Paket
-befindet, müssen Sie sicherstellen, dass die »shlibs/symbols«\-Datei dieses
-Pakets bereits angelegt ist und dass \fB\-l\fP das geeignete Verzeichnis
-enthält, falls die Bibliothek zudem in einem privaten Verzeichnis liegt.
+befindet, müssen Sie sicherstellen, dass die „shlibs/symbols“\-Datei dieses
+Pakets bereits angelegt ist und das \fB\-l\fP das geeignete Verzeichnis enthält,
+falls die Bibliothek zudem in einem privaten Verzeichnis liegt.
 .TP 
 \fBKeine Abhängigkeitsinformationen für \fP\fIBibliotheksdatei\fP\fB (verwendet von \fP\fIProgramm\fP\fB) gefunden.\fP
 Die von \fIProgramm\fP benötigte Bibliothek wurde von \fBdpkg\-shlibdeps\fP in
@@ -343,7 +342,7 @@ Dieser Fehlschlag kann durch defekte oder fehlende Shlibs\- oder
 Symboldateien im Paket der Bibliothek ausgelöst werden. Er könnte auch
 auftreten, falls die Bibliothek im gleichen Quellpaket gebaut wird und die
 Shlibs\-Datei noch nicht angelegt wurde (wobei Sie in diesem Fall
-debian/rules korrigieren müssen, damit die Shlibs\-Datei erstellt wird bevor
+debian/rules korrigieren müssen, damit die Shlibs\-Datei erstellt wird, bevor
 \fBdpkg\-shlibdeps\fP aufgerufen wird). Defekte RPATH können auch dazu führen,
 dass die Bibliothek unter nicht\-kanonischen Namen gefunden wird
 (beispielsweise /usr/lib/openoffice.org/../lib/libssl.so.0.9.8 statt
@@ -360,9 +359,10 @@ Sie nicht verstehen, warum es Ihnen diesen Fehler meldet.
 .SH "SIEHE AUCH"
 \fBdeb\-shlibs\fP(5), \fBdeb\-symbols\fP(5), \fBdpkg\-gensymbols\fP(1).
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
-<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
-2008 von Sven Joachim <svenjoac@gmx.de>
+Die deutsche Übersetzung wurde 2004, 2006-2020 von Helge Kreutzmann
+<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de>,
+2008 von Sven Joachim <svenjoac@gmx.de> und 2019,2020 von Mario 
+Blättermann <mario.blaettermann@gmail.com> 
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die
 GNU General Public License Version 2 oder neuer für die Kopierbedingungen.
 Es gibt KEINE HAFTUNG.

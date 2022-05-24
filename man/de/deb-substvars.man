@@ -26,43 +26,42 @@
 .TH deb\-substvars 5 %RELEASE_DATE% %VERSION% dpkg\-Programmsammlung
 .nh
 .SH BEZEICHNUNG
-deb\-substvars \- Substitutionsvariablen in Debian\-Quellen
+deb\-substvars \- Ersetzungsvariablen in Debian\-Quellen
 .
 .SH ÜBERSICHT
 substvars
 .
 .SH BESCHREIBUNG
 Bevor \fBdpkg\-source\fP, \fBdpkg\-gencontrol\fP und \fBdpkg\-genchanges\fP ihre
-Steuerinformationen (zu der Quell\-control\-Datei \fB.dsc\fP für \fBdpkg\-source\fP
-und zu der Standardausgabe für \fBdpkg\-gencontrol\fP und \fBdpkg\-genchanges\fP)
-schreiben, führen sie einige Variablensubstitutionen in der Ausgabedatei
-durch.
+Steuerinformationen (zu der Quell\-\fBcontrol\fP\-Datei \fB.dsc\fP für
+\fBdpkg\-source\fP und in die Standardausgabe für \fBdpkg\-gencontrol\fP und
+\fBdpkg\-genchanges\fP) schreiben, führen sie einige Variablenersetzungen in der
+Ausgabedatei durch.
 
-Eine Variablensubstitution hat die Form
+Eine Variablenersetzung hat die Form
 \fB${\fP\fIVariablenname\fP\fB}\fP. Variablennamen bestehen aus alphanumerischen
-Zeichen (a\-zA\-Z0\-9, womit sie auch beginnen), Gedankenstrichen (\-) und
+Zeichen (a\-zA\-Z0\-9, womit sie auch beginnen), Bindestrichen (\-) und
 Doppelpunkten (:). Bei Variablennamen ist die Klein\-/Großschreibung
 relevant, auch wenn sie sich auf Gebilde beziehen, die die
-Klein\-/Großschreibung erhalten. Variablensubstitutionen werden wiederholt
+Klein\-/Großschreibung erhalten. Variablenersetzungen werden wiederholt
 durchgeführt, bis keine übrig geblieben sind; der komplette Text des Feldes
-nach der Substitution wird erneut auf weitere Substitutionen geprüft.
+nach der Ersetzung wird erneut auf weitere Ersetzungen geprüft.
 
-Nachdem alle Substitutionen erfolgt sind, wird jedes Auftreten der
-Zeichenkette \fB${}\fP (die keine erlaubte Substitution ist) durch das
-\fB$\fP\-Zeichen ersetzt.
+Nachdem alle Ersetzungen erfolgt sind, wird jedes Auftreten der Zeichenkette
+\fB${}\fP (die keine erlaubte Ersetzung ist) durch das \fB$\fP\-Zeichen ersetzt.
 
-Obwohl die Variablensubstitution bei allen Feldern der control\-Datei
+Obwohl die Variablenersetzung bei allen Feldern der \fBcontrol\fP\-Datei
 vorgenommen wird, werden einige dieser Felder während des Bauens benötigt
-und verwendet, wenn die Substitution noch nicht erfolgt ist. Daher können
-Sie Variablen nicht in den Feldern \fBPackage\fP, \fBSource\fP und \fBArchitecture\fP
+und verwendet, wenn die Ersetzung noch nicht erfolgt ist. Daher können Sie
+Variablen nicht in den Feldern \fBPackage\fP, \fBSource\fP und \fBArchitecture\fP
 verwenden.
 
-Variablenersetzung erfolgt am Inhalt der Felder, nachdem sie geparst
-(ausgewertet) wurden. Falls Sie eine Variable über mehrere Zeilen
-expandieren möchten, müssen Sie nach dem Zeilenumbruch daher kein
-Leerzeichen einfügen. Dies passiert bei der Ausgabe des Feldes implizit. Ist
-beispielsweise die Variable \fB${Description}\fP auf »foo ist bar.${Newline}foo
-ist super.« gesetzt und Sie haben das folgende Feld:
+Variablenersetzung erfolgt am Inhalt der Felder, nachdem sie ausgewertet
+wurden. Falls Sie eine Variable über mehrere Zeilen expandieren möchten,
+müssen Sie nach dem Zeilenumbruch daher kein Leerzeichen einfügen. Dies
+passiert bei der Ausgabe des Feldes implizit. Ist beispielsweise die
+Variable \fB${Description}\fP auf „foo ist bar.${Newline}foo ist super.“
+gesetzt und Sie haben das folgende Feld:
 
  Description: foo application
   ${Description}
@@ -77,9 +76,9 @@ Dann wird dies zu Folgenden führen:
   .
   Weiterer Text.
 
-Variablen können über die allgemeine \fB\-V\fP\-Option gesetzt werden. Sie können
+Variablen können über die allgemeine Option \fB\-V\fP gesetzt werden. Sie können
 auch in der \fBdebian/substvars\fP (bzw. in der über die Option \fB\-T\fP gesetzten
-Datei) angegeben werden. Diese Datei besteht auch Zeilen der Form
+Datei) angegeben werden. Diese Datei besteht aus Zeilen der Form
 \fIName\fP\fB=\fP\fIWert\fP. Leerraumzeichen am Zeilenende, leere Zeilen und Zeilen,
 die mit dem \fB#\fP\-Symbol starten (Kommentare) werden ignoriert.
 
@@ -101,13 +100,13 @@ Die Binärpaketversion (die z.B. in einem binNMU von \fBsource:Version\fP
 abweichen kann; seit Dpkg 1.13.19).
 .TP 
 \fBSource\-Version\fP
-Die Quellpaketversion (aus der changelog\-Datei). Diese Variable ist jetzt
+Die Quellpaketversion (aus der Changelog\-Datei). Diese Variable ist jetzt
 \fBveraltet\fP und gibt bei der Benutzung einen Fehler aus, da ihre Bedeutung
 von ihrer Funktion abweicht, bitte verwenden Sie \fBsource:Version\fP oder
 \fBbinary:Version\fP wo zutreffend.
 .TP 
 \fBsource:Synopsis\fP
-Die Quellpaketzusammenfassung, aus dem Feld \fBDescription\fP der Quellabsatzes
+Die Quellpaketzusammenfassung, aus dem Feld \fBDescription\fP des Quellabsatzes
 entnommen, falls dieses existiert (seit Dpkg 1.19.0).
 .TP 
 \fBsource:Extended\-Description\fP
@@ -116,11 +115,12 @@ Quellabsatzes entnommen, falls dieses existiert (seit Dpkg 1.19.0).
 .TP 
 \fBInstalled\-Size\fP
 Die ungefähre Gesamtgröße der vom Paket installierten Dateien. Dieser Wert
-wird in das entsprechende Feld der »control«\-Datei kopiert; wird es gesetzt,
-verändert es den Wert dieses Feldes. Falls diese Variable nicht gesetzt ist,
-wird \fBdpkg\-gencontrol\fP den Vorgabewert berechnen, indem es die Größen jeder
-regulären Datei und jedes Symlinks (gerundet auf 1 KiB) aufsammelt und einen
-Grundwert von 1 KiB für aller anderen Dateisystemobjekttypen verwendet.
+wird in das entsprechende Feld der \fBcontrol\fP\-Datei kopiert; wird es
+gesetzt, verändert es den Wert dieses Feldes. Falls diese Variable nicht
+gesetzt ist, wird \fBdpkg\-gencontrol\fP den Vorgabewert berechnen, indem es die
+Größen jeder regulären Datei und jedes Symlinks (gerundet auf 1 KiB)
+aufaddiert und einen Grundwert von 1 KiB für aller anderen
+Dateisystemobjekttypen verwendet.
 
 \fBHinweis\fP: Beachten Sie, dass dies stets nur ein Schätzwert sein kann, da
 die tatsächliche Größe im installierten System stark vom verwandten
@@ -129,10 +129,10 @@ weniger als in diesem Feld angegebenen Platz belegen.
 .TP 
 \fBExtra\-Size\fP
 Zusätzlicher Plattenplatz, der verwendet wird, wenn das Paket installiert
-ist. Falls diese Variable gesetzt ist, wird dieser Wert zu der
-\fBInstalled\-Size\fP\-Variablen hinzuaddiert (egal ob sie explizit gesetzt oder
-der Standardwert verwendet wird), bevor sie in das Feld \fBInstalled\-Size\fP
-der »control«\-Datei kopiert wird.
+ist. Falls diese Variable gesetzt ist, wird dieser Wert zu der Variablen
+\fBInstalled\-Size\fP hinzuaddiert (egal ob sie explizit gesetzt oder der
+Standardwert verwendet wird), bevor sie in das Feld \fBInstalled\-Size\fP der
+\fBcontrol\fP\-Datei kopiert wird.
 .TP 
 \fBS:\fP\fIFeldname\fP
 Der Wert des Quellpaket\-Absatzfeldes \fIFeldname\fP (der in der kanonischen
@@ -152,7 +152,7 @@ Quellpaketierskripte erstellt wird. Falls Sie diese Variable setzen, werden
 die Inhalte des \fBFormat\fP\-Feldes in der \fB.changes\fP\-Datei auch geändert.
 .TP 
 \fBNewline\fP, \fBSpace\fP, \fBTab\fP
-Diese Variablen enthalten das jeweils korrespondieren Zeichen
+Diese Variablen enthalten das jeweils korrespondiere Zeichen
 (\fBZeilenumbruch\fP, \fBLeerzeichen\fP und \fBTabulator\fP in dieser Reihenfolge).
 .TP 
 \fBshlibs:\fP\fIdependencyfield\fP
@@ -171,16 +171,17 @@ wird es eine Warnung erstellen und ein leerer Wert wird angenommen.
 .SH DATEIEN
 .TP 
 \fBdebian/substvars\fP
-Liste von Substitutionsvariablen und \-werten.
+Liste von Ersetzungsvariablen und \-werten.
 .
 .SH "SIEHE AUCH"
 .ad l
 \fBdpkg\fP(1), \fBdpkg\-genchanges\fP(1), \fBdpkg\-gencontrol\fP(1),
 \fBdpkg\-shlibdeps\fP(1), \fBdpkg\-source\fP(1).
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
-<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
-2008 von Sven Joachim <svenjoac@gmx.de>
+Die deutsche Übersetzung wurde 2004, 2006-2020 von Helge Kreutzmann
+<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de>,
+2008 von Sven Joachim <svenjoac@gmx.de> und 2019,2020 von Mario 
+Blättermann <mario.blaettermann@gmail.com> 
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die
 GNU General Public License Version 2 oder neuer für die Kopierbedingungen.
 Es gibt KEINE HAFTUNG.
