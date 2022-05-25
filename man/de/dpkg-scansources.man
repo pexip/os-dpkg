@@ -25,67 +25,67 @@
 .TH dpkg\-scansources 1 %RELEASE_DATE% %VERSION% dpkg\-Programmsammlung
 .nh
 .SH BEZEICHNUNG
-dpkg\-scanpackages \- erstelle Quell\-Index\-Dateien
+dpkg\-scanpackages \- Quell\-Index\-Dateien erstellen
 .
 .SH ÜBERSICHT
-\fBdpkg\-scansources\fP [\fIOption\fP …] \fIBinär\-Verz\fP [\fIoverride\-Datei\fP
-[\fIPfad\-Prefix\fP]] \fB>\fP \fISources\fP
+\fBdpkg\-scansources\fP [\fIOption\fP …] \fIBinär\-Verz\fP [\fIOverride\-Datei\fP
+[\fIPfad\-Präfix\fP]] \fB>\fP \fISources\fP
 .
 .SH BESCHREIBUNG
 \fBdpkg\-scansources\fP durchsucht das übergebene \fIBinär\-Verz\fP nach
 \&\fI.dsc\fP\-Dateien. Diese werden verwendet, um einen Debian\-Quell\-Index zu
 erstellen, der auf der Standardausgabe ausgegeben wird.
 .PP
-Die \fIoverride\-Datei\fP wird, falls angegeben, verwendet, um die Prioritäten
-in den ergebenen Index\-Datensätzen zu setzen und sich über das Betreuer\-Feld
-in den \fI.dsc\fP\-Dateien hinwegzusetzen. Diese Datei kann komprimiert sein
-(seit Dpkg 1.15.5). Lesen Sie \fBdpkg\-scanpackages\fP(1) für das Format dieser
-Datei. Hinweis: Da die override\-Datei nach Binär\- und nicht Quellpaketen
-indiziert wird, gibt es hier ein kleines Problem. Die aktuelle
-Implementierung verwendet die höchste Priorität aller von einer
+Die \fIOverride\-Datei\fP wird, falls angegeben, verwendet, um die Prioritäten
+in den sich ergebenen Index\-Datensätzen zu setzen und sich über das
+Betreuer\-Feld in den \fI.dsc\fP\-Dateien hinwegzusetzen. Diese Datei kann
+komprimiert sein (seit Dpkg 1.15.5). Lesen Sie \fBdpkg\-scanpackages\fP(1) für
+das Format dieser Datei. Hinweis: Da die Override\-Datei nach Binär\- und
+nicht Quellpaketen indiziert wird, gibt es hier ein kleines Problem. Die
+aktuelle Implementierung verwendet die höchste Priorität aller von einer
 \&\fI.dsc\fP\-Datei erzeugten Binärpakete für die Priorität des Quellpakets, und
 den Inhalt für das Hinwegsetzen über die Betreuer\-Information aus dem
 Eintrag für das erste in der \fI.dsc\fP\-Datei aufgeführte Binärpaket. Dies
 könnte sich ändern.
 .PP
-Der \fIPfad\-Präfix\fP wird, falls angegeben, vor das Directory\-Feld in dem
+Der \fIPfad\-Präfix\fP wird, falls angegeben, vor dem Feld directory in dem
 erzeugten Quell\-Index vorangestellt. Sie verwenden dies im Allgemeinen,
 damit das Directory\-Feld den Pfad von der Spitze der Debian\-Hierarchie
 enthält.
 .
 .PP
-\fBHinweis:\fP Falls Sie auf die erzeugte Sources\-Datei mit \fBapt\fP(8) zugreifen
+\fBHinweis\fP: Falls Sie auf die erzeugte Sources\-Datei mit \fBapt\fP(8) zugreifen
 wollen, werden Sie wahrscheinlich die Datei mit \fBgzip\fP(1) komprimieren
-müssen (und damit ein Sources.gz\-Datei erstellen). Apt ignoriert \- abgesehen
-von lokalem Zugriff (d.h. über \fBfile://\fP\-Quellen) \- unkomprimierte
-Sources\-Dateien.
+müssen (und damit eine Sources.gz\-Datei erstellen). Apt ignoriert \-
+abgesehen von lokalem Zugriff (d.h. über \fBfile://\fP\-Quellen) \-
+unkomprimierte Sources\-Dateien.
 .
 .SH OPTIONEN
 .IP "\fB\-n\fP, \fB\-\-no\-sort\fP" 4
-Sortiere die Index\-Datensätze nicht. Normalerweise werden sie nach
+Sortiert die Index\-Datensätze nicht. Normalerweise werden sie nach
 Quellpaketnamen sortiert.
 .TP 
 .IP "\fB\-e\fP, \fB\-\-extra\-override\fP \fIDatei\fP" 4
-Durchsuche \fIDatei\fP, um zusätzliche Overrides zu finden (seit Dpkg 1.15.4;
+Durchsucht \fIDatei\fP, um zusätzliche Overrides zu finden (seit Dpkg 1.15.4;
 die Datei kann seit Dpkg 1.15.5 komprimiert sein). Lesen Sie
 \fBdeb\-extra\-override\fP(5) für weitere Informationen über deren Format.
 .IP "\fB\-s\fP, \fB\-\-source\-override\fP \fIDatei\fP" 4
-Verwenden Sie \fIDatei\fP als Quell\-override\-Datei (die Datei kann seit Dpkg
+Verwenden Sie \fIDatei\fP als Quell\-Override\-Datei (die Datei kann seit Dpkg
 1.15.5 komprimiert sein). Die Standardeinstellung ist der Name der
-override\-Datei, die Sie angegeben haben, um \fI.src\fP ergänzt.
+Override\-Datei, die Sie angegeben haben, um \fI.src\fP ergänzt.
 .sp
-Die Quell\-override\-Datei hat ein anderes Format als die
-Binär\-override\-Datei.Sie enthält nur zwei, durch Leerraumzeichen separierte
+Die Quell\-Override\-Datei hat ein anderes Format als die
+Binär\-Override\-Datei.Sie enthält nur zwei, durch Leerraumzeichen separierte
 Felder, der erste ist der Quellpaketname und der zweite die
 Sektion. Leerzeilen und Kommentarzeilen werden in normaler Art und Weise
-ignoriert. Falls ein Paket in beiden Dateien auftaucht, dann nimmt die
-Quell\-override Vorrang für die Einstellung des Bereichs.
+ignoriert. Falls ein Paket in beiden Dateien auftaucht, dann bekommt die
+Quell\-Override Vorrang für die Einstellung der Sektion.
 .IP \fB\-\-debug\fP 4
 Schaltet Fehlersuche ein.
 .IP \fB\-\-help\fP 4
-Zeige den Bedienungshinweis und beende.
+Zeigt einen Hinweis zum Aufruf und beendet das Programm.
 .IP \fB\-\-version\fP 4
-Gebe die Version aus und beende sich.
+Gibt die Version aus und beendet das Programm.
 .
 .SH UMGEBUNG
 .TP 
@@ -95,16 +95,17 @@ sind: \fBauto\fP (Vorgabe), \fBalways\fP und \fBnever\fP.
 .TP 
 \fBDPKG_NLS\fP
 Falls dies gesetzt ist, wird es zur Entscheidung, ob Native Language
-Support, auch als Internationalisierung (oder i18n) Unterstützung bekannt,
-aktiviert wird (seit Dpkg 1.19.0). Die akzeptierten Werte sind: \fB0\fP und
-\fB1\fP (Vorgabe).
+Support, auch als Unterstützung für Internationalisierung (oder i18n)
+bekannt, aktiviert wird (seit Dpkg 1.19.0). Die akzeptierten Werte sind:
+\fB0\fP und \fB1\fP (Vorgabe).
 .
 .SH "SIEHE AUCH"
 \fBdeb\-override\fP(5), \fBdeb\-extra\-override\fP(5), \fBdpkg\-scanpackages\fP(1).
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
-<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
-2008 von Sven Joachim <svenjoac@gmx.de>
+Die deutsche Übersetzung wurde 2004, 2006-2020 von Helge Kreutzmann
+<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de>,
+2008 von Sven Joachim <svenjoac@gmx.de> und 2019,2020 von Mario 
+Blättermann <mario.blaettermann@gmail.com> 
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die
 GNU General Public License Version 2 oder neuer für die Kopierbedingungen.
 Es gibt KEINE HAFTUNG.

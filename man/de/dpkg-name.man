@@ -35,9 +35,9 @@ Diese Handbuchseite dokumentiert das \fBdpkg\-name\fP\-Programm, das eine
 einfache Möglichkeit bereitstellt, \fBDebian\fP\-Pakete in ihren vollen
 Paketnamen umzubenennen. Ein voller Paketname besteht aus
 \fIPaket\fP\fB_\fP\fIVersion\fP\fB_\fP\fIArchitektur\fP\fB.\fP\fIPakettyp\fP wie in der
-Steuerdatei des Pakets spezifiziert. Der \fIVersion\fP\-Teil des Dateinamens
-besteht aus der Versionsinformation der Originalautoren optional gefolgt von
-einem Gedankenstrich und der Revisionsinformation. Der \fIPakettyp\fP\-Teil
+Steuerdatei des Pakets angegeben. Der \fIVersion\fP\-Teil des Dateinamens
+besteht aus der Versionsinformation der Originalautoren, optional gefolgt
+von einem Bindestrich und der Revisionsinformation. Der \fIPakettyp\fP\-Teil
 entstammt dem Feld \fIpackage_type\fP (falls vorhanden) oder wird auf \fBdeb\fP
 gesetzt.
 .
@@ -47,17 +47,17 @@ gesetzt.
 Der Zieldateiname wird keine Architekturinformation enthalten.
 .TP 
 \fB\-k\fP, \fB\-\-symlink\fP
-Lege einen Symlink an, anstatt zu verschieben.
+Legt einen Symlink an, anstatt zu verschieben.
 .TP 
 \fB\-o\fP, \fB\-\-overwrite\fP
 Existierende Dateien werden überschrieben, falls sie den gleichen Namen wie
-der Zieldateiname haben.
+der Zieldatei haben.
 .TP 
 \fB\-s\fP, \fB\-\-subdir\fP [\fIVerzeichnis\fP]
 Dateien werden in ein Unterverzeichnis verschoben. Falls das als Argument
 existierende Verzeichnis existiert, dann werden die Dateien in das
 Verzeichnis verschoben, andernfalls wird das Zielverzeichnis aus dem
-»section«\-Feld des Steuerteils des Pakets entnommen. Das Zielverzeichnis
+„section“\-Feld des Steuerteils des Pakets entnommen. Das Zielverzeichnis
 wird „unstable/binary\-\fIArchitektur\fP/\fIBereich\fP“ sein. Falls die Sektion
 nicht in der Steuerdatei gefunden werden kann, dann wird \fBno\-section\fP
 angenommen, und in diesem Fall, wie auch für die Sektionen \fBnon\-free\fP und
@@ -72,10 +72,10 @@ Zielverzeichnis nicht gefunden werden kann, wird es automatisch
 angelegt. \fBVerwenden Sie diese Option mit Vorsicht.\fP
 .TP 
 \fB\-?\fP, \fB\-\-help\fP
-Zeige den Bedienungshinweis und beende.
+Zeigt einen Hinweis zum Aufruf und beendet das Programm.
 .TP 
 \fB\-v\fP, \fB\-\-version\fP
-Gebe die Version aus und beende sich.
+Gibt die Version aus und beendet das Programm.
 .
 .SH UMGEBUNG
 .TP 
@@ -85,22 +85,22 @@ sind: \fBauto\fP (Vorgabe), \fBalways\fP und \fBnever\fP.
 .TP 
 \fBDPKG_NLS\fP
 Falls dies gesetzt ist, wird es zur Entscheidung, ob Native Language
-Support, auch als Internationalisierung (oder i18n) Unterstützung bekannt,
-aktiviert wird (seit Dpkg 1.19.0). Die akzeptierten Werte sind: \fB0\fP und
-\fB1\fP (Vorgabe).
+Support, auch als Unterstützung für Internationalisierung (oder i18n)
+bekannt, aktiviert wird (seit Dpkg 1.19.0). Die akzeptierten Werte sind:
+\fB0\fP und \fB1\fP (Vorgabe).
 .
 .SH FEHLER
 Einige Pakete folgen nicht der Namensstruktur
 \fIPaket\fP\fB_\fP\fIVersion\fP\fB_\fP\fIArchitektur\fP\fB.deb\fP. Pakete, die von
 \fBdpkg\-name\fP umbenannt wurden, folgen dieser Struktur. Im Allgemeinen hat
 diese keinen Einfluss darauf, wie Pakete von \fBdselect\fP(1)/\fBdpkg\fP(1)
-installiert werden, aber andere Installationswerkzeuge können von dieser
-Benennungsstruktur abhängen.
+installiert werden, aber andere Installationswerkzeuge können auf diese
+Benennungsstruktur angewiesen sein.
 .
 .SH BEISPIELE
 .TP 
 \fBdpkg\-name bar\-foo.deb\fP
-Die Datei \fBbar\-foo.deb\fP wird in bar\-foo_1.0\-2_i386.deb oder etwas ähnliches
+Die Datei \fBbar\-foo.deb\fP wird in bar\-foo_1.0\-2_i386.deb oder etwas Ähnliches
 (abhängig von der Information, die in dem Steuerteil von \fBbar\-foo.deb\fP ist)
 umbenannt.
 .TP 
@@ -121,9 +121,10 @@ Dies kann beim Bau neuer Pakete verwendet werden.
 \fBdeb\fP(5), \fBdeb\-control\fP(5), \fBdpkg\fP(1), \fBdpkg\-deb\fP(1), \fBfind\fP(1),
 \fBxargs\fP(1).
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
-<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
-2008 von Sven Joachim <svenjoac@gmx.de>
+Die deutsche Übersetzung wurde 2004, 2006-2020 von Helge Kreutzmann
+<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de>,
+2008 von Sven Joachim <svenjoac@gmx.de> und 2019,2020 von Mario 
+Blättermann <mario.blaettermann@gmail.com> 
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die
 GNU General Public License Version 2 oder neuer für die Kopierbedingungen.
 Es gibt KEINE HAFTUNG.

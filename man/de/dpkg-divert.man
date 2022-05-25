@@ -26,7 +26,7 @@
 .TH dpkg\-divert 1 %RELEASE_DATE% %VERSION% dpkg\-Programmsammlung
 .nh
 .SH BEZEICHNUNG
-dpkg\-divert \- Hinwegsetzen über die Paketversion einer Datei
+dpkg\-divert \- Über die Paketversion einer Datei hinwegsetzen
 .
 .SH ÜBERSICHT
 \fBdpkg\-divert\fP [\fIOption\fP …] \fIBefehl\fP
@@ -56,20 +56,20 @@ Entfernt eine Umleitung für \fIDatei\fP. Die Datei wird derzeit nicht
 umbenannt, siehe \fB\-\-rename\fP.
 .TP 
 \fB\-\-list\fP\fI Glob\-Muster\fP
-Liste Umleitungen auf, die auf \fIGlob\-Muster\fP passen.
+Listet Umleitungen auf, die auf \fIGlob\-Muster\fP passen.
 .TP 
 \fB\-\-listpackage\fP\fI Datei\fP
-Gibt den Namen des Pakets aus, die \fIDatei\fP umleitet (seit Dpkg
+Gibt den Namen des Pakets aus, welches die \fIDatei\fP umleitet (seit Dpkg
 1.15.0). Gibt LOCAL aus, falls die Datei lokal umgeleitet wurde und nichts,
 falls \fIDatei\fP nicht umgeleitet wurde.
 .TP 
 \fB\-\-truename\fP\fI Datei\fP
-Zeige den echten Namen für eine umgeleitete Datei an.
+Zeigt den echten Namen für eine umgeleitete Datei an.
 .
 .SH OPTIONEN
 .TP 
 \fB\-\-admindir\fP\fI Verzeichnis\fP
-Setze das adminitrative Verzeichnis auf \fIVerzeichnis\fP (Standard:
+Setzt das administrative Verzeichnis auf \fIVerzeichnis\fP (Standard:
 „\fI%ADMINDIR%\fP“).
 .TP 
 \fB\-\-instdir\fP\fI Verzeichnis\fP
@@ -83,8 +83,8 @@ Verzeichnis auf „\fIVerzeichnis\fP\fB%ADMINDIR%\fP“ gesetzt wird (seit Dpkg
 1.19.2).
 .TP 
 \fB\-\-divert\fP\fI Umleitziel\fP
-\fIUmleitziel\fP ist der Zielort, wo die Versionen der \fIDatei\fP, wie sie von
-anderen Paketen bereitgestellt wird, hin umgeleitet werden.
+\fIUmleitziel\fP ist der Zielort, wohin die Versionen der \fIDatei\fP, wie sie von
+anderen Paketen bereitgestellt wird, umgeleitet werden.
 .TP 
 \fB\-\-local\fP
 Gibt an, dass alle Versionen dieser Datei umgeleitet sind. Dies bedeutet,
@@ -97,14 +97,14 @@ um eine lokal geänderte Version zu installieren.
 wird, d.h. \fIDatei\fP wird für alle Pakete außer \fIPaket\fP umgeleitet.
 .TP 
 \fB\-\-quiet\fP
-Ruhiger Modus, d.h. keine langatmige Ausgabe.
+Stiller Modus, d.h. keine ausführliche Ausgabe.
 .TP 
 \fB\-\-rename\fP
-Schiebe die Dateien tatsächlich beiseite (oder zurück). \fBdpkg\-divert\fP wird
+Schiebt die Dateien tatsächlich beiseite (oder zurück). \fBdpkg\-divert\fP wird
 den Arbeitsvorgang abbrechen, falls die Zieldatei bereits existiert. Dies
 ist das typische Verhalten, das für Umleitungen von Dateien aus der Gruppe
-der non\-\fBEssential\fP\-Pakete verwandt wird (siehe \fB\-\-no\-rename\fP für weitere
-Details).
+der nicht\-\fBEssential\fP\-Pakete verwandt wird (siehe \fB\-\-no\-rename\fP für
+weitere Details).
 .TP 
 \fB\-\-no\-rename\fP
 Legt fest, dass die Datei beim Hinzufügen oder Entfernen der Umleitung in
@@ -116,13 +116,13 @@ das Standardverhalten, was sich allerdings im Dpkg 1.20.x\-Zyklus ändern
 wird.
 .TP 
 \fB\-\-test\fP
-Testmodus, d.h. führe keine Änderungen durch, sondern zeige sie lediglich.
+Testmodus, d.h. führt keine Änderungen durch, sondern zeigt sie lediglich.
 .TP 
 \fB\-?\fP, \fB\-\-help\fP
-Zeige den Bedienungshinweis und beende.
+Zeigt einen Hinweis zum Aufruf und beendet das Programm.
 .TP 
 \fB\-\-version\fP
-Gebe die Version aus und beende sich.
+Gibt die Version aus und beendet das Programm.
 .
 .SH RÜCKGABEWERT
 .TP 
@@ -130,9 +130,9 @@ Gebe die Version aus und beende sich.
 Die angeforderte Aktion wurde erfolgreich ausgeführt.
 .TP 
 \fB2\fP
-Fataler oder nicht behebbarer Fehler aufgrund ungültiger
-Befehlszeilenverwendung oder Interaktionen mit dem System, wie Zugriffe auf
-die Datenbank, Speicherzuweisungen usw.
+Fataler oder nicht behebbarer Fehler aufgrund eines ungültigen
+Befehlszeilenaufrufs oder Interaktionen mit dem System, wie Zugriffe auf die
+Datenbank, Speicherzuweisungen usw.
 .
 .SH UMGEBUNG
 .TP 
@@ -160,7 +160,7 @@ befindet sich im \fBdpkg\fP\-Administrationsverzeichnis, zusammen mit anderen
 für \fBdpkg\fP wichtigen Dateien, wie \fIstatus\fP oder \fIavailable\fP.
 .br
 Hinweis: \fBdpkg\-divert\fP erhält die alte Kopie dieser Datei, mit der Endung
-\fI\-old\fP, bevor es sie mit der neuen ersetzt.
+\fI\-old\fP, bevor es sie durch die neue ersetzt.
 .
 .SH BEMERKUNGEN
 Beim Hinzufügen ist die Standardeinstellung \fB\-\-local\fP und \fB\-\-divert\fP
@@ -203,9 +203,10 @@ dpkg\-divert \-\-package wibble \-\-rename \-\-remove /usr/bin/example
 .SH "SIEHE AUCH"
 \fBdpkg\fP(1).
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
-<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
-2008 von Sven Joachim <svenjoac@gmx.de>
+Die deutsche Übersetzung wurde 2004, 2006-2020 von Helge Kreutzmann
+<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de>,
+2008 von Sven Joachim <svenjoac@gmx.de> und 2019,2020 von Mario 
+Blättermann <mario.blaettermann@gmail.com> 
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die
 GNU General Public License Version 2 oder neuer für die Kopierbedingungen.
 Es gibt KEINE HAFTUNG.

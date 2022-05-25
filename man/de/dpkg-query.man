@@ -26,7 +26,7 @@
 .TH dpkg\-query 1 %RELEASE_DATE% %VERSION% dpkg\-Programmsammlung
 .nh
 .SH BEZEICHNUNG
-dpkg\-query \- ein Werkzeug, um die dpkg\-Datenbank abzufragen
+dpkg\-query \- ein Werkzeug zur Abfrage der Dpkg\-Datenbank
 .
 .SH ÜBERSICHT
 \fBdpkg\-query\fP [\fIOption\fP …] \fIBefehl\fP
@@ -38,17 +38,18 @@ in der \fBdpkg\fP\-Datenbank aufgeführt sind.
 .SH BEFEHLE
 .TP 
 \fB\-l\fP, \fB\-\-list\fP [\fIPaketname\-Muster\fP …]
-Liste alle bekannten Pakete auf, deren Namen auf ein oder mehrere bestimmte
-Muster passen, unabhängig ihres Status, dazu gehören alle echten und
+Listet alle bekannten Pakete auf, deren Namen auf ein oder mehrere bestimmte
+Muster passen, unabhängig ihres Status. Dazu gehören alle echten und
 virtuellen Pakete, die in irgendeinem Abhängigkeitsbeziehungsfeld (wie
 \fBBreaks\fP, \fBEnhances\fP usw.) referenziert sind. Falls kein
-\fIPaketname\-Muster\fP angegeben ist, liste alle Pakete in \fI%ADMINDIR%/status\fP
-auf. Dabei werden alle Pakete ausgeschlossen, die als »nicht\-installiert«
-markiert sind (d.h. früher endgültig entfernt wurden). Normale
-Shell\-Jokerzeichen sind im \fIPaketname\-Muster\fP erlaubt. Beachten Sie, dass
-Sie wahrscheinlich \fIPaketname\-Muster\fP durch Anführungszeichen schützen
-müssen, um die Shell an der Dateinamen\-Expansion zu hindern. Folgender
-Befehl listet beispielsweise alle Paketnamen, die mit »libc6« beginnen, auf:
+\fIPaketname\-Muster\fP angegeben ist, werden alle Pakete in
+\fI%ADMINDIR%/status\fP aufgelistet. Dabei werden alle Pakete ausgeschlossen,
+die als „nicht\-installiert“ markiert sind (d.h. früher endgültig entfernt
+wurden). Normale Shell\-Jokerzeichen sind im \fIPaketname\-Muster\fP
+erlaubt. Beachten Sie, dass Sie wahrscheinlich \fIPaketname\-Muster\fP durch
+Anführungszeichen schützen müssen, um die Shell an der Dateinamen\-Expansion
+zu hindern. Folgender Befehl listet beispielsweise alle Paketnamen, die mit
+„libc6“ beginnen, auf:
 
 .nf
   \fBdpkg\-query \-l 'libc6*'\fP
@@ -95,86 +96,86 @@ Leser gedacht und nicht leicht maschinenlesbar. Lesen Sie über die Optionen
 konfigurieren.
 .TP 
 \fB\-W\fP, \fB\-\-show\fP [\fIPaketname\-Muster\fP …]
-Genau wie die \fB\-\-list\fP\-Option wird dies alle Pakete, die auf das angegebene
-Muster passen, aufführen. Allerdings kann die Ausgabe mit der
-\fB\-\-showformat\fP\-Option angepasst werden. Im Standardausgabeformat wird eine
-Zeile pro passendem Paket ausgegeben, wobei in jeder Zeile Name (erweitert
-mit der Architektur\-Spezifizierung für \fBMulti\-Arch\fP\-\fBsame\fP\-Pakete) und
-installierte Version des Pakets getrennt durch einen Tabulator enthalten
-sind.
+Genau wie die Option \fB\-\-list\fP wird dies alle Pakete, die auf das angegebene
+Muster passen, aufführen. Allerdings kann die Ausgabe mit der Option
+\fB\-\-showformat\fP angepasst werden. Im Standardausgabeformat wird eine Zeile
+pro passendem Paket ausgegeben, wobei in jeder Zeile Name (erweitert mit der
+Architekturspezifikation für \fBMulti\-Arch\fP\-\fBsame\fP\-Pakete) und installierte
+Version des Pakets getrennt durch einen Tabulator enthalten sind.
 .TP 
 \fB\-s\fP, \fB\-\-status\fP [\fIPaketname\fP …]
-Berichte Zustand des angegebenen Paketes. Dies zeigt nur den Eintrag in der
-Datenbank der Zustände der installierten Pakete. Falls kein \fIPaketname\fP
+Meldet den Zustand des angegebenen Paketes. Dies zeigt nur den Eintrag in
+der Datenbank der Zustände der installierten Pakete. Falls kein \fIPaketname\fP
 festgelegt ist, werden alle Paketeinträge in der Statusdatenbank angezeigt
-(seit dpkg 1.19.1). Wenn mehrere \fIPaketname\fP\-Einträge aufgeführt sind,
+(seit Dpkg 1.19.1). Wenn mehrere \fIPaketname\fP\-Einträge aufgeführt sind,
 werden die angeforderten Statuseinträge durch Leerzeilen getrennt, wobei die
 Reihenfolge identisch zu der in der Argumentenliste ist.
 .TP 
 \fB\-L\fP, \fB\-\-listfiles\fP \fIPaketname\fP …
-Aufführen von Dateien, die durch \fIPaketname\fP installiert wurden. Wenn
-mehrere \fIPaketname\fP aufgeführt sind, werden die angeforderten Dateilisten
-durch Leerzeilen getrennt, wobei die Reihenfolge identisch zu der in der
+Führt Dateien auf, die durch \fIPaketname\fP installiert wurden. Wenn mehrere
+\fIPaketname\fPn aufgeführt sind, werden die angeforderten Dateilisten durch
+Leerzeilen getrennt, wobei die Reihenfolge identisch zu der in der
 Argumentenliste ist. Beachten Sie aber, dass Dateien, die durch
 Paket\-spezifische Installationsskripte angelegt wurden, nicht aufgeführt
 werden.
 .TP 
 \fB\-\-control\-list\fP \fIPaketname\fP
-Aufführen von Steuerdateien, die auf Ihrem System von \fIPaketname\fP
-installiert wurden (seit Dpkg 1.16.5). Diese können als Eingabeargumente für
+Führt Steuerdateien auf, die auf Ihrem System von \fIPaketname\fP installiert
+wurden (seit Dpkg 1.16.5). Diese können als Eingabeargumente für
 \fB\-\-control\-show\fP verwandt werden.
 .TP 
 \fB\-\-control\-show\fP \fIPaketname\fP \fISteuerdatei\fP
-Die \fISteuerdatei\fP, die auf Ihrem System von \fIPaketname\fP installiert wurde,
-auf der Standardausgabe ausgeben (seit Dpkg 1.16.5).
+Gibt die \fISteuerdatei\fP, die auf Ihrem System von \fIPaketname\fP installiert
+wurde, auf der Standardausgabe aus (seit Dpkg 1.16.5).
 .TP 
 \fB\-c\fP, \fB\-\-control\-path\fP \fIPaketname\fP [\fISteuerdatei\fP]
 Listet die Pfade für Steuerdateien auf, die von \fIPaketname\fP auf Ihrem
 System installiert wurden (seit Dpkg 1.15.4). Falls \fISteuerdatei\fP angegeben
-wurde, liste nur den Pfad für diese Steuerdatei auf, falls sie existiert.
+wurde, wird nur der Pfad für diese Steuerdatei aufgelistet, falls sie
+existiert.
 
 \fBWarnung\fP: Dieser Befehl ist veraltet, da er direkten Zugriff auf die
 interne Dpkg\-Datenbank gibt. Bitte wechseln Sie stattdessen zu
 \fB\-\-control\-list\fP und \fB\-\-control\-show\fP für alle Fälle, in denen diese
-Befehle die gleichen Ergebnisse geben. Solange es noch mindestens einen Fall
-gibt, in dem dieser Befehl benötigt wird (d.h. wenn ein beschädigendes
+Befehle die gleichen Ergebnisse liefern. Solange es noch mindestens einen
+Fall gibt, in dem dieser Befehl benötigt wird (d.h. wenn ein beschädigendes
 Postrm\-Betreuerskript entfernt werden muss), und solange es keine gute
-Lösung dafür gibt wird dieser Befehl nicht entfernt.
+Lösung dafür gibt, wird dieser Befehl nicht entfernt.
 .TP 
 \fB\-S\fP, \fB\-\-search\fP \fIDateiname\-Suchmuster\fP …
-Suche nach Paketen, denen Paketen, die auf ein bestimmtes Muster passen,
-gehören. Die normalen Jokerzeichen (»wildcards«) der Shell können in diesem
+Sucht nach Paketen, denen Dateien, die auf ein bestimmtes Muster passen,
+gehören. Die normalen Jokerzeichen („wildcards“) der Shell können in diesem
 Muster verwandt werden, wobei der Stern (\fB*\fP) und das Fragezeichen (\fB?\fP)
-auf einen Schrägstrich passen und der inverse Schrägstrich (\fB\e\fP) als
+auf einen Schrägstrich passen und der Rückwärtsschrägstrich (\fB\e\fP) als
 Maskierzeichen verwandt wird.
 
 Falls das erste Zeichen im \fIDateiname\-Suchmuster\fP keines aus ‚\fB*[?/\fP’ ist,
-dann wird es als Teilzeichenkette\-Suche betrachtet und implizit durch ‚\fB*\fP’
-eingeschlossen (wie in \fB*\fP\fIDateiname\-Suchmuster\fP\fB*\fP). Falls die
+dann wird es als Teilzeichenkette\-Vergleich betrachtet und implizit durch
+‚\fB*\fP’ eingeschlossen (wie in \fB*\fP\fIDateiname\-Suchmuster\fP\fB*\fP). Falls die
 nachfolgende Zeichenkette etwas aus ‚\fB*[?\e\fP’ enthält, dann wird dies wie
 ein Glob\-Muster behandelt, andernfalls werden alle abschließenden ‚\fB/\fP’
-oder ‚\fB/.\fP’ entfernt und ein »literal path lookup« durchgeführt.
+oder ‚\fB/.\fP’ entfernt und ein „literal path lookup“ durchgeführt.
 
 Dieser Befehl wird weder die zusätzlichen Dateien, die durch
 Betreuer\-Skripte angelegt wurden, noch Alternativen aufführen.
 .TP 
 \fB\-p\fP, \fB\-\-print\-avail\fP [\fIPaketname\fP …]
-Zeige Details über Pakete an, wie diese in \fI%ADMINDIR%/available\fP
+Zeigt Details über Pakete an, wie diese in \fI%ADMINDIR%/available\fP
 vorliegen. Falls kein \fIPaketname\fP festgelegt ist, werden alle in der
 Datenbank \fIavailable\fP verfügbaren Paketeinträge angezeigt (seit Dpkg
-1.19.1). Wenn mehrere \fIPaketname\fP aufgeführt sind, werden die angeforderten
-\fIavailable\fP\-Einträge durch Leerzeilen getrennt, wobei die Reihenfolge
-identisch zu der in der Argumentenliste ist.
+1.19.1). Wenn mehrere \fIPaketname\fPn aufgeführt sind, werden die
+angeforderten \fIavailable\fP\-Einträge durch Leerzeilen getrennt, wobei die
+Reihenfolge identisch zu der in der Argumentenliste ist.
 
 Benutzer APT\-basierter Oberflächen sollten \fBapt\-cache show\fP \fIPaketname\fP
 verwenden, da die Datei \fIavailable\fP nur bei der Benutzung von \fBdselect\fP
 aktuell bleibt.
 .TP 
 \fB\-?\fP, \fB\-\-help\fP
-Zeige den Bedienungshinweis und beende.
+Zeigt einen Hinweis zum Aufruf und beendet das Programm.
 .TP 
 \fB\-\-version\fP
-Gebe die Version aus und beende sich.
+Gibt die Version aus und beendet das Programm.
 .
 .SH OPTIONEN
 .TP 
@@ -183,8 +184,8 @@ Gebe die Version aus und beende sich.
 \fI%ADMINDIR%\fP.
 .TP 
 \fB\-\-load\-avail\fP
-Auch die »available«\-Datei laden, wenn die Befehle \fB\-\-show\fP und \fB\-\-list\fP
-verwandt werden, die jetzt standardmnäßig nur die Statusdatei laden (seit
+Lädt auch die „available“\-Datei, wenn die Befehle \fB\-\-show\fP und \fB\-\-list\fP
+verwandt werden, die jetzt standardmäßig nur die Statusdatei laden (seit
 Dpkg 1.16.2).
 .TP 
 \fB\-\-no\-pager\fP
@@ -245,7 +246,7 @@ Felder, die im Binärpaket abgespeichert sind, landen dort):
     \fBSource\fP
     \fBStatus\fP (intern)
     \fBSuggests\fP
-    \fBTag\fP (normalerweise nicht im .deb sondern in Packages\-Dateien des Depots)
+    \fBTag\fP (normalerweise nicht im .deb, sondern in Packages\-Dateien des Depots)
     \fBTriggers\-Awaited\fP (intern)
     \fBTriggers\-Pending\fP (intern)
     \fBVersion\fP
@@ -259,11 +260,11 @@ für Felder in Steuerdateien benutzen):
 .RS
 .TP 
 \fBbinary:Package\fP
-Es enthält den Binärpaketnamen mit einer möglichen
-Architektur\-Spezifizierung wie „libc6:amd64“ (seit Dpkg 1.16.2). Eine
-Architektur\-Spezifizierung dient dazu, einen eindeutigen Paketnamen zu
-erzeugen, falls beispielsweise das Paket ein Feld \fBMulti\-Arch\fP mit dem Wert
-\fBsame\fP hat oder das Paket für eine fremde Architektur ist.
+Es enthält den Binärpaketnamen mit einer möglichen Architekturspezifikation
+wie „libc6:amd64“ (seit Dpkg 1.16.2). Eine Architekturspezifikation dient
+dazu, einen eindeutigen Paketnamen zu erzeugen, falls beispielsweise das
+Paket ein Feld \fBMulti\-Arch\fP mit dem Wert \fBsame\fP hat oder das Paket für
+eine fremde Architektur ist.
 .TP 
 \fBbinary:Synopsis\fP
 Es enthält die Kurzbeschreibung des Pakets (seit Dpkg 1.19.1).
@@ -312,7 +313,7 @@ Felder, die in der Statusdatei gefunden werden können
 (d.h. benutzerdefinierte Felder), abgefragt werden. Sie werden so
 dargestellt, wie sie gefunden werden, es erfolgt keine Umwandlung oder
 Fehlerüberprüfung. Um den Namen des \fBdpkg\fP\-Betreuers und die installierte
-Version zu erhalten, könnten Sie folgendes ausführen:
+Version zu erhalten, könnten Sie Folgendes ausführen:
 
 .nf
   \fBdpkg\-query \-W \-f='${binary:Package} ${Version}\et${Maintainer}\en' dpkg\fP
@@ -330,9 +331,9 @@ Datei oder kein Paket gefunden wurde (außer für \fB\-\-control\-path\fP,
 sind).
 .TP 
 \fB2\fP
-Fataler oder nicht behebbarer Fehler aufgrund ungültiger
-Befehlszeilenverwendung oder Interaktionen mit dem System, wie Zugriffe auf
-die Datenbank, Speicherzuweisungen usw.
+Fataler oder nicht behebbarer Fehler aufgrund eines ungültigen
+Befehlszeilenaufrufs oder Interaktionen mit dem System, wie Zugriffe auf die
+Datenbank, Speicherzuweisungen usw.
 .
 .SH UMGEBUNG
 .SS "Externe Umgebung"
@@ -344,7 +345,7 @@ wird (seit Dpkg 1.19.2).
 \fBPAGER\fP
 .TQ
 \fBDPKG_PAGER\fP
-Setzt den zu verwendenen Pager\-Befehl (seit Dpkg 1.19.1), der mit „\fB$SHELL
+Setzt den zu verwendenden Pager\-Befehl (seit Dpkg 1.19.1), der mit „\fB$SHELL
 \-c\fP“ ausgeführt wird. Falls \fBSHELL\fP nicht gesetzt ist, wird stattdessen
 „\fBsh\fP“ verwandt. \fBDPKG_PAGER\fP setzt die Umgebungsvariable \fBPAGER\fP außer
 Kraft (seit Dpkg 1.19.2).
@@ -359,7 +360,7 @@ sind: \fBauto\fP (Vorgabe), \fBalways\fP und \fBnever\fP.
 .SS "Interne Umgebung"
 .TP 
 \fBLESS\fP
-Von \fBdpkg\-query\fP auf »\fB\-FRSXMQ\fP« definiert, falls es nicht bereits gesetzt
+Von \fBdpkg\-query\fP auf „\fB\-FRSXMQ\fP“ definiert, falls es nicht bereits gesetzt
 ist oder wenn ein Pager gestartet wird (seit Dpkg 1.19.2). Um das
 Vorgabeverhalten zu verändern, kann diese Variable auf einen anderen Wert
 einschließlich der leeren Zeichenkette voreingestellt werden oder die
@@ -371,9 +372,10 @@ Optionen mit „\fB\-+\fP“ zu deaktivieren, beispielsweise \fBDPKG_PAGER="less
 \fBdpkg\fP(1).
 
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
-<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
-2008 von Sven Joachim <svenjoac@gmx.de>
+Die deutsche Übersetzung wurde 2004, 2006-2020 von Helge Kreutzmann
+<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de>,
+2008 von Sven Joachim <svenjoac@gmx.de> und 2019,2020 von Mario 
+Blättermann <mario.blaettermann@gmail.com> 
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die
 GNU General Public License Version 2 oder neuer für die Kopierbedingungen.
 Es gibt KEINE HAFTUNG.

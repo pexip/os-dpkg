@@ -1,3 +1,23 @@
+dpkg (1.19.8pexip1) pexip; urgency=medium
+
+  * New upstream release
+
+ -- Steve McIntyre <steve.mcintyre@pexip.com>  Wed, 25 May 2022 16:41:35 +0100
+
+dpkg (1.19.8) buster-security; urgency=medium
+
+  [ Guillem Jover ]
+  * Perl modules:
+    - Dpkg::Source::Archive: Prevent directory traversal for in-place extracts.
+      Reported by Max Justicz <max@justi.cz>. Fixes CVE-2022-1664.
+  * Build system:
+    - Build gitlab CI images for buster instead of sid.
+
+  [ Updated man pages translations ]
+  * German (Helge Kreutzmann).
+
+ -- Guillem Jover <guillem@debian.org>  Tue, 24 May 2022 13:40:09 +0200
+
 dpkg (1.19.7pexip2) pexip; urgency=medium
 
   * Rebuild in buster environment

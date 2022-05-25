@@ -63,24 +63,24 @@ einem doppelten Bindestrich übergeben müssen, anpassen.
 .SH "GEMEINSAME PARAMETER"
 .TP 
 \fIvorhergehende_Version\fP
-Definiert die letzte Version des Pakets, dessen Upgrade die Operation
-auslösen soll. Es ist wichtig, \fIvorhergehende_Version\fP korrekt zu
-berechnen, so dass die Operationen korrekt ausgeführt werden, selbst falls
-der Benutzer das Paket mit einer lokalen Version neugebaut hat. Falls
-\fIvorhergehende_Version\fP leer ist oder weggelassen wurde wird die Operation
-bei jedem Upgrade versucht (Hinweis: Es ist sicherer, die Version anzugeben
-und damit die Operation nur einmal versuchen zu lassen).
+Definiert die letzte Version des Pakets, dessen Upgrade die Aktion auslösen
+soll. Es ist wichtig, \fIvorhergehende_Version\fP korrekt zu berechnen, so dass
+die Aktionen korrekt ausgeführt werden, selbst falls der Benutzer das Paket
+mit einer lokalen Version neu gebaut hat. Falls \fIvorhergehende_Version\fP
+leer ist oder weggelassen wurde, wird die Aktion bei jedem Upgrade versucht
+(Hinweis: Es ist sicherer, die Version anzugeben und damit die Aktion nur
+einmal versuchen zu lassen).
 
-Falls das Conffile in mehreren Versionen nicht ausgeliefert wurde und Sie
+Falls die Conffile in mehreren Versionen nicht ausgeliefert wurde und Sie
 jetzt die Betreuerskripte anpassen, um die überflüssige Datei zu entfernen,
 sollte \fIvorhergehende_Version\fP auf die Version des Pakets gesetzt werden,
 die Sie jetzt zusammenstellen, nicht auf die erste Version des Pakets, bei
-dem das Conffile fehlte. Dies trifft genauso auch auf alle anderen Aktionen
+dem die Conffile fehlte. Dies trifft genauso auch auf alle anderen Aktionen
 zu.
 
 Wird beispielsweise eine Conffile in Version \fB2.0\-1\fP eines Pakets entfernt,
 sollte \fIvorhergehende_Version\fP auf \fB2.0\-1~\fP gesetzt werden. Dies führt
-dazu, dass das Conffile entfernt wird, selbst falls der Benutzer die
+dazu, dass die Conffile entfernt wird, selbst falls der Benutzer die
 vorhergehende Version \fB1.0\-1\fP als \fB1.0\-1local1\fP neu gebaut hat. Oder ein
 Paket, das einen Pfad von einem Symlink (das in Version \fB1.0\-1\fP
 ausgeliefert wurde) zu einem Verzeichnis (ausgeliefert in Version \fB2.0\-1\fP)
@@ -88,24 +88,25 @@ wechselt, aber die eigentliche Umstellung in den Betreuerskripten in Version
 \fB3.0\-1\fP durchführt, sollte \fIvorhergehende_Version\fP auf \fB3.0\-1~\fP setzen.
 .TP 
 \fIPaket\fP
-Der Paketname, dem der Pfadname gehört. Wenn das Paket „Multi\-Arch: same“
-ist, muss dieser Parameter die Architektur\-Spezifikation enthalten,
-andernfalls sollte er normalerweise die Architektur\-Spezifikation \fBnicht\fP
-enthalten (da dies Cross\-Grades verhindern oder die Umstellung von
-architekturspezifisch auf die Architektur \fBall\fP oder umgekehrt verhindern
-würde). Falls dieser Parameter leer oder nicht angegeben ist, werden die
-(von \fBdpkg\fP bei der Ausführung der Betreuerskripte gesetzten)
-Umgebungsvariablen \fBDPKG_MAINTSCRIPT_PACKAGE\fP und \fBDPKG_MAINTSCRIPT_ARCH\fP
-verwandt, um den Architektur\-spezifizierten Paketnamen zu erstellen.
+Der Paketname, dem der Pfadname gehört bzw. die Pfadnamen gehören. Wenn das
+Paket „Multi\-Arch: same“ ist, muss dieser Parameter die
+Architekturspezifikation enthalten, andernfalls sollte er normalerweise die
+Architekturspezifikation \fBnicht\fP enthalten (da dies Cross\-Grades verhindern
+oder die Umstellung von architekturspezifisch auf die Architektur \fBall\fP
+oder umgekehrt verhindern würde). Falls dieser Parameter leer oder nicht
+angegeben ist, werden die (von \fBdpkg\fP bei der Ausführung der
+Betreuerskripte gesetzten) Umgebungsvariablen \fBDPKG_MAINTSCRIPT_PACKAGE\fP
+und \fBDPKG_MAINTSCRIPT_ARCH\fP verwandt, um den Architektur\-spezifizierten
+Paketnamen zu erstellen.
 .TP 
 \fB\-\-\fP
 Alle Parameter der Betreuerskripte müssen nach \fB\-\-\fP an das Programm
 weitergeleitet werden.
 .SH "CONFFILE\-BEZOGENE AUFGABEN"
 .P
-Beim Upgrade eines Pakets wird \fBdpkg\fP ein Conffile (eine
+Beim Upgrade eines Pakets wird \fBdpkg\fP eine Conffile (eine
 Konfigurationsdatei, bei der \fBdpkg\fP die Änderungen des Benutzers erhalten
-soll) nicht automatischen entfernen, falls sie nicht in der neueren Version
+soll) nicht automatisch entfernen, falls sie nicht in der neueren Version
 enthalten ist. Es gibt zwei Hauptgründe dafür; der erste ist, dass die
 Conffile versehentlich entfallen sein und die nächste Version sie wieder
 herstellen könnte und die Benutzer die Änderung nicht weggeworfen sehen
@@ -138,9 +139,9 @@ Betreuerskripte \fBpreinst\fP, \fBpostinst\fP und \fBpostrm\fP implementiert:
 Aktuelle Implementierung: im \fBpreinst\fP wird geprüft, ob die Conffile
 geändert wurde. Dann wird sie entweder in \fIConffile\fP\fB.dpkg\-remove\fP (falls
 sie nicht geändert wurde) oder in \fIConffile\fP\fB.dpkg\-backup\fP (falls sie
-geändert wurde) umbenannt. Im \fBpostinst\fP wird letztere in
+geändert wurde) umbenannt. Im \fBpostinst\fP wird Letztere in
 \fIConffile\fP\fB.dpkg\-bak\fP umbenannt und als Referenz behalten, da sie
-Benutzeränderungen enthält, während erstere entfernt wird. Falls das Upgrade
+Benutzeränderungen enthält, während Erstere entfernt wird. Falls das Upgrade
 des Pakets abgebrochen wird, reinstalliert \fBpostrm\fP die ursprüngliche
 Conffile. Während des vollständigen Löschens wird \fBpostrm\fP auch die bisher
 behaltene Datei \fB.dpkg\-bak\fP entfernen.
@@ -166,7 +167,7 @@ umzubenennenden Conffile.
 Aktuelle Implementierung: das \fBpreinst\fP überprüft, ob die Conffile
 verändert wurde, falls ja, verbleibt sie am Platz, andernfalls wird sie in
 \fIalte_Conffile\fP\fB.dpkg\-remove\fP umbenannt. Bei der Konfiguration entfernt
-das \fBpostinst\fP \fIalte_Conffile\fP\fB.dpkg\-remove\fP und bennent \fIalte_Conffile\fP
+das \fBpostinst\fP \fIalte_Conffile\fP\fB.dpkg\-remove\fP und benennt \fIalte_Conffile\fP
 in \fIneue_Conffile\fP um, falls \fIalte_Conffile\fP noch existiert. Falls
 abort\-upgrade/abort\-install eintritt, benennt das \fBpostrm\fP wieder
 \fIalte_Conffile\fP\fB.dpkg\-remove\fP in \fIalte_Conffile\fP zurück, falls notwendig.
@@ -175,7 +176,7 @@ abort\-upgrade/abort\-install eintritt, benennt das \fBpostrm\fP wieder
 .
 Beim Upgrade eines Pakets wird \fBdpkg\fP einen Symlink nicht automatisch in
 ein Verzeichnis und umgekehrt umwandeln. Installationen älterer Versionen
-(»downgrades«) werden nicht unterstützt und der Pfad verbleibt wie er ist.
+(„downgrades“) werden nicht unterstützt und der Pfad verbleibt wie er ist.
 .
 .SS "Einen Symlink in ein Verzeichnis umwandeln"
 .
@@ -236,8 +237,8 @@ markiert, so dass Dpkg es nachverfolgen kann. Bei der Konfiguration beendet
 Verzeichnis und \fIPfadname\fP noch das Vorbereitungsverzeichnis ist. Es
 entfernt die Markierungsdatei im Vorbereitungsverzeichnis, verschiebt die
 neu erstellten Dateien im Vorbereitungsverzeichnis in das Symlink\-Ziel
-\fIneues_Ziel\fP/, ersetzt das jetzt leere Vorbereitungsverzeichnis
-\fIPfadnbame\fP durch einen Symlink auf \fIneues_Ziel\fP und entfernt
+\fIneues_Ziel\fP/, ersetzt das jetzt leere Vorbereitungsverzeichnis \fIPfadname\fP
+durch einen Symlink auf \fIneues_Ziel\fP und entfernt
 \fIPfadname\fP.\fB.dpkg\-backup\fP. Falls abort\-upgrade/abort\-install eintritt,
 benennt das \fBpostrm\fP wieder \fIPfadname\fP\fB.dpkg\-backup\fP in \fIPfadname\fP
 zurück, falls notwendig.
@@ -249,8 +250,8 @@ Bei der Benutzung der Paketierungshelfer prüfen Sie bitte, ob eine native
 Aufwand verringert werden. Lesen Sie beispielsweise \fBdh_installdeb\fP(1).
 .P
 Da \fBdpkg\-maintscript\-helper\fP im \fBpreinst\fP verwandt wird, benötigt der
-bedingungslose Einsatz eine pre\-Abhängigkeit (\fIpre\-dependency\fP), um
-sicherzustellen, dass die Mindestversion von \fBdpkg\fP breits entpackt
+bedingungslose Einsatz eine prä\-Abhängigkeit (\fIpre\-dependency\fP), um
+sicherzustellen, dass die Mindestversion von \fBdpkg\fP bereits entpackt
 wurde. Die benötigte Version hängt vom verwandten Befehl ab, für
 \fBrm_conffile\fP und \fBmv_conffile\fP lautet sie 1.15.7.2, für \fBsymlink_to_dir\fP
 und \fBdir_to_symlink\fP lautet sie 1.17.14:
@@ -258,7 +259,7 @@ und \fBdir_to_symlink\fP lautet sie 1.17.14:
     \fBPre\-Depends:\fP dpkg (>= 1.17.14)
 .P
 In vielen Fällen sind aber die Ausführungen des Programms für das Paket
-nicht kritisch und statt einer pre\-Abhängigkeit soll das Programm nur
+nicht kritisch und statt einer prä\-Abhängigkeit soll das Programm nur
 aufgerufen werden, falls bekannt ist, dass der benötigte Befehl vom derzeit
 installierten \fBdpkg\fP unterstützt wird:
 .P
@@ -281,9 +282,10 @@ sind: \fBauto\fP (Vorgabe), \fBalways\fP und \fBnever\fP.
 .ad l
 \fBdh_installdeb\fP(1).
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
-<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
-2008 von Sven Joachim <svenjoac@gmx.de>
+Die deutsche Übersetzung wurde 2004, 2006-2020 von Helge Kreutzmann
+<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de>,
+2008 von Sven Joachim <svenjoac@gmx.de> und 2019,2020 von Mario 
+Blättermann <mario.blaettermann@gmail.com> 
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die
 GNU General Public License Version 2 oder neuer für die Kopierbedingungen.
 Es gibt KEINE HAFTUNG.

@@ -72,14 +72,14 @@ Autor der Software, die paketiert wurde.
 Das Format der Paketbeschreibung ist eine kurze knappe Zusammenfassung auf
 der ersten Zeile (nach dem Feld \fBDescription\fP). Die folgenden Zeilen
 sollten als längere, detailliertere Beschreibung verwendet werden. Jede
-Zeile der Langbeschreibung muss von einem Leerzeichen begonnen werden, und
+Zeile der Langbeschreibung muss mit einem Leerzeichen beginnen und
 Leerzeilen in der Langbeschreibung müssen einen einzelnen ‚\fB.\fP’ hinter dem
 einleitenden Leerzeichen enthalten.
 .TP 
 \fBSection:\fP\fI Sektion\fP
-Dies ist ein allgemeines Feld, das dem Paket eine Kategorie gibt, basierend
-auf der Software, die es installiert. Einige übliche Sektionen sind
-\fButils\fP, \fBnet\fP, \fBmail\fP, \fBtext\fP, \fBx11\fP usw.
+Dies ist ein allgemeines Feld, das das Paket in eine Kategorie einordnet,
+basierend auf der Software, die es installiert. Einige übliche Sektionen
+sind \fButils\fP, \fBnet\fP, \fBmail\fP, \fBtext\fP, \fBx11\fP usw.
 .TP 
 \fBPriority:\fP\fI Priorität\fP
 Setzt die Bedeutung dieses Pakets in Bezug zu dem Gesamtsystem. Übliche
@@ -98,8 +98,8 @@ von KiB.
 Dieses Feld wird normalerweise nur benötigt, wenn die Antwort \fByes\fP
 lautet. Es bezeichnet ein Paket, das für den ordnungsgemäßen Betrieb des
 Systems benötigt wird. Dpkg oder jedes andere Installationswerkzeug wird es
-nicht erlauben, ein \fBEssential\fP\-Paket zu entfernen (zumindestens nicht ohne
-die Verwendung einer der »force«\-Optionen).
+nicht erlauben, ein \fBEssential\fP\-Paket zu entfernen (zumindest nicht ohne
+die Verwendung einer der „force“\-Optionen).
 .TP 
 \fBBuild\-Essential:\fP \fByes\fP|\fBno\fP
 Dieses Feld wird normalerweise nur benötigt, wenn die Antwort \fByes\fP lautet
@@ -107,10 +107,10 @@ und es wird typischerweise durch die Archivsoftware eingefügt. Es vermerkt
 ein Paket, das zum Bau anderer Pakete benötigt wird.
 .TP 
 \fBArchitecture:\fP \fIarch\fP|\fBall\fP (empfohlen)
-Die Architektur spezifiziert den Hardwaretyp für den dieses Paket kompiliert
-wurde. Geläufige Architekturen sind \fBamd64\fP, \fBarmel\fP, \fBi386\fP, \fBpowerpc\fP
-usw. Beachten Sie, dass der Wert \fBall\fP für Pakete gedacht ist, die
-Architektur\-unabhängig sind. Einige Beispiele hierfür sind Shell\- und
+Die Architektur spezifiziert den Hardwaretyp, für den dieses Paket
+kompiliert wurde. Geläufige Architekturen sind \fBamd64\fP, \fBarmel\fP, \fBi386\fP,
+\fBpowerpc\fP usw. Beachten Sie, dass der Wert \fBall\fP für Pakete gedacht ist,
+die Architektur\-unabhängig sind. Einige Beispiele hierfür sind Shell\- und
 Perl\-Skripte und Dokumentation.
 .TP 
 \fBOrigin:\fP\fI Name\fP
@@ -125,7 +125,7 @@ Format ist \fIBTS\-Art\fP\fB://\fP\fIBTS\-Adresse\fP wie in
 Die \fIURL\fP des Original\- (Upstream\-)Projekts.
 .TP 
 \fBTag:\fP \fI Liste\-von\-Markierungen\fP
-Liste der unterstützten Markierungen (»Tags«), die die Eigenschaften des
+Liste der unterstützten Markierungen („Tags“), die die Eigenschaften des
 Pakets beschreiben. Die Beschreibung und die Liste der unterstützten
 Markierungen kann in dem Paket \fBdebtags\fP gefunden werden.
 .TP 
@@ -137,7 +137,7 @@ Multi\-Arch\-Installation verhalten soll.
 \fBno\fP
 Dieser Wert ist die Vorgabe, falls das Feld nicht angegeben ist. In diesem
 Fall ist das Hinzufügen des Feldes mit dem expliziten Wert \fBno\fP im
-allgemeinen nicht notwendig.
+Allgemeinen nicht notwendig.
 .TP 
 \fBsame\fP
 Das Paket ist mit sich selbst koinstallierbar, darf aber nicht dazu verwandt
@@ -179,40 +179,40 @@ Liste von Paketen, die benötigt werden, damit dieses Paket eine
 nicht\-triviale Menge an Funktionen anbieten kann. Die
 Paketverwaltungssoftware wird es nicht erlauben, dass ein Paket installiert
 wird, falls die in seinem \fBDepends\fP\-Feld aufgeführten Pakete nicht
-installiert sind (zumindestens nicht ohne Verwendung der
-»Force«\-Optionen). Bei einer Installation werden Postinst\-Skripte von
-Paketen, die im Feld \fBDepends\fP aufgeführt sind, vor den Postinst\-Skripten
-der eigentlichen Pakete ausgeführt. Bei der gegenteiligen Operation, der
-Paket\-Entfernung, wird das Prerm\-Skript eines Paketes vor den Prerm\-Skripten
-der Pakete ausgeführt, die im Feld \fBDepends\fP aufgeführt sind.
+installiert sind (zumindest nicht ohne Verwendung der „force“\-Optionen). Bei
+einer Installation werden Postinst\-Skripte von Paketen, die im Feld
+\fBDepends\fP aufgeführt sind, vor den Postinst\-Skripten der eigentlichen
+Pakete ausgeführt. Bei der gegenteiligen Aktion, der Paket\-Entfernung, wird
+das Prerm\-Skript eines Paketes vor den Prerm\-Skripten der Pakete ausgeführt,
+die im Feld \fBDepends\fP aufgeführt sind.
 .TP 
 \fBPre\-Depends:\fP \fI Paketliste\fP
-Liste an Paketen die installiert \fBund\fP konfiguriert sein müssen, bevor
+Liste an Paketen, die installiert \fBund\fP konfiguriert sein müssen, bevor
 dieses Paket installiert werden kann. Dies wird normalerweise in dem Fall
 verwendet, wo dieses Paket ein anderes Paket zum Ausführen seines
-preinst\-Skriptes benötigt.
+Preinst\-Skriptes benötigt.
 .TP 
 \fBRecommends:\fP \fI Paketliste\fP
-Liste an Paketen, die in allen, abgesehen von ungewöhnlichen, Installationen
-zusammen angefunden würden. Die Paketverwaltungssoftware wird den Benutzer
-warnen, falls er ein Paket ohne die im \fBRecommends\fP\-Feld aufgeführten
-Pakete installiert.
+Liste an Paketen, die zusammen mit diesem in allen \- außer in eher
+ungewöhnlichen \- Installationen enthalten wären. Die
+Paketverwaltungssoftware wird den Benutzer warnen, falls er ein Paket ohne
+die im \fBRecommends\fP\-Feld aufgeführten Pakete installiert.
 .TP 
 \fBSuggests:\fP \fI Paketliste\fP
-Liste an Paketen die einen Bezug zu diesem haben und vielleicht seine
-Nützlichkeit erweitern könnten, aber ohne die das zu installierende Paket
-perfekt sinnvoll ist.
+Liste an Paketen, die einen Bezug zu diesem haben und vielleicht seinen
+Nutzwert vergrößern könnten, aber ohne die das zu installierende Paket
+dennoch sinnvoll nutzbar ist.
 .LP
-Die Syntax der \fBDepends\fP, \fBPre\-Depends\fP, \fBRecommends\fP und
-\fBSuggests\fP\-Felder ist eine Liste von Gruppen von alternativen Paketen. Jede
-Gruppe ist eine Liste von durch vertikale Striche (oder „Pipe“\-Symbole)
-‚\fB|\fP’ getrennte Pakete. Die Gruppen werden durch Kommata getrennt. Kommata
-müssen als „UND“, vertikale Striche als „ODER“ gelesen werden, wobei die
-vertikalen Striche stärker binden. Jeder Paketname wird optional gefolgt von
-einer Architektur\-Spezifikation, die nach einem Doppelpunkt »:« angehängt
-wird, optional gefolgt von einer Versionsnummer\-Spezifikation in Klammern.
+Die Syntax der Felder \fBDepends\fP, \fBPre\-Depends\fP, \fBRecommends\fP und
+\fBSuggests\fP ist eine Liste von Gruppen von alternativen Paketen. Jede Gruppe
+ist eine Liste von durch vertikale Striche (oder „Pipe“\-Symbole) ‚\fB|\fP’
+getrennte Pakete. Die Gruppen werden durch Kommata getrennt. Kommata müssen
+als „UND“, vertikale Striche als „ODER“ gelesen werden, wobei die vertikalen
+Striche stärker binden. Jedem Paketnamen folgt optional eine
+Architekturspezifikation, die nach einem Doppelpunkt „:“ angehängt wird,
+optional gefolgt von einer Versionsnummer\-Spezifikation in Klammern.
 .LP
-Eine Architektur\-Spezifikation kann eine echte Debian\-Architektur sein (seit
+Eine Architekturspezifikation kann eine echte Debian\-Architektur sein (seit
 Dpkg 1.16.5) oder \fBany\fP (seit Dpkg 1.16.2). Falls sie fehlt, ist die
 Vorgabe die aktuelle Programmpaketarchitektur. Ein echter
 Debian\-Architekturname wird genau auf diese Architektur für diesen
@@ -227,7 +227,7 @@ kleiner als, ‚\fB>=\fP’ für größer als oder identisch zu, ‚\fB<=\fP’ 
 kleiner als oder identisch zu und ‚\fB=\fP’ für identisch zu.
 .TP 
 \fBBreaks:\fP \fI Paketliste\fP
-Liste Paketen auf, die von diesem Paket beschädigt werden, zum Beispiel in
+Listet Paketen auf, die von diesem Paket beschädigt werden, zum Beispiel in
 dem sie Fehler zugänglich machen, wenn sich das andere Paket auf dieses
 Paket verlässt. Die Paketverwaltungssoftware wird es beschädigten Paketen
 nicht erlauben, sich zu konfigurieren; im Allgemeinen wird das Problem
@@ -236,8 +236,8 @@ durchgeführt wird.
 .TP 
 \fBConflicts:\fP \fI Paketliste\fP
 Liste an Paketen, die mit diesem in Konflikt stehen, beispielsweise indem
-beide Dateien den gleichen Namen enthalten. Die Paketverwaltungssoftware
-wird es nicht erlauben, Pakete, die in Konflikt stehen, gleichzeitig zu
+beide Dateien gleichen Namens enthalten. Die Paketverwaltungssoftware wird
+es nicht erlauben, Pakete, die in Konflikt stehen, gleichzeitig zu
 installieren. Zwei in Konflikt stehende Pakete sollten jeweils eine
 \fBConflicts\fP\-Zeile enthalten, die das andere Paket erwähnen.
 .TP 
@@ -251,11 +251,11 @@ Dateien wie das im Konflikt stehende Paket hat.
 Die Syntax von \fBBreaks\fP, \fBConflicts\fP und \fBReplaces\fP ist eine Liste von
 Paketnamen, getrennt durch Kommata (und optionalen Leerraumzeichen). Im
 \fBBreaks\fP\- und \fBConflicts\fP\-Feld sollte das Komma als „ODER“ gelesen
-werden. Eine optionale Architektur\-Spezifikation kann mit der gleichen
-Syntax wie oben an den Paketnamen angehängt werden; der Vorgabewert ist
-allerdings \fBany\fP statt der Architektur des Programms. Eine optionale
-Version kann auch mit der gleichen Syntax wie oben für die \fBBreaks\fP\-,
-\fBConflicts\fP\- und \fBReplaces\fP\-Felder angegeben werden.
+werden. Eine optionale Architekturspezifikation kann mit der gleichen Syntax
+wie oben an den Paketnamen angehängt werden; der Vorgabewert ist allerdings
+\fBany\fP statt der Architektur des Programms. Eine optionale Version kann auch
+mit der gleichen Syntax wie oben für die \fBBreaks\fP\-, \fBConflicts\fP\- und
+\fBReplaces\fP\-Felder angegeben werden.
 .
 .TP 
 \fBEnhances:\fP \fI Paketliste\fP
@@ -268,16 +268,16 @@ bereitstellt. Gewöhnlich wird dies verwendet, wenn mehrere Pakete alle den
 gleichen Dienst bereitstellen. Beispielsweise können Sendmail und Exim als
 Mailserver dienen, daher stellen sie ein gemeinsames Paket
 („mail\-transport\-agent“) bereit, von dem andere Pakete abhängen können. Dies
-erlaubt es Sendmail oder Exim als gültige Optionen zur Erfüllung der
+erlaubt es Sendmail oder Exim, als gültige Optionen zur Erfüllung der
 Abhängigkeit zu dienen. Dies verhindert, dass Pakete, die von einem
-E\-Mail\-Server abhängen, alle Paketnamen für alle E\-Mail\-Server wissen und
+E\-Mail\-Server abhängen, alle Paketnamen für alle E\-Mail\-Server kennen und
 ‚\fB|\fP’ zur Unterteilung der Liste verwenden müssen.
 .LP
 Die Syntax von \fBProvides\fP ist eine Liste von Paketnamen, getrennt durch
 Kommata (und optionalen Leerraumzeichen). Eine optionale
-Architektur\-Spezifikation kann mit der gleichen Syntax wie oben an den
+Architekturspezifikation kann mit der gleichen Syntax wie oben an den
 Paketnamen angehängt werden. Falls diese fehlt, ist die Vorgabe die binäre
-Paketarchitektur. Eine optionale genaue (identisch mit) Version kann auch
+Paketarchitektur. Eine optionale genaue („identisch mit“) Version kann auch
 mit der gleichen Syntax wie oben angegeben werden (seit Dpkg 1.17.11
 berücksichtigt).
 .
@@ -297,7 +297,7 @@ erfüllt werden kann.
 \fBBuilt\-For\-Profiles:\fP\fI Profilliste (veraltet)\fP
 Dieses Feld legte eine durch Leerraumzeichen getrennte Liste von Bauprofilen
 fest, unter denen dieses Programmpaket gebaut wurde (von Dpkg 1.17.2 bis
-1.18.18). Die bisher in diesem Feld gefundenen Informationen können jetzt in
+1.18.18). Die bisher in diesem Feld enthaltene Informationen können jetzt in
 der Datei \fB.buildinfo\fP gefunden werden, die es ersetzt.
 .
 .TP 
@@ -331,13 +331,13 @@ Pre\-Depends: libc6 (>= 2.0.105)
 Provides: rgrep
 Conflicts: rgrep
 Description: GNU grep, egrep und fgrep.
- Die GNU\-Familie der Grep\-Werkzeuge könnte die »schnellste im Westen« sein.
- GNU Grep basiert auf einem schellen »lazy\-state deterministic matcher«
+ Die GNU\-Familie der Grep\-Werkzeuge könnte die „schnellste im Westen“ sein.
+ GNU Grep basiert auf einem schellen „lazy\-state deterministic matcher“
  (rund zweimal so schnell wie der standardmäßige Unix\-Egrep) hybridisiert
  mit einer Boyer\-Moore\-Gosper\-Suche für eine feste Zeichenkette, die
- unmöglichen Text von der Betrachtung durch den vollen »Matcher« verhindert
+ unmöglichen Text von der Betrachtung durch den vollen „Matcher“ verhindert,
  ohne notwendigerweise jedes Zeichen anzuschauen. Das Ergebnis ist
- typischerweise um ein mehrfaches Schneller als Unix Grep oder Egrep.
+ typischerweise um ein Mehrfaches schneller als Unix Grep oder Egrep.
  (Reguläre Ausdrücke, die Rückreferenzierungen enthalten, werden allerdings
  langsamer laufen.)
 .fi
@@ -352,9 +352,10 @@ speziellen Zweck und ausführbaren Format dient.
 \fBdeb\-src\-control\fP(5), \fBdeb\fP(5), \fBdeb\-version\fP(7), \fBdebtags\fP(1),
 \fBdpkg\fP(1), \fBdpkg\-deb\fP(1).
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
-<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
-2008 von Sven Joachim <svenjoac@gmx.de>
+Die deutsche Übersetzung wurde 2004, 2006-2020 von Helge Kreutzmann
+<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de>,
+2008 von Sven Joachim <svenjoac@gmx.de> und 2019,2020 von Mario 
+Blättermann <mario.blaettermann@gmail.com> 
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die
 GNU General Public License Version 2 oder neuer für die Kopierbedingungen.
 Es gibt KEINE HAFTUNG.

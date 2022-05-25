@@ -43,7 +43,7 @@ Sie können die Host\-Architektur (Wirt\-Architektur) spezifizieren, indem Sie
 eine oder beide der Optionen \fB\-\-host\-arch\fP oder \fB\-\-host\-type\fP
 verwenden. Der Standardwert wird über einen externen Aufruf an \fBgcc\fP(1)
 ermittelt oder ist identisch mit der Bauarchitektur, falls sowohl \fBCC\fP als
-auch Gcc nicht verfügbar sind. Einer von \fB\-\-host\-arch\fP oder \fB\-\-host\-type\fP
+auch GCC nicht verfügbar sind. Einer von \fB\-\-host\-arch\fP oder \fB\-\-host\-type\fP
 ist ausreichend, der Wert des anderen wird auf einen brauchbaren Wert
 gesetzt. Tatsächlich ist es oft besser, nur einen der beiden anzugeben, da
 \fBdpkg\-architecture\fP Sie warnen wird, falls Ihre Wahl nicht mit dem
@@ -52,11 +52,11 @@ Standardwert übereinstimmt.
 .SH BEFEHLE
 .TP 
 \fB\-l\fP, \fB\-\-list\fP
-Zeige die Umgebungsvariablen, eine pro Zeile, in dem Format
+Zeigt die Umgebungsvariablen, eine pro Zeile, in dem Format
 \fIVARIABLE=Wert\fP. Dies ist die Standardaktion.
 .TP 
 \fB\-e\fP, \fB\-\-equal\fP \fIArchitektur\fP
-Überprüfe auf Gleichheit der Architekturen (seit Dpkg 1.13.13). Es prüft die
+Überprüft auf Gleichheit der Architekturen (seit Dpkg 1.13.13). Es prüft die
 aktuelle oder angegebene Debian\-Host\-Architektur mit \fIArchitektur\fP auf
 Gleichheit. Diese Aktion expandiert nicht die Architektur\-Platzhalter
 (Wildcards). Der Befehl beendet sich mit einem Exit\-Status von 0, falls eine
@@ -64,37 +64,37 @@ Gleichheit. Diese Aktion expandiert nicht die Architektur\-Platzhalter
 
 .TP 
 \fB\-i\fP, \fB\-\-is\fP \fIArchitektur\-Platzhalter\fP
-Überprüfe auf Gleichheit der Architekturen (seit Dpkg 1.13.13). Es prüft die
+Überprüft auf Gleichheit der Architekturen (seit Dpkg 1.13.13). Es prüft die
 aktuelle oder angegebene Debian\-Host\-Architektur mit
 \fIArchitektur\-Platzhalter\fP, nachdem dieser zu einem Architektur\-Platzhalter
 expandiert wurde und prüft, ob sie passen. Der Befehl beendet sich mit einem
 Exit\-Status von 0, falls eine Übereinstimmung besteht, andernfalls mit 1.
 .TP 
 \fB\-q\fP, \fB\-\-query\fP \fIVariablenname\fP
-Zeige den Wert einer einzelnen Variablen an.
+Zeigt den Wert einer einzelnen Variablen an.
 .TP 
 \fB\-s\fP, \fB\-\-print\-set\fP
-Zeige einen Export\-Befehl. Dies kann dazu verwendet werden, um
-Umgebungsvariablen mittels eval zu setzen.
+Zeigt einen Export\-Befehl. Dies kann dazu verwendet werden, um
+Umgebungsvariablen mittels „eval“ zu setzen.
 .TP 
 \fB\-u\fP, \fB\-\-print\-unset\fP
-Ähnlich wie \fB\-\-print\-unset\fP, gebe einen Export\-Befehl aus, der alle
+Gibt ähnlich wie \fB\-\-print\-unset\fP einen Export\-Befehl aus, der alle
 Variablen löscht.
 .TP 
 \fB\-c\fP, \fB\-\-command\fP \fIBefehlszeichenkette\fP
-Führe eine \fIBefehlszeichenkette\fP in einer Umgebung aus, in der alle
+Führt eine \fIBefehlszeichenkette\fP in einer Umgebung aus, in der alle
 Variablen auf die festgelegten Werte gesetzt sind.
 .TP 
 \fB\-L\fP, \fB\-\-list\-known\fP
-Gib eine Liste von gültigen Architekturnamen aus. Möglicherweise durch eine
+Gibt eine Liste von gültigen Architekturnamen aus. Möglicherweise durch eine
 oder mehrere der Abgleich\-Optionen \fB\-\-match\-wildcard\fP, \fB\-\-match\-bits\fP oder
 \fB\-\-match\-endian\fP eingeschränkt (seit Dpkg 1.17.14).
 .TP 
 \fB\-?\fP, \fB\-\-help\fP
-Zeige den Bedienungshinweis und beende.
+Zeigt einen Hinweis zum Aufruf und beendet das Programm.
 .TP 
 \fB\-\-version\fP
-Gebe die Version aus und beende sich.
+Gibt die Version aus und beendet das Programm.
 .
 .SH OPTIONEN
 .TP 
@@ -118,16 +118,16 @@ auf den angegebenen Architektur\-Platzhalter passen (seit Dpkg 1.17.14).
 Begrenzt die mit \fB\-\-list\-known\fP aufgeführten Architekturen auf solche mit
 den angegebenen CPU\-Bits (seit Dpkg 1.17.14). Entweder \fB32\fP oder \fB64\fP.
 .TP 
-\fB\-E\fP, \fB\-\-match\-endian\fP \fIArchitektur\-Endianness\fP
+\fB\-E\fP, \fB\-\-match\-endian\fP \fIArchitektur\-Bytereihenfolge\fP
 Begrenzt die mit \fB\-\-list\-known\fP aufgeführten Architekturen auf solche mit
-der angegebenen Endianness (seit Dpkg 1.17.14). Entweder \fBlittle\fP oder
+der angegebenen Bytereihenfolge (seit Dpkg 1.17.14). Entweder \fBlittle\fP oder
 \fBbig\fP.
 .TP 
 \fB\-f\fP, \fB\-\-force\fP
 Existierende Umgebungsvariablen mit dem gleichen Namen wie vom Skript
 verwendet werden nicht überschrieben (d.h. sie werden von
-\fBdpkg\-architecture\fP verwendet), es sei denn, die »force«\-Markierung ist
-gesetzt. Dies erlaubt es dem Benutzer einen Wert zu überschreiben, selbst
+\fBdpkg\-architecture\fP verwendet), es sei denn, die „force“\-Markierung ist
+gesetzt. Dies erlaubt es dem Benutzer, einen Wert zu überschreiben, selbst
 wenn der Aufruf von \fBdpkg\-architecture\fP tief in einem anderen Skript
 versteckt ist (beispielsweise \fBdpkg\-buildpackage\fP(1)).
 .
@@ -147,10 +147,9 @@ spezifiziert. Beispiele: i386, sparc, hurd\-i386.
 .IP Debian\-Architekturtupel 4
 Ein Debian\-Architekturtupel ist eine vollqualifizierte Architektur mit allen
 Komponenten ausgeschrieben. Dies unterscheidet sich von der
-Debian\-Architektur zumindestens in der Weise, dass das \fIABI\fP nicht
-eingebettet ist. Das aktuelle Tupel hat die Form
-\fIABI\fP\-\fILibc\fP\-\fIOS\fP\-\fICPU\fP. Beispiele: base\-gnu\-linux\-amd64,
-eabihf\-musl\-linux\-arm.
+Debian\-Architektur zumindest in der Weise, dass das \fIABI\fP nicht eingebettet
+ist. Das aktuelle Tupel hat die Form \fIABI\fP\-\fILibc\fP\-\fIOS\fP\-\fICPU\fP. Beispiele:
+base\-gnu\-linux\-amd64, eabihf\-musl\-linux\-arm.
 .IP Debian\-Architektur\-Platzhalter 4
 Ein Debian\-Architektur\-Platzhalter ist eine spezielle
 Architektur\-Zeichenkette, die auf jede reale Architektur, die ein Teil davon
@@ -165,21 +164,21 @@ die folgenden Tupel äquivalent:
 .fi
 Beispiele: linux\-any, any\-i386, hurd\-any, eabi\-any\-any\-arm, musl\-any\-any.
 .IP GNU\-Systemtyp 4
-Eine Architektur\-Spezifikations\-Zeichenkette besteht aus zwei, durch einen
+Eine Architekturspezifikationszeichenkette besteht aus zwei, durch einen
 Bindestrich getrennten Teilen: CPU und System. Beispiele: i586\-linux\-gnu,
 sparc\-linux\-gnu, i686\-gnu, x86_64\-netbsd.
 .IP Multiarch\-Tripel 4
-Der bereinigte GNU\-Systemtyp, wird für Dateipfade verwandt. Dieses Tripel
+Der bereinigte GNU\-Systemtyp; wird für Dateipfade verwandt. Dieses Tripel
 ändert sich auch nicht, wenn das zugrundeliegende ISA erhöht wird, so dass
 die daraus resultierenden Pfade dauerhaft stabil bleiben. Derzeit ist der
 einzige Unterschied zum GNU\-Sytemtyp, dass der CPU\-Anteil für i386\-basierte
-Systeme immer i386 lautet. Beispiele: i386\-linux\-gnu,
+Systeme immer „i386“ lautet. Beispiele: i386\-linux\-gnu,
 x86_64\-linux\-gnu. Beispielpfade: /lib/powerpc64le\-linux\-gnu/,
 /usr/lib/i386\-kfreebsd\-gnu/.
 .
 .SH VARIABLEN
 Die folgenden Variablen werden von \fBdpkg\-architecture\fP gesetzt (siehe den
-Abschnitt \fBAUSDRÜCKE\fP für eine Beschreibung des Benennungsschematas):
+Abschnitt \fBAUSDRÜCKE\fP für eine Beschreibung des Benennungsschemas):
 .IP \fBDEB_BUILD_ARCH\fP 4
 Die Debian\-Architektur der Baumaschine.
 .IP \fBDEB_BUILD_ARCH_ABI\fP 4
@@ -193,7 +192,7 @@ Der Debian\-CPU\-Name der Baumaschine. (Seit Dpkg 1.13.2).
 .IP \fBDEB_BUILD_ARCH_BITS\fP 4
 Die Zeigergröße der Baumaschine in Bits. (Seit Dpkg 1.15.4).
 .IP \fBDEB_BUILD_ARCH_ENDIAN\fP 4
-Die Endianness der Baumaschine (little/big; seit Dpkg 1.15.4).
+Die Bytereihenfolge der Baumaschine (little/big; seit Dpkg 1.15.4).
 .IP \fBDEB_BUILD_GNU_CPU\fP 4
 Der CPU\-Teil von \fBDEB_BUILD_GNU_TYPE\fP.
 .IP \fBDEB_BUILD_GNU_SYSTEM\fP 4
@@ -201,8 +200,8 @@ Der System\-Teil von \fBDEB_BUILD_GNU_TYPE\fP.
 .IP \fBDEB_BUILD_GNU_TYPE\fP 4
 Der GNU\-Systemtyp der Baumaschine.
 .IP \fBDEB_BUILD_MULTIARCH\fP 4
-Der klargestellte GNU\-Systemtyp der Baumaschine, wird für Dateisystempfade
-benutzt.
+Der klargestellte GNU\-Systemtyp der Baumaschine, der für Dateisystempfade
+benutzt wird.
 .IP \fBDEB_HOST_ARCH\fP 4
 Die Debian\-Architektur der Host\-Maschine.
 .IP \fBDEB_HOST_ARCH_ABI\fP 4
@@ -216,7 +215,7 @@ Der Debian\-CPU\-Name der Host\-Maschine. (Seit Dpkg 1.13.2).
 .IP \fBDEB_HOST_ARCH_BITS\fP 4
 Die Zeigergröße der Host\-Maschine in Bits. (Seit Dpkg 1.15.4).
 .IP \fBDEB_HOST_ARCH_ENDIAN\fP 4
-Die Endianness der Host\-Maschine (little/big; seit Dpkg 1.15.4).
+Die Bytereihenfolge der Host\-Maschine (little/big; seit Dpkg 1.15.4).
 .IP \fBDEB_HOST_GNU_CPU\fP 4
 Der CPU\-Teil von \fBDEB_HOST_GNU_TYPE\fP.
 .IP \fBDEB_HOST_GNU_SYSTEM\fP 4
@@ -239,7 +238,7 @@ Der Debian\-CPU\-Name der Ziel\-Maschine. (Seit Dpkg 1.17.14).
 .IP \fBDEB_TARGET_ARCH_BITS\fP 4
 Die Zeigergröße der Ziel\-Maschine in Bits. (Seit Dpkg 1.17.14).
 .IP \fBDEB_TARGET_ARCH_ENDIAN\fP 4
-Die Endianness der Ziel\-Maschine (little/big; seit Dpkg 1.17.14).
+Die Bytereihenfolge der Ziel\-Maschine (little/big; seit Dpkg 1.17.14).
 .IP \fBDEB_TARGET_GNU_CPU\fP 4
 Der CPU\-Teil von \fBDEB_TARGET_GNU_TYPE\fP. (Seit Dpkg 1.17.14).
 .IP \fBDEB_TARGET_GNU_SYSTEM\fP 4
@@ -256,8 +255,8 @@ Alle diese Dateien müssen vorhanden sein, damit \fBdpkg\-architecture\fP
 funktioniert. Ihr Ort kann zur Laufzeit mit der Umgebungsvariable
 \fBDPKG_DATADIR\fP überschrieben werden. Diese Tabellen enthalten in der ersten
 Zeile ein Format\-\fBVersion\fPs\-Pseudofeld, um ihre Version zu kennzeichnen, so
-dass Auswerteprogramme prüfen können, ob sie es verstehen. Beispiel: »#
-Version=1.0«.
+dass Auswerteprogramme prüfen können, ob sie es verstehen. Beispiel: „#
+Version=1.0“.
 .TP 
 \fI%PKGDATADIR%/cputable\fP
 Tabelle der bekannten CPU\-Namen und Abbildungen auf ihre
@@ -272,32 +271,31 @@ Abbildung zwischen den Debian\-Architektur\-Tupeln und den
 Debian\-Architekturnamen. Formatversion 1.0 (seit Dpkg 1.18.11).
 .TP 
 \fI%PKGDATADIR%/abitable\fP
-Tabelle von
-Debian\-Architektur\-ABI\-Attributs\-Außerkraftsetzungen. Formatversion 2.0
-(seit Dpkg 1.18.11).
+Tabelle von Debian\-Architektur\-ABI\-Attributs\-Hinwegsetzung. Formatversion
+2.0 (seit Dpkg 1.18.11).
 .SS Paketierungsunterstützung
 .TP 
 \fI%PKGDATADIR%/architecture.mk\fP
-Makefile\-Schnipsel, das alle Variablen, die \fBdpkg\-architecture\fP ausgibt,
-korrekt setzt und exportiert (seit Dpkg 1.16.1).
+Make\-Steuerdateischnipsel, das alle Variablen, die \fBdpkg\-architecture\fP
+ausgibt, korrekt setzt und exportiert (seit Dpkg 1.16.1).
 .
 .SH BEISPIELE
-\fBdpkg\-buildpackage\fP akzeptiert die \fB\-a\fP\-Option und gibt dies an
+\fBdpkg\-buildpackage\fP akzeptiert die Option \fB\-a\fP und gibt diese an
 \fBdpkg\-architecture\fP weiter. Weitere Beispiele:
 .IP
 CC=i386\-gnu\-gcc dpkg\-architecture \-c debian/rules build
 .IP
 eval \`dpkg\-architecture \-u\`
 .PP
-Überprüfe, ob die aktuelle oder angegebene Host\-Architektur identisch zu
+Überprüfen, ob die aktuelle oder angegebene Host\-Architektur identisch zu
 einer Architektur ist:
 .IP
 dpkg\-architecture \-elinux\-alpha
 .IP
 dpkg\-architecture \-amips \-elinux\-mips
 .PP
-Überprüfe, ob die aktuelle oder angegebene Host\-Architektur ein Linux\-System
-ist:
+Überprüfen, ob die aktuelle oder angegebene Host\-Architektur ein
+Linux\-System ist:
 .IP
 dpkg\-architecture \-ilinux\-any
 .IP
@@ -308,8 +306,8 @@ Die Umgebungsvariablen, die von \fBdpkg\-architecture\fP gesetzt werden, werden
 an \fIdebian/rules\fP als Make\-Variablen weitergegeben (lesen Sie hierzu die
 Make\-Dokumentation). Allerdings sollten Sie sich nicht auf diese verlassen,
 da damit der manuelle Aufruf des Skripts verhindert wird. Stattdessen
-sollten Sie sie immer mit \fBdpkg\-architecture\fP mit der \fB\-q\fP\-Option
-initialisieren. Hier sind einige Beispiele, die auch zeigen, wie sie die
+sollten Sie sie immer mittels \fBdpkg\-architecture\fP mit der Option \fB\-q\fP
+initialisieren. Hier sind einige Beispiele, die auch zeigen, wie Sie die
 Cross\-Kompilierungs\-Unterstützung in Ihrem Paket verbessern können:
 .PP
 Ermitteln des GNU\-Systemtyps und dessen Weiterleitung an ./configure:
@@ -343,11 +341,10 @@ endif
 .RE
 .PP
 oder, falls Sie nur den CPU\- oder OS\-Typ überprüfen müssen, verwenden Sie
-die \fBDEB_HOST_ARCH_CPU\fP\- oder \fBDEB_HOST_ARCH_OS\fP\-Variablen.
+die Variablen \fBDEB_HOST_ARCH_CPU\fP oder \fBDEB_HOST_ARCH_OS\fP.
 .PP
-Beachten Sie, dass Sie sich auch auf ein externes Makefile\-Schnipsel
-abstützen können, um alle Variablen, die \fBdpkg\-architecture\fP bereitstellen
-kann, korrekt zu setzen:
+Um alle Variablen, die \fBdpkg\-architecture\fP bereitstellen kann, korrekt zu
+setzen, können Sie auch extern ein Make\-Steuerdateischnipsel verwenden:
 .PP
 .RS 4
 .nf
@@ -375,9 +372,9 @@ sind: \fBauto\fP (Vorgabe), \fBalways\fP und \fBnever\fP.
 .TP 
 \fBDPKG_NLS\fP
 Falls dies gesetzt ist, wird es zur Entscheidung, ob Native Language
-Support, auch als Internationalisierung (oder i18n) Unterstützung bekannt,
-aktiviert wird (seit Dpkg 1.19.0). Die akzeptierten Werte sind: \fB0\fP und
-\fB1\fP (Vorgabe).
+Support, auch als Unterstützung für Internationalisierung (oder i18n)
+bekannt, aktiviert wird (seit Dpkg 1.19.0). Die akzeptierten Werte sind:
+\fB0\fP und \fB1\fP (Vorgabe).
 .
 .SH BEMERKUNGEN
 Alle langen Befehle und Optionennamen sind seit Dpkg 1.17.17 verfügbar.
@@ -385,9 +382,10 @@ Alle langen Befehle und Optionennamen sind seit Dpkg 1.17.17 verfügbar.
 .SH "SIEHE AUCH"
 \fBdpkg\-buildpackage\fP(1).
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
-<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
-2008 von Sven Joachim <svenjoac@gmx.de>
+Die deutsche Übersetzung wurde 2004, 2006-2020 von Helge Kreutzmann
+<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de>,
+2008 von Sven Joachim <svenjoac@gmx.de> und 2019,2020 von Mario 
+Blättermann <mario.blaettermann@gmail.com> 
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die
 GNU General Public License Version 2 oder neuer für die Kopierbedingungen.
 Es gibt KEINE HAFTUNG.

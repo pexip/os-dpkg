@@ -26,17 +26,17 @@
 .TH dpkg\-deb 1 %RELEASE_DATE% %VERSION% dpkg\-Programmsammlung
 .nh
 .SH BEZEICHNUNG
-dpkg\-deb \- Debian\-Paketarchiv (.deb) Manipulationswerkzeug
+dpkg\-deb \- Manipulationswerkzeug für Debian\-Paketarchive (.deb)
 .
 .SH ÜBERSICHT
 \fBdpkg\-deb\fP [\fIOption\fP …] \fIBefehl\fP
 .
 .SH BESCHREIBUNG
 \fBdpkg\-deb\fP packt und entpackt Debian\-Archive und stellt Informationen über
-sie breit.
+sie bereit.
 .PP
 Verwenden Sie \fBdpkg\fP, um Pakete auf Ihrem System hinzuzufügen oder zu
-entfernen
+entfernen.
 .PP
 Sie können \fBdpkg\-deb\fP durch Aufruf von \fBdpkg\fP mit beliebigen Optionen, die
 Sie an \fBdpkg\-deb\fP übergeben wollen, aufrufen. \fBdpkg\fP erkennt, dass Sie
@@ -50,10 +50,10 @@ dies in der jeweiligen Beschreibung des Befehls dokumentiert.
 .SH BEFEHLE
 .TP 
 \fB\-b\fP, \fB\-\-build\fP \fIProgrammverzeichnis\fP [\fIArchiv\fP|\fIVerzeichnis\fP]
-Legt ein Debian\-Archiv aus dem Dateisystembaum, das in
+Legt ein Debian\-Archiv aus dem Dateisystembaum, der in
 \fIProgrammverzeichnis\fP gespeichert ist, an. \fIProgrammverzeichnis\fP muss ein
 \fBDEBIAN\fP\-Unterverzeichnis aufweisen, das die Dateien mit Steuerinformation
-wie die control\-Datei selbst enthält. Dieses Verzeichnis wird \fInicht\fP in
+wie die \fBcontrol\fP\-Datei selbst enthält. Dieses Verzeichnis wird \fInicht\fP in
 dem Dateisystemarchiv des Binärpakets auftauchen, sondern die Dateien selbst
 werden in den Steuer\-Informationsbereich des Binärpakets gepackt.
 
@@ -72,17 +72,18 @@ Falls das zweite Argument ein Verzeichnis ist, wird \fBdpkg\-deb\fP in die Datei
 \fIVerzeichnis\fP\fB/\fP\fIPaket\fP\fB_\fP\fIVersion\fP\fB_\fP\fIArch\fP\fB.deb.\fP schreiben. Wenn
 ein Zielverzeichnis statt einer Datei angegeben ist, darf die Option
 \fB\-\-nocheck\fP nicht verwendet werden (da \fBdpkg\-deb\fP die Paketsteuerdatei
-lesen und auswerten muss, um den zu verwendenen Dateinamen zu bestimmen).
+lesen und auswerten muss, um den zu verwendenden Dateinamen zu bestimmen).
 .TP 
 \fB\-I\fP, \fB\-\-info\fP \fIArchiv\fP [\fISteuer\-Dateiname\fP …]
 Stellt Informationen über ein Binärpaketarchiv bereit.
 
 Falls keine \fISteuer\-Dateiname\fPn angegeben sind, wird es eine
-Zusammenfassung des Inhalts des Pakets sowie dessen control\-Datei ausgeben.
+Zusammenfassung des Inhalts des Pakets sowie dessen \fBcontrol\fP\-Datei
+ausgeben.
 
 Falls \fISteuer\-Dateiname\fPn angegeben sind, wird \fBdpkg\-deb\fP diese in der
 angegebenen Reihenfolge ausgeben; falls einige der Komponenten nicht
-vorhanden sind, wird es eine Fehlernachricht nach Stderr über jede ausgeben
+vorhanden sind, wird es eine Fehlermeldung nach Stderr über jede ausgeben
 und sich mit dem Status 2 beenden.
 .TP 
 \fB\-W\fP, \fB\-\-show\fP \fIArchiv\fP
@@ -92,17 +93,17 @@ Paketnamen und die Paketversion in einer Zeile, getrennt durch einen
 Tabulator.
 .TP 
 \fB\-f\fP, \fB\-\-field\fP \fIArchiv\fP [\fISteuer\-Feldname\fP …]
-Extrahiert die Informationen der control\-Datei aus einem Binärpaketarchiv.
+Entpackt die Informationen der \fBcontrol\fP\-Datei aus einem Binärpaketarchiv.
 
 Falls keine \fISteuer\-Feldname\fPn angegeben sind, gibt es die gesamte
-control\-Datei aus.
+\fBcontrol\fP\-Datei aus.
 
 Falls welche angegeben sind, gibt \fBdpkg\-deb\fP ihren Inhalt in der
-Reihenfolge aus, in der sie in der control\-Datei angegeben sind. Falls mehr
-als ein \fISteuer\-Feldname\fP angegeben ist, stellt \fBdpkg\-deb\fP jedem Inhalt
-seinen Feldnamen (und einen Doppelpunkt mit Leerzeichen) voran.
+Reihenfolge aus, in der sie in der \fBcontrol\fP\-Datei angegeben sind. Falls
+mehr als ein \fISteuer\-Feldname\fP angegeben ist, stellt \fBdpkg\-deb\fP jedem
+Inhalt seinen Feldnamen (und einen Doppelpunkt mit Leerzeichen) voran.
 
-Falls angeforderte Felder nicht gefunden werden wird kein Fehler gemeldet.
+Falls angeforderte Felder nicht gefunden werden, wird kein Fehler gemeldet.
 .TP 
 \fB\-c\fP, \fB\-\-contents\fP \fIArchiv\fP
 Listet den Inhalt des Dateisystem\-Archivanteils des Paketarchivs auf. Die
@@ -110,14 +111,14 @@ Ausgabe erfolgt derzeit in dem Format, das von \fBtar\fP in der ausführlichen
 Auflistung erstellt wird.
 .TP 
 \fB\-x\fP, \fB\-\-extract\fP \fIArchiv\-Verzeichnis\fP
-Extrahiert den Dateisystembaum aus einem Paketarchiv in das angegebene
+Entpackt den Dateisystembaum aus einem Paketarchiv in das angegebene
 Verzeichnis.
 
-Beachten Sie, dass das Extrahieren eines Pakets in das Wurzelverzeichnis
+Beachten Sie, dass das Entpacken eines Pakets in das Wurzelverzeichnis
 \fInicht\fP zu einer korrekten Installation führt! Verwenden Sie \fBdpkg\fP zur
 Paketinstallation.
 
-\fIVerzeichnis\fP (aber nicht die übergeordneten) wird falls notwendig
+\fIVerzeichnis\fP (aber nicht die übergeordneten) wird, falls notwendig,
 angelegt. Seine Rechte werden angepasst, um mit dem Inhalt des Pakets
 übereinzustimmen.
 .TP 
@@ -126,8 +127,8 @@ Ist wie \fB\-\-extract\fP (\fB\-x\fP) mit \fB\-\-verbose\fP (\fB\-v\fP), das bei
 eine Liste von entpackten Dateien ausgibt.
 .TP 
 \fB\-R\fP, \fB\-\-raw\-extract\fP \fIArchiv\-Verzeichnis\fP
-Extrahiert den Dateisystembaum aus einem Paketarchiv in ein angegebenes
-Verzeichnis und die Steuerinformationensdateien in das
+Entpackt den Dateisystembaum aus einem Paketarchiv in ein angegebenes
+Verzeichnis und die Steuerinformationsdateien in das
 \fBDEBIAN\fP\-Unterverzeichnis des angegebenen Verzeichnisses (seit Dpkg
 1.16.1).
 
@@ -138,20 +139,20 @@ Das Eingebearchiv wird (derzeit) nicht sequenziell verarbeitet, daher wird
 das Einlesen von der Standardeingabe („\fB\-\fP“) \fBnicht\fP unterstützt.
 .TP 
 \fB\-\-ctrl\-tarfile\fP \fIArchiv\fP
-Extrahiert die Steuerdaten aus einem Binärpaket und schickt sie zur
+Entnimmt die Steuerdaten aus einem Binärpaket und schickt sie zur
 Standardausgabe im \fBtar\fP\-Format (seit Dpkg 1.17.14. Dies kann zusammen mit
-\fBtar\fP(1) verwendet werden, um eine bestimmte control\-Datei aus einem
+\fBtar\fP(1) verwendet werden, um eine bestimmte \fBcontrol\fP\-Datei aus einem
 Paketarchiv zu extrahieren. Das Eingabearchiv wird immer sequenziell
 verarbeitet.
 .TP 
 \fB\-\-fsys\-tarfile\fP \fIArchiv\fP
-Extrahiert die Dateisystembaum\-Daten aus einem Binärpaket und schickt sie
-zur Standardausgabe im \fBtar\fP\-Format. Dies kann zusammen mit \fBtar\fP(1)
-verwendet werden, um eine bestimmte Datei aus einem Paketarchiv zu
-extrahieren. Das Eingabearchiv wird immer sequenziell verarbeitet.
+Entnimmt die Dateisystembaumdaten aus einem Binärpaket und schickt sie zur
+Standardausgabe im \fBtar\fP\-Format. Dies kann zusammen mit \fBtar\fP(1) verwendet
+werden, um eine bestimmte Datei aus einem Paketarchiv zu extrahieren. Das
+Eingabearchiv wird immer sequenziell verarbeitet.
 .TP 
 \fB\-e\fP, \fB\-\-control\fP \fIArchiv\fP [\fIVerzeichnis\fP]
-Extrahiert die Steuer\-Informationsdateien aus einem Paketarchiv in das
+Entpackt die Steuer\-Informationsdateien aus einem Paketarchiv in das
 angegebene Verzeichnis.
 
 Falls kein Verzeichnis angegeben ist, wird das Unterverzeichnis \fBDEBIAN\fP im
@@ -161,10 +162,10 @@ Das Zielverzeichnis (aber nicht übergeordnete) wird, falls notwendig,
 angelegt.
 .TP 
 \fB\-?\fP, \fB\-\-help\fP
-Zeige den Bedienungshinweis und beende.
+Zeigt einen Hinweis zum Aufruf und beendet das Programm.
 .TP 
 \fB\-\-version\fP
-Gebe die Version aus und beende sich.
+Gibt die Version aus und beendet das Programm.
 .
 .SH OPTIONEN
 .TP 
@@ -186,8 +187,8 @@ Die Voreinstellung für dieses Feld ist „${Package}\et${Version}\en“.
 Gibt die Komprimierstufe an, die im Komprimier\-Backendprogramm beim Bau
 eines Pakets verwendet werden soll. Standardmäßig ist dies 9 für Gzip, 6 für
 Xz. Die akzeptierten Werte innerhalb von 0\-9 sind: 0 wird auf den
-Komprimierer »none« für Gzip einstellen. Vor Dpkg 1.16.2 war die Stufe 0
-äquivalent zu dem Komprimierer »none« für alle Komprimierer.
+Komprimierer „none“ für Gzip einstellen. Vor Dpkg 1.16.2 war die Stufe 0
+äquivalent zu dem Komprimierer „none“ für alle Komprimierer.
 .TP 
 \fB\-S\fP\fIKomprimierstrategie\fP
 Gibt die zu verwendende Komprimierstrategie an, die für den
@@ -240,7 +241,7 @@ Aktiviert ausführliche Ausgabe (seit Dpkg 1.16.1). Dies betrifft derzeit nur
 \fB\-\-extract\fP, wodurch dieses sich wie \fB\-\-vextract\fP verhält.
 .TP 
 \fB\-D\fP, \fB\-\-debug\fP
-Aktiviert Fehlersuchausgaben (»debugging«). Dies ist nicht sehr interessant.
+Aktiviert Fehlersuchausgaben („debugging“). Dies ist nicht sehr interessant.
 .
 .SH RÜCKGABEWERT
 .TP 
@@ -248,9 +249,9 @@ Aktiviert Fehlersuchausgaben (»debugging«). Dies ist nicht sehr interessant.
 Die angeforderte Aktion wurde erfolgreich ausgeführt.
 .TP 
 \fB2\fP
-Fataler oder nicht behebbarer Fehler aufgrund ungültiger
-Befehlszeilenverwendung oder Interaktionen mit dem System, wie Zugriffe auf
-die Datenbank, Speicherzuweisungen usw.
+Fataler oder nicht behebbarer Fehler aufgrund eines ungültigen
+Befehlszeilenaufrufs oder Interaktionen mit dem System, wie Zugriffe auf die
+Datenbank, Speicherzuweisungen usw.
 .
 .SH UMGEBUNG
 .TP 
@@ -277,7 +278,7 @@ sein Status und Inhalt aufgezeichnet wird.
 \fBdpkg\-deb \-I\fP \fIPaket1\fP\fB.deb\fP \fIPaket2\fP\fB.deb\fP macht das Falsche.
 
 \&\fB.deb\fP\-Dateien werden nicht authentifiziert; in der Tat gibt es noch nicht
-mal eine klare Prüfsumme. (Abstraktere Werkzeuge wie APT unterstützten die
+mal eine klare Prüfsumme. (Abstraktere Werkzeuge wie APT unterstützen die
 Authentifizierung von \fB.deb\fP\-Paketen, die von einem vorgegebenen Depot
 geholt wurden und die meisten Pakete stellen heutzutage eine
 md5sum\-Steuerdatei bereit, die mittels debian/rules erstellt
@@ -287,9 +288,10 @@ direkt unterstützt.)
 .SH "SIEHE AUCH"
 \fBdeb\fP(5), \fBdeb\-control\fP(5), \fBdpkg\fP(1), \fBdselect\fP(1).
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
-<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
-2008 von Sven Joachim <svenjoac@gmx.de>
+Die deutsche Übersetzung wurde 2004, 2006-2020 von Helge Kreutzmann
+<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de>,
+2008 von Sven Joachim <svenjoac@gmx.de> und 2019,2020 von Mario 
+Blättermann <mario.blaettermann@gmail.com> 
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die
 GNU General Public License Version 2 oder neuer für die Kopierbedingungen.
 Es gibt KEINE HAFTUNG.

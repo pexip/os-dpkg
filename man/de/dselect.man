@@ -37,25 +37,26 @@ dselect \- Debian\-Paketverwaltungsoberfläche
 ist eine der primären Benutzerschnittstellen zur Verwaltung von Paketen auf
 einem Debian\-System. Im Basis\-Menü von \fBdselect\fP kann der Systemadministrator:
  \- Die Liste der verfügbaren Paketversionen aktualisieren,
- \- Den Status der installierten und verfügbaren Pakete betrachten,
- \- Die Paketauswahl ändern und Abhängigkeiten verwalten,
- \- Neue Pakete installieren oder ein Upgrade auf neuere Versionen durchführen.
+ \- den Status der installierten und verfügbaren Pakete betrachten,
+ \- die Paketauswahl ändern und Abhängigkeiten verwalten,
+ \- neue Pakete installieren oder ein Upgrade auf neuere Versionen durchführen.
 .PP
 \fBdselect\fP arbeitet als Oberfläche von \fBdpkg\fP(1), dem systemnahen
 Debian\-Paket\-Handhabungswerkzeug. Es bietet einen
 Vollbildschirm\-Paketauswahl\-Verwalter mit einem Paketeabhängigkeits\- und
 \-konfliktlöser. Bei Aufruf mit Administratorprivilegien können Pakete
 installiert und entfernt sowie Upgrades durchgeführt werden. Verschiedene
-Zugriffsmethoden können konfiguriert werden um verfügbare Paketinformationen
-und installierbare Pakete aus Paketdepots zu holen. Abhängig von der
-verwendeten Zugriffsmethode können diese Depots öffentliche Archiv\-Server im
-Internet, lokale Archiv\-Server oder CD\-ROMs sein. Die empfohlene
-Zugriffsmethode ist \fIapt\fP, die vom Paket \fBapt\fP bereitgestellt wird.
+Zugriffsmethoden können konfiguriert werden, um verfügbare
+Paketinformationen und installierbare Pakete aus Paketdepots zu
+holen. Abhängig von der verwendeten Zugriffsmethode können diese Depots
+öffentliche Archiv\-Server im Internet, lokale Archiv\-Server oder CD\-ROMs
+sein. Die empfohlene Zugriffsmethode ist \fIapt\fP, die vom Paket \fBapt\fP
+bereitgestellt wird.
 .PP
 Normalerweise wird \fBdselect\fP ohne Parameter aufgerufen. Es wird ein
 interaktives Menü präsentiert, das dem Benutzer eine Liste von Befehlen
 anbietet. Falls ein Befehl als Argument übergeben wird, wird dieser Befehl
-sofort begonnen. Es sind noch mehrere Befehlszeilenparameter vorhanden, um
+sofort gestartet. Es sind noch mehrere Befehlszeilenparameter vorhanden, um
 das Laufzeitverhalten von \fBdselect\fP zu verändern oder zusätzliche
 Informationen über das Programm anzuzeigen.
 .
@@ -82,11 +83,11 @@ Aktiviert den Expertenmodus, d.h. zeigt keine möglicherweise nervenden
 Hilfeinformationen an.
 .TP 
 \fB\-\-colour\fP|\fB\-\-color\fP \fIBildschirmteil\fP:[\fIVordergrund\fP],[\fIHintergrund\fP][:\fIAttr\fP[\fI+Attr\fP]…]
-Konfiguriert die Bildschirmfarben. Dies funktioniert nur, falls Ihr
-Bildschirm Farben unterstützt. Diese Option kann mehrfach verwendet werden
-(und wird am besten in \fIdselect.cfg\fP verwendet). Jede Verwendung ändert die
-Farben (und optional andere Attribute) eines Teils des Bildschirms. Die
-Teile des Bildschirms (von oben nach unten) sind:
+Konfiguriert die Bildschirmfarben. Dies funktioniert nur auf
+Farbbildschirmen. Diese Option kann mehrfach verwendet werden (und wird am
+besten in \fIdselect.cfg\fP verwendet). Jede Verwendung ändert die Farben (und
+optional andere Attribute) eines Teils des Bildschirms. Die Teile des
+Bildschirms (von oben nach unten) sind:
 .RS
 .TP 
 \fBtitle\fP
@@ -116,13 +117,13 @@ Die Kopfzeile, die den Zustand des aktuell ausgewählten Paketes anzeigt.
 Die Kurzbeschreibung des Pakets.
 .TP 
 \fBinfo\fP
-Verwendet um Paketinformationen wie die Paketbeschreibung anzuzeigen.
+Wird verwandt, um Paketinformationen wie die Paketbeschreibung anzuzeigen.
 .TP 
 \fBinfofoot\fP
 Die unterste Zeile des Bildschirms bei der Paketauswahl.
 .TP 
 \fBquery\fP
-Verwendet zum Anzeigen von Abfragezeilen
+Wird zum Anzeigen von Abfragezeilen verwandt.
 .TP 
 \fBhelpscreen\fP
 Farbe der Hilfebildschirme.
@@ -140,18 +141,18 @@ verfügbar (aber nicht alle funktionieren in allen Terminals): \fBnormal\fP,
 \fBstandout\fP, \fBunderline\fP, \fBreverse\fP, \fBblink\fP, \fBbright\fP, \fBdim\fP, \fBbold\fP
 .TP 
 \fB\-?\fP, \fB\-\-help\fP
-Gib einen kurzen Hilfetext aus und beende sich erfolgreich.
+Gibt einen kurzen Hilfetext aus und beendet sich erfolgreich.
 .TP 
 \fB\-\-version\fP
-Gebe Versionsinformationen aus und beende sich erfolgreich.
+Gibt Versionsinformationen aus und beendet sich erfolgreich.
 .
 .SH BEFEHLE
 Wenn \fBDselect\fP gestartet wird, kann es die folgenden Befehle ausführen,
-entweder direkt, falls sie auf der Befehlszeile angegeben wurde oder indem
-dem Benutzer ein Menü der verfügbaren Befehle bei interkativen Betrieb
+entweder direkt, falls sie auf der Befehlszeile angegeben wurden oder indem
+dem Benutzer ein Menü der verfügbaren Befehle bei interaktivem Betrieb
 angezeigt wird:
 .SS Zugriff
-Wähle und konfiguriere eine Zugriffsmethode für Paketdepots.
+Wählt und konfiguriert eine Zugriffsmethode für Paketdepots.
 .sp
 Standardmäßig stellt \fBdselect\fP mehrere Methoden wie \fIcdrom\fP, \fImulti_cd\fP,
 \fInfs\fP, \fImulti_nfs\fP, \fIharddisk\fP, \fImounted\fP, \fImulti_mount\fP oder \fIftp\fP
@@ -170,7 +171,7 @@ mit den Namen \fIPackages\fP oder \fIPackages.gz\fP bereitgestellt. Diese Dateie
 können von den Betreuern des Depots mit dem Programm \fBdpkg\-scanpackages\fP(1)
 erstellt werden.
 .sp
-Die Details des Befehls »Erneuern« hängen von der Implementierung der
+Die Details des Befehls „Erneuern“ hängen von der Implementierung der
 Zugriffsmethode ab. Normalerweise ist der Prozess unkompliziert und verlangt
 keine Benutzerinteraktionen.
 .sp
@@ -179,10 +180,10 @@ Paketauswahlen oder \-abhängigkeiten betrachten oder verwalten.
 .sp
 Dies ist die Hauptfunktionalität von \fBdselect\fP. Im Auswahlbildschirm kann
 der Benutzer die Liste der verfügbaren und installierten Pakete
-begutachten. Wenn \fBdselect\fP mit administrativen Rechten ausgeführt wird ist
-es auch möglich, den Paketauswahlzustand interaktiv zu verändern. \fBdselect\fP
-verfolgt die Auswirkungen dieser Änderungen auf andere abhängige oder im
-Konflikt stehende Pakete.
+begutachten. Wenn \fBdselect\fP mit administrativen Rechten ausgeführt wird,
+ist es auch möglich, den Paketauswahlzustand interaktiv zu
+verändern. \fBdselect\fP verfolgt die Auswirkungen dieser Änderungen auf andere
+abhängige oder im Konflikt stehende Pakete.
 .sp
 Wenn ein Konflikt oder eine fehlgeschlagene Abhängigkeit erkannt wird, wird
 dem Benutzer ein Unterbildschirm mit einer Lösung der
@@ -193,7 +194,7 @@ Vorschläge von \fBdselect\fP annehmen, sich über sie hinwegsetzen oder alle
 Änderungen zurücknehmen, darunter diejenigen, die zu den unerfüllten
 Abhängigkeiten oder Konflikten führten.
 .sp
-Die Verwendung des interaktiven Paketauswahlbildschirms wird unten
+Die Verwendung des interaktiven Paketauswahlbildschirms wird nachfolgend
 detaillierter beschrieben.
 .sp
 .SS Installieren
@@ -206,15 +207,15 @@ alle Pakete vor der Installation bereits geholt werden, oder bei Bedarf
 geholt werden. Bei einigen Zugriffsmethoden werden auch Pakete entfernt, die
 zur Entfernung markiert wurden.
 .sp
-Falls während der Installation ein Fehler auftrat ist es normalerweise
+Falls während der Installation ein Fehler auftrat, ist es normalerweise
 empfehlenswert, die Installation erneut durchzuführen. In den meisten Fällen
 wird das Problem verschwinden oder gelöst werden. Falls Probleme bleiben
 oder die durchgeführte Installation nicht korrekt war, untersuchen Sie bitte
 den Grund und die Umstände und reichen Sie einen Fehler in der
-Fehlerdatenbank von Debian ein. Anleitungen wie dies erfolgen kann, sind auf
-https://bugs.debian.org/ verfügbar oder können durch Lesen der Dokumentation
-für \fBbug\fP(1) oder \fBreportbug\fP(1) (falls diese installiert sind) erhalten
-werden.
+Fehlerdatenbank von Debian ein. Anleitungen, wie dies erfolgen kann, sind
+auf https://bugs.debian.org/ verfügbar oder können durch Lesen der
+Dokumentation für \fBbug\fP(1) oder \fBreportbug\fP(1) (falls diese installiert
+sind) erhalten werden.
 .sp
 Details des Installationsbefehls hängen von der Implementierung der
 Zugriffsmethode ab. Die Aufmerksamkeit und Eingabe des Benutzers könnten
@@ -244,7 +245,7 @@ Beendet das Programm mit dem Fehlercode Null (erfolgreich).
 \fBdselect\fP setzt den Administrator direkt einigen Komplexitäten aus, die
 beim Verwalten großer Paketmengen mit vielen Abhängigkeiten untereinander
 auftreten. Für einen Benutzer, der sich mit den Konzepten und den Arten des
-Debian\-Paktverwaltungssystems nicht auskennt kann dies recht überwältigend
+Debian\-Paktverwaltungssystems nicht auskennt, kann dies recht überwältigend
 sein. Obwohl \fBdselect\fP darauf abzielt, die Paketverwaltung und
 \-administration zu vereinfachen, kann es dazu nur ein Werkzeug sein und
 somit nicht ausreichende Administratorfähigkeiten und
@@ -253,7 +254,7 @@ mit den Konzepten des unterliegenden Debian\-Paketsystems vertraut ist. Im
 Zweifelsfall ziehen Sie die Handbuchseite \fBdpkg\fP(1) und die Richtlinien der
 Distribution zu Rate.
 .sp
-Falls \fBdselect\fP nicht im Experten\- oder direkten Modus läuft wird zuerst
+Falls \fBdselect\fP nicht im Experten\- oder direkten Modus läuft, wird zuerst
 ein Hilfebildschirm angezeigt, wenn dieser Befehl vom Menü ausgewählt
 wird. Dem Benutzer wird \fInachdrücklich\fP empfohlen, die gesamten in der
 Online\-Hilfe angezeigten Informationen zu prüfen, wenn diese angezeigt
@@ -263,7 +264,7 @@ aufgerufen werden.
 .SS Bildschirmlayout
 .sp
 Der Auswahlbildschirm ist standardmäßig in eine obere und eine untere Hälfte
-geteilt. Die obere Hälft zeigt eine Liste von Paketen. Ein Cursorbalken
+geteilt. Die obere Hälfte zeigt eine Liste von Paketen. Ein Cursorbalken
 wählt individuelle Pakete oder, falls zutreffend, eine Gruppe von Paketen
 durch Auswahl der Gruppenkopfzeile aus. Die untere Hälfte des Bildschirms
 zeigt einige Details über das derzeit in der oberen Hälfte des Bildschirms
@@ -278,7 +279,7 @@ gleichmäßig geteilten Bildschirm um.
 Standardmäßig zeigt die Paket\-Detailbetrachtung die ausführliche
 Paketbeschreibung des derzeit in der Paketstatusliste ausgewählten Pakets.
 Die Art der Details kann durch Drücken der Taste ‚\fBi\fP’ umgeschaltet werden.
-Diese wechseln zwischen:
+Diese wechselt zwischen:
  \- der ausführlichen Beschreibung
  \- der Steuerinformation für die installierte Version
  \- der Steuerinformation für die verfügbare Version
@@ -307,7 +308,7 @@ umgeschaltet. Die verkürzte Anzeige ist voreingestellt.
 Die Kurzstatusangabe besteht aus vier Teilen: einer Fehlermarkierung, die
 normalerweise leer sein sollte, dem aktuellen Status, dem letzten
 Auswahlstatus und dem aktuellen Auswahlstatus. Die ersten zwei beziehen sich
-auf den derzeitigen Status des Pakets, das zweite Paar behandeln die vom
+auf den derzeitigen Status des Pakets, das zweite Paar behandelt die vom
 Benutzer gesetzte Auswahl.
 .sp
 Dies sind die Bedeutungen der kurzen Paketstatus\-Anzeige\-Codes:
@@ -324,52 +325,52 @@ Dies sind die Bedeutungen der kurzen Paketstatus\-Anzeige\-Codes:
  Aktuelle und angeforderte Auswahlen:
   \fB*\fP       markiert zur Installation oder Upgrade;
   \fB\-\fP       markiert zur Entfernung, Konfigurationsdateien bleiben;
-  \fB=\fP       auf »halten«: Paket wird überhaupt nicht verarbeitet werden;
+  \fB=\fP       auf „halten“: Paket wird überhaupt nicht verarbeitet werden;
   \fB_\fP       markiert zum vollständigen Löschen, auch der Konfiguration;
   \fBn\fP       Paket ist neu und muss erst noch markiert werden.
 .sp
 .SS "Cursor\- und Bildschirm\-Bewegung"
 .sp
 Die Paketauswahllisten und die Abhängigkeitskonflikte\-Lösungsbildschirme
-können mit den Bewegungsbefehlen navigiert werden, die auf die folgenden
-Tasten abgebildet sind:
+können mit den Bewegungsbefehlen navigiert werden, denen die folgenden
+Tasten zugeordnet sind:
 .br
-  \fBp, Hoch, k\fP                bewege Cursor\-Balken hoch
-  \fBn, Runter, j\fP              bewege Cursor\-Balken runter
-  \fBP, Bild hoch, Rückschritt\fP scrolle Liste eine Seite hoch
-  \fBN, Bild runter, Leertaste\fP scrolle Liste eine Seite runter
-  \fB^p\fP                        scrolle Liste eine Zeile hoch
-  \fB^n\fP                        scrolle Liste eine Zeile runter
-  \fBt, Pos 1\fP                  springe zum Listen\-Anfang
-  \fBe, Ende\fP                   springe zum Listen\-Ende
-  \fBu\fP                         scrolle Info eine Seite hoch
-  \fBd\fP                         scrolle Info eine Seite runter
-  \fB^u\fP                        scrolle Info eine Zeile hoch
-  \fB^d\fP                        scrolle Info eine Zeile runter
-  \fBB, Linker Pfeil\fP           bewege Bildschirm 1/3\-Bildschirmbreite links
-  \fBF, Rechter Pfeil\fP          bewege Bildschirm 1/3\-Bildschirmbreite rechts
-  \fB^b\fP                        bewege Bildschirm ein Zeichen nach links
-  \fB^f\fP                        bewege Bildschirm ein Zeichen nach rechts
+  \fBp, Hoch, k\fP                Cursor\-Balken nach oben bewegen
+  \fBn, Runter, j\fP              Cursor\-Balken nach unten bewegen
+  \fBP, Bild hoch, Rückschritt\fP Liste eine Seite hoch scrollen
+  \fBN, Bild runter, Leertaste\fP Liste eine Seite runter scrollen
+  \fB^p\fP                        Liste eine Zeile hoch scrollen
+  \fB^n\fP                        Liste eine Zeile runter scrollen
+  \fBt, Pos 1\fP                  zum Listen\-Anfang springen
+  \fBe, Ende\fP                   zum Listen\-Ende springen
+  \fBu\fP                         Info eine Seite hoch scrollen
+  \fBd\fP                         Info eine Seite runter scrollen
+  \fB^u\fP                        Info eine Zeile hoch scrollen
+  \fB^d\fP                        Info eine Zeile runter scrollen
+  \fBB, Linker Pfeil\fP           Bildschirm 1/3\-Bildschirmbreite nach links bewegen
+  \fBF, Rechter Pfeil\fP          Bildschirm 1/3\-Bildschirmbreite nach rechts bewegen
+  \fB^b\fP                        Bildschirm ein Zeichen nach links bewegen
+  \fB^f\fP                        Bildschirm ein Zeichen nach rechts bewegen
 .sp
 .SS "Suchen und Sortieren"
 .sp
 Die Liste der Pakete kann nach Paketnamen durchsucht werden. Dies erfolgt
 durch Drücken von ‚\fB/\fP’ und der Eingabe einer einfachen
 Suchzeichenkette. Die Zeichenkette wird als regulärer Ausdruck gemäß
-\fBregex\fP(7) interpretiert. Falls Sie zu dem Suchausdruck ‚\fB/d\fP’ hinzufügen
+\fBregex\fP(7) interpretiert. Falls Sie zu dem Suchausdruck ‚\fB/d\fP’ hinzufügen,
 wird Dselect auch in Beschreibungen suchen. Falls Sie ‚\fB/id\fP’ hinzufügen,
 wird Groß\-/Kleinschreibung ignoriert. Sie können die Suffixe wie folgt
-kombinieren: \fB»/id«\fP. Wiederholtes Suchen wird durch Drücken von ‚\fBn\fP’
+kombinieren: \fB„/id“\fP. Wiederholtes Suchen wird durch Drücken von ‚\fBn\fP’
 oder ‚\fB\e\fP’ erreicht, bis das gewünschte Paket gefunden wurde. Falls die
 Suche das Ende der Liste erreicht, springt sie zum Anfang und fährt von dort
 fort.
 .sp
 Die List\-Sortierreihenfolge kann durch wiederholtes
 Drücken der Tasten ‚\fBo\fP’ and ‚\fBO\fP’ verändert werden.
-Die folgenden Sortierreihenfolgen können ausgewählt werden:
+Die folgenden neun Sortierreihenfolgen können ausgewählt werden:
  alphabetisch      verfügbar           Status
  Priorität+Sektion verfügbar+Priorität Status+Priorität
- Bereich+Priorität verfügbar+Bereich   Status+Bereich
+ Sektion+Priorität verfügbar+Sektion   Status+Sektion
 .br
 Wo dies oben nicht explizit aufgeführt ist, wird alphabetische Reihenfolge
 als abschließender Unterordnungs\-Sortierschlüssel verwendet.
@@ -380,13 +381,13 @@ Der angeforderte Auswahlstatus individueller Pakete kann mit
 den folgenden Befehlen geändert werden:
   \fB+, Einfg\fP     Installieren oder Upgrade durchführen
   \fB=, H\fP         gegenwärtigen Status und Version beibehalten
-  \fB:, G\fP         Loslassen: Upgrad durchführen oder uninstalliert lassen
+  \fB:, G\fP         Loslassen: Upgrade durchführen oder uninstalliert lassen
   \fB\-, Entf\fP      Entfernen, aber Konfiguration behalten
   \fB_\fP            Entfernen und Konfiguration löschen
 .sp
 Wenn sich aus der Änderungsanforderung eine oder mehrere unerfüllte
 Abhängigkeiten oder Konflikte ergeben, bietet \fBdselect\fP dem Benutzer einen
-Bildschirm zu Abhängigkeitsauflösung an. Dieser wird weiter unten
+Bildschirm zur Abhängigkeitsauflösung an. Dieser wird nachfolgend
 detaillierter beschrieben.
 .sp
 Es ist auch möglich, die Befehle auf Gruppen von Paketauswahlen anzuwenden,
@@ -398,14 +399,14 @@ Veränderungen von großen Gruppen von Auswahlen sollten vorsichtig
 durchgeführt werden, da dies sofort zu einer großen Anzahl an
 nicht\-aufgelösten Abhängigkeiten oder Konflikten führen kann, die dann alle
 im Bildschirm der Abhängigkeitsauflösung dargestellt werden. Dies kann dann
-schwer zu handhaben sein. In der Praxis sind nur die Operationen Halten und
+schwer zu handhaben sein. In der Praxis sind nur die Aktionen Halten und
 Loslassen nützlich, wenn sie auf Gruppen angewandt werden.
 .sp
 .SS "Abhängigkeiten und Konflikte auflösen"
 .sp
 Wenn sich aus der Änderungsanforderung eine oder mehrere unerfüllte
 Abhängigkeiten oder Konflikte ergeben, bietet \fBdselect\fP dem Benutzer einen
-Bildschirm zu Abhängigkeitsauflösung an. Zuerst wird allerdings ein
+Bildschirm zur Abhängigkeitsauflösung an. Zuerst wird allerdings ein
 Hilfebildschirm angezeigt.
 .sp
 Die obere Hälfte dieses Bildschirms führt alle Pakete auf, die auf Grund der
@@ -418,9 +419,9 @@ des derzeit ausgewählte Paketes geführt haben.
 Wenn anfänglich eine Teilliste von Paketen dargestellt wird, könnte
 \fBdselect\fP bereits den erbetenen Auswahlstatus von einigen der aufgeführten
 Pakete gesetzt haben, um die Abhängigkeiten oder Konflikte aufzulösen, die
-dazu geführt hatten, dass der Bildschirm zu Abhängigkeitsauflösung angezeigt
-wurde. Normalerweise ist es am besten, den Vorschlägen von \fBdselect\fP zu
-folgen.
+dazu geführt hatten, dass der Bildschirm zur Abhängigkeitsauflösung
+angezeigt wurde. Normalerweise ist es am besten, den Vorschlägen von
+\fBdselect\fP zu folgen.
 .sp
 Durch Drücken der Taste ‚\fBR\fP’ kann der Auswahlzustand der aufgeführten
 Pakete zu den Originaleinstellungen zurückgesetzt werden, wie er vor den
@@ -433,8 +434,8 @@ Auswahlwerte gesetzt.
 .sp
 .SS "Die angeforderten Auswahlen einrichten"
 .sp
-Durch Drücken von \fBEnter\fP wird die derzeit angezeigte Auswahlgruppe
-akzeptiert. Falls \fBdselect\fP keine unaufgelösten Abhängigkeit als Ergebnis
+Durch Drücken der \fBEingabetaste\fP wird die derzeit angezeigte Auswahlgruppe
+akzeptiert. Falls \fBdselect\fP keine unaufgelösten Abhängigkeiten als Ergebnis
 der angeforderten Auswahl entdeckt, wird die neue Auswahl gesetzt. Falls es
 allerdings unaufgelöste Abhängigkeiten gibt, wird \fBdselect\fP dem Benutzer
 erneut den Bildschirm mit der Abhängigkeitsauflösung anzeigen.
@@ -447,7 +448,7 @@ im Klaren sind.
 .sp
 Der gegenteilige Effekt, um alle Auswahländerungen zurückzusetzen und zurück
 auf die vorherige Auswahlliste zu gehen, wird durch Drücken der Tasten
-‚\fBX\fP’ oder »\fBEsc\fP« erreicht. Durch wiederholtes Drücken dieser Tasten
+‚\fBX\fP’ oder „\fBEsc\fP“ erreicht. Durch wiederholtes Drücken dieser Tasten
 können möglicherweise schädliche Änderungen an der angeforderten
 Paketauswahl komplett auf die letzten bestehenden Einstellungen
 zurückgesetzt werden.
@@ -455,9 +456,9 @@ zurückgesetzt werden.
 Falls Sie bestimmte Einstellungen aus Versehen vornehmen und alle Auswahlen
 so zurücksetzen wollen, dass diese den bereits auf dem System installierten
 Paketen entsprechen, dann drücken Sie die Taste ‚\fBC\fP’. Dies ähnelt etwas
-der Verwendung des Befehls Loslassen, angewendet auf alle Pakete, bietet
-aber einen etwas deutlicheren Panikknopf, falls der Benutzer aus Versehen
-die \fBEingabetaste\fP gedrückt hat.
+der Verwendung des Befehls Loslassen, angewendet auf alle Pakete, ist aber
+als Panikknopf weitaus besser geeignet, falls der Benutzer aus Versehen die
+\fBEingabetaste\fP gedrückt hat.
 .sp
 .
 .SH RÜCKGABEWERT
@@ -466,15 +467,15 @@ die \fBEingabetaste\fP gedrückt hat.
 Die angeforderte Befehl wurde erfolgreich ausgeführt.
 .TP 
 \fB2\fP
-Fataler oder nicht behebbarer Fehler aufgrund ungültiger
-Befehlszeilenverwendung oder Interaktionen mit dem System, wie Zugriffe auf
-die Datenbank, Speicherzuweisungen usw.
+Fataler oder nicht behebbarer Fehler aufgrund eines ungültigen
+Befehlszeilenaufrufs oder Interaktionen mit dem System, wie Zugriffe auf die
+Datenbank, Speicherzuweisungen usw.
 .
 .SH UMGEBUNG
 .TP 
 \fBHOME\fP
-Falls gesetzt, wird \fBdselect\fP es als das Verzeichnis verwenden, aus dem die
-benutzerspezifische Konfigurationsdatei gelesen wird.
+Falls gesetzt, wird \fBdselect\fP dies als das Verzeichnis verwenden, aus dem
+die benutzerspezifische Konfigurationsdatei gelesen wird.
 .
 .SH FEHLER
 Die Paketauswahl\-Schnittstelle von \fBDselect\fP bringt einige neue Benutzer
@@ -488,16 +489,17 @@ Es gibt keine Hilfe\-Option im Hauptmenü.
 Die sichtbare Liste von verfügbaren Paketen kann nicht verkleinert werden.
 .sp
 Die eingebauten Zugriffsmethoden können sich nicht mehr mit aktuellen
-Qualitätsstandards messen. Verwenden Sie die von apt bereitgestellte
+Qualitätsstandards messen. Verwenden Sie die von \fBapt\fP bereitgestellte
 Zugriffsmethode, sie funktioniert nicht nur, sondern ist sogar flexibler als
 die eingebauten Zugriffsmethoden.
 .
 .SH "SIEHE AUCH"
 \fBdpkg\fP(1), \fBapt\-get\fP(8), \fBsources.list\fP(5), \fBdeb\fP(5).
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
-<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
-2008 von Sven Joachim <svenjoac@gmx.de>
+Die deutsche Übersetzung wurde 2004, 2006-2020 von Helge Kreutzmann
+<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de>,
+2008 von Sven Joachim <svenjoac@gmx.de> und 2019,2020 von Mario 
+Blättermann <mario.blaettermann@gmail.com> 
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die
 GNU General Public License Version 2 oder neuer für die Kopierbedingungen.
 Es gibt KEINE HAFTUNG.

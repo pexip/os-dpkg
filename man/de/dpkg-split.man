@@ -24,7 +24,7 @@
 .TH dpkg\-split 1 %RELEASE_DATE% %VERSION% dpkg\-Programmsammlung
 .nh
 .SH BEZEICHNUNG
-dpkg\-split \- Debian\-Paketarchiv Teilungs\- und Zusammensetzwerkzeug
+dpkg\-split \- Teilungs\- und Zusammensetzwerkzeug für Debian\-Paketarchive
 .
 .SH ÜBERSICHT
 \fBdpkg\-split\fP [\fIOption\fP …] \fIBefehl\fP
@@ -37,14 +37,14 @@ Medien wie Disketten zu ermöglichen.
 Es kann manuell mit den Optionen \fB\-\-split\fP, \fB\-\-join\fP und \fB\-\-info\fP
 verwendet werden.
 
-Es hat auch einen automatischen Modus, der über die \fB\-\-auto\fP\-Option
+Es hat auch einen automatischen Modus, der über die Option \fB\-\-auto\fP
 aufgerufen wird, wo es eine Liste von Teilen, die bereits gesehen, aber noch
 nicht wieder zusammengesetzt wurden, verwaltet. Sobald alle Teile gesehen
 wurden, wird dann die Datei wieder zusammengesetzt. Die Optionen \fB\-\-listq\fP
 und \fB\-\-discard\fP erlauben die Verwaltung dieser Liste.
 
 Alle Teilungs\-, Vereinigungs\- und Warteoperationen erzeugen informative
-Nachrichten auf der Standardausgabe; diese können ohne Risiko ignoriert
+Meldungen auf der Standardausgabe; diese können ohne Risiko ignoriert
 werden.
 .
 .SH BEFEHLE
@@ -66,11 +66,11 @@ zusammen, wie sie vor dem Aufteilen war.
 
 Die Teildateien, die als Argument übergeben werden, müssen alle Teile der
 gleichen Originaldatei sein. Jeder Teil muss genau einmal in der
-Argumentliste auftauchen, allerdings müssen die Teile nicht in ihrer
+Argumentliste erscheinen, allerdings müssen die Teile nicht in ihrer
 Reihenfolge aufgeführt werden.
 
 Die Teile müssen natürlich alle mit der gleichen zur Zeit des Aufteilens
-angegeben Teil\-Größe generiert worden sein. Dies bedeutet, dass sie für
+angegebenen Teil\-Größe generiert worden sein. Dies bedeutet, dass sie für
 gewöhnlich von dem gleichen Aufruf von \fBdpkg\-split \-\-split\fP erzeugt worden
 sein müssen.
 
@@ -82,9 +82,9 @@ genannt.
 
 .TP 
 \fB\-I\fP, \fB\-\-info\fP \fITeil\fP …
-Gibt Informationen über die angegebenen Teildatei(en) in menschenlesbarem
+Gibt Informationen über die angegebene(n) Teildatei(en) in menschenlesbarem
 Format aus. Argumente, die keine Binärpaketdateien sind, führen zu einer
-entsprechenden Nachricht (allerdings auch in der Standardausgabe).
+entsprechenden Meldung (allerdings auch in der Standardausgabe).
 .TP 
 \fB\-a\fP, \fB\-\-auto \-o\fP \fI Komplettausgabe Teil\fP
 Reiht Teile automatisch in die Warteschlange und setzt, falls möglich, ein
@@ -104,7 +104,7 @@ Falls nicht, wird \fITeil\fP in die Warteschlange kopiert und
 
 Falls \fITeil\fP kein Teil eines aufgeteilten Binärpaketes ist, dann beendet
 sich \fIdpkg\-split\fP mit Rückgabecode \fB1\fP; falls irgendwelche anderen
-Probleme auftreten lautet der Rückgabecode \fB2\fP.
+Probleme auftreten, lautet der Rückgabecode \fB2\fP.
 
 Die Option \fB\-\-output\fP oder \fB\-o\fP muss bei Verwenden von \fB\-\-auto\fP angegeben
 werden. (Falls dies nicht obligatorisch wäre, wüsste das Programm nicht,
@@ -122,15 +122,15 @@ Gesamtanzahl gespeicherter Bytes in der Warteschlange.
 Dies löscht Teile aus der Warteschlange derer, die auf die verbleibenden
 Teile ihrer Pakete warten.
 
-Falls kein \fIPaket\fP agegeben wird, wird die Warteschlange komplett geleert;
+Falls kein \fIPaket\fP angegeben wird, wird die Warteschlange komplett geleert;
 falls irgendwelche angegeben sind, werden nur die Teile des/der passenden
 Pakete(s) gelöscht.
 .TP 
 \fB\-?\fP, \fB\-\-help\fP
-Zeige den Bedienungshinweis und beende.
+Zeigt einen Hinweis zum Aufruf und beendet das Programm.
 .TP 
 \fB\-\-version\fP
-Gebe die Version aus und beende sich.
+Gibt die Version aus und beendet das Programm.
 .
 .SH OPTIONEN
 .TP 
@@ -139,8 +139,8 @@ Gibt ein alternatives Verzeichnis für die Warteschlange von Teilen, die auf
 automatisches Wiederzusammenführen warten, an. Standardmäßig ist dies
 \fB%ADMINDIR%\fP.
 .TP 
-\fB\-S\fP, \fB\-\-partsize\fP \fIkibibytes\fP
-Gibt die maximale Teilgröße in kibibytes (1024 bytes) beim Aufteilen
+\fB\-S\fP, \fB\-\-partsize\fP \fIKibibyte\fP
+Gibt die maximale Teilgröße in Kibibyte (1024 bytes) beim Aufteilen
 an. Standardmäßig ist dies 450 kiB.
 .TP 
 \fB\-o\fP, \fB\-\-output\fP \fIKomplettausgabe\fP
@@ -151,9 +151,9 @@ Dies hebt die Voreinstellung für ein manuelles Wiederzusammenbauen auf
 Einreihen\-oder\-Zusammenbauen (\fB\-\-auto\fP) notwendig.
 .TP 
 \fB\-Q\fP, \fB\-\-npquiet\fP
-Falls Sie ein automatisches Einreihen oder Wiederzusammensetzen durchführen,
+Falls Sie ein automatisches Einreihen oder Wiederzusammenbauen durchführen,
 gibt \fBdpkg\-split\fP normalerweise eine Meldung aus, falls ein übergebener
-\fITeil\fP kein Binärpaketteil ist. Diese Option unterdrückt diese Meldung um
+\fITeil\fP kein Binärpaketteil ist. Diese Option unterdrückt diese Meldung, um
 Programmen wie \fBdpkg\fP zu erlauben, sowohl mit geteilten als auch
 ungeteilten Paketen umzugehen, ohne störende Meldungen zu erzeugen.
 .TP 
@@ -161,9 +161,9 @@ ungeteilten Paketen umzugehen, ohne störende Meldungen zu erzeugen.
 Erzwingt, dass die von \fB\-\-split\fP erzeugten Ausgabe\-Dateinamen
 MSDOS\-kompatibel sind.
 
-Dies verstümmelt den Präfix \- entweder den voreingestellten aus dem
-Eingabe\-Dateinamen abgeleiteten oder den als Argument übergebenen:
-alphanummerische Zeichen werden klein geschrieben, Pluszeichen werden durch
+Dies verstümmelt das Präfix \- entweder das voreingestellten aus dem
+Eingabe\-Dateinamen abgeleitete oder das als Argument übergebene:
+alphanumerische Zeichen werden klein geschrieben, Pluszeichen werden durch
 \fBx\fP ersetzt und alle anderen Zeichen werden entfernt.
 
 Das Ergebnis wird dann soweit wie nötig abgeschnitten, und Dateinamen der
@@ -181,8 +181,8 @@ Tritt nur bei \fB\-\-auto\fP auf und zeigt an, dass die Datei \fITeil\fP kein Te
 eines Binärprogramms war.
 .TP 
 \fB2\fP
-Fataler oder nicht beehbarer Fehler aufgrund ungültiger
-Befehlszeilenverwendung, einer Datei, die wie ein Paketteil aussah aber
+Fataler oder nicht behebbarer Fehler aufgrund eines ungültigen
+Befehlszeilenaufrufs, einer Datei, die wie ein Paketteil aussah, aber
 beschädigt war oder Wechselwirkungen mit dem System, wie Zugriffe auf die
 Datenbank, Speicherzuweisungen usw.
 .
@@ -193,8 +193,8 @@ Setzt den Farbmodus (seit Dpkg 1.18.5). Die derzeit unterstützten Werte
 sind: \fBauto\fP (Vorgabe), \fBalways\fP und \fBnever\fP.
 .TP 
 \fBSOURCE_DATE_EPOCH\fP
-Falls gesetzt, wird es als Zeitstempel (als Sekunden seit der Epoche) in dem
-\fBar\fP(5)\-Container von \fBdeb\-split\fP(5) verwandt.
+Falls gesetzt, wird sie als Zeitstempel (als Sekunden seit der Epoche) in
+dem \fBar\fP(5)\-Container von \fBdeb\-split\fP(5) verwandt.
 .
 .SH DATEIEN
 .TP 
@@ -212,14 +212,15 @@ Volle Details über die Pakete in der Warteschlange sind nicht zu erhalten,
 ohne selbst im Warteschlangenverzeichnis zu wühlen.
 
 Es gibt keine einfache Art zu testen, ob eine Datei, die ein Teil eines
-Binärpaketes sein könnte, eines ist.
+Binärpaketes sein könnte, eine ist.
 .
 .SH "SIEHE AUCH"
 \fBdeb\fP(5), \fBdeb\-control\fP(5), \fBdpkg\-deb\fP(1), \fBdpkg\fP(1).
 .SH ÜBERSETZUNG
-Die deutsche Übersetzung wurde 2004, 2006-2019 von Helge Kreutzmann
-<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
-2008 von Sven Joachim <svenjoac@gmx.de>
+Die deutsche Übersetzung wurde 2004, 2006-2020 von Helge Kreutzmann
+<debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de>,
+2008 von Sven Joachim <svenjoac@gmx.de> und 2019,2020 von Mario 
+Blättermann <mario.blaettermann@gmail.com> 
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die
 GNU General Public License Version 2 oder neuer für die Kopierbedingungen.
 Es gibt KEINE HAFTUNG.
