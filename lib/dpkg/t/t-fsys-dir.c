@@ -1,6 +1,6 @@
 /*
  * libdpkg - Debian packaging suite library routines
- * t-fsys.c - test filesystem handling
+ * t-fsys-dir.c - test filesystem handling
  *
  * Copyright © 2018 Guillem Jover <guillem@debian.org>
  *
@@ -29,11 +29,17 @@
 static void
 test_fsys_dir(void)
 {
+	const char *newdir;
 	char *dir;
 
 	test_str(dpkg_fsys_get_dir(), ==, "");
 
-	dpkg_fsys_set_dir("/testdir");
+	newdir = dpkg_fsys_set_dir("/testdir");
+	test_str(newdir, ==, "/testdir");
+	test_str(dpkg_fsys_get_dir(), ==, "/testdir");
+
+	newdir = dpkg_fsys_set_dir(newdir);
+	test_str(newdir, ==, "/testdir");
 	test_str(dpkg_fsys_get_dir(), ==, "/testdir");
 
 	dir = dpkg_fsys_get_path("testfile");
@@ -59,7 +65,7 @@ test_fsys_dir(void)
 
 TEST_ENTRY(test)
 {
-	test_plan(7);
+	test_plan(10);
 
 	test_fsys_dir();
 }

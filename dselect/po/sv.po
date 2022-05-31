@@ -1,21 +1,22 @@
 # Swedish translation of dpkg
-# Copyright © 1999-2014 Software in the Public Interest
+# Copyright © 1999-2021 Software in the Public Interest
 # Daniel Nylander <po@danielnylander.se>, 2006.
-# Peter Krefting <peter@softwolves.pp.se>, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014.
+# Peter Krefting <peter@softwolves.pp.se>, 1999-2022.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: dselect 1.17.22\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2022-05-24 11:39+0000\n"
-"PO-Revision-Date: 2014-10-30 15:07+0100\n"
+"POT-Creation-Date: 2022-05-24 11:18+0000\n"
+"PO-Revision-Date: 2022-01-15 22:11+0100\n"
 "Last-Translator: Peter Krefting <peter@softwolves.pp.se>\n"
-"Language-Team: Svenska <debian-l10n-swedish@lists.debian.org>\n"
+"Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Gtranslator 3.38.0\n"
 
 #: dselect/basecmds.cc
 msgid "Search for ? "
@@ -295,7 +296,7 @@ msgid ""
 "  ^b                    ^f                      pan display by 1 character\n"
 "\n"
 "Mark packages for later processing:\n"
-" +, Insert  install or upgrade      =, H  hold in present state\n"
+" +, Insert  install or upgrade      =, H  hold in present version\n"
 " -, Delete  remove                  :, G  unhold: upgrade or leave "
 "uninstalled\n"
 " _          remove & purge config\n"
@@ -324,7 +325,7 @@ msgstr ""
 "  ^b                    ^f                      panorera visning ett tecken\n"
 "\n"
 "Markera paket för senare hantering:\n"
-" +, Insert  installera/uppgradera   =, H  håll i nuvarande tillstånd\n"
+" +, Insert  installera/uppgradera   =, H  håll i nuvarande version\n"
 " -, Delete  ta bort                 :, G  stäng av \"håll\":\n"
 " _          ta bort & radera konfig.            uppgradera/lämna "
 "oinstallerat\n"
@@ -476,7 +477,7 @@ msgid ""
 "capital\n"
 "'D' or 'R' keys (see the keybindings help screen).  You can use capital 'Q' "
 "to\n"
-"force me to accept the situation currently displayed, in case you want to\n"
+"force to accept the situation currently displayed, in case you want to\n"
 "override a recommendation or think that the program is mistaken.\n"
 "\n"
 "Press <space> to leave help and enter the sub-list; remember: press '?' for "
@@ -541,7 +542,7 @@ msgid ""
 " Mark: what is requested for this package:\n"
 "  '*': marked for installation or upgrade;\n"
 "  '-': marked for removal, but any configuration files will remain;\n"
-"  '=': on hold: package will not be processed at all;\n"
+"  '=': on hold: package will not be installed, upgraded or removed;\n"
 "  '_': marked for purge completely - even remove configuration;\n"
 "  'n': package is new and has yet to be marked for install/remove/&c.\n"
 "\n"
@@ -843,34 +844,21 @@ msgid "<standard output>"
 msgstr "<standard ut>"
 
 #: dselect/main.cc
-#, fuzzy, c-format
-#| msgid ""
-#| "Usage: %s [<option> ...] [<action> ...]\n"
-#| "\n"
+#, c-format
 msgid ""
 "Usage: %s [<option>...] [<command>...]\n"
 "\n"
 msgstr ""
-"Användning: %s [<flagga> ...] [<åtgärd> ...]\n"
+"Användning: %s [<flagga>...] [<åtgärd>...]\n"
 "\n"
 
 #: dselect/main.cc
 #, c-format
 msgid "Commands:\n"
-msgstr ""
+msgstr "Åtgärder:\n"
 
 #: dselect/main.cc
-#, fuzzy, c-format
-#| msgid ""
-#| "Options:\n"
-#| "  --admindir <directory>     Use <directory> instead of %s.\n"
-#| "  --expert                   Turn on expert mode.\n"
-#| "  --debug <file> | -D<file>  Turn on debugging, sending output to "
-#| "<file>.\n"
-#| "  --colour | --color screenpart:[foreground],[background][:attr[+attr"
-#| "+...]]\n"
-#| "                             Configure screen colours.\n"
-#| "\n"
+#, c-format
 msgid ""
 "Options:\n"
 "      --admindir <directory>       Use <directory> instead of %s.\n"
@@ -881,26 +869,22 @@ msgid ""
 "      --colour <color-spec>        Ditto.\n"
 msgstr ""
 "Flaggor:\n"
-"  --admindir <katalog>       Använd <katalog> istället för %s.\n"
-"  --expert                   Slå på expertläget.\n"
-"  --debug <fil> | -D<fil>    Slå på felsökning, skicka utskrift till <fil>.\n"
-"  --colour | --color screenpart:[foreground],[background][:attr[+attr+...]]\n"
-"                             Konfigurera skärmfärger.\n"
-"\n"
+"      --admindir <katalog>         Använd <katalog> istället för %s.\n"
+"      --expert                     Slå på expertläget.\n"
+"  -D, --debug <fil>                Slå på felsökning, skicka utskrift till "
+"<fil>.\n"
+"      --color <färgspecifikation>  Konfigurera skärmfärger.\n"
+"      --colour <färgspecifikation> Dito.\n"
 
 #: dselect/main.cc
-#, fuzzy, c-format
-#| msgid ""
-#| "  --help                     Show this help message.\n"
-#| "  --version                  Show the version.\n"
-#| "\n"
+#, c-format
 msgid ""
 "  -?, --help                       Show this help message.\n"
 "      --version                    Show the version.\n"
 "\n"
 msgstr ""
-"  --help                     Visa detta hjälpmeddelande.\n"
-"  --version                  Visa versionsnummer.\n"
+"  -?, --help                       Visa detta hjälpmeddelande.\n"
+"      --version                    Visa versionsnummer.\n"
 "\n"
 
 #: dselect/main.cc
@@ -909,22 +893,23 @@ msgid ""
 "<color-spec> is <screen-part>:[<foreground>],[<background>][:"
 "<attr>[+<attr>]...]\n"
 msgstr ""
+"<färgspecifikation> är <skärmdel>:[<förgrund>],[<bakgrund>][:"
+"<attr>[+<attr>]...]\n"
 
 #: dselect/main.cc
-#, fuzzy, c-format
-#| msgid "Screenparts:\n"
+#, c-format
 msgid "<screen-part> is:"
-msgstr "Skärmdelar:\n"
+msgstr "<skärmdel> är:"
 
 #: dselect/main.cc
 #, c-format
 msgid "<color> is:"
-msgstr ""
+msgstr "<färg> är:"
 
 #: dselect/main.cc
 #, c-format
 msgid "<attr> is:"
-msgstr ""
+msgstr "<attr> är:"
 
 #: dselect/main.cc
 #, c-format
@@ -1104,6 +1089,11 @@ msgid "installation script"
 msgstr "installationsskript"
 
 #: dselect/method.cc
+#, c-format
+msgid "running %s %s ...\n"
+msgstr "kör %s %s ...\n"
+
+#: dselect/method.cc
 msgid "query/setup script"
 msgstr "fråge-/inställningsskript"
 
@@ -1142,8 +1132,6 @@ msgid "non-digit where digit wanted"
 msgstr "icke-siffra där siffra önskades"
 
 #: dselect/methparse.cc
-#, fuzzy
-#| msgid "EOF in index string"
 msgid "end of file in index string"
 msgstr "filslut i indexsträng"
 
@@ -1156,10 +1144,8 @@ msgid "newline before option name start"
 msgstr "nyrad före valnamns början"
 
 #: dselect/methparse.cc
-#, fuzzy
-#| msgid "newline before option name start"
 msgid "end of file before option name start"
-msgstr "nyrad före valnamns början"
+msgstr "filslut före valnamns början"
 
 #: dselect/methparse.cc
 msgid "nonalpha where option name start wanted"
@@ -1170,8 +1156,6 @@ msgid "non-alphanum in option name"
 msgstr "icke-alfanumeriska tecken i valnamn"
 
 #: dselect/methparse.cc
-#, fuzzy
-#| msgid "EOF in option name"
 msgid "end of file in option name"
 msgstr "filslut i valnamn"
 
@@ -1180,14 +1164,10 @@ msgid "newline before summary"
 msgstr "radslut före sammanfattning"
 
 #: dselect/methparse.cc
-#, fuzzy
-#| msgid "newline before summary"
 msgid "end of file before summary"
-msgstr "radslut före sammanfattning"
+msgstr "filslut före sammanfattning"
 
 #: dselect/methparse.cc
-#, fuzzy
-#| msgid "EOF in summary - missing newline"
 msgid "end of file in summary - missing newline"
 msgstr "filslut i sammanfattning - radslut saknas"
 
@@ -1388,7 +1368,7 @@ msgstr "Nya"
 
 #: dselect/pkgdisplay.cc
 msgid "Upgradable"
-msgstr ""
+msgstr "Uppgraderbar"
 
 #: dselect/pkgdisplay.cc
 msgid "Obsolete/local"
@@ -1415,26 +1395,20 @@ msgid "Newly available packages"
 msgstr "Nya tillgängliga paket"
 
 #: dselect/pkgdisplay.cc
-#, fuzzy
-#| msgid "Newly available packages"
 msgid "Upgradable packages"
-msgstr "Nya tillgängliga paket"
+msgstr "Paket som kan uppgraderas"
 
 #: dselect/pkgdisplay.cc
-#, fuzzy
-#| msgid "Obsolete and local packages present on system"
 msgid "Obsolete and locally created packages"
-msgstr "Gamla och lokala paket som finns på systemet"
+msgstr "Föråldrade och lokalt skapade paket"
 
 #: dselect/pkgdisplay.cc
 msgid "Installed packages"
 msgstr "Installerade paket"
 
 #: dselect/pkgdisplay.cc
-#, fuzzy
-#| msgid "Up to date installed packages"
 msgid "Available not installed packages"
-msgstr "Paket som är à jour"
+msgstr "Tillgängliga icke installerade paket"
 
 #: dselect/pkgdisplay.cc
 msgid "Removed and no longer available packages"

@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 8;
+use Test::More tests => 10;
 use Test::Dpkg qw(:paths);
 
 use File::Spec::Functions qw(rel2abs);
@@ -26,7 +26,7 @@ use Dpkg::ErrorHandling;
 use Dpkg::IPC;
 use Dpkg::Vendor;
 
-my $srcdir = $ENV{srcdir} || '.';
+my $srcdir = rel2abs($ENV{srcdir} || '.');
 my $datadir = test_get_data_path();
 
 # Turn these into absolute names so that we can safely switch to the test
@@ -39,6 +39,9 @@ delete $ENV{MAKEFLAGS};
 
 # Delete other variables that can affect the tests.
 delete $ENV{$_} foreach grep { m/^DEB_/ } keys %ENV;
+
+# Set architecture variables to not require dpkg nor gcc.
+$ENV{PATH} = "$srcdir/t/mock-bin:$ENV{PATH}";
 
 $ENV{DEB_BUILD_PATH} = rel2abs($datadir);
 
@@ -75,6 +78,12 @@ test_makefile('architecture.mk');
 $ENV{$_} = $arch{$_} foreach keys %arch;
 test_makefile('architecture.mk');
 
+$ENV{DEB_BUILD_OPTIONS} = 'parallel=16';
+$ENV{TEST_DEB_BUILD_OPTION_PARALLEL} = '16';
+test_makefile('buildopts.mk');
+delete $ENV{DEB_BUILD_OPTIONS};
+delete $ENV{TEST_DEB_BUILD_OPTION_PARALLEL};
+
 my %buildflag = cmd_get_vars($ENV{PERL}, "$srcdir/dpkg-buildflags.pl");
 
 delete $ENV{$_} foreach keys %buildflag;
@@ -108,6 +117,12 @@ foreach my $tool (keys %buildtools) {
     $ENV{"TEST_${tool}_FOR_BUILD"} = "$ENV{DEB_BUILD_GNU_TYPE}-$buildtools{$tool}";
 }
 test_makefile('buildtools.mk');
+
+$ENV{DEB_BUILD_OPTIONS} = 'nostrip';
+$ENV{TEST_STRIP} = ':';
+$ENV{TEST_STRIP_FOR_BUILD} = ':';
+test_makefile('buildtools.mk');
+delete $ENV{DEB_BUILD_OPTIONS};
 
 foreach my $tool (keys %buildtools) {
     delete $ENV{${tool}};

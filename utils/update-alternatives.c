@@ -51,7 +51,9 @@
 #define PROGNAME "update-alternatives"
 
 static const char *altdir = SYSCONFDIR "/alternatives";
-static const char *admdir;
+static char *admdir = NULL;
+static const char *instdir = "";
+static size_t instdir_len;
 
 static const char *prog_path = "update-alternatives";
 
@@ -71,7 +73,7 @@ enum action {
 	ACTION_DISPLAY,
 };
 
-struct action_name {
+static struct action_name {
 	enum action action;
 	const char *name;
 } action_names[] = {
@@ -99,7 +101,8 @@ enum output_mode {
 
 /* Action to perform */
 static enum action action = ACTION_NONE;
-static const char *log_file = LOGDIR "/alternatives.log";
+static char *log_file = NULL;
+static FILE *fh_log = NULL;
 /* Skip alternatives properly configured in auto mode (for --config) */
 static int opt_skip_auto = 0;
 static int opt_verbose = OUTPUT_NORMAL;
@@ -161,6 +164,8 @@ usage(void)
 "Options:\n"
 "  --altdir <directory>     change the alternatives directory.\n"
 "  --admindir <directory>   change the administrative directory.\n"
+"  --instdir <directory>    change the installation directory.\n"
+"  --root <directory>       change the filesystem root directory.\n"
 "  --log <file>             change the log file.\n"
 "  --force                  allow replacing files with alternative links.\n"
 "  --skip-auto              skip prompt for alternatives correctly configured\n"
@@ -313,6 +318,21 @@ xstrdup(const char *str)
 	return new_str;
 }
 
+static char *
+xstrndup(const char *str, size_t n)
+{
+	char *new_str;
+
+	if (!str)
+		return NULL;
+
+	new_str = strndup(str, n);
+	if (!new_str)
+		error(_("failed to allocate memory"));
+
+	return new_str;
+}
+
 static char * DPKG_ATTR_VPRINTF(1)
 xvasprintf(const char *fmt, va_list args)
 {
@@ -370,101 +390,6 @@ areadlink(const char *linkname)
 	return buf;
 }
 
-static char *
-xreadlink(const char *linkname)
-{
-	char *buf;
-
-	buf = areadlink(linkname);
-	if (buf == NULL)
-		syserr(_("unable to read link '%.255s'"), linkname);
-
-	return buf;
-}
-
-static bool
-pathname_is_missing(const char *pathname)
-{
-	struct stat st;
-
-	errno = 0;
-	if (stat(pathname, &st) == 0)
-		return false;
-
-	if (errno == ENOENT)
-		return true;
-
-	syserr(_("cannot stat file '%s'"), pathname);
-}
-
-static void
-set_action(enum action new_action)
-{
-	if (action)
-		badusage(_("two commands specified: --%s and --%s"),
-		         action_names[action].name, action_names[new_action].name);
-	action = new_action;
-}
-
-static void
-set_action_from_name(const char *new_action)
-{
-	size_t i;
-
-	for (i = 0; i < array_count(action_names); i++) {
-		if (strcmp(new_action, action_names[i].name) == 0) {
-			set_action(action_names[i].action);
-			return;
-		}
-	}
-
-	assert(!"unknown action name");
-}
-
-static const char *
-admindir_init(void)
-{
-	const char *basedir, *basedir_env;
-
-	/* Try to get the admindir from an environment variable, usually set
-	 * by the system package manager. */
-	basedir_env = getenv(ADMINDIR_ENVVAR);
-	if (basedir_env)
-		basedir = basedir_env;
-	else
-		basedir = ADMINDIR;
-
-	return xasprintf("%s/%s", basedir, "alternatives");
-}
-
-static FILE *fh_log = NULL;
-
-static void DPKG_ATTR_PRINTF(1)
-log_msg(const char *fmt, ...)
-{
-	va_list args;
-
-	if (fh_log == NULL) {
-		fh_log = fopen(log_file, "a");
-		if (fh_log == NULL && errno != EACCES)
-			syserr(_("cannot append to '%s'"), log_file);
-	}
-
-	if (fh_log) {
-		char timestamp[64];
-		time_t now;
-
-		time(&now);
-		strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S",
-		         localtime(&now));
-		fprintf(fh_log, "%s %s: ", PROGNAME, timestamp);
-		va_start(args, fmt);
-		vfprintf(fh_log, fmt, args);
-		va_end(args);
-		fprintf(fh_log, "\n");
-	}
-}
-
 static int
 spawn(const char *prog, const char *args[])
 {
@@ -504,31 +429,14 @@ rename_mv(const char *src, const char *dst)
 }
 
 static void
-checked_symlink(const char *filename, const char *linkname)
-{
-	if (symlink(filename, linkname))
-		syserr(_("error creating symbolic link '%.255s'"), linkname);
-}
-
-static void
-checked_mv(const char *src, const char *dst)
+xrename(const char *src, const char *dst)
 {
 	if (!rename_mv(src, dst))
 		syserr(_("unable to install '%.250s' as '%.250s'"), src, dst);
 }
 
-static void
-checked_rm(const char *f)
-{
-	if (!unlink(f))
-		return;
-
-	if (errno != ENOENT)
-		syserr(_("unable to remove '%s'"), f);
-}
-
 static void DPKG_ATTR_PRINTF(1)
-checked_rm_args(const char *fmt, ...)
+xunlink_args(const char *fmt, ...)
 {
 	va_list args;
 	char *path;
@@ -537,7 +445,239 @@ checked_rm_args(const char *fmt, ...)
 	path = xvasprintf(fmt, args);
 	va_end(args);
 
-	checked_rm(path);
+	if (unlink(path) < 0 && errno != ENOENT)
+		syserr(_("unable to remove '%s'"), path);
+
+	free(path);
+}
+
+static char *
+xdirname(const char *pathname)
+{
+	char *dirname, *slash;
+
+	slash = strrchr(pathname, '/');
+	if (slash)
+		dirname = xstrndup(pathname, slash - pathname);
+	else
+		dirname = xstrdup(".");
+
+	return dirname;
+}
+
+static int
+make_path(const char *pathname, mode_t mode)
+{
+	char *dirname, *slash;
+
+	dirname = xstrdup(pathname);
+
+	/* Find the first slash, and ignore it, as it will be either the
+	 * slash for the root directory, for the current directory in a
+	 * relative pathname or its parent. */
+	slash = strchr(dirname, '/');
+
+	while (slash != NULL) {
+		slash = strchr(slash + 1, '/');
+		if (slash)
+			*slash = '\0';
+
+		if (mkdir(dirname, mode) < 0 && errno != EEXIST) {
+			free(dirname);
+			return -1;
+		}
+		if (slash)
+			*slash = '/';
+	}
+
+	free(dirname);
+
+	return 0;
+}
+
+static void DPKG_ATTR_PRINTF(1)
+log_msg(const char *fmt, ...)
+{
+	va_list args;
+
+	if (fh_log == NULL) {
+		fh_log = fopen(log_file, "a");
+		if (fh_log == NULL && errno == ENOENT) {
+			char *log_dir = xdirname(log_file);
+
+			if (make_path(log_dir, 0755) < 0)
+				syserr(_("cannot create log directory '%s'"),
+				       log_dir);
+			free(log_dir);
+
+			fh_log = fopen(log_file, "a");
+		}
+		if (fh_log == NULL && errno != EACCES)
+			syserr(_("cannot append to '%s'"), log_file);
+	}
+
+	if (fh_log) {
+		char timestamp[64];
+		time_t now;
+
+		time(&now);
+		strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S",
+		         localtime(&now));
+		fprintf(fh_log, "%s %s: ", PROGNAME, timestamp);
+		va_start(args, fmt);
+		vfprintf(fh_log, fmt, args);
+		va_end(args);
+		fprintf(fh_log, "\n");
+	}
+}
+
+/*
+ * Filesystem access for alernative handling.
+ */
+
+static char *
+fsys_get_path(const char *pathpart)
+{
+	return xasprintf("%s%s", instdir, pathpart);
+}
+
+static const char *
+fsys_set_dir(const char *dir)
+{
+	if (dir == NULL) {
+		const char *instdir_env;
+
+		instdir_env = getenv(INSTDIR_ENVVAR);
+		if (instdir_env)
+			dir = instdir_env;
+		else
+			dir = "";
+	}
+
+	instdir_len = strlen(dir);
+
+	return dir;
+}
+
+static char *
+fsys_gen_admindir(const char *basedir)
+{
+	return xasprintf("%s%s/%s", instdir, basedir, "alternatives");
+}
+
+static bool
+fsys_pathname_is_missing(const char *pathname)
+{
+	struct stat st;
+	char *root_pathname;
+
+	root_pathname = fsys_get_path(pathname);
+
+	errno = 0;
+	if (stat(root_pathname, &st) < 0 && errno != ENOENT)
+		syserr(_("cannot stat file '%s'"), root_pathname);
+
+	free(root_pathname);
+
+	if (errno == ENOENT)
+		return true;
+
+	return false;
+}
+
+static int
+fsys_lstat(const char *linkname, struct stat *st)
+{
+	char *root_linkname;
+	int rc;
+
+	root_linkname = fsys_get_path(linkname);
+
+	errno = 0;
+	rc = lstat(root_linkname, st);
+
+	free(root_linkname);
+
+	return rc;
+}
+
+static char *
+fsys_areadlink(const char *linkname)
+{
+	char *root_linkname;
+	char *target;
+
+	root_linkname = fsys_get_path(linkname);
+	target = areadlink(root_linkname);
+	free(root_linkname);
+
+	return target;
+}
+
+static char *
+fsys_xreadlink(const char *linkname)
+{
+	char *buf;
+
+	buf = fsys_areadlink(linkname);
+	if (buf == NULL)
+		syserr(_("unable to read link '%s%.255s'"), instdir, linkname);
+
+	return buf;
+}
+
+static void
+fsys_symlink(const char *filename, const char *linkname)
+{
+	char *root_linkname;
+
+	root_linkname = fsys_get_path(linkname);
+
+	if (symlink(filename, root_linkname))
+		syserr(_("error creating symbolic link '%.255s'"), root_linkname);
+
+	free(root_linkname);
+}
+
+static void
+fsys_mv(const char *src, const char *dst)
+{
+	char *root_src;
+	char *root_dst;
+
+	root_src = fsys_get_path(src);
+	root_dst = fsys_get_path(dst);
+
+	xrename(root_src, root_dst);
+
+	free(root_src);
+	free(root_dst);
+}
+
+static void
+fsys_rm(const char *f)
+{
+	char *root_f;
+
+	root_f = fsys_get_path(f);
+
+	if (unlink(root_f) < 0 && errno != ENOENT)
+		syserr(_("unable to remove '%s'"), root_f);
+
+	free(root_f);
+}
+
+static void DPKG_ATTR_PRINTF(1)
+fsys_rm_args(const char *fmt, ...)
+{
+	va_list args;
+	char *path;
+
+	va_start(args, fmt);
+	path = xvasprintf(fmt, args);
+	va_end(args);
+
+	fsys_rm(path);
 	free(path);
 }
 
@@ -644,7 +784,7 @@ fileset_can_install_slave(struct fileset *fs, const char *slave_name)
 	if (fileset_has_slave(fs, slave_name)) {
 		const char *slave = fileset_get_slave(fs, slave_name);
 
-		if (!pathname_is_missing(slave))
+		if (!fsys_pathname_is_missing(slave))
 			return true;
 	}
 
@@ -1089,6 +1229,14 @@ struct altdb_context {
 	jmp_buf on_error;
 };
 
+static void
+altdb_context_free(struct altdb_context *ctx)
+{
+	if (ctx->fh)
+		fclose(ctx->fh);
+	free(ctx->filename);
+}
+
 static int
 altdb_filter_namelist(const struct dirent *entry)
 {
@@ -1107,8 +1255,13 @@ altdb_get_namelist(struct dirent ***table)
 	int count;
 
 	count = scandir(admdir, table, altdb_filter_namelist, alphasort);
-	if (count < 0)
-		syserr(_("cannot scan directory '%.255s'"), admdir);
+	if (count < 0) {
+		if (errno != ENOENT)
+			syserr(_("cannot scan directory '%.255s'"), admdir);
+		/* The directory does not exist, proceed anyway. */
+		*table = NULL;
+		count = 0;
+	}
 
 	return count;
 }
@@ -1247,7 +1400,7 @@ alternative_parse_fileset(struct alternative *a, struct altdb_context *ctx)
 	if (fs)
 		ctx->bad_format(ctx, _("duplicate path %s"), master_file);
 
-	if (pathname_is_missing(master_file)) {
+	if (fsys_pathname_is_missing(master_file)) {
 		char *junk;
 
 		/* File not found - remove. */
@@ -1301,13 +1454,6 @@ alternative_load(struct alternative *a, enum altdb_flags flags)
 	char *master_link;
 
 	/* Initialize parse context */
-	if (setjmp(ctx.on_error)) {
-		if (ctx.fh)
-			fclose(ctx.fh);
-		free(ctx.filename);
-		alternative_reset(a);
-		return false;
-	}
 	ctx.modified = false;
 	ctx.flags = flags;
 	if (flags & ALTDB_LAX_PARSER)
@@ -1319,17 +1465,28 @@ alternative_load(struct alternative *a, enum altdb_flags flags)
 	/* Open the alternative file. */
 	ctx.fh = fopen(ctx.filename, "r");
 	if (ctx.fh == NULL) {
-		if (errno == ENOENT)
+		if (errno == ENOENT) {
+			altdb_context_free(&ctx);
 			return false;
+		}
 
 		syserr(_("unable to open file '%s'"), ctx.filename);
+	}
+
+	if (setjmp(ctx.on_error)) {
+		altdb_context_free(&ctx);
+		alternative_reset(a);
+		return false;
 	}
 
 	/* Verify the alternative is not empty. */
 	if (fstat(fileno(ctx.fh), &st) == -1)
 		syserr(_("cannot stat file '%s'"), ctx.filename);
-	if (st.st_size == 0)
+	if (st.st_size == 0) {
+		altdb_context_free(&ctx);
+		alternative_reset(a);
 		return false;
+	}
 
 	/* Start parsing mandatory attributes (link+status) of the alternative */
 	alternative_reset(a);
@@ -1412,6 +1569,12 @@ alternative_save(struct alternative *a)
 
 	ctx.filename = filenew;
 	ctx.fh = fopen(ctx.filename, "w");
+	if (ctx.fh == NULL && errno == ENOENT) {
+		if (make_path(admdir, 0755) < 0)
+			syserr(_("cannot create administrative directory '%s'"),
+			       admdir);
+		ctx.fh = fopen(ctx.filename, "w");
+	}
 	if (ctx.fh == NULL)
 		syserr(_("unable to create file '%s'"), ctx.filename);
 
@@ -1451,7 +1614,7 @@ alternative_save(struct alternative *a)
 		syserr(_("unable to close file '%s'"), ctx.filename);
 
 	/* Put in place atomically. */
-	checked_mv(filenew, file);
+	xrename(filenew, file);
 
 	free(filenew);
 	free(file);
@@ -1476,9 +1639,9 @@ alternative_get_current(struct alternative *a)
 		return a->current;
 
 	curlink = xasprintf("%s/%s", altdir, a->master_name);
-	file = areadlink(curlink);
+	file = fsys_areadlink(curlink);
 	if (file == NULL && errno != ENOENT)
-		syserr(_("cannot stat file '%s'"), curlink);
+		syserr(_("cannot stat file '%s%s'"), instdir, curlink);
 	free(curlink);
 
 	return alternative_set_current(a, file);
@@ -1724,10 +1887,10 @@ alternative_commit(struct alternative *a)
 		case OPCODE_NOP:
 			break;
 		case OPCODE_RM:
-			checked_rm(op->arg_a);
+			fsys_rm(op->arg_a);
 			break;
 		case OPCODE_MV:
-			checked_mv(op->arg_a, op->arg_b);
+			fsys_mv(op->arg_a, op->arg_b);
 			break;
 		}
 	}
@@ -1746,10 +1909,9 @@ alternative_path_classify(const char *linkname)
 {
 	struct stat st;
 
-	errno = 0;
-	if (lstat(linkname, &st) == -1) {
+	if (fsys_lstat(linkname, &st) == -1) {
 		if (errno != ENOENT)
-			syserr(_("cannot stat file '%s'"), linkname);
+			syserr(_("cannot stat file '%s%s'"), instdir, linkname);
 		return ALT_PATH_MISSING;
 	} else if (S_ISLNK(st.st_mode)) {
 		return ALT_PATH_SYMLINK;
@@ -1781,7 +1943,7 @@ alternative_path_needs_update(const char *linkname, const char *filename)
 
 	switch (alternative_path_classify(linkname)) {
 	case ALT_PATH_SYMLINK:
-		linktarget = xreadlink(linkname);
+		linktarget = fsys_xreadlink(linkname);
 		if (strcmp(linktarget, filename) == 0)
 			update = false;
 		else
@@ -1804,19 +1966,30 @@ alternative_prepare_install_single(struct alternative *a, const char *name,
 {
 	char *fntmp, *fn;
 
+	/* Create alternatives directory (/etc/alternatives) if missing. */
+	if (fsys_pathname_is_missing(altdir)) {
+		char *root_altdir = fsys_get_path(altdir);
+
+		if (make_path(root_altdir, 0755) < 0)
+			syserr(_("cannot create alternatives directory '%s'"),
+			       root_altdir);
+
+		free(root_altdir);
+	}
+
 	/* Create link in /etc/alternatives. */
 	fntmp = xasprintf("%s/%s" ALT_TMP_EXT, altdir, name);
 	fn = xasprintf("%s/%s", altdir, name);
-	checked_rm(fntmp);
-	checked_symlink(file, fntmp);
+	fsys_rm(fntmp);
+	fsys_symlink(file, fntmp);
 	alternative_add_commit_op(a, OPCODE_MV, fntmp, fn);
 	free(fntmp);
 
 	if (alternative_path_needs_update(linkname, fn)) {
 		/* Create alternative link. */
 		fntmp = xasprintf("%s" ALT_TMP_EXT, linkname);
-		checked_rm(fntmp);
-		checked_symlink(fn, fntmp);
+		fsys_rm(fntmp);
+		fsys_symlink(fn, fntmp);
 		alternative_add_commit_op(a, OPCODE_MV, fntmp, linkname);
 		free(fntmp);
 	}
@@ -1871,30 +2044,30 @@ alternative_remove_files(struct alternative *a)
 {
 	struct slave_link *sl;
 
-	checked_rm_args("%s" ALT_TMP_EXT, a->master_link);
+	fsys_rm_args("%s" ALT_TMP_EXT, a->master_link);
 	if (alternative_path_can_remove(a->master_link))
-		checked_rm(a->master_link);
+		fsys_rm(a->master_link);
 
-	checked_rm_args("%s/%s" ALT_TMP_EXT, altdir, a->master_name);
-	checked_rm_args("%s/%s", altdir, a->master_name);
+	fsys_rm_args("%s/%s" ALT_TMP_EXT, altdir, a->master_name);
+	fsys_rm_args("%s/%s", altdir, a->master_name);
 
 	for (sl = a->slaves; sl; sl = sl->next) {
-		checked_rm_args("%s" ALT_TMP_EXT, sl->link);
+		fsys_rm_args("%s" ALT_TMP_EXT, sl->link);
 		if (alternative_path_can_remove(sl->link))
-			checked_rm(sl->link);
+			fsys_rm(sl->link);
 
-		checked_rm_args("%s/%s" ALT_TMP_EXT, altdir, sl->name);
-		checked_rm_args("%s/%s", altdir, sl->name);
+		fsys_rm_args("%s/%s" ALT_TMP_EXT, altdir, sl->name);
+		fsys_rm_args("%s/%s", altdir, sl->name);
 	}
 	/* Drop admin file */
-	checked_rm_args("%s/%s", admdir, a->master_name);
+	xunlink_args("%s/%s", admdir, a->master_name);
 }
 
-static const char *
+static char *
 alternative_remove(struct alternative *a, const char *current_choice,
                    const char *path)
 {
-	const char *new_choice = NULL;
+	char *new_choice = NULL;
 
 	if (alternative_has_choice(a, path))
 		alternative_remove_choice(a, path);
@@ -1915,7 +2088,7 @@ alternative_remove(struct alternative *a, const char *current_choice,
 		}
 		best = alternative_get_best(a);
 		if (best)
-			new_choice = best->master_file;
+			new_choice = xstrdup(best->master_file);
 	}
 
 	return new_choice;
@@ -1929,7 +2102,7 @@ alternative_has_broken_slave(struct slave_link *sl, struct fileset *fs)
 		char *sl_altlnk, *sl_current;
 
 		/* Verify link -> /etc/alternatives/foo */
-		sl_altlnk = areadlink(sl->link);
+		sl_altlnk = fsys_areadlink(sl->link);
 		if (!sl_altlnk)
 			return true;
 		wanted = xasprintf("%s/%s", altdir, sl->name);
@@ -1940,7 +2113,7 @@ alternative_has_broken_slave(struct slave_link *sl, struct fileset *fs)
 		}
 		free(sl_altlnk);
 		/* Verify /etc/alternatives/foo -> file */
-		sl_current = areadlink(wanted);
+		sl_current = fsys_areadlink(wanted);
 		free(wanted);
 		if (!sl_current)
 			return true;
@@ -1976,7 +2149,7 @@ alternative_needs_update(struct alternative *a)
 	struct slave_link *sl;
 
 	/* Check master link */
-	altlnk = areadlink(a->master_link);
+	altlnk = fsys_areadlink(a->master_link);
 	if (!altlnk)
 		return ALT_UPDATE_LINK_BROKEN;
 	wanted = xasprintf("%s/%s", altdir, a->master_name);
@@ -2120,13 +2293,13 @@ alternative_map_free(struct alternative_map *am)
 	}
 }
 
-static const char *
+static char *
 alternative_set_manual(struct alternative *a, const char *path)
 {
-	const char *new_choice = NULL;
+	char *new_choice = NULL;
 
 	if (alternative_has_choice(a, path))
-		new_choice = path;
+		new_choice = xstrdup(path);
 	else
 		error(_("alternative %s for %s not registered; "
 		        "not setting"), path, a->master_name);
@@ -2135,17 +2308,17 @@ alternative_set_manual(struct alternative *a, const char *path)
 	return new_choice;
 }
 
-static const char *
+static char *
 alternative_set_auto(struct alternative *a)
 {
-	const char *new_choice = NULL;
+	char *new_choice = NULL;
 
 	alternative_set_status(a, ALT_ST_AUTO);
 	if (alternative_choices_count(a) == 0)
 		pr(_("There is no program which provides %s."),
 		   a->master_name);
 	else
-		new_choice = alternative_get_best(a)->master_file;
+		new_choice = xstrdup(alternative_get_best(a)->master_file);
 
 	return new_choice;
 }
@@ -2181,14 +2354,16 @@ alternative_select_mode(struct alternative *a, const char *current_choice)
 	if (current_choice) {
 		/* Detect manually modified alternative, switch to manual. */
 		if (!alternative_has_choice(a, current_choice)) {
-			if (pathname_is_missing(current_choice)) {
-				warning(_("%s/%s is dangling; it will be updated "
-				          "with best choice"), altdir, a->master_name);
+			if (fsys_pathname_is_missing(current_choice)) {
+				warning(_("%s%s/%s is dangling; it will be updated "
+				          "with best choice"), instdir, altdir,
+				        a->master_name);
 				alternative_set_status(a, ALT_ST_AUTO);
 			} else if (a->status != ALT_ST_MANUAL) {
-				warning(_("%s/%s has been changed (manually or by "
+				warning(_("%s%s/%s has been changed (manually or by "
 				          "a script); switching to manual "
-				          "updates only"), altdir, a->master_name);
+				          "updates only"), instdir, altdir,
+				        a->master_name);
 				alternative_set_status(a, ALT_ST_MANUAL);
 			}
 		}
@@ -2223,7 +2398,7 @@ alternative_evolve_slave(struct alternative *a, const char *cur_choice,
 		char *lnk;
 
 		lnk = xasprintf("%s/%s", altdir, sl->name);
-		new_file = areadlink(lnk);
+		new_file = fsys_areadlink(lnk);
 		free(lnk);
 	}
 	if (strcmp(old, new) != 0 &&
@@ -2231,14 +2406,14 @@ alternative_evolve_slave(struct alternative *a, const char *cur_choice,
 		bool rename_link = false;
 
 		if (new_file)
-			rename_link = !pathname_is_missing(new_file);
+			rename_link = !fsys_pathname_is_missing(new_file);
 
 		if (rename_link) {
-			info(_("renaming %s slave link from %s to %s"),
-			     sl->name, old, new);
-			checked_mv(old, new);
+			info(_("renaming %s slave link from %s%s to %s%s"),
+			     sl->name, instdir, old, instdir, new);
+			fsys_mv(old, new);
 		} else {
-			checked_rm(old);
+			fsys_rm(old);
 		}
 
 		sl->updated = true;
@@ -2255,9 +2430,9 @@ alternative_evolve(struct alternative *a, struct alternative *b,
 
 	is_link = alternative_path_classify(a->master_link) == ALT_PATH_SYMLINK;
 	if (is_link && strcmp(a->master_link, b->master_link) != 0) {
-		info(_("renaming %s link from %s to %s"), b->master_name,
-		     a->master_link, b->master_link);
-		checked_mv(a->master_link, b->master_link);
+		info(_("renaming %s link from %s%s to %s%s"), b->master_name,
+		     instdir, a->master_link, instdir, b->master_link);
+		fsys_mv(a->master_link, b->master_link);
 	}
 	alternative_set_link(a, b->master_link);
 
@@ -2390,7 +2565,7 @@ alternative_set_selection(struct alternative_map *all, const char *name,
 	debug("set_selection(%s, %s, %s)", name, status, choice);
 	a = alternative_map_find(all, name);
 	if (a) {
-		const char *new_choice = NULL;
+		char *new_choice = NULL;
 
 		if (strcmp(status, "auto") == 0) {
 			new_choice = alternative_set_auto(a);
@@ -2408,6 +2583,8 @@ alternative_set_selection(struct alternative_map *all, const char *name,
 			alternative_select_mode(a, current_choice);
 
 			alternative_update(a, current_choice, new_choice);
+
+			free(new_choice);
 		}
 	} else {
 		pr(_("Skip unknown alternative %s."), name);
@@ -2547,9 +2724,9 @@ alternative_check_install_args(struct alternative *inst_alt,
 		      inst_alt->master_link, found->master_name);
 	}
 
-	if (pathname_is_missing(fileset->master_file))
-		error(_("alternative path %s doesn't exist"),
-		      fileset->master_file);
+	if (fsys_pathname_is_missing(fileset->master_file))
+		error(_("alternative path %s%s doesn't exist"),
+		      instdir, fileset->master_file);
 
 	for (sl = inst_alt->slaves; sl; sl = sl->next) {
 		const char *file = fileset_get_slave(fileset, sl->name);
@@ -2601,6 +2778,59 @@ alternative_check_install_args(struct alternative *inst_alt,
  * Main program
  */
 
+static void
+set_action(enum action new_action)
+{
+	if (action)
+		badusage(_("two commands specified: --%s and --%s"),
+		         action_names[action].name, action_names[new_action].name);
+	action = new_action;
+}
+
+static void
+set_action_from_name(const char *new_action)
+{
+	size_t i;
+
+	for (i = 0; i < array_count(action_names); i++) {
+		if (strcmp(new_action, action_names[i].name) == 0) {
+			set_action(action_names[i].action);
+			return;
+		}
+	}
+
+	assert(!"unknown action name");
+}
+
+static const char *
+set_rootdir(const char *dir)
+{
+	instdir = fsys_set_dir(dir);
+	free(log_file);
+	log_file = fsys_get_path(LOGDIR "/alternatives.log");
+	altdir = SYSCONFDIR "/alternatives";
+	free(admdir);
+	admdir = fsys_gen_admindir(dir);
+
+	return instdir;
+}
+
+static char *
+admindir_init(void)
+{
+	const char *basedir, *basedir_env;
+
+	/* Try to get the admindir from an environment variable, usually set
+	 * by the system package manager. */
+	basedir_env = getenv(ADMINDIR_ENVVAR);
+	if (basedir_env)
+		basedir = basedir_env;
+	else
+		basedir = ADMINDIR;
+
+	return fsys_gen_admindir(basedir);
+}
+
 #define MISSING_ARGS(nb) (argc < i + nb + 1)
 
 int
@@ -2613,9 +2843,9 @@ main(int argc, char **argv)
 	/* Set of files to install in the alternative. */
 	struct fileset *fileset = NULL;
 	/* Path of alternative we are offering. */
-	char *path = NULL;
+	const char *path = NULL;
 	const char *current_choice = NULL;
-	const char *new_choice = NULL;
+	char *new_choice = NULL;
 	bool modifies_alt = false;
 	bool modifies_sys = false;
 	int i = 0;
@@ -2624,7 +2854,11 @@ main(int argc, char **argv)
 	bindtextdomain(PACKAGE, LOCALEDIR);
 	textdomain(PACKAGE);
 
+	umask(022);
+
+	instdir = fsys_set_dir(NULL);
 	admdir = admindir_init();
+	log_file = fsys_get_path(LOGDIR "/alternatives.log");
 
 	if (setvbuf(stdout, NULL, _IONBF, 0))
 		syserr("setvbuf failed");
@@ -2652,8 +2886,8 @@ main(int argc, char **argv)
 
 			set_action(ACTION_INSTALL);
 			if (MISSING_ARGS(4))
-				badusage(_("--install needs <link> <name> "
-				           "<path> <priority>"));
+				badusage(_("--%s needs <link> <name> <path> "
+					   "<priority>"), argv[i] + 2);
 
 			prio_str = argv[i + 4];
 
@@ -2680,7 +2914,7 @@ main(int argc, char **argv)
 				badusage(_("--%s needs <name> <path>"), argv[i] + 2);
 
 			a = alternative_new(argv[i + 1]);
-			path = xstrdup(argv[i + 2]);
+			path = argv[i + 2];
 
 			alternative_check_name(a->master_name);
 			alternative_check_path(path);
@@ -2708,10 +2942,12 @@ main(int argc, char **argv)
 			const char *slink, *sname, *spath;
 			struct slave_link *sl;
 
-			if (action == ACTION_NONE || action != ACTION_INSTALL)
-				badusage(_("--slave only allowed with --install"));
+			if (action != ACTION_INSTALL)
+				badusage(_("--%s only allowed with --%s"),
+				         argv[i] + 2, "install");
 			if (MISSING_ARGS(3))
-				badusage(_("--slave needs <link> <name> <path>"));
+				badusage(_("--%s needs <link> <name> <path>"),
+				         argv[i] + 2);
 
 			slink = argv[i + 1];
 			sname = argv[i + 2];
@@ -2743,18 +2979,45 @@ main(int argc, char **argv)
 			i+= 3;
 		} else if (strcmp("--log", argv[i]) == 0) {
 			if (MISSING_ARGS(1))
-				badusage(_("--%s needs a <file> argument"), "log");
-			log_file = argv[i + 1];
+				badusage(_("--%s needs a <file> argument"),
+				         argv[i] + 2);
+			free(log_file);
+			log_file = fsys_get_path(argv[i + 1]);
 			i++;
 		} else if (strcmp("--altdir", argv[i]) == 0) {
 			if (MISSING_ARGS(1))
-				badusage(_("--%s needs a <directory> argument"), "log");
+				badusage(_("--%s needs a <directory> argument"),
+				         argv[i] + 2);
 			altdir = argv[i + 1];
 			i++;
+
+			/* If altdir is below instdir, convert it to a relative
+			 * path, as we will prepend instdir as needed. */
+			if (strncmp(altdir, instdir, instdir_len) == 0)
+				altdir += instdir_len;
 		} else if (strcmp("--admindir", argv[i]) == 0) {
 			if (MISSING_ARGS(1))
-				badusage(_("--%s needs a <directory> argument"), "log");
-			admdir = argv[i + 1];
+				badusage(_("--%s needs a <directory> argument"),
+				         argv[i] + 2);
+			free(admdir);
+			admdir = xstrdup(argv[i + 1]);
+			i++;
+		} else if (strcmp("--instdir", argv[i]) == 0) {
+			if (MISSING_ARGS(1))
+				badusage(_("--%s needs a <directory> argument"),
+				         argv[i] + 2);
+			fsys_set_dir(argv[i + 1]);
+			i++;
+
+			/* If altdir is below instdir, convert it to a relative
+			 * path, as we will prepend instdir as needed. */
+			if (strncmp(altdir, instdir, instdir_len) == 0)
+				altdir += instdir_len;
+		} else if (strcmp("--root", argv[i]) == 0) {
+			if (MISSING_ARGS(1))
+				badusage(_("--%s needs a <directory> argument"),
+				         argv[i] + 2);
+			set_rootdir(argv[i + 1]);
 			i++;
 		} else if (strcmp("--skip-auto", argv[i]) == 0) {
 			opt_skip_auto = 1;
@@ -2766,9 +3029,11 @@ main(int argc, char **argv)
 	}
 
 	if (action == ACTION_NONE)
-		badusage(_("need --display, --query, --list, --get-selections, "
-		           "--config, --set, --set-selections, --install, "
-		           "--remove, --all, --remove-all or --auto"));
+		badusage(_("need --%s, --%s, --%s, --%s, --%s, --%s, --%s, "
+		           "--%s, --%s, --%s, --%s or --%s"),
+		         "display", "query", "list", "get-selections",
+		         "config", "set", "set-selections", "install",
+		         "remove", "all", "remove-all", "auto");
 
 	/* The following actions might modify the current alternative. */
 	if (action == ACTION_SET ||
@@ -2804,6 +3069,9 @@ main(int argc, char **argv)
 		 * link group file. */
 		if (!alternative_load(a, ALTDB_WARN_PARSER)) {
 			verbose(_("no alternatives for %s"), a->master_name);
+			alternative_free(a);
+			free(log_file);
+			free(admdir);
 			exit(0);
 		}
 	} else if (action == ACTION_INSTALL) {
@@ -2847,6 +3115,7 @@ main(int argc, char **argv)
 			/* Alternative already exists, check if anything got
 			 * updated. */
 			alternative_evolve(a, inst_alt, current_choice, fileset);
+			alternative_free(inst_alt);
 		} else {
 			/* Alternative doesn't exist, create from parameters. */
 			alternative_free(a);
@@ -2854,7 +3123,7 @@ main(int argc, char **argv)
 		}
 		alternative_add_choice(a, fileset);
 		if (a->status == ALT_ST_AUTO) {
-			new_choice = alternative_get_best(a)->master_file;
+			new_choice = xstrdup(alternative_get_best(a)->master_file);
 		} else {
 			verbose(_("automatic updates of %s/%s are disabled; "
 			          "leaving it alone"), altdir, a->master_name);
@@ -2865,6 +3134,12 @@ main(int argc, char **argv)
 
 	if (modifies_alt)
 		alternative_update(a, current_choice, new_choice);
+
+	if (a)
+		alternative_free(a);
+	free(new_choice);
+	free(log_file);
+	free(admdir);
 
 	return 0;
 }

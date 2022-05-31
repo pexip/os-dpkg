@@ -228,7 +228,7 @@ dir_has_conffiles(struct fsys_namenode *file, struct pkginfo *pkg)
         pkg_name(pkg, pnaw_always));
   namelen = strlen(file->name);
   for (conff= pkg->installed.conffiles; conff; conff= conff->next) {
-      if (conff->obsolete)
+      if (conff->obsolete || conff->remove_on_upgrade)
         continue;
       if (strncmp(file->name, conff->name, namelen) == 0 &&
           strlen(conff->name) > namelen && conff->name[namelen] == '/') {
@@ -349,8 +349,8 @@ void
 log_action(const char *action, struct pkginfo *pkg, struct pkgbin *pkgbin)
 {
   log_message("%s %s %s %s", action, pkgbin_name(pkg, pkgbin, pnaw_always),
-	      versiondescribe(&pkg->installed.version, vdew_nonambig),
-	      versiondescribe(&pkg->available.version, vdew_nonambig));
+              versiondescribe_c(&pkg->installed.version, vdew_nonambig),
+              versiondescribe_c(&pkg->available.version, vdew_nonambig));
   statusfd_send("processing: %s: %s", action,
                 pkgbin_name(pkg, pkgbin, pnaw_nonambig));
 }
