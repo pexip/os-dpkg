@@ -24,7 +24,7 @@ Build-Depends:
 # Needed for the functional test.
  bzip2 <!nocheck>,
  xz-utils <!nocheck>,
-XS-Pexip-Upstream: http://ftp.debian.org/debian/ buster
+XS-Pexip-Upstream: http://deb.debian.org/debian/ bullseye
 
 Package: dpkg
 Architecture: any
