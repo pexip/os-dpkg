@@ -1,3 +1,9 @@
+dpkg (1.20.10pexip1) pexip; urgency=medium
+
+  * Initial bullseye build
+
+ -- Mark Hymers <mark.hymers@pexip.com>  Thu, 02 Jun 2022 14:42:09 +0100
+
 dpkg (1.20.10) bullseye-security; urgency=medium
 
   [ Guillem Jover ]
