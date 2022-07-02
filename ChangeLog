@@ -1,3 +1,185 @@
+commit 1cf7d9032627b5080496cde2f2a6b3b424d93501
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sat Jul 2 05:10:53 2022 +0200
+
+    Release 1.20.11
+
+ debian/changelog | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
+
+commit 837886630793f38c1f4632a54cfac1d7ac2e4a96
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sat Jul 2 05:08:46 2022 +0200
+
+    po: Regenerate .pot files and merge .po files with them
+
+ dselect/po/bs.po        | 2 +-
+ dselect/po/ca.po        | 2 +-
+ dselect/po/cs.po        | 2 +-
+ dselect/po/da.po        | 2 +-
+ dselect/po/de.po        | 2 +-
+ dselect/po/dselect.pot  | 4 ++--
+ dselect/po/el.po        | 2 +-
+ dselect/po/es.po        | 2 +-
+ dselect/po/et.po        | 2 +-
+ dselect/po/eu.po        | 2 +-
+ dselect/po/fr.po        | 2 +-
+ dselect/po/gl.po        | 2 +-
+ dselect/po/hu.po        | 2 +-
+ dselect/po/id.po        | 2 +-
+ dselect/po/it.po        | 2 +-
+ dselect/po/ja.po        | 2 +-
+ dselect/po/ko.po        | 2 +-
+ dselect/po/nb.po        | 2 +-
+ dselect/po/nl.po        | 2 +-
+ dselect/po/nn.po        | 2 +-
+ dselect/po/pl.po        | 2 +-
+ dselect/po/pt.po        | 2 +-
+ dselect/po/pt_BR.po     | 2 +-
+ dselect/po/ro.po        | 2 +-
+ dselect/po/ru.po        | 2 +-
+ dselect/po/sk.po        | 2 +-
+ dselect/po/sv.po        | 2 +-
+ dselect/po/tl.po        | 2 +-
+ dselect/po/vi.po        | 2 +-
+ dselect/po/zh_CN.po     | 2 +-
+ dselect/po/zh_TW.po     | 2 +-
+ man/po/dpkg-man.pot     | 4 ++--
+ po/ast.po               | 2 +-
+ po/bs.po                | 2 +-
+ po/ca.po                | 2 +-
+ po/cs.po                | 2 +-
+ po/da.po                | 2 +-
+ po/de.po                | 2 +-
+ po/dpkg.pot             | 4 ++--
+ po/dz.po                | 2 +-
+ po/el.po                | 2 +-
+ po/eo.po                | 2 +-
+ po/es.po                | 2 +-
+ po/et.po                | 2 +-
+ po/eu.po                | 2 +-
+ po/fr.po                | 2 +-
+ po/gl.po                | 2 +-
+ po/hu.po                | 2 +-
+ po/id.po                | 2 +-
+ po/it.po                | 2 +-
+ po/ja.po                | 2 +-
+ po/km.po                | 2 +-
+ po/ko.po                | 2 +-
+ po/ku.po                | 2 +-
+ po/lt.po                | 2 +-
+ po/mr.po                | 2 +-
+ po/nb.po                | 2 +-
+ po/ne.po                | 2 +-
+ po/nl.po                | 2 +-
+ po/nn.po                | 2 +-
+ po/pa.po                | 2 +-
+ po/pl.po                | 2 +-
+ po/pt.po                | 2 +-
+ po/pt_BR.po             | 2 +-
+ po/ro.po                | 2 +-
+ po/ru.po                | 2 +-
+ po/sk.po                | 2 +-
+ po/sv.po                | 2 +-
+ po/th.po                | 2 +-
+ po/tl.po                | 2 +-
+ po/tr.po                | 2 +-
+ po/vi.po                | 2 +-
+ po/zh_CN.po             | 2 +-
+ po/zh_TW.po             | 2 +-
+ scripts/po/ca.po        | 2 +-
+ scripts/po/de.po        | 2 +-
+ scripts/po/dpkg-dev.pot | 4 ++--
+ scripts/po/es.po        | 2 +-
+ scripts/po/fr.po        | 2 +-
+ scripts/po/pl.po        | 2 +-
+ scripts/po/ru.po        | 2 +-
+ scripts/po/sv.po        | 2 +-
+ 82 files changed, 86 insertions(+), 86 deletions(-)
+
+commit 67096dd4bf0c33dc99ef9f2fe36ef8276322c583
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sat Jun 4 05:48:21 2022 +0200
+
+    Dpkg::Source::Package::V2: Always fix the permissions for upstream tarballs
+    
+    The change to fix the directory traversal for source package unpacks
+    with in-place extractions of the debian.tar archive modified the way
+    that last extraction was done, to extract it also out-of-place, then
+    move the result into the destination. This had the consequence of
+    no longer fixing the permissions for the entire source tree, and instead
+    only for the debian/ directory. The previous calls for the orig tarballs
+    were not fixing up the permissions to avoid duplicating work, which
+    meant that now these did not get fixed any longer.
+    
+    Remove the options that avoid fixing the permissions for all calls,
+    restoring the previous behavior.
+    
+    Fixes: commit 7a6c03cb34d4a09f35df2f10779cbf1b70a5200b
+    Closes: #1012195
+    Stable-Candidates: 1.18.x 1.19.x 1.20.x
+    (cherry picked from commit 52d285fecbec8ba3cbd8255ef4de2be392d1e0de)
+
+ scripts/Dpkg/Source/Package/V2.pm | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 21b52f02e9690ba78cab023b87619b7bd6506a85
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sat Jan 29 20:29:33 2022 +0100
+
+    libdpkg: Do not restrict source:* virtual fields to installed packages
+    
+    Initially the code was not handling missing data properly. It got changed
+    in two ways, in commit 536a38582a2d92da84f82d850e22f581b00d2082 it was
+    first restricted to only operate on installed packages, which regressed
+    support for dpkg-deb show format, and then the code was made robust
+    against such missing data (which was really the only correct and necessary
+    part to the fix) in commit 9022f9e0ffc58425c6798ff62e797f4026a29fe9.
+    
+    Fixes: commit 536a38582a2d92da84f82d850e22f581b00d2082
+    Closes: #1004372
+    Stable-Candidate: 1.20.x
+    (cherry picked from commit 560574b55a543d3d0a0f4e8abf0ae42f46d2a2f1)
+
+ lib/dpkg/pkg-format.c | 9 ---------
+ 1 file changed, 9 deletions(-)
+
+commit 4a1f8134642d7f9f4f94a55a4259e55f98079e73
+Author: Guillem Jover <guillem@debian.org>
+Date:   Wed Dec 8 00:08:38 2021 +0100
+
+    dpkg-deb: Fix unexpected end of file conditions on .deb extract
+    
+    When the read_line() function finds an unexpected end of file, it
+    returns 0, but the call site was not catching that, which let further
+    processing of the buffer, containing garbage.
+    
+    Warned-by: coverity
+    Stable-Candidate: 1.20.x
+    (cherry picked from commit d9679e94cb384ecf97c0f3850e5fe062d17d8875)
+
+ dpkg-deb/extract.c   |  4 ++--
+ t-func/deb-format.at | 15 +++++++++++++++
+ 2 files changed, 17 insertions(+), 2 deletions(-)
+
+commit 2fbefa60b3bc9f3aa6349bf32a078dff8edd17d6
+Author: Guillem Jover <guillem@debian.org>
+Date:   Wed May 25 17:29:23 2022 +0200
+
+    build: Build gitlab CI images for bullseye instead of sid
+
+ .gitlab-ci.yml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 9a1c2f8f69a660408934ce81eb65f55da6c30656
+Author: Guillem Jover <guillem@debian.org>
+Date:   Wed May 25 17:28:57 2022 +0200
+
+    Bump version to 1.20.11
+
+ debian/changelog | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
 commit 6247c7c3da135b41ac94af82e0b739cb40ba595d
 Author: Guillem Jover <guillem@debian.org>
 Date:   Tue May 24 13:19:08 2022 +0200
