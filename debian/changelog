@@ -1,3 +1,9 @@
+dpkg (1.20.12pexip1) pexip; urgency=medium
+
+  * New upstream release
+
+ -- Mark Hymers <mark.hymers@pexip.com>  Mon, 10 Oct 2022 16:09:20 +0100
+
 dpkg (1.20.12) bullseye; urgency=medium
 
   [ Guillem Jover ]
