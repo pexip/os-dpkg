@@ -41,6 +41,10 @@ pkgbin_name_needs_arch(const struct pkgbin *pkgbin,
 	switch (pnaw) {
 	case pnaw_never:
 		break;
+	case pnaw_same:
+		if (pkgbin->multiarch == PKG_MULTIARCH_SAME)
+			return true;
+		return false;
 	case pnaw_nonambig:
 		if (pkgbin->multiarch == PKG_MULTIARCH_SAME)
 			return true;
@@ -435,7 +439,5 @@ pkg_source_version(struct dpkg_version *version,
 		if (parseversion(version, vb.buf, &err) < 0)
 			ohshit(_("version '%s' has bad syntax: %s"),
 			       vb.buf, err.str);
-
-		varbuf_destroy(&vb);
 	}
 }
