@@ -135,8 +135,8 @@ am__EXEEXT_1 = t-test$(EXEEXT) t-test-skip$(EXEEXT) t-macros$(EXEEXT) \
 	t-tar$(EXEEXT) t-deb-version$(EXEEXT) t-arch$(EXEEXT) \
 	t-version$(EXEEXT) t-pkginfo$(EXEEXT) t-pkg-list$(EXEEXT) \
 	t-pkg-queue$(EXEEXT) t-pkg-hash$(EXEEXT) t-pkg-show$(EXEEXT) \
-	t-fsys-dir$(EXEEXT) t-fsys-hash$(EXEEXT) t-trigger$(EXEEXT) \
-	t-mod-db$(EXEEXT)
+	t-pkg-format$(EXEEXT) t-fsys-dir$(EXEEXT) t-fsys-hash$(EXEEXT) \
+	t-trigger$(EXEEXT) t-mod-db$(EXEEXT)
 b_fsys_hash_SOURCES = b-fsys-hash.c
 b_fsys_hash_OBJECTS = b-fsys-hash.$(OBJEXT)
 am__DEPENDENCIES_1 =
@@ -251,6 +251,11 @@ t_path_OBJECTS = t-path.$(OBJEXT)
 t_path_LDADD = $(LDADD)
 t_path_DEPENDENCIES = $(top_builddir)/lib/dpkg/libdpkg.la \
 	$(am__DEPENDENCIES_1)
+t_pkg_format_SOURCES = t-pkg-format.c
+t_pkg_format_OBJECTS = t-pkg-format.$(OBJEXT)
+t_pkg_format_LDADD = $(LDADD)
+t_pkg_format_DEPENDENCIES = $(top_builddir)/lib/dpkg/libdpkg.la \
+	$(am__DEPENDENCIES_1)
 t_pkg_hash_SOURCES = t-pkg-hash.c
 t_pkg_hash_OBJECTS = t-pkg-hash.$(OBJEXT)
 t_pkg_hash_LDADD = $(LDADD)
@@ -347,14 +352,14 @@ am__depfiles_remade = ./$(DEPDIR)/b-fsys-hash.Po \
 	./$(DEPDIR)/t-fsys-hash.Po ./$(DEPDIR)/t-headers-cpp.Po \
 	./$(DEPDIR)/t-macros.Po ./$(DEPDIR)/t-mod-db.Po \
 	./$(DEPDIR)/t-namevalue.Po ./$(DEPDIR)/t-pager.Po \
-	./$(DEPDIR)/t-path.Po ./$(DEPDIR)/t-pkg-hash.Po \
-	./$(DEPDIR)/t-pkg-list.Po ./$(DEPDIR)/t-pkg-queue.Po \
-	./$(DEPDIR)/t-pkg-show.Po ./$(DEPDIR)/t-pkginfo.Po \
-	./$(DEPDIR)/t-progname.Po ./$(DEPDIR)/t-string.Po \
-	./$(DEPDIR)/t-subproc.Po ./$(DEPDIR)/t-tar.Po \
-	./$(DEPDIR)/t-test-skip.Po ./$(DEPDIR)/t-test.Po \
-	./$(DEPDIR)/t-trigger.Po ./$(DEPDIR)/t-varbuf.Po \
-	./$(DEPDIR)/t-version.Po
+	./$(DEPDIR)/t-path.Po ./$(DEPDIR)/t-pkg-format.Po \
+	./$(DEPDIR)/t-pkg-hash.Po ./$(DEPDIR)/t-pkg-list.Po \
+	./$(DEPDIR)/t-pkg-queue.Po ./$(DEPDIR)/t-pkg-show.Po \
+	./$(DEPDIR)/t-pkginfo.Po ./$(DEPDIR)/t-progname.Po \
+	./$(DEPDIR)/t-string.Po ./$(DEPDIR)/t-subproc.Po \
+	./$(DEPDIR)/t-tar.Po ./$(DEPDIR)/t-test-skip.Po \
+	./$(DEPDIR)/t-test.Po ./$(DEPDIR)/t-trigger.Po \
+	./$(DEPDIR)/t-varbuf.Po ./$(DEPDIR)/t-version.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -396,18 +401,18 @@ SOURCES = b-fsys-hash.c b-pkg-hash.c c-tarextract.c c-treewalk.c \
 	c-trigdeferred.c t-ar.c t-arch.c t-buffer.c t-c-ctype.c \
 	t-command.c t-deb-version.c t-ehandle.c t-error.c t-file.c \
 	t-fsys-dir.c t-fsys-hash.c $(t_headers_cpp_SOURCES) t-macros.c \
-	t-mod-db.c t-namevalue.c t-pager.c t-path.c t-pkg-hash.c \
-	t-pkg-list.c t-pkg-queue.c t-pkg-show.c t-pkginfo.c \
-	t-progname.c t-string.c t-subproc.c t-tar.c t-test.c \
-	t-test-skip.c t-trigger.c t-varbuf.c t-version.c
+	t-mod-db.c t-namevalue.c t-pager.c t-path.c t-pkg-format.c \
+	t-pkg-hash.c t-pkg-list.c t-pkg-queue.c t-pkg-show.c \
+	t-pkginfo.c t-progname.c t-string.c t-subproc.c t-tar.c \
+	t-test.c t-test-skip.c t-trigger.c t-varbuf.c t-version.c
 DIST_SOURCES = b-fsys-hash.c b-pkg-hash.c c-tarextract.c c-treewalk.c \
 	c-trigdeferred.c t-ar.c t-arch.c t-buffer.c t-c-ctype.c \
 	t-command.c t-deb-version.c t-ehandle.c t-error.c t-file.c \
 	t-fsys-dir.c t-fsys-hash.c $(t_headers_cpp_SOURCES) t-macros.c \
-	t-mod-db.c t-namevalue.c t-pager.c t-path.c t-pkg-hash.c \
-	t-pkg-list.c t-pkg-queue.c t-pkg-show.c t-pkginfo.c \
-	t-progname.c t-string.c t-subproc.c t-tar.c t-test.c \
-	t-test-skip.c t-trigger.c t-varbuf.c t-version.c
+	t-mod-db.c t-namevalue.c t-pager.c t-path.c t-pkg-format.c \
+	t-pkg-hash.c t-pkg-list.c t-pkg-queue.c t-pkg-show.c \
+	t-pkginfo.c t-progname.c t-string.c t-subproc.c t-tar.c \
+	t-test.c t-test-skip.c t-trigger.c t-varbuf.c t-version.c
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -664,6 +669,7 @@ test_programs = \
 	t-pkg-queue \
 	t-pkg-hash \
 	t-pkg-show \
+	t-pkg-format \
 	t-fsys-dir \
 	t-fsys-hash \
 	t-trigger \
@@ -826,6 +832,10 @@ t-path$(EXEEXT): $(t_path_OBJECTS) $(t_path_DEPENDENCIES) $(EXTRA_t_path_DEPENDE
 	@rm -f t-path$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(t_path_OBJECTS) $(t_path_LDADD) $(LIBS)
 
+t-pkg-format$(EXEEXT): $(t_pkg_format_OBJECTS) $(t_pkg_format_DEPENDENCIES) $(EXTRA_t_pkg_format_DEPENDENCIES) 
+	@rm -f t-pkg-format$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(t_pkg_format_OBJECTS) $(t_pkg_format_LDADD) $(LIBS)
+
 t-pkg-hash$(EXEEXT): $(t_pkg_hash_OBJECTS) $(t_pkg_hash_DEPENDENCIES) $(EXTRA_t_pkg_hash_DEPENDENCIES) 
 	@rm -f t-pkg-hash$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(t_pkg_hash_OBJECTS) $(t_pkg_hash_LDADD) $(LIBS)
@@ -910,6 +920,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-namevalue.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-pager.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-path.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-pkg-format.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-pkg-hash.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-pkg-list.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-pkg-queue.Po@am__quote@ # am--include-marker
@@ -1128,6 +1139,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/t-namevalue.Po
 	-rm -f ./$(DEPDIR)/t-pager.Po
 	-rm -f ./$(DEPDIR)/t-path.Po
+	-rm -f ./$(DEPDIR)/t-pkg-format.Po
 	-rm -f ./$(DEPDIR)/t-pkg-hash.Po
 	-rm -f ./$(DEPDIR)/t-pkg-list.Po
 	-rm -f ./$(DEPDIR)/t-pkg-queue.Po
@@ -1209,6 +1221,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/t-namevalue.Po
 	-rm -f ./$(DEPDIR)/t-pager.Po
 	-rm -f ./$(DEPDIR)/t-path.Po
+	-rm -f ./$(DEPDIR)/t-pkg-format.Po
 	-rm -f ./$(DEPDIR)/t-pkg-hash.Po
 	-rm -f ./$(DEPDIR)/t-pkg-list.Po
 	-rm -f ./$(DEPDIR)/t-pkg-queue.Po

@@ -1,3 +1,201 @@
+commit 908b777829113957c31ee1e91aa73e1faae66db9
+Author: Guillem Jover <guillem@debian.org>
+Date:   Wed Sep 13 23:40:38 2023 +0200
+
+    Release 1.20.13
+
+ debian/changelog | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
+
+commit 642284c9cbd50f5aba61d823cf21c03cdc28831e
+Author: Guillem Jover <guillem@debian.org>
+Date:   Wed Sep 13 23:38:21 2023 +0200
+
+    po: Regenerate .pot files and merge .po files with them
+
+ dselect/po/bs.po        | 2 +-
+ dselect/po/ca.po        | 2 +-
+ dselect/po/cs.po        | 2 +-
+ dselect/po/da.po        | 2 +-
+ dselect/po/de.po        | 2 +-
+ dselect/po/dselect.pot  | 4 ++--
+ dselect/po/el.po        | 2 +-
+ dselect/po/es.po        | 2 +-
+ dselect/po/et.po        | 2 +-
+ dselect/po/eu.po        | 2 +-
+ dselect/po/fr.po        | 2 +-
+ dselect/po/gl.po        | 2 +-
+ dselect/po/hu.po        | 2 +-
+ dselect/po/id.po        | 2 +-
+ dselect/po/it.po        | 2 +-
+ dselect/po/ja.po        | 2 +-
+ dselect/po/ko.po        | 2 +-
+ dselect/po/nb.po        | 2 +-
+ dselect/po/nl.po        | 2 +-
+ dselect/po/nn.po        | 2 +-
+ dselect/po/pl.po        | 2 +-
+ dselect/po/pt.po        | 2 +-
+ dselect/po/pt_BR.po     | 2 +-
+ dselect/po/ro.po        | 2 +-
+ dselect/po/ru.po        | 2 +-
+ dselect/po/sk.po        | 2 +-
+ dselect/po/sv.po        | 2 +-
+ dselect/po/tl.po        | 2 +-
+ dselect/po/vi.po        | 2 +-
+ dselect/po/zh_CN.po     | 2 +-
+ dselect/po/zh_TW.po     | 2 +-
+ man/po/dpkg-man.pot     | 4 ++--
+ po/ast.po               | 2 +-
+ po/bs.po                | 2 +-
+ po/ca.po                | 2 +-
+ po/cs.po                | 2 +-
+ po/da.po                | 2 +-
+ po/de.po                | 2 +-
+ po/dpkg.pot             | 4 ++--
+ po/dz.po                | 2 +-
+ po/el.po                | 2 +-
+ po/eo.po                | 2 +-
+ po/es.po                | 2 +-
+ po/et.po                | 2 +-
+ po/eu.po                | 2 +-
+ po/fr.po                | 2 +-
+ po/gl.po                | 2 +-
+ po/hu.po                | 2 +-
+ po/id.po                | 2 +-
+ po/it.po                | 2 +-
+ po/ja.po                | 2 +-
+ po/km.po                | 2 +-
+ po/ko.po                | 2 +-
+ po/ku.po                | 2 +-
+ po/lt.po                | 2 +-
+ po/mr.po                | 2 +-
+ po/nb.po                | 2 +-
+ po/ne.po                | 2 +-
+ po/nl.po                | 2 +-
+ po/nn.po                | 2 +-
+ po/pa.po                | 2 +-
+ po/pl.po                | 2 +-
+ po/pt.po                | 2 +-
+ po/pt_BR.po             | 2 +-
+ po/ro.po                | 2 +-
+ po/ru.po                | 2 +-
+ po/sk.po                | 2 +-
+ po/sv.po                | 2 +-
+ po/th.po                | 2 +-
+ po/tl.po                | 2 +-
+ po/tr.po                | 2 +-
+ po/vi.po                | 2 +-
+ po/zh_CN.po             | 2 +-
+ po/zh_TW.po             | 2 +-
+ scripts/po/ca.po        | 2 +-
+ scripts/po/de.po        | 2 +-
+ scripts/po/dpkg-dev.pot | 4 ++--
+ scripts/po/es.po        | 2 +-
+ scripts/po/fr.po        | 2 +-
+ scripts/po/pl.po        | 2 +-
+ scripts/po/ru.po        | 2 +-
+ scripts/po/sv.po        | 2 +-
+ 82 files changed, 86 insertions(+), 86 deletions(-)
+
+commit adac65087abd0bd4d9dcbaea347b44e8be4efca5
+Author: Guillem Jover <guillem@debian.org>
+Date:   Fri Nov 11 12:43:38 2022 +0100
+
+    arch: Add support for loong64 CPU
+    
+    This is based on the LoongArch 64-bit little-endian hard-float ISA.
+    
+    Closes: #1023486
+    Based-on-patch-by: 张丹丹 <zhangdandan@loongson.cn>
+    (cherry picked from commit 321e479ba142e6b05d1a27b50e4bb7900903fbf0)
+
+ data/cputable                  | 1 +
+ scripts/Dpkg/Shlibs/Objdump.pm | 7 +++++++
+ scripts/t/Dpkg_Arch.t          | 4 ++--
+ 3 files changed, 10 insertions(+), 2 deletions(-)
+
+commit bddfda92c9382ec35b3a4d8e6cb11e85952ee621
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sat Jul 8 19:10:20 2023 +0200
+
+    libdpkg: Fix varbuf memory leak in pkg_source_version()
+    
+    The function uses an intermediary varbuf to construct the string to then
+    pass to parseversion() to parse which then uses the non-freeing
+    allocator for any string it needs to preserve. We need to free that
+    intermediate varbuf otherwise we leak it.
+    
+    Warned-by: gcc ASAN
+    Stable-Candidate: 1.20.x 1.21.x
+    (cherry picked from commit 740b5c881accb6c0dcc5c442a8d1ad06324735a3)
+
+ lib/dpkg/pkg-show.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit 3529af4a2b66e8e3e14bbb3223764591e6cfdee3
+Author: Guillem Jover <guillem@debian.org>
+Date:   Wed Sep 13 22:40:44 2023 +0200
+
+    libdpkg: Handle missing Version when formatting source:Upstream-Version
+    
+    When dealing with virtual packages (such as the ones from Provides, or
+    for not-installed Recommends or Suggests), there might be no version
+    field at all, so we cannot assume we can use these when filling in the
+    version information in the fallback code handling the missing Source
+    field.
+    
+    The commit that removed the check for not-installed packages missed that
+    this instance had not been protected, as the code in varbufversion() is
+    doing the correct thing, but unfortunately we are not using that because
+    we need to get at the upstream part, so we need to also check explicitly
+    for a non-NULL upstream part. This was causing a segfault.
+    
+    Fixes: commit 560574b55a543d3d0a0f4e8abf0ae42f46d2a2f1
+    Stable-Candidates: 1.20.x 1.21.x
+    Reported-by: John Scott <jscott@posteo.net>
+    (cherry picked from commit 2c4814f7cb676c335c6372284ac95b7fc986effb)
+
+ lib/dpkg/pkg-format.c     |  3 ++-
+ lib/dpkg/t/t-pkg-format.c | 19 ++++++++++++++++++-
+ 2 files changed, 20 insertions(+), 2 deletions(-)
+
+commit b74a54ac9e84cfb3ea8e03ba7303b9e8f3f5f2d0
+Author: Guillem Jover <guillem@debian.org>
+Date:   Wed Sep 13 22:39:03 2023 +0200
+
+    test: Add new pkg-format unit tests
+    
+    (cherry picked from commit d9f603f110d79393174f287d041b5e7cea7dc4c9)
+
+ lib/dpkg/t/.gitignore     |   1 +
+ lib/dpkg/t/Makefile.am    |   1 +
+ lib/dpkg/t/t-pkg-format.c | 124 ++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 126 insertions(+)
+
+commit bf7d547e816c3b2d422b308eb0684e542e92298c
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sat Jan 29 18:23:49 2022 +0100
+
+    libdpkg: Refactor pkg_format_print() out from pkg_format_show()
+    
+    This will allow testing the formatting code.
+    
+    (cherry picked from commit cee8e4b5a5c7cc0ccd4810c83796ec824f5ebb63)
+
+ lib/dpkg/libdpkg.map  |  1 +
+ lib/dpkg/pkg-format.c | 27 ++++++++++++++++++---------
+ lib/dpkg/pkg-format.h |  2 ++
+ 3 files changed, 21 insertions(+), 9 deletions(-)
+
+commit c3ad3e43126aac90b16ea8eca99ea8b9a10370e4
+Author: Guillem Jover <guillem@debian.org>
+Date:   Wed Sep 13 22:26:27 2023 +0200
+
+    Bump version to 1.20.13
+
+ debian/changelog | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
 commit 1fd89b43d1e21a68c3ed6368f88c70908b1fd15f
 Author: Guillem Jover <guillem@debian.org>
 Date:   Thu Sep 1 05:38:36 2022 +0200
