@@ -1,3 +1,9 @@
+dpkg (1.21.22+pexip24u3) pexip-bookworm; urgency=medium
+
+  * New versioning scheme
+
+ -- Mark Hymers <mark.hymers@pexip.com>  Thu, 01 Feb 2024 15:56:19 +0000
+
 dpkg (1.21.22pexip2) pexip-bookworm; urgency=medium
 
   * Bookworm build for product distribution
