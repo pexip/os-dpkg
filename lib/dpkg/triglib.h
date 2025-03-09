@@ -23,6 +23,8 @@
 #ifndef LIBDPKG_TRIGLIB_H
 #define LIBDPKG_TRIGLIB_H
 
+#include <stdbool.h>
+
 #include <dpkg/macros.h>
 #include <dpkg/dpkg-db.h>
 #include <dpkg/fsys.h>
@@ -80,7 +82,7 @@ struct trig_hooks {
 
 #define TRIGHOOKS_DEFINE_NAMENODE_ACCESSORS				 \
   static struct fsys_namenode *th_nn_find(const char *name, bool nonew)	 \
-    { return fsys_hash_find_node(name, nonew ? FHFF_NONE : 0); }		 \
+    { return fsys_hash_find_node(name, nonew ? FHFF_NO_NEW : FHFF_NONE); } \
   static struct trigfileint **th_nn_interested(struct fsys_namenode *fnn) \
     { return &fnn->trig_interested; }					 \
   static const char *th_nn_name(struct fsys_namenode *fnn)		 \

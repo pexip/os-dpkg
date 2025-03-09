@@ -21,6 +21,10 @@
 #include <config.h>
 #include <compat.h>
 
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include <dpkg/i18n.h>
 
 #ifdef HAVE_USELOCALE
@@ -30,10 +34,27 @@
 static locale_t dpkg_C_locale;
 #endif
 
+static bool
+dpkg_use_nls(void)
+{
+	const char *env;
+
+	/* We mimic the behavior of the Dpkg::Gettext perl module. */
+	env = getenv("DPKG_NLS");
+	if (env == NULL)
+		return true;
+
+	if (strcmp(env, "0") == 0 || env[0] == '\0')
+		return false;
+
+	return true;
+}
+
 void
 dpkg_locales_init(const char *package)
 {
-	setlocale(LC_ALL, "");
+	if (dpkg_use_nls())
+		setlocale(LC_ALL, "");
 	bindtextdomain(package, LOCALEDIR);
 	textdomain(package);
 
@@ -43,7 +64,7 @@ dpkg_locales_init(const char *package)
 
 #if defined(__APPLE__) && defined(__MACH__)
 	/*
-	 * On Mac OS X, the libintl code needs to call into the CoreFoundation
+	 * On macOS, the libintl code needs to call into the CoreFoundation
 	 * framework, which is internally threaded, to initialize some caches.
 	 * This is a problem when that first call is done after a fork(3),
 	 * because per POSIX, only one thread will survive, leaving the

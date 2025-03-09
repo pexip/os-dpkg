@@ -81,11 +81,9 @@ pkg_infodb_link_multiarch_files(void)
 	struct varbuf_state newname_state;
 
 	varbuf_add_dir(&oldname, pkg_infodb_get_dir());
-	varbuf_end_str(&oldname);
 	varbuf_snapshot(&oldname, &oldname_state);
 
-	varbuf_add_buf(&newname, oldname.buf, oldname.used);
-	varbuf_end_str(&newname);
+	varbuf_set_varbuf(&newname, &oldname);
 	varbuf_snapshot(&newname, &newname_state);
 
 	db_dir = opendir(pkg_infodb_get_dir());
@@ -107,9 +105,7 @@ pkg_infodb_link_multiarch_files(void)
 		if (dot == NULL)
 			continue;
 
-		varbuf_reset(&pkgname);
-		varbuf_add_buf(&pkgname, db_de->d_name, dot - db_de->d_name);
-		varbuf_end_str(&pkgname);
+		varbuf_set_buf(&pkgname, db_de->d_name, dot - db_de->d_name);
 
 		 /* Skip files already converted. */
 		if (strchr(pkgname.buf, ':'))
@@ -134,13 +130,11 @@ pkg_infodb_link_multiarch_files(void)
 
 		varbuf_rollback(&oldname_state);
 		varbuf_add_str(&oldname, db_de->d_name);
-		varbuf_end_str(&oldname);
 
 		varbuf_rollback(&newname_state);
 		varbuf_add_pkgbin_name(&newname, pkg, &pkg->installed, pnaw_always);
 		varbuf_add_char(&newname, '.');
 		varbuf_add_str(&newname, filetype);
-		varbuf_end_str(&newname);
 
 		if (link(oldname.buf, newname.buf) && errno != EEXIST)
 			ohshite(_("error creating hard link '%.255s'"),

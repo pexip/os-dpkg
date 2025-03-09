@@ -22,8 +22,11 @@
 #include <compat.h>
 
 #include <sys/types.h>
-#if HAVE_SYS_SYSMACROS_H
+#ifdef HAVE_SYS_SYSMACROS_H
 #include <sys/sysmacros.h> /* Needed on AIX for major()/minor(). */
+#endif
+#ifdef HAVE_SYS_MKDEV_H
+#include <sys/mkdev.h> /* Needed on Solaris for major()/minor(). */
 #endif
 
 #include <fcntl.h>
@@ -105,7 +108,7 @@ tar_object(struct tar_archive *tar, struct tar_entry *te)
 	return 0;
 }
 
-struct tar_operations tar_ops = {
+static struct tar_operations tar_ops = {
 	.read = tar_read,
 	.extract_file = tar_object,
 	.link = tar_object,

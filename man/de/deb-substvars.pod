@@ -30,7 +30,7 @@ Eine Variablenersetzung hat die Form B<${>I<Variablenname>B<}>. Variablennamen b
 
 =head2 Dateisyntax
 
-Ersetzungsvariablen können in einer Datei festgelegt werden. Diese Dateien bestehen aus Zeilen der Form I<Name>B<=>I<Wert> oder I<Name>B<?=>I<Wert>. Der Operator B<=> weist eine normale Ersetzungsvariable zu, während der Operator B<?=> (seit Dpkg 1.21.8) eine optionale Ersetzungsvariable zuweist, die keine Warnungen ausgibt, selbst wenn sie nicht verwandt wird. Leerraumzeichen am Zeilenende, leere Zeilen und Zeilen, die mit dem B<#>-Symbol starten (Kommentare) werden ignoriert.
+Ersetzungsvariablen können in einer Datei festgelegt werden. Diese Dateien bestehen aus Zeilen der Form I<Name>B<=>I<Wert>, I<Name>B<?=>I<Wert> oder I<Name>B<!=>I<Wert>. Der Operator B<=> weist eine normale Ersetzungsvariable zu, der Operator B<?=> (seit Dpkg 1.21.8) weist eine optionale Ersetzungsvariable zu, die keine Warnungen ausgibt, selbst wenn sie nicht verwandt wird und der Operator B<!=> (seit Dpkg 1.22.7) weist eine benötigte Ersetzungsvariable zu, die einen Fehler auslöst, falls sie nicht verwandt wird. Leerraumzeichen am Zeilenende, leere Zeilen und Zeilen, die mit dem B<#>-Symbol starten (Kommentare) werden ignoriert.
 
 =head2 Ersetzungen
 
@@ -69,7 +69,7 @@ Die aktuelle Host-Architektur (d.h. die Architektur, für die das Paket gebaut w
 
 =item B<vendor:Name>
 
-Der aktuelle Lieferantenname (seit Dpkg 1.20.0). Dieser Wert stammt aus dem Feld B<Vendor> aus der Datei »origin« des Lieferanten, wie dies von B<dpkg-vendor>(1) ermittelt würde.
+Der aktuelle Lieferantenname (seit Dpkg 1.20.0). Dieser Wert stammt aus dem Feld B<Vendor> aus der Datei »origin« des Lieferanten, wie dies von L<dpkg-vendor(1)> ermittelt würde.
 
 =item B<vendor:Id>
 
@@ -151,12 +151,12 @@ Liste von Ersetzungsvariablen und -werten.
 
 =head1 SIEHE AUCH
 
-B<dpkg>(1), B<dpkg-vendor>(1), B<dpkg-genchanges>(1), B<dpkg-gencontrol>(1), B<dpkg-shlibdeps>(1), B<dpkg-source>(1).
+L<dpkg(1)>, L<dpkg-vendor(1)>, L<dpkg-genchanges(1)>, L<dpkg-gencontrol(1)>, L<dpkg-shlibdeps(1)>, L<dpkg-source(1)>.
 
 
 =head1 ÜBERSETZUNG
 
-Die deutsche Übersetzung wurde 2004, 2006-2023 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2025 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

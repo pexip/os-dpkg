@@ -18,17 +18,21 @@ dpkg-buildpackage - bygg binär- eller källkodspaket från källkod
 
 =head1 SYNOPS
 
-B<dpkg-buildpackage> [I<flagga>...]
+B<dpkg-buildpackage> [I<flagga>...] [B<-->] [I<filnamn>.dsc|I<katalog>]
 
 =head1 BESKRIVNING
 
-B<dpkg-buildprogram> är ett program som automatiserar processen med att bygga ett Debianpaket. Det består av följande steg:
+B<dpkg-buildprogram> är ett program som automatiserar processen med att bygga ett Debianpaket.
+
+Flagoorna I<filnamn>.dsc och I<katalog> stöds sedan dpkg 1.22.7. Semantiken för dessa flaggor är experimentella.
+
+Det består av följande steg:
 
 =over 
 
 =item B<1.>
 
-Byggmiljön förbereds genom att diverse miljövariabler sätts (se B<MILJÖ>), kör kroken B<init> och anropar B<dpkg-source --before-build> (såvida inte B<-T> eller B<--target> används).
+Kroken B<preinit> körs innan några källkodsfiler läses. Om en B<.dsc>-fil anges packar programmet upp den på nytt och byter katalog till den, om en I<katalog> anges byter det katalog till den, annars förväntar det att den aktuella katalogen innehåller källkodsträdet. Byggmiljön förbereds genom att diverse miljövariabler sätts (se B<MILJÖ>), kroken B<init> körs och B<dpkg-source --before-build> anropas (såvida inte B<-T> eller B<--target> används).
 
 =item B<2.>
 
@@ -40,7 +44,7 @@ Om ett eller flera specifika mål har valts med flaggan B<-T> eller B<--target> 
 
 =item B<4.>
 
-Kör kroken B<source> och anropar B<dpkg-source -b> för att skapa källkodspaketet (om ett B<source>-bygge (källkod) har ombetts via B<--build> eller liknande flaggor).
+Kör kroken B<source> och anropar B<dpkg-source -b> för att skapa källkodspaketet (om ett B<source>-bygge (källkod) har ombetts via B<--build> eller liknande flaggor, och om ingen B<.dsc> har angivits).
 
 =item B<5.>
 
@@ -48,11 +52,29 @@ Kör kroken B<build> och anropar B<debian/rules> I<byggmål>, därefter körs kr
 
 =item B<6.>
 
-Kör kroken B<buildinfo> och anropar B<dpkg-genbuildinfo> för att skapa en B<.buildinfo>-fil. Många av flaggorna till B<dpkg-buildpackage> vidaresänds till B<dpkg-genchanges>.
+Kör kroken B<buildinfo> och anropar B<dpkg-genbuildinfo> för att skapa en B<.buildinfo>-fil. Många av flaggorna till B<dpkg-buildpackage> vidaresänds till B<dpkg-genchanges>. Om en I<.dsc> har angivits kommer den att refereras till i den genererade B<.buildinfo>-filen, så att vi kan fastställa källkodsträdets ursprung.
 
 =item B<7.>
 
-Kör kroken B<changes> och anropar B<dpkg-genchanges> för att skapa en B<.changes>-fil. Namnet på B<.changes>-filen kommer att bero på byggtypen och kommer vara så specifik som möjligt, men inte mer; för ett bygge som innehåller B<any> (någon) kommer namnet vara I<källkodsnamn>B<_>I<binärversion>B<_>I<ark>B<.changes>, om bygget annars innehåller B<all> (alla) kommer namnet vara I<källkodsnamn>B<_>I<binärversion>B<_>B<all.changes>, om bygget annars innehåller B<source> (källkod) kommer namnet vara I<källkodsnamn>B<_>I<källkodsversion>B<_>B<source.changes>. Många av flaggorna till B<dpkg-buildpackage> vidaresänds till B<dpkg-genchanges>.
+Kör kroken B<changes> och anropar B<dpkg-genchanges> för att skapa en B<.changes>-fil. Namnet på B<.changes>-filen kommer att bero på byggtypen och kommer vara så specifik som möjligt, men inte mer; namnet kommer att vara:
+
+=over 
+
+=item I<källkodsnamn>B<_>I<binärversion>B<_>I<ark>B<.changes>
+
+för ett bygge som innehåller B<any> (någon)
+
+=item I<källkodsnamn>B<_>I<binärversion>B<_>B<all.changes>
+
+annars för ett bygge som innehåller B<all> (alla)
+
+=item I<källkodsnamn>B<_>I<källkodsversion>B<_>B<source.changes>.
+
+annars för ett bygge som innehåller B<source> (källkod)
+
+=back
+
+Många av flaggorna till B<dpkg-buildpackage> vidaresänds till B<dpkg-genchanges>.
 
 =item B<8.>
 
@@ -71,6 +93,10 @@ Kör kroken B<check> och anropar en paketkontrollerare för B<.changes>-filen (o
 Kör kroken B<sign> och signerar med OpenPGP-programmet (såvida det inte är ett UNRELEASED-bygge, eller om B<--no-sign> angavs) för att signera B<.dsc>-filen (om sådan finns, såvida inte B<-us> eller B<--unsigned-source> anges), B<.buildinfo>-filen (såvida inte B<-ui>, B<--unsigned-buildinfo>, B<-uc> eller B<--unsigned-changes> anges) och B<.changes>-filen (såvida inte B<-uc> eller B<--unsigned-changes> anges).
 
 =item B<12.>
+
+Om en B<.dsc>-fil har angivits tas den uppackade källkodskatalogen bort.
+
+=item B<13.>
 
 Kör kroken B<done>.
 
@@ -94,7 +120,7 @@ Tillåtna värden är:
 
 Bygger källkodspaketet.
 
-B<Observera:> När det här värdets används på egen hand och om du bara vill bygga (om) källkodspaketet från ett rent källkodsträd, är det alltid ett bättre alternativ att köra B<dpkg-source> direkt eftersom det inte kräver att några byggberoenden som annars krävs för att anropa målet B<clean> installeras.
+B<Observera>: När det här värdets används på egen hand och om du bara vill bygga (om) källkodspaketet från ett rent källkodsträd, är det alltid ett bättre alternativ att köra B<dpkg-source> direkt eftersom det inte kräver att några byggberoenden som annars krävs för att anropa målet B<clean> installeras.
 
 =item B<any>
 
@@ -220,7 +246,7 @@ Den här flaggan (sedan dpkg 1.12.10) motsvarar flaggan B<--jobs> med undantaget
 
 Detta borde göra så att alla senare make-anrop ärver flaggan och därmed påtvinga parallelliseringsinställningen i paketeringen (och möjligen uppströmsbyggsystemet om det det använder L<make(1)>), oberoende av om det stöder parallella bygg, något som kan komma att orsaka byggfel.
 
-Observera: Makefiler som inte kan köras parallellt bör anses felaktiga. De bör antingen göras säkra för parallellisering, eller markeras som osäkra med L<make(1)>-målet B<.NOTPARALLEL>.
+B<Observera>: Makefiler som inte kan köras parallellt bör anses felaktiga. De bör antingen göras säkra för parallellisering, eller markeras som osäkra med L<make(1)>-målet B<.NOTPARALLEL>.
 
 =item B<-D>, B<--check-builddeps>
 
@@ -236,7 +262,7 @@ Kontrollera inte inbyggda byggberoenden och -konflikter (sedan dpkg 1.18.2). Det
 
 =item B<--rules-requires-root>
 
-Följ inte fältet B<Rules-Requires-Root>, fall tillbaka på dess gamla förval (sedan dpkg 1.19.1).
+Do not honor the B<Rules-Requires-Root> field, falling back to its legacy default value B<binary-targets> (since dpkg 1.19.1).
 
 =item B<-nc>, B<--no-pre-clean>
 
@@ -268,7 +294,7 @@ För att bygga ett Debianpaket körs normalt kommandot B<debian/rules> med flera
 
 =item B<--check-command=>I<kontrollkommando>
 
-Kommando som kontrollerar själva B<.changes>-filen och byggda artifakter som refereras i filen (sedan dpkg 1.17.6). Kommandot ska ta sökvägen till B<.changes> som argument. Kommandot är normalt B<lintian>.
+Kommando som kontrollerar själva B<.changes>-filen och byggda artefakter som refereras i filen (sedan dpkg 1.17.6). Kommandot ska ta sökvägen till B<.changes> som argument. Kommandot är normalt B<lintian>.
 
 =item B<--check-option=>I<val>
 
@@ -278,11 +304,51 @@ Sänder flaggan I<val> till det I<kontrollkommando> som anges med B<DEB_CHECK_CO
 
 Sätter den angivna skalkoden i I<krokkommando> som kroken I<kroknamn>, vilket körs vid de tidpunkter som anges i byggstegen (sedan dpkg 1.17.6). Kroken kommer alltid att exekveras även om de efterföljande funktionerna inte utförs (förutom kroken B<binary>). Alla krokar körs i den uppackade källkodskatalogen.
 
-B<Observera:> Hakar kan påverka byggprocessen och orsaka att byggen misslyckas om deras kommandon misslyckas, så se upp för oförutsedda konsekvenser.
+Några krokar kan få ytterligare information genom miljövariabler (sedan dpkg 1.22.0). Alla krokar får krokens namn i miljövariabeln B<DPKG_BUILDPACKAGE_HOOK_NAME> (since dpkg 1.22.0).
+
+B<Observera>: Hakar kan påverka byggprocessen och orsaka att byggen misslyckas om deras kommandon misslyckas, så se upp för oförutsedda konsekvenser.
 
 För närvarande stöds följande I<kroknamn>:
 
-B<init preclean source build binary buildinfo changes postclean check sign done>
+=over 
+
+=item B<preinit>
+
+=item B<init>
+
+=item B<preclean>
+
+=item B<source>
+
+Hämtar B<DPKG_BUILDPACKAGE_HOOK_SOURCE_OPTIONS> med den blankstegsavdelade listan över flaggor som kommer sändas med i anropet till B<dpkg-source>.
+
+=item B<build>
+
+Hämtar B<DPKG_BUILDPACKAGE_HOOK_BUILD_TARGET> med namnet på det byggmål i B<debian/rules> som anropades. Före dpkg 1.22.7 sattes bara variabeln om måket anropats.
+
+=item B<binary>
+
+Hämtar B<DPKG_BUILDPACKAGE_HOOK_BINARY_TARGET> med namnet på det binärmål i B<debian/rules> som anropades, men bara om anropat.
+
+=item B<buildinfo>
+
+Hämtar B<DPKG_BUILDPACKAGE_HOOK_BUILDINFO_OPTIONS> med den blankstegsavdelade listan över flaggor som kommer sändas med i anropet till B<dpkg-genbuildinfo>.
+
+=item B<changes>
+
+Hämtar B<DPKG_BUILDPACKAGE_HOOK_CHANGES_OPTIONS> med den blankstegsavdelade listan över flaggor som kommer sändas med i anropet till B<dpkg-genchanges>.
+
+=item B<postclean>
+
+=item B<check>
+
+Hämtar B<DPKG_BUILDPACKAGE_HOOK_CHECK_OPTIONS> med den blankstegsavdelade listan över flaggor som kommer sändas med i kontroll-kommandanropet.
+
+=item B<sign>
+
+=item B<done>
+
+=back
 
 I<krokkommando> stöder följande substitueringsformatsträng, som appliceras på den föra exekvering:
 
@@ -316,7 +382,7 @@ Uppströmsversionen.
 
 =item B<--buildinfo-file=>I<filnamn>
 
-Ange I<filnamn> att använda för den skapade B<.buildinfo>-filen (sedam dpkg 1.21.0).
+Ange I<filnamn> att använda för den skapade B<.buildinfo>-filen (sedan dpkg 1.21.0).
 
 =item B<--buildinfo-option=>I<val>
 
@@ -328,19 +394,25 @@ Ange ett OpenPGP-funktionsgränssnitt att använda när I<sign-command> körs (s
 
 Förvalet är B<auto>, där det bästa för närvarande tillgängliga funktionen kommer användas. De specifika OpenPGP-funktioner som stöds är, med det bästa först:
 
-=over 2
+=over 4
 
-=item B<sop> (valfri korrekt implementation av ”Stateless OpenPGP”)
+=item B<sop>
 
-=item B<sq> (från Sequoia-PGP)
+(valfri korrekt implementation av ”Stateless OpenPGP”)
 
-=item B<gpg> (från GnuPG)
+=item B<sq>
+
+(från Sequoia-PGP)
+
+=item B<gpg>
+
+(från GnuPG)
 
 =back
 
 =item B<-p>, B<--sign-command=>I<signeringskommando>
 
-När B<dpkg-buildpackage> måste exekvera en OpenGPG-funktion för att signera ett källkodsstyrfil (B<.dsc>) eller en B<.changes>-fil kör det I<signeringskommando> (det letar i B<PATH> om så behövs) istället för förvalet eller autodetekterat funktionskommando (lång flagga sedan dpkg 1.18.8). I<signeringskommando> får alla de argument som anges av B<--sign-backend>. I<signeringskommando> bör inte innehålla blanksteg eller andra skalmetatecken.
+När B<dpkg-buildpackage> måste exekvera en OpenGPG-funktion för att signera ett källkodsstyrfil (B<.dsc>), en B<.buildinfo>-fil eller en B<.changes>-fil kör det I<signeringskommando> (det letar i B<PATH> om så behövs) istället för förvalet eller autodetekterat funktionskommando (lång flagga sedan dpkg 1.18.8). I<signeringskommando> får alla de argument specifika för programmet som anges av B<--sign-backend>. I<signeringskommando> bör inte innehålla blanksteg eller andra skalmetatecken.
 
 =item B<-k>, B<--sign-keyid=>I<nyckel-id>
 
@@ -352,7 +424,7 @@ Ange en Open PGP-nyckel-id (antingen ett fingeravtryck eller ett användar-ID) f
 
 Ange en OpenPGP-I<nyckelfil> som innehåller den hemliga nyckeln att använda vid signering av paket (sedan dpkg 1.21-10).
 
-Observera: Av säkerhetsskäl är det bäst att håll I<nyckelfil> låst med ett lösenord.
+B<Observera>: Av säkerhetsskäl är det bäst att hålla I<nyckelfil> låst med ett lösenord.
 
 =item B<-us>, B<--unsigned-source>
 
@@ -360,7 +432,7 @@ Signera inte källkodspaketet (lång flagga sedan dpkg 1.18.8).
 
 =item B<-ui>, B<--unsigned-buildinfo>
 
-Signera inte B<.buildinfo>-filen (sedam dpkg 1.18.19).
+Signera inte B<.buildinfo>-filen (sedan dpkg 1.18.19).
 
 =item B<-uc>, B<--unsigned-changes>
 
@@ -442,7 +514,7 @@ Om satt, används som kommandot för att kontrollera B<.changes>-filen (sedan dp
 
 =item B<DEB_SIGN_KEYID>
 
-Används för att signera filerna B<.changes>, B<.buildinfo> och B<.dsc>-filerna om satt (sedan dpkg 1.17.2). Överstyrs av flaggan B<--sign-key>.
+If set, it will be used to sign the B<.changes>, B<.buildinfo> and B<.dsc> files (since dpkg 1.17.2).  Overridden by the B<--sign-keyid> option.
 
 =item B<DEB_SIGN_KEYFILE>
 
@@ -450,9 +522,49 @@ Används för att signera filerna B<.changes>, B<.buildinfo> och B<.dsc>-filerna
 
 =item B<DEB_BUILD_OPTIONS>
 
-Om satt, innehåller en blankstegsavdelad lista med flaggor som kan påverka byggprocessen i I<debian/rules>, och beteendet på vissa dpkg-kommandot.
+Om satt, innehåller en blankstegsavdelad lista med flaggor som påverkar beteendet för några dpkg-verktyg som används i paketbyggandet, och kan påverka paketbyggprocessen om koden i F<debian/rules> stöder dem. Dessa flaggor kan ha parametrar angivna omedelbart efter ett likhetstecken (”B<=>”). För flaggor som stöder flera parametrar avdelas de inte med blanksteg, eftersom dessa reserverats för att avdela flaggor.
 
-Med B<nocheeck> så kommer variabeln B<DEB_CHECK_COMMAND> att ignoreras. Med B<parallel=>I<N> kommer antalet parallella jobb sättas till I<N>, men kan överstyras av flaggan B<--jobs-try>.
+Följande flaggor känns och stöds av dpkg-verktygen, andra flaggor som stöds av F<debian/rules> kan anges av distributionsspecifika policydokument.
+
+=over 
+
+=item B<parallel=>I<N>
+
+Paketets F<debian/rules> kan använda den här flaggan för att ställa in byggprocessen att utföra I<N> parallella jobb. Överstyrs av flaggorna B<--jobs> och B<--jobs-force>.
+
+=item B<nocheck>
+
+B<dpkg-buildpackage> ignorerar variabeln B<DEB_CHECK_COMMAND>. Paketets F<debian/rules> förvändas inte att köra testsviter under bygget.
+
+=item B<noopt>
+
+Om F<debian/rules> anropar B<dpkg-buildflags> för att ställa in byggflaggorna kommer de ställas in till att inte aktivera några optimaliseringar.
+
+=item B<nostrip>
+
+Paketets F<debian/rules> bör se till att objekt inte får felsökningsinformation borttagen. Om F<debian/rules> innehåller fragmentet B<mk/buildtools.mk> kommer make-variabeln B<STRIP> respektera denna flagga.
+
+=item B<terse>
+
+B<dpkg-buildpackage> lägger till L<make(1)>-flaggan B<--no-print-directory> till miljövariabeln B<MAKEFLAGS>. Paketets F<debian/rules> bör minska pratsamheten, utan att bli helt tyst.
+
+=item B<hardening=>I<funktionsangivelse>
+
+=item B<reproducible=>I<funktionsangivelse>
+
+=item B<abi=>I<funktionsangivelse>
+
+=item B<future=>I<funktionsangivelse>
+
+=item B<qa=>I<funktionsangivelse>
+
+=item B<optimize=>I<funktionsangivelse>
+
+=item B<sanitize=>I<funktionsangivelse>
+
+Detta är funktionsområden som styr funktioner i byggflaggor. Se L<dpkg-buildflags(1)> för ytterligare detaljer.
+
+=back
 
 =item B<DEB_BUILD_PROFILES>
 
@@ -484,7 +596,7 @@ B<dpkg-architecture> anropas med flaggorna B<-a> och B<-t> vidaresända. Variabl
 
 =item B<DEB_RULES_REQUIRES_ROOT>
 
-Den här variabeln sätts till värdet som hämtas från fältet B<Rules-Requires-Root> eller från kommandoraden. När satt kommer det vara ett giltigt värde för fältet B<Rules-Requires-Root>. Det används för att meddela B<debian/rules> huruvida B<rootless-builds.txt>-specifikation stöds.
+Den här variabeln sätts till värdet som hämtas från fältet B<Rules-Requires-Root>, dpkg-build-api-nivån eller från kommandoraden. När satt kommer det vara ett giltigt värde för fältet B<Rules-Requires-Root>. Det används för att meddela B<debian/rules> huruvida B<rootless-builds.txt>-specifikation stöds.
 
 =item B<DEB_GAIN_ROOT_CMD>
 
@@ -520,7 +632,11 @@ Mellan dpkg 1.14.17 och 1.16.1 exporterade B<dpkg-buildpackage> kompilatorflaggo
 
 =head2 Förvalda byggmål
 
-B<dpkg-buildpackage> använder målen B<build-archi> och B<build-indep> från dpkg 1.16.2. Dessa mål krävs därmed, men för att undvika att existerande paket går sönder, och för att förenkla övergången, om källkodspaketet inte både bygger arkitektursoberoende och -beroende binärpaket (sedan dpkg 1.18.8) kommer den falla tillbaka till att använda målet B<build> om B<make -f debian/rules -gn> I<byggmål> returnerar statuskoden 2.
+B<dpkg-buildpackage> använder målen B<build-arch> och B<build-indep> sedan dpkg 1.16.2. Före dpkg 1.22.7 fanns det kod för att försöka detektera de saknade målen och falla tillbaka på målet B<build>. Dessa mål är därför obligatoriska.
+
+=head1 SÄKERHET
+
+Bygga binär- eller källkodspaket ska bara göras med betrodd källdata.
 
 =head1 PROGRAMFEL
 
@@ -528,7 +644,7 @@ Det borde vara möjligt att ange blanksteg och skalmetatecken och inledande argu
 
 =head1 SE ÄVEN
 
-I<%PKGDOCDIR%/spec/rootless-builds.txt>, B<dpkg-source>(1), B<dpkg-architecture>(1), B<dpkg-buildflags>(1), B<dpkg-genbuildinfo>(1), B<dpkg-genchanges>(1), B<fakeroot>(1), B<lintian>(1), L<https://datatracker.ietf.org/doc/draft-dkg-openpgp-stateless-cli/>, B<sq>(1), B<gpg>(1).
+I<%PKGDOCDIR%/spec/rootless-builds.txt>, L<dpkg-source(1)>, L<dpkg-architecture(1)>, L<dpkg-buildflags(1)>, L<dpkg-genbuildinfo(1)>, L<dpkg-genchanges(1)>, L<fakeroot(1)>, L<lintian(1)>, L<https://datatracker.ietf.org/doc/draft-dkg-openpgp-stateless-cli/>, L<sq(1)>, L<gpg(1)>.
 
 
 =head1 ÖVERSÄTTNING

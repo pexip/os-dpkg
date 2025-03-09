@@ -85,26 +85,25 @@ info_spew(const char *debar, const char *dir, const char *const *argv)
   struct dpkg_error err;
   const char *component;
   struct varbuf controlfile = VARBUF_INIT;
-  int fd;
   int re= 0;
 
   while ((component = *argv++) != NULL) {
-    varbuf_reset(&controlfile);
-    varbuf_printf(&controlfile, "%s/%s", dir, component);
+    int fd;
 
-    fd = open(controlfile.buf, O_RDONLY);
+    varbuf_set_fmt(&controlfile, "%s/%s", dir, component);
+
+    fd = open(varbuf_str(&controlfile), O_RDONLY);
     if (fd >= 0) {
       if (fd_fd_copy(fd, 1, -1, &err) < 0)
         ohshit(_("cannot extract control file '%s' from '%s': %s"),
-               controlfile.buf, debar, err.str);
+               varbuf_str(&controlfile), debar, err.str);
       close(fd);
     } else if (errno == ENOENT) {
       notice(_("'%.255s' contains no control component '%.255s'"),
              debar, component);
       re++;
     } else {
-      ohshite(_("open component '%.255s' (in %.255s) failed in an unexpected way"),
-              component, dir);
+      ohshite(_("cannot open file '%.255s'"), controlfile.buf);
     }
   }
   varbuf_destroy(&controlfile);
@@ -114,55 +113,86 @@ info_spew(const char *debar, const char *dir, const char *const *argv)
               "%d requested control components are missing", re), re);
 }
 
+struct script {
+  char interpreter[INTERPRETER_MAX + 1];
+  int lines;
+};
+
+static void
+info_script(FILE *cc, struct script *script)
+{
+  int c;
+
+  script->lines = 0;
+  script->interpreter[0] = '\0';
+  if (getc(cc) == '#' && getc(cc) == '!') {
+    char *p;
+    int il;
+
+    while ((c = getc(cc)) == ' ')
+      ;
+    p = script->interpreter;
+    *p++ = '#';
+    *p++ = '!';
+    il = 2;
+    while (il < INTERPRETER_MAX && !c_isspace(c) && c != EOF) {
+      *p++ = c;
+      il++;
+      c = getc(cc);
+    }
+    *p = '\0';
+    if (c == '\n')
+      script->lines++;
+  }
+  while ((c = getc(cc)) != EOF) {
+    if (c == '\n')
+      script->lines++;
+  }
+}
+
 static void
 info_list(const char *debar, const char *dir)
 {
-  char interpreter[INTERPRETER_MAX+1], *p;
-  int il, lines;
   struct varbuf controlfile = VARBUF_INIT;
-  struct dirent **cdlist, *cdep;
+  struct dirent **cdlist;
   int cdn, n;
   FILE *cc;
-  struct stat stab;
-  int c;
 
   cdn = scandir(dir, &cdlist, &ilist_select, alphasort);
-  if (cdn == -1)
+  if (cdn < 0)
     ohshite(_("cannot scan directory '%.255s'"), dir);
 
   for (n = 0; n < cdn; n++) {
+    struct dirent *cdep;
+    struct stat stab;
+
     cdep = cdlist[n];
 
-    varbuf_reset(&controlfile);
-    varbuf_printf(&controlfile, "%s/%s", dir, cdep->d_name);
+    varbuf_set_fmt(&controlfile, "%s/%s", dir, cdep->d_name);
 
     if (stat(controlfile.buf, &stab))
-      ohshite(_("cannot stat '%.255s' (in '%.255s')"), cdep->d_name, dir);
+      ohshite(_("cannot get file '%.255s' metadata"), controlfile.buf);
     if (S_ISREG(stab.st_mode)) {
+      int exec_mark = (S_IXUSR & stab.st_mode) ? '*' : ' ';
+      struct script script;
+
       cc = fopen(controlfile.buf, "r");
       if (!cc)
-        ohshite(_("cannot open '%.255s' (in '%.255s')"), cdep->d_name, dir);
-      lines = 0;
-      interpreter[0] = '\0';
-      if (getc(cc) == '#') {
-        if (getc(cc) == '!') {
-          while ((c= getc(cc))== ' ');
-          p=interpreter; *p++='#'; *p++='!'; il=2;
-          while (il < INTERPRETER_MAX && !c_isspace(c) && c != EOF) {
-            *p++= c; il++; c= getc(cc);
-          }
-          *p = '\0';
-          if (c=='\n') lines++;
-        }
-      }
-      while ((c= getc(cc))!= EOF) { if (c == '\n') lines++; }
+        ohshite(_("cannot open file '%.255s'"), controlfile.buf);
+
+      info_script(cc, &script);
+
       if (ferror(cc))
-        ohshite(_("failed to read '%.255s' (in '%.255s')"), cdep->d_name, dir);
+        ohshite(_("cannot read file '%.255s'"), controlfile.buf);
       fclose(cc);
-      printf(_(" %7jd bytes, %5d lines   %c  %-20.127s %.127s\n"),
-             (intmax_t)stab.st_size, lines,
-             (S_IXUSR & stab.st_mode) ? '*' : ' ',
-             cdep->d_name, interpreter);
+
+      if (str_is_set(script.interpreter))
+        printf(_(" %7jd bytes, %5d lines   %c  %-20.127s %.127s\n"),
+               (intmax_t)stab.st_size, script.lines, exec_mark, cdep->d_name,
+               script.interpreter);
+      else
+        printf(_(" %7jd bytes, %5d lines   %c  %.127s\n"),
+               (intmax_t)stab.st_size, script.lines, exec_mark, cdep->d_name);
     } else {
       printf(_("     not a plain file          %.255s\n"), cdep->d_name);
     }
@@ -170,14 +200,15 @@ info_list(const char *debar, const char *dir)
   }
   free(cdlist);
 
-  varbuf_reset(&controlfile);
-  varbuf_printf(&controlfile, "%s/%s", dir, CONTROLFILE);
+  varbuf_set_fmt(&controlfile, "%s/%s", dir, CONTROLFILE);
   cc = fopen(controlfile.buf, "r");
   if (!cc) {
     if (errno != ENOENT)
-      ohshite(_("failed to read '%.255s' (in '%.255s')"), CONTROLFILE, dir);
+      ohshite(_("cannot read file '%.255s'"), controlfile.buf);
     warning(_("no 'control' file in control archive!"));
   } else {
+    int lines, c;
+
     lines= 1;
     while ((c= getc(cc))!= EOF) {
       if (lines)
@@ -189,7 +220,7 @@ info_list(const char *debar, const char *dir)
       putc('\n', stdout);
 
     if (ferror(cc))
-      ohshite(_("failed to read '%.255s' (in '%.255s')"), CONTROLFILE, dir);
+      ohshite(_("cannot read file '%.255s'"), controlfile.buf);
     fclose(cc);
   }
 
@@ -212,23 +243,23 @@ info_field(const char *debar, const char *dir, const char *const *fields,
 
   for (i = 0; fields[i]; i++) {
     const struct fieldinfo *field;
-    const struct arbitraryfield *arbfield;
 
     varbuf_reset(&str);
     field = find_field_info(fieldinfos, fields[i]);
     if (field) {
       field->wcall(&str, pkg, &pkg->available, fieldflags, field);
     } else {
+      const struct arbitraryfield *arbfield;
+
       arbfield = find_arbfield_info(pkg->available.arbs, fields[i]);
       if (arbfield)
         varbuf_add_arbfield(&str, arbfield, fieldflags);
     }
-    varbuf_end_str(&str);
 
     if (fieldflags & fw_printheader)
-      printf("%s", str.buf);
+      printf("%s", varbuf_str(&str));
     else
-      printf("%s\n", str.buf);
+      printf("%s\n", varbuf_str(&str));
   }
 
   m_output(stdout, _("<standard output>"));
@@ -245,7 +276,7 @@ do_showinfo(const char *const *argv)
   struct pkginfo *pkg;
   struct pkg_format_node *fmt;
 
-  fmt = pkg_format_parse(showformat, &err);
+  fmt = pkg_format_parse(opt_showformat, &err);
   if (!fmt)
     ohshit(_("error in show format: %s"), err.str);
 

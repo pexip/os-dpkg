@@ -46,6 +46,7 @@
 #include <dpkg/pkg.h>
 #include <dpkg/pkg-queue.h>
 #include <dpkg/path.h>
+#include <dpkg/command.h>
 #include <dpkg/buffer.h>
 #include <dpkg/subproc.h>
 #include <dpkg/dir.h>
@@ -132,7 +133,7 @@ deb_verify(const char *filename)
 
   /* We have to check on every unpack, in case the debsig-verify package
    * gets installed or removed. */
-  if (!find_command(DEBSIGVERIFY))
+  if (!command_in_path(DEBSIGVERIFY))
     return;
 
   printf(_("Authenticating %s ...\n"), filename);
@@ -161,7 +162,7 @@ deb_verify(const char *filename)
 static char *
 get_control_dir(char *cidir)
 {
-  if (f_noact) {
+  if (!f_act) {
     char *tmpdir;
 
     tmpdir = mkdtemp(path_make_temp_template("dpkg"));
@@ -243,10 +244,9 @@ pkg_check_depcon(struct pkginfo *pkg, const char *pfilename)
           while (fixbytrigaw->trigaw.head)
             trigproc(fixbytrigaw->trigaw.head->pend, TRIGPROC_REQUIRED);
         } else {
-          varbuf_end_str(&depprobwhy);
           notice(_("regarding %s containing %s, pre-dependency problem:\n%s"),
                  pfilename, pkgbin_name(pkg, &pkg->available, pnaw_nonambig),
-                 depprobwhy.buf);
+                 varbuf_str(&depprobwhy));
           if (!force_depends(dsearch->list))
             ohshit(_("pre-dependency problem - not installing %.250s"),
                    pkgbin_name(pkg, &pkg->available, pnaw_nonambig));
@@ -394,7 +394,7 @@ deb_parse_conffiles(const struct pkginfo *pkg, const char *control_conffiles,
       }
     }
 
-    namenode = fsys_hash_find_node(conffilename, 0);
+    namenode = fsys_hash_find_node(conffilename, FHFF_NONE);
     namenode->oldhash = NEWCONFFILEFLAG;
     newconff = tar_fsys_namenode_queue_push(newconffiles, namenode);
 
@@ -607,17 +607,14 @@ pkg_remove_conffile_on_upgrade(struct pkginfo *pkg, struct fsys_namenode *nameno
   usenode = namenodetouse(namenode, pkg, &pkg->installed);
 
   rc = conffderef(pkg, &cdr, usenode->name);
-  if (rc == -1) {
+  if (rc < 0) {
     debug(dbg_conffdetail, "%s: '%s' conffile dereference error: %s", __func__,
           namenode->name, strerror(errno));
     namenode->oldhash = EMPTYHASHFLAG;
     return;
   }
 
-  varbuf_reset(&cdrext);
-  varbuf_add_str(&cdrext, cdr.buf);
-  varbuf_end_str(&cdrext);
-
+  varbuf_set_varbuf(&cdrext, &cdr);
   varbuf_snapshot(&cdrext, &cdrext_state);
 
   iter = fsys_node_pkgs_iter_new(namenode);
@@ -638,7 +635,6 @@ pkg_remove_conffile_on_upgrade(struct pkginfo *pkg, struct fsys_namenode *nameno
   /* Remove DPKGDISTEXT variant if still present. */
   varbuf_rollback(&cdrext_state);
   varbuf_add_str(&cdrext, DPKGDISTEXT);
-  varbuf_end_str(&cdrext);
 
   if (unlink(cdrext.buf) < 0 && errno != ENOENT)
     warning(_("%s: failed to remove '%.250s': %s"),
@@ -663,7 +659,6 @@ pkg_remove_conffile_on_upgrade(struct pkginfo *pkg, struct fsys_namenode *nameno
   /* Otherwise, preserve the modified conffile. */
   varbuf_rollback(&cdrext_state);
   varbuf_add_str(&cdrext, DPKGOLDEXT);
-  varbuf_end_str(&cdrext);
 
   printf(_("Obsolete conffile '%s' has been modified by you.\n"), cdr.buf);
   printf(_("Saving as %s ...\n"), cdrext.buf);
@@ -712,7 +707,6 @@ pkg_remove_old_files(struct pkginfo *pkg,
 
     varbuf_rollback(&fname_state);
     varbuf_add_str(&fnamevb, usenode->name);
-    varbuf_end_str(&fnamevb);
 
     if (!stat(fnamevb.buf, &stab) && S_ISDIR(stab.st_mode)) {
       debug(dbg_eachfiledetail, "process_archive: %s is a directory",
@@ -721,10 +715,10 @@ pkg_remove_old_files(struct pkginfo *pkg,
         continue;
     }
 
-    if (lstat(fnamevb.buf, &oldfs)) {
+    if (lstat(varbuf_str(&fnamevb), &oldfs)) {
       if (!(errno == ENOENT || errno == ELOOP || errno == ENOTDIR))
         warning(_("could not stat old file '%.250s' so not deleting it: %s"),
-                fnamevb.buf, strerror(errno));
+                varbuf_str(&fnamevb), strerror(errno));
       continue;
     }
     if (S_ISDIR(oldfs.st_mode)) {
@@ -734,7 +728,7 @@ pkg_remove_old_files(struct pkginfo *pkg,
       if (strcmp(usenode->name, "/.") == 0)
         continue;
 
-      if (rmdir(fnamevb.buf)) {
+      if (rmdir(varbuf_str(&fnamevb))) {
         warning(_("unable to delete old directory '%.250s': %s"),
                 namenode->name, strerror(errno));
       } else if ((namenode->flags & FNNF_OLD_CONFF)) {
@@ -764,7 +758,7 @@ pkg_remove_old_files(struct pkginfo *pkg,
       /* If we can't stat the old or new file, or it's a directory,
        * we leave it up to the normal code. */
       debug(dbg_eachfile, "process_archive: checking %s for same files on "
-            "upgrade/downgrade", fnamevb.buf);
+            "upgrade/downgrade", varbuf_str(&fnamevb));
 
       for (cfile = newfiles_queue->head; cfile; cfile = cfile->next) {
         /* If the file has been filtered then treat it as if it didn't exist
@@ -775,12 +769,10 @@ pkg_remove_old_files(struct pkginfo *pkg,
         if (cfile->namenode->file_ondisk_id == NULL) {
           struct stat tmp_stat;
 
-          varbuf_reset(&cfilename);
-          varbuf_add_str(&cfilename, dpkg_fsys_get_dir());
+          varbuf_set_str(&cfilename, dpkg_fsys_get_dir());
           varbuf_add_str(&cfilename, cfile->namenode->name);
-          varbuf_end_str(&cfilename);
 
-          if (lstat(cfilename.buf, &tmp_stat) == 0) {
+          if (lstat(varbuf_str(&cfilename), &tmp_stat) == 0) {
             struct file_ondisk_id *file_ondisk_id;
 
             file_ondisk_id = nfmalloc(sizeof(*file_ondisk_id));
@@ -803,11 +795,11 @@ pkg_remove_old_files(struct pkginfo *pkg,
             oldfs.st_ino == cfile->namenode->file_ondisk_id->id_ino) {
           if (sameas)
             warning(_("old file '%.250s' is the same as several new files! "
-                      "(both '%.250s' and '%.250s')"), fnamevb.buf,
+                      "(both '%.250s' and '%.250s')"), varbuf_str(&fnamevb),
                     sameas->namenode->name, cfile->namenode->name);
           sameas = cfile;
           debug(dbg_eachfile, "process_archive: not removing %s, "
-                "since it matches %s", fnamevb.buf, cfile->namenode->name);
+                "since it matches %s", varbuf_str(&fnamevb), cfile->namenode->name);
         }
       }
 
@@ -842,7 +834,7 @@ pkg_remove_old_files(struct pkginfo *pkg,
 
       trig_path_activate(usenode, pkg);
 
-      if (secure_unlink_statted(fnamevb.buf, &oldfs)) {
+      if (secure_unlink_statted(varbuf_str(&fnamevb), &oldfs)) {
         warning(_("unable to securely remove old file '%.250s': %s"),
                 namenode->name, strerror(errno));
       }
@@ -854,8 +846,7 @@ static void
 pkg_update_fields(struct pkginfo *pkg, struct fsys_namenode_queue *newconffiles)
 {
   struct dependency *newdeplist, **newdeplistlastp;
-  struct dependency *newdep, *dep;
-  struct deppossi **newpossilastp, *possi, *newpossi;
+  struct dependency *dep;
   struct conffile **iconffileslastp, *newiconff;
   struct fsys_namenode_list *cfile;
 
@@ -866,6 +857,9 @@ pkg_update_fields(struct pkginfo *pkg, struct fsys_namenode_queue *newconffiles)
   newdeplist = NULL;
   newdeplistlastp = &newdeplist;
   for (dep = pkg->available.depends; dep; dep = dep->next) {
+    struct deppossi **newpossilastp, *possi;
+    struct dependency *newdep;
+
     newdep = nfmalloc(sizeof(*newdep));
     newdep->up = pkg;
     newdep->next = NULL;
@@ -873,6 +867,8 @@ pkg_update_fields(struct pkginfo *pkg, struct fsys_namenode_queue *newconffiles)
     newpossilastp = &newdep->list;
 
     for (possi = dep->list; possi; possi = possi->next) {
+      struct deppossi *newpossi;
+
       newpossi = nfmalloc(sizeof(*newpossi));
       newpossi->up = newdep;
       newpossi->ed = possi->ed;
@@ -923,9 +919,11 @@ pkg_update_fields(struct pkginfo *pkg, struct fsys_namenode_queue *newconffiles)
     newiconff->next = NULL;
     newiconff->name = nfstrsave(cfile->namenode->name);
     newiconff->hash = nfstrsave(cfile->namenode->oldhash);
-    newiconff->obsolete = !!(cfile->namenode->flags & FNNF_OBS_CONFF);
-    newiconff->remove_on_upgrade = !!(
-        cfile->namenode->flags & FNNF_RM_CONFF_ON_UPGRADE);
+    newiconff->flags = CONFFILE_NONE;
+    if (cfile->namenode->flags & FNNF_OBS_CONFF)
+      newiconff->flags |= CONFFILE_OBSOLETE;
+    if (cfile->namenode->flags & FNNF_RM_CONFF_ON_UPGRADE)
+      newiconff->flags |= CONFFILE_REMOVE_ON_UPGRADE;
     *iconffileslastp = newiconff;
     iconffileslastp = &newiconff->next;
   }
@@ -1035,9 +1033,8 @@ pkg_disappear_others(struct pkginfo *pkg)
       if (depisok(pdep->up, &depprobwhy, NULL, NULL, false))
         continue;
 
-      varbuf_end_str(&depprobwhy);
       debug(dbg_veryverbose,"process_archive cannot disappear: %s",
-            depprobwhy.buf);
+            varbuf_str(&depprobwhy));
       break;
     }
     if (!pdep) {
@@ -1059,10 +1056,9 @@ pkg_disappear_others(struct pkginfo *pkg)
           if (depisok(pdep->up, &depprobwhy, NULL, NULL, false))
             continue;
 
-          varbuf_end_str(&depprobwhy);
           debug(dbg_veryverbose,
                 "process_archive cannot disappear (provides %s): %s",
-                providecheck->list->ed->name, depprobwhy.buf);
+                providecheck->list->ed->name, varbuf_str(&depprobwhy));
           goto break_from_both_loops_at_once;
         }
       }
@@ -1192,8 +1188,7 @@ pkg_remove_backup_files(struct pkginfo *pkg, struct fsys_namenode_list *newfiles
     varbuf_rollback(&fnametmp_state);
     varbuf_add_str(&fnametmpvb, usenode->name);
     varbuf_add_str(&fnametmpvb, DPKGTEMPEXT);
-    varbuf_end_str(&fnametmpvb);
-    path_remove_tree(fnametmpvb.buf);
+    path_remove_tree(varbuf_str(&fnametmpvb));
   }
 }
 
@@ -1237,13 +1232,13 @@ void process_archive(const char *filename) {
     ohshite(_("cannot access archive '%s'"), filename);
 
   /* We can't ‘tentatively-reassemble’ packages. */
-  if (!f_noact) {
+  if (f_act) {
     if (!deb_reassemble(&filename, &pfilename))
       return;
   }
 
   /* Verify the package. */
-  if (!f_nodebsig)
+  if (f_debsig)
     deb_verify(filename);
 
   /* Get the control information directory. */
@@ -1344,7 +1339,7 @@ void process_archive(const char *filename) {
     log_action("install", pkg, &pkg->available);
   }
 
-  if (f_noact) {
+  if (!f_act) {
     pop_cleanup(ehflag_normaltidy);
     return;
   }

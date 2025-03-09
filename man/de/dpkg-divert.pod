@@ -24,7 +24,7 @@ B<dpkg-divert> [I<Option> …] I<Befehl>
 
 B<dpkg-divert> ist ein Hilfswerkzeug, um die Liste der Umleitungen einzurichten und zu aktualisieren.
 
-Datei-I<Diversionen> (Umleitungen) sind eine Möglichkeit, B<dpkg>(1) dazu zu zwingen, eine Datei nicht an ihren Standardplatz, sondern an einem I<umgeleiteten> Ort zu installieren. Umleitungen können innerhalb der Debian-Paketskripte verwendet werden, um eine Datei beiseitezuschieben, wenn sie einen Konflikt auslöst. Systemadministratoren können sie auch verwenden, um sich über die Konfigurationsdateien einiger Pakete hinwegzusetzen, oder wann immer einige Dateien (die nicht als „Conffiles“ markiert sind) von B<dpkg> erhalten werden müssen, wenn eine neuere Version eines Paketes, die diese Dateien enthält, installiert wird.
+Datei-I<Diversionen> (Umleitungen) sind eine Möglichkeit, L<dpkg(1)> dazu zu zwingen, eine Datei nicht an ihren Standardplatz, sondern an einem I<umgeleiteten> Ort zu installieren. Umleitungen können innerhalb der Paketbetreuerskripte verwendet werden, um eine Datei beiseitezuschieben, wenn sie einen Konflikt auslöst. Systemadministratoren können sie auch verwenden, um sich über die Konfigurationsdateien einiger Pakete hinwegzusetzen, oder wann immer einige Dateien (die nicht als „Conffiles“ markiert sind) von B<dpkg> erhalten werden müssen, wenn eine neuere Version eines Paketes, die diese Dateien enthält, installiert wird.
 
 =head1 BEFEHLE
 
@@ -144,6 +144,10 @@ Setzt die Fehlersuchmaske (seit Dpkg 1.21.10) aus einem oktalen Wert. Die derzei
 
 Setzt den Farbmodus (seit Dpkg 1.18.5). Die derzeit unterstützten Werte sind: B<auto> (Vorgabe), B<always> und B<never>.
 
+=item B<DPKG_NLS>
+
+Falls dies gesetzt ist, wird es zur Entscheidung, ob Native Language Support, auch als Unterstützung für Internationalisierung (oder i18n) bekannt, aktiviert wird (seit Dpkg 1.22.7). Die akzeptierten Werte sind: B<0> und B<1> (Vorgabe).
+
 =back
 
 =head1 DATEIEN
@@ -164,7 +168,7 @@ Beim Hinzufügen ist die Standardeinstellung B<--local> und B<--divert> I<Origin
 
 Verzeichnisse können mit B<dpkg-divert> nicht umgeleitet werden.
 
-Vorsicht sollte beim Umleiten von Laufzeit-Bibliotheken walten gelassen werden, da B<ldconfig>(8) einen symbolischen Link, basierend auf dem in der Bibliothek eingebetteten DT_SONAME-Feld, anlegt. Da B<ldconfig> keine Umleitungen anerkennt (nur B<dpkg> tut dies), kann der Symlink am Ende auf die umgeleitete Bibliothek zeigen, falls die umgeleitete Bibliothek den gleichen SONAME wie die nicht umgeleitete hat.
+Vorsicht sollte beim Umleiten von Laufzeit-Bibliotheken walten gelassen werden, da L<ldconfig(8)> einen symbolischen Link, basierend auf dem in der Bibliothek eingebetteten DT_SONAME-Feld, anlegt. Da B<ldconfig> keine Umleitungen anerkennt (nur B<dpkg> tut dies), kann der Symlink am Ende auf die umgeleitete Bibliothek zeigen, falls die umgeleitete Bibliothek den gleichen SONAME wie die nicht umgeleitete hat.
 
 =head1 BEISPIELE
 
@@ -187,12 +191,12 @@ Um diese Umleitung zu entfernen:
 
 =head1 SIEHE AUCH
 
-B<dpkg>(1).
+L<dpkg(1)>.
 
 
 =head1 ÜBERSETZUNG
 
-Die deutsche Übersetzung wurde 2004, 2006-2023 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2025 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

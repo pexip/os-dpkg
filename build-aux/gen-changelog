@@ -21,7 +21,7 @@
 use strict;
 use warnings;
 
-use lib 'scripts';
+use lib qw(scripts);
 
 use List::Util qw(uniq);
 use Text::Wrap;
@@ -34,6 +34,7 @@ my @sections = qw(
     port
     perl-mod
     make-mod
+    shell-mod
     doc
     code-int
     build-sys
@@ -60,6 +61,10 @@ my %sections = (
         title => 'Make fragments',
         match => qr{^scripts/mk: },
     },
+    'shell-mod' => {
+        title => 'Shell library',
+        match => qr{^src/sh: },
+    },
     doc => {
         title => 'Documentation',
         match => qr/^(?:doc|man)[,:] /,
@@ -68,7 +73,7 @@ my %sections = (
     'code-int' => {
         title => 'Code internals',
         type => 'internal',
-        match => qr/^(?:lib(?:compat|dpkg)?|src|scripts|utils): /,
+        match => qr/^(?:lib(?:compat|dpkg)?|src|scripts|perl|utils): /,
         keep => 1,
     },
     'build-sys' => {
@@ -296,4 +301,3 @@ foreach my $groupname (@groups) {
         print @entries;
     }
 }
-1;

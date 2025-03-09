@@ -1,4 +1,4 @@
-# Traditional Chinese translation for dselect.
+# Translation of dselect to Traditional Chinese
 # Copyright © 2004 Dpkg Developers
 # This file is distributed under the same license as the dpkg package.
 #
@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dselect 1.13\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2023-05-11 02:03+0000\n"
+"POT-Creation-Date: 2025-03-09 18:59+0100\n"
 "PO-Revision-Date: 2023-01-28 15:57+0800\n"
 "Last-Translator: Cheng-Chia Tseng <pswo10680@gmail.com>\n"
 "Language-Team: Chinese (traditional) <debian-l10n-chinese@lists.debian.org>\n"
@@ -53,7 +53,9 @@ msgid "cannot update screen after window resize"
 msgstr "在視窗調整大小後無法更新螢幕"
 
 #: dselect/baselist.cc
-msgid "failed to allocate colour pair"
+#, fuzzy
+#| msgid "failed to allocate colour pair"
+msgid "cannot allocate color pair"
 msgstr "分配色彩對失敗"
 
 #: dselect/baselist.cc
@@ -861,15 +863,21 @@ msgid "screen part"
 msgstr "顯示哪一部分"
 
 #: dselect/main.cc
-msgid "null colour specification"
+#, fuzzy
+#| msgid "null colour specification"
+msgid "missing color specification"
 msgstr "虛無的色彩規格"
 
 #: dselect/main.cc
-msgid "colour"
+#, fuzzy
+#| msgid "colour"
+msgid "color"
 msgstr "色彩"
 
 #: dselect/main.cc
-msgid "colour attribute"
+#, fuzzy
+#| msgid "colour attribute"
+msgid "color attribute"
 msgstr "色彩特性"
 
 #: dselect/main.cc
@@ -1108,24 +1116,10 @@ msgid "end of file in summary - missing newline"
 msgstr "在概述中發現 EOF - 缺少換列符號"
 
 #: dselect/methparse.cc
-#, c-format
-msgid "unable to open option description file '%.250s'"
-msgstr "無法開啟選項說明檔「%.250s」"
-
-#: dselect/methparse.cc
-#, c-format
-msgid "unable to stat option description file '%.250s'"
-msgstr "無法取得選項說明檔「%.250s」的狀態"
-
-#: dselect/methparse.cc
-#, c-format
-msgid "failed to read option description file '%.250s'"
+#, fuzzy, c-format
+#| msgid "failed to read option description file '%.250s'"
+msgid "cannot load option description file '%s'"
 msgstr "讀取選項說明檔「%.250s」失敗"
-
-#: dselect/methparse.cc
-#, c-format
-msgid "error during read of option description file '%.250s'"
-msgstr "讀取選項說明檔「%.250s」時出錯"
 
 #: dselect/methparse.cc
 #, c-format
@@ -1565,6 +1559,18 @@ msgstr "%3$s 類別中的 %1$s %2$s 軟體包"
 #, c-format
 msgid "%-*s %s%s%s;  %s (was: %s).  %s"
 msgstr "%-*s %s%s%s;  %s (曾為：%s)。 %s"
+
+#, c-format
+#~ msgid "unable to open option description file '%.250s'"
+#~ msgstr "無法開啟選項說明檔「%.250s」"
+
+#, c-format
+#~ msgid "unable to stat option description file '%.250s'"
+#~ msgstr "無法取得選項說明檔「%.250s」的狀態"
+
+#, c-format
+#~ msgid "error during read of option description file '%.250s'"
+#~ msgstr "讀取選項說明檔「%.250s」時出錯"
 
 #~ msgid "ioctl(TIOCGWINSZ) failed"
 #~ msgstr "ioctl(TIOCGWINSZ) 失敗"

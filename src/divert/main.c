@@ -28,7 +28,7 @@
 #include <sys/stat.h>
 
 #include <errno.h>
-#if HAVE_LOCALE_H
+#ifdef HAVE_LOCALE_H
 #include <locale.h>
 #endif
 #include <fcntl.h>
@@ -147,7 +147,6 @@ file_init(struct file *f, const char *filename)
 
 	varbuf_add_str(&usefilename, dpkg_fsys_get_dir());
 	varbuf_add_str(&usefilename, filename);
-	varbuf_end_str(&usefilename);
 
 	f->name = varbuf_detach(&usefilename);
 	f->stat_state = FILE_STAT_INVALID;
@@ -312,24 +311,22 @@ static const char *
 varbuf_diversion(struct varbuf *str, const char *pkgname,
                  const char *filename, const char *divertto)
 {
-	varbuf_reset(str);
-
 	if (pkgname == NULL) {
 		if (divertto == NULL)
-			varbuf_printf(str, _("local diversion of %s"), filename);
+			varbuf_set_fmt(str, _("local diversion of %s"), filename);
 		else
-			varbuf_printf(str, _("local diversion of %s to %s"),
+			varbuf_set_fmt(str, _("local diversion of %s to %s"),
 			              filename, divertto);
 	} else {
 		if (divertto == NULL)
-			varbuf_printf(str, _("diversion of %s by %s"),
-			              filename, pkgname);
+			varbuf_set_fmt(str, _("diversion of %s by %s"),
+			               filename, pkgname);
 		else
-			varbuf_printf(str, _("diversion of %s to %s by %s"),
-			              filename, divertto, pkgname);
+			varbuf_set_fmt(str, _("diversion of %s to %s by %s"),
+			               filename, divertto, pkgname);
 	}
 
-	return str->buf;
+	return varbuf_str(str);
 }
 
 static const char *
@@ -338,18 +335,16 @@ diversion_current(const char *filename)
 	static struct varbuf str = VARBUF_INIT;
 
 	if (opt_pkgname_match_any) {
-		varbuf_reset(&str);
-
 		if (opt_divertto == NULL)
-			varbuf_printf(&str, _("any diversion of %s"), filename);
+			varbuf_set_fmt(&str, _("any diversion of %s"), filename);
 		else
-			varbuf_printf(&str, _("any diversion of %s to %s"),
-			              filename, opt_divertto);
+			varbuf_set_fmt(&str, _("any diversion of %s to %s"),
+			               filename, opt_divertto);
 	} else {
 		return varbuf_diversion(&str, opt_pkgname, filename, opt_divertto);
 	}
 
-	return str.buf;
+	return varbuf_str(&str);
 }
 
 static const char *
@@ -490,7 +485,7 @@ diversion_add(const char *const *argv)
 	    S_ISDIR(file_from.stat.st_mode))
 		badusage(_("cannot divert directories"));
 
-	fnn_from = fsys_hash_find_node(filename, 0);
+	fnn_from = fsys_hash_find_node(filename, FHFF_NONE);
 
 	/* Handle divertto. */
 	if (opt_divertto == NULL)
@@ -501,7 +496,7 @@ diversion_add(const char *const *argv)
 
 	file_init(&file_to, opt_divertto);
 
-	fnn_to = fsys_hash_find_node(opt_divertto, 0);
+	fnn_to = fsys_hash_find_node(opt_divertto, FHFF_NONE);
 
 	/* Handle package name. */
 	if (opt_pkgname == NULL)
@@ -630,7 +625,7 @@ diversion_remove(const char *const *argv)
 	modstatdb_open(msdbrw_readonly);
 	ensure_diversions();
 
-	namenode = fsys_hash_find_node(filename, FHFF_NONE);
+	namenode = fsys_hash_find_node(filename, FHFF_NO_NEW);
 
 	if (namenode == NULL || namenode->divert == NULL ||
 	    namenode->divert->useinstead == NULL) {
@@ -763,7 +758,7 @@ diversion_truename(const char *const *argv)
 	modstatdb_open(msdbrw_readonly);
 	ensure_diversions();
 
-	namenode = fsys_hash_find_node(filename, FHFF_NONE);
+	namenode = fsys_hash_find_node(filename, FHFF_NO_NEW);
 
 	/* Print the given name if file is not diverted. */
 	if (namenode && namenode->divert && namenode->divert->useinstead)
@@ -790,7 +785,7 @@ diversion_listpackage(const char *const *argv)
 	modstatdb_open(msdbrw_readonly);
 	ensure_diversions();
 
-	namenode = fsys_hash_find_node(filename, FHFF_NONE);
+	namenode = fsys_hash_find_node(filename, FHFF_NO_NEW);
 
 	/* Print nothing if file is not diverted. */
 	if (namenode == NULL || namenode->divert == NULL)

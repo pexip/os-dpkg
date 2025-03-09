@@ -56,7 +56,6 @@ constructfn(struct varbuf *vb, const char *dir, const char *tail)
 	varbuf_reset(vb);
 	varbuf_add_dir(vb, dir);
 	varbuf_add_str(vb, tail);
-	varbuf_end_str(vb);
 }
 
 /**
@@ -78,9 +77,9 @@ trigdef_update_start(enum trigdef_update_flags uf)
 
 	if (uf & TDUF_WRITE) {
 		constructfn(&fn, triggersdir, TRIGGERSLOCKFILE);
-		if (lock_fd == -1) {
+		if (lock_fd < 0) {
 			lock_fd = open(fn.buf, O_RDWR | O_CREAT | O_TRUNC, 0600);
-			if (lock_fd == -1) {
+			if (lock_fd < 0) {
 				if (!(errno == ENOENT && (uf & TDUF_NO_LOCK_OK)))
 					ohshite(_("unable to open/create "
 					          "triggers lock file '%.250s'"),
@@ -249,8 +248,6 @@ trigdef_parse(void)
 void
 trigdef_process_done(void)
 {
-	int r;
-
 	if (old_deferred) {
 		if (ferror(old_deferred))
 			ohshite(_("error reading triggers deferred file '%.250s'"),
@@ -260,12 +257,14 @@ trigdef_process_done(void)
 	}
 
 	if (trig_new_deferred) {
+		int rc;
+
 		if (ferror(trig_new_deferred))
 			ohshite(_("unable to write new triggers deferred "
 			          "file '%.250s'"), newfn.buf);
-		r = fclose(trig_new_deferred);
+		rc = fclose(trig_new_deferred);
 		trig_new_deferred = NULL;
-		if (r)
+		if (rc)
 			ohshite(_("unable to close new triggers deferred "
 			          "file '%.250s'"), newfn.buf);
 

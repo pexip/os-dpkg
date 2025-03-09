@@ -31,14 +31,13 @@ use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
 use Dpkg::Lock;
 use Dpkg::Arch qw(get_host_arch debarch_eq debarch_is debarch_list_parse);
-use Dpkg::Package;
 use Dpkg::BuildProfiles qw(get_build_profiles);
 use Dpkg::Deps;
 use Dpkg::Control;
 use Dpkg::Control::Info;
 use Dpkg::Control::Fields;
 use Dpkg::Substvars;
-use Dpkg::Vars;
+use Dpkg::Package;
 use Dpkg::Changelog::Parse;
 use Dpkg::Dist::Files;
 
@@ -144,13 +143,13 @@ while (@ARGV) {
 }
 
 umask 0022; # ensure sane default permissions for created files
-my %options = (file => $changelogfile);
-$options{changelogformat} = $changelogformat if $changelogformat;
-my $changelog = changelog_parse(%options);
+my %changelog_opts = (file => $changelogfile);
+$changelog_opts{changelogformat} = $changelogformat if $changelogformat;
+my $changelog = changelog_parse(%changelog_opts);
 if ($changelog->{'Binary-Only'}) {
-    $options{count} = 1;
-    $options{offset} = 1;
-    my $prev_changelog = changelog_parse(%options);
+    $changelog_opts{count} = 1;
+    $changelog_opts{offset} = 1;
+    my $prev_changelog = changelog_parse(%changelog_opts);
     $sourceversion = $prev_changelog->{'Version'};
 } else {
     $sourceversion = $changelog->{'Version'};
@@ -167,7 +166,7 @@ $substvars->set_vendor_substvars();
 $substvars->set_arch_substvars();
 $substvars->load('debian/substvars') if -e 'debian/substvars' and not $substvars_loaded;
 my $control = Dpkg::Control::Info->new($controlfile);
-my $fields = Dpkg::Control->new(type => CTRL_PKG_DEB);
+my $fields = Dpkg::Control->new(type => CTRL_DEB);
 
 # Old-style bin-nmus change the source version submitted to
 # set_version_substvars()
@@ -194,29 +193,30 @@ $substvars->set_msg_prefix(sprintf(g_('package %s: '), $pkg->{Package}));
 
 # Scan source package
 my $src_fields = $control->get_source();
-foreach (keys %{$src_fields}) {
-    if (m/^Source$/) {
-	set_source_package($src_fields->{$_});
-    } elsif (m/^Description$/) {
+foreach my $f (keys %{$src_fields}) {
+    if ($f eq 'Source') {
+        set_source_name($src_fields->{$f});
+    } elsif ($f eq 'Description') {
         # Description in binary packages is not inherited, do not copy this
         # field, only initialize the description substvars.
-        $substvars->set_desc_substvars($src_fields->{$_});
+        $substvars->set_desc_substvars($src_fields->{$f});
     } else {
-        field_transfer_single($src_fields, $fields);
+        field_transfer_single($src_fields, $fields, $f);
     }
 }
 $substvars->set_field_substvars($src_fields, 'S');
 
 # Scan binary package
-foreach (keys %{$pkg}) {
-    my $v = $pkg->{$_};
-    if (field_get_dep_type($_)) {
+foreach my $f (keys %{$pkg}) {
+    my $v = $pkg->{$f};
+
+    if (field_get_dep_type($f)) {
 	# Delay the parsing until later
-    } elsif (m/^Architecture$/) {
+    } elsif ($f eq 'Architecture') {
 	my $host_arch = get_host_arch();
 
 	if (debarch_eq('all', $v)) {
-	    $fields->{$_} = $v;
+            $fields->{$f} = $v;
 	} else {
 	    my @archlist = debarch_list_parse($v, positive => 1);
 
@@ -225,26 +225,26 @@ foreach (keys %{$pkg}) {
 			 "appear in package '%s' architecture list (%s)"),
 		      $host_arch, $oppackage, "@archlist");
 	    }
-	    $fields->{$_} = $host_arch;
+            $fields->{$f} = $host_arch;
 	}
     } else {
-        field_transfer_single($pkg, $fields);
+        field_transfer_single($pkg, $fields, $f);
     }
 }
 
 # Scan fields of dpkg-parsechangelog
-foreach (keys %{$changelog}) {
-    my $v = $changelog->{$_};
+foreach my $f (keys %{$changelog}) {
+    my $v = $changelog->{$f};
 
-    if (m/^Source$/) {
-	set_source_package($v);
-    } elsif (m/^Version$/) {
+    if ($f eq 'Source') {
+        set_source_name($v);
+    } elsif ($f eq 'Version') {
         # Already handled previously.
-    } elsif (m/^Maintainer$/) {
+    } elsif ($f eq 'Maintainer') {
         # That field must not be copied from changelog even if it's
         # allowed in the binary package control information
     } else {
-        field_transfer_single($changelog, $fields);
+        field_transfer_single($changelog, $fields, $f);
     }
 }
 
@@ -312,6 +312,16 @@ for my $f (qw(Maintainer Description)) {
     warning(g_('missing information for output field %s'), $f)
         unless defined $fields->{$f};
 }
+for my $f (qw(Section)) {
+    next if defined $fields->{$f};
+
+    $fields->{$f} = field_get_default_value($f);
+    warning(g_('missing information for output field %s; ' .
+               'using default value "%s"'), $f, $fields->{$f});
+}
+for my $f (qw(Priority)) {
+    $fields->{$f} //= field_get_default_value($f);
+}
 
 my $pkg_type = $pkg->{'Package-Type'} ||
                $pkg->get_custom_field('Package-Type') || 'deb';
@@ -327,7 +337,7 @@ if ($pkg_type eq 'udeb') {
     }
 }
 
-my $sourcepackage = get_source_package();
+my $sourcepackage = get_source_name();
 my $binarypackage = $override{'Package'} // $fields->{'Package'};
 my $verdiff = $binaryversion ne $sourceversion;
 if ($binarypackage ne $sourcepackage || $verdiff) {
@@ -389,8 +399,11 @@ if ($stdout) {
     $sversion =~ s/^\d+://;
     $forcefilename //= sprintf('%s_%s_%s.%s', $fields->{'Package'}, $sversion,
                                $fields->{'Architecture'}, $pkg_type);
-    my $section = $fields->{'Section'} || '-';
-    my $priority = $fields->{'Priority'} || '-';
+
+    my %fileprop;
+    foreach my $f (qw(Section Priority)) {
+        $fileprop{lc $f} = $fields->{$f};
+    }
 
     # Obtain a lock on debian/control to avoid simultaneous updates
     # of debian/files when parallel building is in use
@@ -418,7 +431,7 @@ if ($stdout) {
     my %fileattrs;
     $fileattrs{automatic} = 'yes' if $fields->{'Auto-Built-Package'};
 
-    $dist->add_file($forcefilename, $section, $priority, %fileattrs);
+    $dist->add_file($forcefilename, @fileprop{qw(section priority)}, %fileattrs);
     $dist->save("$fileslistfile.new");
 
     rename "$fileslistfile.new", $fileslistfile

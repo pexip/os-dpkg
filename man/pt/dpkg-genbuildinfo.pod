@@ -16,7 +16,7 @@ If the PO get lost, keeping this translation up-to-date will be harder.
 
 dpkg-genbuildinfo - gera ficheiros .buildinfo de Debian
 
-=head1 SINOPSE
+=head1 RESUMO
 
 B<dpkg-genbuildinfo> [I<option>...]
 
@@ -24,7 +24,7 @@ B<dpkg-genbuildinfo> [I<option>...]
 
 B<dpkg-genbuildinfo> lê informação a partir de uma árvore fonte Debian compilada e desempacotada e dos ficheiros que gerou, e gera um ficheiro de controle Debian que descreve o ambiente de compilação e os artefactos de compilação (ficheiro B<.buildinfo>).
 
-Este comando foi introduzido no dpkg 1.18.11.
+Este programa foi introduzido no dpkg 1.18.11.
 
 =head1 OPÇÕES
 
@@ -74,7 +74,7 @@ Especifica onde está a lista de ficheiros que foram produzidos pela compilaçã
 
 =item B<-F>I<changelog-format>
 
-Especifica o formato do registo de alterações. Veja B<dpkg-parsechangelog>(1) para informação acerca dos formatos alternativos.
+Especifica o formato do registo de alterações. Veja L<dpkg-parsechangelog(1)> para informação acerca dos formatos alternativos.
 
 =item B<-O>[I<filename>]
 
@@ -124,6 +124,14 @@ Mostra a versão e termina.
 
 Esta variável pode ser usada para activar e desactivar várias funcionalidades que afectam a informação incluída no ficheiro .buildinfo, via opção B<buildinfo> (desde dpkg 1.18.19). Esta opção contém uma lista separada por vírgulas de funcionalidades, prefixadas com os modificadores ‘B<+>’ ou ‘B<->’, para denotar se se os deve activar ou desactivar. A funcionalidade especial “B<all>” pode ser usada para activar ou desactivar todas as outras funcionalidades. A funcionalidade "B<path>” controla se se deve incluir incondicionalmente o campo B<Build-Path>.
 
+=item B<DEB_BUILD_ARCH>
+
+Define a arquitectura de compilação. Isto afecta o valor para o campo B<Build-Architecture>, e a verificação para modo de compilação-cruzada.
+
+=item B<DEB_HOST_ARCH>
+
+Define a arquitectura anfitriã. Isto afecta o nome de ficheiro usado para o ficheiro .buildinfo, e a verificação para modo de compilação-cruzada.
+
 =item B<DPKG_COLORS>
 
 Define o modo de cor (desde dpkg 1.18.5). Os valores actualmente aceites são: B<auto> (predefinido), B<always> e B<never>.
@@ -146,7 +154,7 @@ A lista de ficheiros gerados.  B<dpkg-genbuildinfo> lê os dados aqui quando pro
 
 =head1 VEJA TAMBÉM
 
-B<deb-buildinfo>(5).
+L<deb-buildinfo(5)>.
 
 
 =head1 TRADUÇÃO

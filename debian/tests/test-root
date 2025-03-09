@@ -14,9 +14,8 @@ cd $AUTOPKGTEST_TMP
   --disable-nls \
   --disable-dselect \
   --prefix=/usr \
-  --sbindir=/sbin \
   --libexecdir='${exec_prefix}/lib' \
   --sysconfdir=/etc \
   --localstatedir=/var \
   # EOL
-make installcheck TESTSUITEFLAGS=--verbose
+make installcheck TEST_VERBOSE=1

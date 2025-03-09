@@ -16,7 +16,7 @@ If the PO get lost, keeping this translation up-to-date will be harder.
 
 dpkg-checkbuilddeps - verifica dependências e conflitos de compilação
 
-=head1 SINOPSE
+=head1 RESUMO
 
 B<dpkg-checkbuilddeps> [I<option>...] [I<control-file>]
 
@@ -73,6 +73,10 @@ Mostra a versão e termina.
 =head1 AMBIENTE
 
 =over 
+
+=item B<DEB_HOST_ARCH>
+
+Define a arquitectura da máquina anfitriã.  Isto afecta a lógica de resolução de dependências, que podem não corresponder àquilo que o dpkg do sistema considere satisfatório.
 
 =item B<DEB_BUILD_PROFILES>
 

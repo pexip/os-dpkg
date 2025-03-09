@@ -30,6 +30,8 @@ Det kan användas av utvecklarskript i komplexa och villkorliga situationer där
 
 Okända utlösarnamnsyntaxer är ett fel för B<dpkg-trigger>.
 
+Kommandot introducerades i dpkg 1.14.17.
+
 =head1 KOMMANDON
 
 =over 
@@ -116,11 +118,15 @@ Anger felsökningsmasken (sedan dpkg 1.21.10) från ett oktalt värde. De flaggo
 
 Väljer färgläge (sedan dpkg 1.18.5). För närvarande godtas följande värden: B<auto> (förval), B<always> och B<never>.
 
+=item B<DPKG_NLS>
+
+Om satt, används för att bestämma om lokalt språkstöd ska aktiveras, även känt som internationaliseringsstöd (eller i18n) (sedan dpkg 1.22.7). Tillåtna värden är: B<0> och B<1> (förval).
+
 =back
 
 =head1 SE ÄVEN
 
-B<dpkg>(1), B<deb-triggers>(5), B<%PKGDOCDIR%/spec/triggers.txt>.
+L<dpkg(1)>, L<deb-triggers(5)>, B<%PKGDOCDIR%/spec/triggers.txt>.
 
 
 =head1 ÖVERSÄTTNING

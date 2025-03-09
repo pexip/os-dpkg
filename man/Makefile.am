@@ -1,5 +1,8 @@
 ## Process this file with automake to produce Makefile.in
 
+EXTRA_DIST =
+CLEANFILES =
+
 man_MANS = \
 	deb-buildinfo.5 \
 	deb-changelog.5 \
@@ -28,13 +31,15 @@ man_MANS = \
 	deb.5 \
 	deb822.5 \
 	dpkg-architecture.1 \
+	dpkg-build-api.7 \
+	dpkg-buildapi.1 \
 	dpkg-buildflags.1 \
 	dpkg-buildpackage.1 \
+	dpkg-buildtree.1 \
 	dpkg-checkbuilddeps.1 \
 	dpkg-deb.1 \
 	dpkg-distaddfile.1 \
 	dpkg-divert.1 \
-	dpkg-fsys-usrunmess.8 \
 	dpkg-genbuildinfo.1 \
 	dpkg-genchanges.1 \
 	dpkg-gencontrol.1 \
@@ -56,6 +61,7 @@ man_MANS = \
 	dpkg.1 \
 	dpkg.cfg.5 \
 	dsc.5 \
+	libdpkg.7 \
 	# EOL
 
 if BUILD_DSELECT
@@ -77,9 +83,7 @@ man_MANS += \
 	# EOL
 endif
 
-CLEANFILES = $(man_MANS)
-
-EXTRA_DIST = \
+EXTRA_DIST += \
 	po/ChangeLog.old \
 	po/dpkg-man.pot \
 	po/po4a.cfg \
@@ -115,13 +119,15 @@ EXTRA_DIST += \
 	deb.pod \
 	deb822.pod \
 	dpkg-architecture.pod \
+	dpkg-build-api.pod \
+	dpkg-buildapi.pod \
 	dpkg-buildflags.pod \
 	dpkg-buildpackage.pod \
+	dpkg-buildtree.pod \
 	dpkg-checkbuilddeps.pod \
 	dpkg-deb.pod \
 	dpkg-distaddfile.pod \
 	dpkg-divert.pod \
-	dpkg-fsys-usrunmess.pod \
 	dpkg-genbuildinfo.pod \
 	dpkg-genchanges.pod \
 	dpkg-gencontrol.pod \
@@ -145,9 +151,12 @@ EXTRA_DIST += \
 	dsc.pod \
 	dselect.cfg.pod \
 	dselect.pod \
+	libdpkg.pod \
 	start-stop-daemon.pod \
 	update-alternatives.pod \
 	# EOL
+
+CLEANFILES += $(man_MANS)
 
 
 # Extract the list of languages from the po4a config file.
@@ -243,6 +252,9 @@ PODSUBST = $(SED) \
 	-e 's:%PKGDATADIR%:$(pkgdatadir):g' \
 	-e 's:%INSTDIR_ENVVAR%:DPKG_ROOT:g' \
 	-e 's:%ADMINDIR_ENVVAR%:DPKG_ADMINDIR:g' \
+	-e 's:%DEB_DEFAULT_COMPRESSOR%:$(DEB_DEFAULT_COMPRESSOR):g' \
+	-e 's:%DPKG_DEFAULT_PAGER%:$(DPKG_DEFAULT_PAGER):g' \
+	-e 's:%DPKG_DEFAULT_SHELL%:$(DPKG_DEFAULT_SHELL):g' \
 	# EOL
 
 MANFIXUP = $(SED) \
@@ -254,7 +266,7 @@ MANGEN = $(POD2MAN_V) filename='$@'; \
 	  $(PODSUBST) $< | \
 	  $(POD2MAN) $(POD2MAN_OPTS) \
 	  --name="$$(basename $${filename%.*})" \
-	  --section="$${filename\#\#*.}" | \
+	  --section="$$($(PERL) -E 'say((split /\./, shift)[-1])' $$filename)" | \
 	  $(MANFIXUP) >$@
 endif
 

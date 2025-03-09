@@ -29,8 +29,26 @@ B<dpkg-vendor>
 =head1 DESCRIPTION
 
 B<dpkg-vendor> is a tool to query information about vendors listed in
-B<%PKGCONFDIR%/origins>. B<%PKGCONFDIR%/origins/default> contains
+B<%PKGCONFDIR%/origins>.
+B<%PKGCONFDIR%/origins/default> contains
 information about the current vendor.
+
+The origin files provide metadata about specific vendors,
+such as their URL or where to file bug reports,
+and are usually used both to determine the behavior of tools and
+resulting contents during package builds targeting a specific vendor,
+and to describe the provenance of packages.
+
+Packages can explicitly declare their vendor by including an B<Origin> field,
+otherwise the vendor for a package without such field is assumed to be the
+one pointed to by the F<default> origin symbolic link.
+
+The F<default> symbolic link is also used to denote the origin of
+the current installation managed by B<dpkg>,
+be that a full distribution or an overlay on top of an existing base
+system that contains either no packaging system or a native one.
+
+This program was introduced in dpkg 1.15.1.
 
 =head1 COMMANDS
 
@@ -38,7 +56,8 @@ information about the current vendor.
 
 =item B<--is> I<vendor>
 
-Exits with B<0> if the current vendor is I<vendor>. Otherwise exits
+Exits with B<0> if the current vendor is I<vendor>.
+Otherwise exits
 with B<1>.
 
 =item B<--derives-from> I<vendor>
@@ -80,7 +99,8 @@ B<%PKGCONFDIR%/origins/default>.
 
 =item B<DEB_VENDOR>
 
-This setting defines the current vendor. If not set, it will discover the
+This setting defines the current vendor.
+If not set, it will discover the
 current vendor by reading B<%PKGCONFDIR%/origins/default>.
 
 =item B<DPKG_COLORS>
@@ -97,6 +117,19 @@ The accepted values are: B<0> and B<1> (default).
 
 =back
 
+=head1 FILES
+
+=head2 Packaging support
+
+=over
+
+=item B<%PKGDATADIR%/vendor.mk>
+
+Makefile snippet that sets the current vendor and its parent into variables,
+and provides make macros to check for derivatives (since dpkg 1.16.1).
+
+=back
+
 =head1 SEE ALSO
 
-B<deb-origin>(5).
+L<deb-origin(5)>.

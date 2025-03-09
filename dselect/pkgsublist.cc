@@ -74,7 +74,7 @@ void packagelist::add(pkginfo *pkg, const char *extrainfo, showpriority showimp)
         this, pkg_name(pkg, pnaw_always), showimp);
   add(pkg);  if (!pkg->clientdata) return;
   if (pkg->clientdata->dpriority < showimp) pkg->clientdata->dpriority= showimp;
-  pkg->clientdata->relations(extrainfo);
+  pkg->clientdata->relations += extrainfo;
 }
 
 bool
@@ -108,10 +108,9 @@ void packagelist::addunavailable(deppossi *possi) {
     internerr("deppossi from package %s has nullptr clientdata's uprec",
               pkg_name(possi->up->up, pnaw_always));
 
-  // cppcheck-suppress[constVariable]: false positive, operator() modifies it.
   varbuf& vb= possi->up->up->clientdata->relations;
-  vb(possi->ed->name);
-  vb(_(" does not appear to be available\n"));
+  vb += possi->ed->name;
+  vb += _(" does not appear to be available\n");
 }
 
 bool
@@ -124,44 +123,44 @@ packagelist::add(dependency *depends, showpriority displayimportance)
 
   const char *comma= "";
   varbuf depinfo;
-  depinfo(depends->up->set->name);
-  depinfo(' ');
-  depinfo(gettext(relatestrings[depends->type]));
-  depinfo(' ');
+  depinfo += depends->up->set->name;
+  depinfo += ' ';
+  depinfo += gettext(relatestrings[depends->type]);
+  depinfo += ' ';
   deppossi *possi;
   for (possi=depends->list;
        possi;
        possi=possi->next, comma=(possi && possi->next ? ", " : _(" or "))) {
-    depinfo(comma);
-    depinfo(possi->ed->name);
+    depinfo += comma;
+    depinfo += possi->ed->name;
     if (possi->verrel != DPKG_RELATION_NONE) {
       switch (possi->verrel) {
       case DPKG_RELATION_LE:
-        depinfo(" (<= ");
+        depinfo += " (<= ";
         break;
       case DPKG_RELATION_GE:
-        depinfo(" (>= ");
+        depinfo += " (>= ";
         break;
       case DPKG_RELATION_LT:
-        depinfo(" (<< ");
+        depinfo += " (<< ";
         break;
       case DPKG_RELATION_GT:
-        depinfo(" (>> ");
+        depinfo += " (>> ";
         break;
       case DPKG_RELATION_EQ:
-        depinfo(" (= ");
+        depinfo += " (= ";
         break;
       default:
         internerr("unknown dpkg_relation %d", possi->verrel);
       }
-      depinfo(versiondescribe(&possi->version, vdew_nonambig));
-      depinfo(")");
+      depinfo += versiondescribe(&possi->version, vdew_nonambig);
+      depinfo += ")";
     }
   }
-  depinfo('\n');
-  add(depends->up, depinfo.string(), displayimportance);
+  depinfo += '\n';
+  add(depends->up, depinfo.str(), displayimportance);
   for (possi=depends->list; possi; possi=possi->next) {
-    add(&possi->ed->pkg, depinfo.string(), displayimportance);
+    add(&possi->ed->pkg, depinfo.str(), displayimportance);
     if (depends->type != dep_provides) {
       /* Providers are not relevant if we are looking at a provider
        * relationship already. */
@@ -170,7 +169,7 @@ packagelist::add(dependency *depends, showpriority displayimportance)
            provider;
            provider = provider->rev_next) {
         if (provider->up->type != dep_provides) continue;
-        add(provider->up->up, depinfo.string(), displayimportance);
+        add(provider->up->up, depinfo.str(), displayimportance);
         add(provider->up,displayimportance);
       }
     }
@@ -181,14 +180,14 @@ packagelist::add(dependency *depends, showpriority displayimportance)
 void repeatedlydisplay(packagelist *sub,
                        showpriority initial,
                        packagelist *unredisplay) {
-  pkginfo **newl;
-  keybindings *kb;
-
   debug(dbg_general, "repeatedlydisplay(packagelist[%p])", sub);
   if (sub->resolvesuggest() != 0 && sub->deletelessimp_anyleft(initial)) {
     debug(dbg_general, "repeatedlydisplay(packagelist[%p]) once", sub);
     if (unredisplay) unredisplay->enddisplay();
     for (;;) {
+      pkginfo **newl;
+      keybindings *kb;
+
       /* Reset manual_install flag now that resolvesuggest() has seen it. */
       manual_install = false;
       newl= sub->display();

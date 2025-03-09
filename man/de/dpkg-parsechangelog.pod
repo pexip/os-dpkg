@@ -34,7 +34,7 @@ Gibt die Changelog-Datei an, aus der Informationen gelesen werden sollen. Ein �
 
 =item B<-F> I<Changelog-Format>
 
-Gibt das Format der Changelog-Datei an. Standardmäßig wird das Format aus einer speziellen Zeile in der Nähe des Endes der Changelogs gelesen oder, falls dies fehlschlägt, wird das B<debian>-Standardformat angenommen. Siehe auch B<CHANGELOG-FORMATE>.
+Gibt das Format der Changelog-Datei an. Standardmäßig wird das Format aus einer speziellen Zeile in der Nähe des Endes der Changelogs gelesen oder, falls dies fehlschlägt, wird das B<debian>-Standardformat angenommen. Siehe auch L</CHANGELOG-FORMATE>.
 
 =item B<-L> I<libverzeichnis>
 
@@ -62,15 +62,21 @@ Die folgenden Optionen können verwendet werden, um die Ausgabe des Changelog-Au
 
 =item B<--format> I<Ausgabeformat>
 
-Setzt das Ausgabeformat. Derzeit werden die Werte B<dpkg> und B<rfc822> unterstützt. B<dpkg> ist das klassische Ausgabeformat (es existiert länger als diese Option), das voreingestellt ist. Es besteht aus einem Absatz im Debian-Steuerformat (lesen Sie B<deb-control>(5)). Falls mehr als ein Eintrag angefordert wird, dann werden die meisten Felder aus dem ersten Eintrag (normalerweise der neuste Eintrag) verwendet, falls dies nicht anders angegeben wird:
+Setzt das Ausgabeformat. Derzeit werden die Werte B<dpkg> und B<rfc822> unterstützt. B<dpkg> ist das klassische Ausgabeformat (es existiert länger als diese Option), das voreingestellt ist. Es besteht aus einem Absatz im Debian-Steuerformat (lesen Sie L<deb-control(5)>). Falls mehr als ein Eintrag angefordert wird, dann werden die meisten Felder aus dem ersten Eintrag (normalerweise der neuste Eintrag) verwendet, falls dies nicht anders angegeben wird:
 
 =over 
 
 =item B<Source:> I<Paketname>
 
+Der Quellpaketname.
+
 =item B<Version:> I<Version>
 
+Die Quellversionsnummer: B<Hinweis>: Für rein-binäre Veröffentlichungen könnte es keine entsprechende Quellveröffentlichung geben.
+
 =item B<Distribution:> I<Ziel-Distribution>
+
+Eine Leerzeichen-getrennte Liste eines oder mehrerer Distributionsname(n), bei denen diese Version installiert werden sollte, wenn es hochgeladen wird.
 
 =item B<Urgency:> I<Dringlichkeit>
 
@@ -78,9 +84,11 @@ Die höchste Dringlichkeit aller enthaltenen Einträge wird verwandt, gefolgt vo
 
 =item B<Maintainer:> I<Autor>
 
+Der Name und die E-Mail-Adresse der Person, die diese Änderungen erstellt hat. Dies sind B<nicht> notwendigerweise die Daten des Uploaders oder des normalen Paketbetreuers.
+
 =item B<Date:> I<Datum>
 
-Das Datum des Eintrags als Zeichenkette, wie es im Changelog auftaucht. Mit dem Format B<strptime>(3) „B<%a, %d %b %Y %T %z>“, wobei der Wochentag nicht dem echten Tag aus dem Rest der Datumszeichenkette entsprechen könnte. Falls Sie eine genauere Darstellung des Datums benötigen, verwenden Sie das Feld B<Timestamp>, beachten dabei aber, dass es nicht möglich sein könnte, es auf den genauen Wert in diesem Feld abzubilden.
+Das Datum des Eintrags als Zeichenkette, wie es im Changelog erscheint. Mit dem Format L<strptime(3)> „B<%a, %d %b %Y %T %z>“, wobei der Wochentag nicht dem echten Tag aus dem Rest der Datumszeichenkette entsprechen könnte. Falls Sie eine genauere Darstellung des Datums benötigen, verwenden Sie das Feld B<Timestamp>, beachten dabei aber, dass es nicht möglich sein könnte, es auf den genauen Wert in diesem Feld abzubilden.
 
 =item B<Timestamp:> I<Zeitstempel>
 
@@ -106,7 +114,7 @@ Das B<rfc822>-Format verwendet die gleichen Felder, gibt aber einzelne Absätze 
 
 nimmt alle Änderungen in umgekehrter Reihenfolge auf (seit Dpkg 1.19.1).
 
-Beachten Sie: Für das B<dpkg>-Format ist der erste Eintrag der älteste Eintrag.
+B<Hinweis>: Für das B<dpkg>-Format ist der erste Eintrag der älteste Eintrag.
 
 =item B<--all>
 
@@ -158,7 +166,7 @@ Changelog-Formatnamen sind alphanumerische Zeichenketten in Kleinschreibung („
 
 Falls eine solche Zeile existiert, wird B<dpkg-parsechangelog> nach dem Auswerter als Perl-Modul B<Dpkg::Changelog::>I<Anderesformat> suchen. Es ist ein Fehler, wenn dieser nicht vorhanden ist. Die Großschreibung des Perl-Moduls erfolgt automatisch. Das Standard-Changelog-Format ist B<debian>, hierfür wird standardmäßig ein Auswerter bereitgestellt.
 
-Der Auswerter sollte von der Klasse Dpkg::Changelog abgeleitet sein und die benötigte dokumentierte Schnittstelle implementieren.
+Der Auswerter sollte von der Klasse L<Dpkg::Changelog> abgeleitet sein und die benötigte dokumentierte Schnittstelle implementieren.
 
 Falls das ausgewertete Changelog-Format immer oder fast immer eine Leerzeile zwischen einzelnen Änderungsnotizen lässt, sollten diese Leerzeilen herausgefiltert werden, so dass die entstehende Ausgabe kompakt wird.
 
@@ -198,14 +206,18 @@ Die Changelog-Datei wird verwendet, um versionsabhängige Informationen über da
 
 =back
 
+=head1 FEHLER
+
+Das Feld B<Maintainer> hat einen verwirrenden Namen. Es vergleicht mit dem Feld in der Datei F<debian/control>, verfügt aber nicht über die gleiche Semantik, bei der seine Bedeutung besser durch den in der Datei F<.changes> verwandten Feldnamen B<Changed-By> dargestellt würde.
+
 =head1 SIEHE AUCH
 
-B<deb-changelog>(5).
+L<deb-changelog(5)>.
 
 
 =head1 ÜBERSETZUNG
 
-Die deutsche Übersetzung wurde 2004, 2006-2023 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2025 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

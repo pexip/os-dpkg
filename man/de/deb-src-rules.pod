@@ -62,12 +62,12 @@ Baut architekturunabhängige und -abhängige Binärpakete, entweder durch eine A
 
 =head1 SIEHE AUCH
 
-B<dpkg-architecture>(1), B<dpkg-vendor>(1), B<dpkg-buildflags>(1), B<dpkg-parsechangelog>(1), B<dpkg-shlibdeps>(1), B<dpkg-gencontrol>(1), B<dpkg-deb>(1), B<dpkg-distaddfile>(1).
+L<dpkg-architecture(1)>, L<dpkg-vendor(1)>, L<dpkg-buildflags(1)>, L<dpkg-parsechangelog(1)>, L<dpkg-shlibdeps(1)>, L<dpkg-gencontrol(1)>, L<dpkg-deb(1)>, L<dpkg-distaddfile(1)>.
 
 
 =head1 ÜBERSETZUNG
 
-Die deutsche Übersetzung wurde 2004, 2006-2023 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2025 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

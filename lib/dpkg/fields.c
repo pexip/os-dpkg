@@ -43,13 +43,13 @@
 /**
  * Flags to parse a name associated to a value.
  */
-enum parse_nv_flags {
+enum parse_nv_mode {
   /** Expect no more words (default). */
   PARSE_NV_LAST		= 0,
   /** Expect another word after the parsed name. */
-  PARSE_NV_NEXT		= DPKG_BIT(0),
+  PARSE_NV_NEXT		= 1,
   /** Do not fail if there is no name with an associated value found. */
-  PARSE_NV_FALLBACK	= DPKG_BIT(1),
+  PARSE_NV_FALLBACK	= 2,
 };
 
 /**
@@ -57,11 +57,11 @@ enum parse_nv_flags {
  *
  * Gets a pointer to the string to parse in @a strp, and modifies the pointer
  * to the string to point to the end of the parsed text. If no value is found
- * for the name and #PARSE_NV_FALLBACK is set in @a flags then @a strp is set
+ * for the name and @a flags is set to #PARSE_NV_FALLBACK then @a strp is set
  * to NULL and returns -1, otherwise a parse error is emitted.
  */
 static int
-parse_nv(struct parsedb_state *ps, enum parse_nv_flags flags,
+parse_nv(struct parsedb_state *ps, enum parse_nv_mode parse_mode,
          const char **strp, const struct namevalue *nv_head)
 {
   const char *str_start = *strp, *str_end;
@@ -76,7 +76,7 @@ parse_nv(struct parsedb_state *ps, enum parse_nv_flags flags,
   nv = namevalue_find_by_name(nv_head, str_start);
   if (nv == NULL) {
     /* We got no match, skip further string validation. */
-    if (!(flags & PARSE_NV_FALLBACK))
+    if (parse_mode != PARSE_NV_FALLBACK)
       return dpkg_put_error(&ps->err, _("has invalid value '%.50s'"), str_start);
 
     str_end = NULL;
@@ -86,10 +86,10 @@ parse_nv(struct parsedb_state *ps, enum parse_nv_flags flags,
     while (c_isspace(str_end[0]))
       str_end++;
     value = nv->value;
-  }
 
-  if (!(flags & PARSE_NV_NEXT) && str_is_set(str_end))
-    return dpkg_put_error(&ps->err, _("has trailing junk"));
+    if (parse_mode != PARSE_NV_NEXT && str_is_set(str_end))
+      return dpkg_put_error(&ps->err, _("has trailing junk"));
+  }
 
   *strp = str_end;
 
@@ -231,8 +231,7 @@ f_priority(struct pkginfo *pkg, struct pkgbin *pkgbin,
 
   if (!*value) return;
 
-  priority = parse_nv(ps, PARSE_NV_LAST | PARSE_NV_FALLBACK, &str,
-                      priorityinfos);
+  priority = parse_nv(ps, PARSE_NV_FALLBACK, &str, priorityinfos);
   if (dpkg_has_error(&ps->err))
     parse_error(ps, _("word in '%s' field: %s"), fip->name, ps->err.str);
 
@@ -356,14 +355,16 @@ f_conffiles(struct pkginfo *pkg, struct pkgbin *pkgbin,
 {
   static const char obsolete_str[]= "obsolete";
   static const char remove_on_upgrade_str[] = "remove-on-upgrade";
-  struct conffile **lastp, *newlink;
-  const char *endent, *endfn, *hashstart;
-  int c, namelen, hashlen;
-  bool obsolete, remove_on_upgrade;
-  char *newptr;
+  struct conffile **lastp;
 
   lastp = &pkgbin->conffiles;
   while (*value) {
+    struct conffile *newlink;
+    const char *endent, *endfn, *hashstart;
+    char *newptr;
+    int c, namelen, hashlen;
+    int flags = CONFFILE_NONE;
+
     c= *value++;
     if (c == '\n') continue;
     if (c != ' ')
@@ -374,18 +375,21 @@ f_conffiles(struct pkginfo *pkg, struct pkgbin *pkgbin,
     conffvalue_lastword(value, endent, endent,
 			&hashstart, &hashlen, &endfn,
                         ps);
-    remove_on_upgrade = (hashlen == sizeof(remove_on_upgrade_str) - 1 &&
-                         memcmp(hashstart, remove_on_upgrade_str, hashlen) == 0);
-    if (remove_on_upgrade)
+    if (hashlen == sizeof(remove_on_upgrade_str) - 1 &&
+        memcmp(hashstart, remove_on_upgrade_str, hashlen) == 0) {
+      flags |= CONFFILE_REMOVE_ON_UPGRADE;
       conffvalue_lastword(value, endfn, endent, &hashstart, &hashlen, &endfn,
                           ps);
+    }
 
-    obsolete= (hashlen == sizeof(obsolete_str)-1 &&
-               memcmp(hashstart, obsolete_str, hashlen) == 0);
-    if (obsolete)
+    if (hashlen == sizeof(obsolete_str) - 1 &&
+        memcmp(hashstart, obsolete_str, hashlen) == 0) {
+      flags |= CONFFILE_OBSOLETE;
       conffvalue_lastword(value, endfn, endent,
 			  &hashstart, &hashlen, &endfn,
 			  ps);
+    }
+
     newlink = nfmalloc(sizeof(*newlink));
     value = path_skip_slash_dotslash(value);
     namelen= (int)(endfn-value);
@@ -402,8 +406,7 @@ f_conffiles(struct pkginfo *pkg, struct pkgbin *pkgbin,
     memcpy(newptr, hashstart, hashlen);
     newptr[hashlen] = '\0';
     newlink->hash= newptr;
-    newlink->obsolete= obsolete;
-    newlink->remove_on_upgrade = remove_on_upgrade;
+    newlink->flags = flags;
     newlink->next =NULL;
     *lastp= newlink;
     lastp= &newlink->next;
@@ -416,14 +419,10 @@ f_dependency(struct pkginfo *pkg, struct pkgbin *pkgbin,
              struct parsedb_state *ps,
              const char *value, const struct fieldinfo *fip)
 {
-  char c1, c2;
   const char *p, *emsg;
-  const char *depnamestart, *versionstart;
-  int depnamelength, versionlength;
   static struct varbuf depname, version;
 
-  struct dependency *dyp, **ldypp;
-  struct deppossi *dop, **ldopp;
+  struct dependency **ldypp;
 
   /* Empty fields are ignored. */
   if (!*value)
@@ -436,6 +435,9 @@ f_dependency(struct pkginfo *pkg, struct pkgbin *pkgbin,
 
    /* Loop creating new struct dependency's. */
   for (;;) {
+    struct deppossi **ldopp;
+    struct dependency *dyp;
+
     dyp = nfmalloc(sizeof(*dyp));
     /* Set this to NULL for now, as we don't know what our real
      * struct pkginfo address (in the database) is going to be yet. */
@@ -446,6 +448,10 @@ f_dependency(struct pkginfo *pkg, struct pkgbin *pkgbin,
 
     /* Loop creating new struct deppossi's. */
     for (;;) {
+      const char *depnamestart;
+      int depnamelength;
+      struct deppossi *dop;
+
       depnamestart= p;
       /* Skip over package name characters. */
       while (*p && !c_isspace(*p) && *p != ':' && *p != '(' && *p != ',' &&
@@ -457,9 +463,7 @@ f_dependency(struct pkginfo *pkg, struct pkgbin *pkgbin,
                     _("'%s' field, missing package name, or garbage where "
                       "package name expected"), fip->name);
 
-      varbuf_reset(&depname);
-      varbuf_add_buf(&depname, depnamestart, depnamelength);
-      varbuf_end_str(&depname);
+      varbuf_set_buf(&depname, depnamestart, depnamelength);
 
       emsg = pkg_name_is_illegal(depname.buf);
       if (emsg)
@@ -496,9 +500,7 @@ f_dependency(struct pkginfo *pkg, struct pkgbin *pkgbin,
           parse_error(ps, _("'%s' field, missing architecture name, or garbage "
                             "where architecture name expected"), fip->name);
 
-        varbuf_reset(&arch);
-        varbuf_add_buf(&arch, archstart, archlength);
-        varbuf_end_str(&arch);
+        varbuf_set_buf(&arch, archstart, archlength);
 
         dop->arch_is_implicit = false;
         dop->arch = dpkg_arch_find(arch.buf);
@@ -528,11 +530,17 @@ f_dependency(struct pkginfo *pkg, struct pkgbin *pkgbin,
 
       /* See if we have a versioned relation. */
       if (*p == '(') {
+        char c1;
+        const char *versionstart;
+        int versionlength;
+
         p++;
         while (c_isspace(*p))
           p++;
         c1= *p;
         if (c1 == '<' || c1 == '>') {
+          char c2;
+
           c2= *++p;
           dop->verrel = (c1 == '<') ? DPKG_RELATION_LT : DPKG_RELATION_GT;
           if (c2 == '=') {
@@ -546,7 +554,6 @@ f_dependency(struct pkginfo *pkg, struct pkgbin *pkgbin,
                         _("'%s' field, reference to '%.255s':\n"
                           " bad version relationship %c%c"),
                         fip->name, depname.buf, c1, c2);
-            dop->verrel = DPKG_RELATION_NONE;
           } else {
             parse_warn(ps,
                        _("'%s' field, reference to '%.255s':\n"
@@ -566,9 +573,9 @@ f_dependency(struct pkginfo *pkg, struct pkgbin *pkgbin,
           dop->verrel = DPKG_RELATION_EQ;
         }
         if ((dop->verrel != DPKG_RELATION_EQ) && (fip->integer == dep_provides))
-          parse_warn(ps,
-                     _("only exact versions may be used for '%s' field"),
-                     fip->name);
+          parse_lax_problem(ps, pdb_lax_stanza_parser,
+                            _("only exact versions may be used for '%s' field"),
+                            fip->name);
 
         if (!c_isspace(*p) && !c_isalnum(*p)) {
           parse_warn(ps,
@@ -599,9 +606,7 @@ f_dependency(struct pkginfo *pkg, struct pkgbin *pkgbin,
                       _("'%s' field, reference to '%.255s': "
                         "version contains '%c' instead of '%c'"),
                       fip->name, depname.buf, *p, ')');
-        varbuf_reset(&version);
-        varbuf_add_buf(&version, versionstart, versionlength);
-        varbuf_end_str(&version);
+        varbuf_set_buf(&version, versionstart, versionlength);
         if (parse_db_version(ps, &dop->version, version.buf) < 0)
           parse_problem(ps,
                         _("'%s' field, reference to '%.255s': version '%s'"),
@@ -672,9 +677,7 @@ scan_word(const char **valp)
     break;
   }
 
-  varbuf_reset(&word);
-  varbuf_add_buf(&word, start, end - start);
-  varbuf_end_str(&word);
+  varbuf_set_buf(&word, start, end - start);
 
   *valp = p;
 
@@ -686,7 +689,7 @@ f_trigpend(struct pkginfo *pend, struct pkgbin *pkgbin,
            struct parsedb_state *ps,
            const char *value, const struct fieldinfo *fip)
 {
-  const char *word, *emsg;
+  const char *word;
 
   if (ps->flags & pdb_rejectstatus)
     parse_error(ps,
@@ -694,6 +697,8 @@ f_trigpend(struct pkginfo *pend, struct pkgbin *pkgbin,
                 fip->name);
 
   while ((word = scan_word(&value))) {
+    const char *emsg;
+
     emsg = trig_name_is_illegal(word);
     if (emsg)
       parse_error(ps,
@@ -711,7 +716,6 @@ f_trigaw(struct pkginfo *aw, struct pkgbin *pkgbin,
          const char *value, const struct fieldinfo *fip)
 {
   const char *word;
-  struct pkginfo *pend;
 
   if (ps->flags & pdb_rejectstatus)
     parse_error(ps,
@@ -719,6 +723,7 @@ f_trigaw(struct pkginfo *aw, struct pkgbin *pkgbin,
                 fip->name);
 
   while ((word = scan_word(&value))) {
+    struct pkginfo *pend;
     struct dpkg_error err;
 
     pend = pkg_spec_parse_pkg(word, &err);

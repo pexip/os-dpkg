@@ -63,8 +63,8 @@ enum screenparts {
 };
 
 struct column {
-	column(): title(nullptr), x(0), width(0) {};
-	void blank() { title = nullptr; x = 0; width = 0; };
+	column(): title(nullptr), x(0), width(0) {}
+	void blank() { title = nullptr; x = 0; width = 0; }
 
 	const char *title;
 	int x;
@@ -104,7 +104,7 @@ protected:
   int topofscreen, leftofscreen, cursorline;
   int infotopofscreen, infolines;
   varbuf whatinfovb;
-  char searchstring[128];
+  varbuf searchstring;
 
   virtual void setheights();
   void unsizes();
@@ -131,7 +131,7 @@ protected:
   virtual const char *itemname(int index) =0;
   virtual const struct helpmenuentry *helpmenulist() =0;
 
-  virtual bool checksearch(char *str);
+  virtual bool checksearch(varbuf &str);
   virtual bool matchsearch(int index);
   void wordwrapinfo(int offset, const char *string);
 

@@ -25,13 +25,14 @@ use strict;
 use warnings;
 use feature qw(state);
 
-use List::Util qw(any none);
+use List::Util qw(any none sum);
 use Cwd qw(realpath);
 use File::Basename qw(dirname);
 
 use Dpkg ();
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
+use Dpkg::IPC;
 use Dpkg::Path qw(relative_to_pkg_root guess_pkg_root_dir
 		  check_files_are_the_same get_control_path);
 use Dpkg::Version;
@@ -40,6 +41,8 @@ use Dpkg::Shlibs::Objdump;
 use Dpkg::Shlibs::SymbolFile;
 use Dpkg::Substvars;
 use Dpkg::Arch qw(get_host_arch);
+use Dpkg::BuildAPI qw(get_build_api);
+use Dpkg::Package;
 use Dpkg::Deps;
 use Dpkg::Control::Info;
 use Dpkg::Control::Fields;
@@ -51,6 +54,12 @@ use constant {
     WARN_NOT_NEEDED => 4,
 };
 
+my %warn2bits = (
+    'symbol-not-found' => WARN_SYM_NOT_FOUND,
+    'avoidable-dependency' => WARN_DEP_AVOIDABLE,
+    'useless-linkage' => WARN_NOT_NEEDED,
+);
+
 # By increasing importance
 my @depfields = qw(Suggests Recommends Depends Pre-Depends);
 my $i = 0; my %depstrength = map { $_ => $i++ } @depfields;
@@ -58,11 +67,12 @@ my $i = 0; my %depstrength = map { $_ => $i++ } @depfields;
 textdomain('dpkg-dev');
 
 my $admindir = $Dpkg::ADMINDIR;
+my $oppackage;
 my $shlibsoverride = "$Dpkg::CONFDIR/shlibs.override";
 my $shlibsdefault = "$Dpkg::CONFDIR/shlibs.default";
 my $shlibslocal = 'debian/shlibs.local';
-my $packagetype = 'deb';
-my $dependencyfield = 'Depends';
+my $packagetype;
+my $dependencyfield;
 my $varlistfile = 'debian/substvars';
 my $varlistfilenew;
 my $varnameprefix = 'shlibs';
@@ -70,13 +80,16 @@ my $ignore_missing_info = 0;
 my $warnings = WARN_SYM_NOT_FOUND | WARN_DEP_AVOIDABLE;
 my $debug = 0;
 my @exclude = ();
+my @priv_lib_dirs = ();
 my @pkg_dir_to_search = ();
 my @pkg_dir_to_ignore = ();
 my $host_arch = get_host_arch();
 
 my (@pkg_shlibs, @pkg_symbols, @pkg_root_dirs);
 
-my ($stdout, %exec);
+my @execs;
+my $stdout;
+
 foreach (@ARGV) {
     if (m/^-T(.*)$/) {
 	$varlistfile = $1;
@@ -85,7 +98,7 @@ foreach (@ARGV) {
     } elsif (m/^-L(.*)$/) {
 	$shlibslocal = $1;
     } elsif (m/^-l(.*)$/) {
-	Dpkg::Shlibs::add_library_dir($1);
+        push @priv_lib_dirs, $1;
     } elsif (m/^-S(.*)$/) {
 	push @pkg_dir_to_search, $1;
     } elsif (m/^-I(.*)$/) {
@@ -110,18 +123,20 @@ foreach (@ARGV) {
 	    warning(g_("unrecognized dependency field '%s'"), $dependencyfield);
 	}
     } elsif (m/^-e(.*)$/) {
-	if (exists $exec{$1}) {
-	    # Affect the binary to the most important field
-	    if ($depstrength{$dependencyfield} > $depstrength{$exec{$1}}) {
-		$exec{$1} = $dependencyfield;
-	    }
-	} else {
-	    $exec{$1} = $dependencyfield;
-	}
+        push @execs, [ $1, $dependencyfield ];
     } elsif (m/^--ignore-missing-info$/) {
 	$ignore_missing_info = 1;
     } elsif (m/^--warnings=(\d+)$/) {
 	$warnings = $1;
+    } elsif (m/^--warnings=([a-z,-]+)$/) {
+        $warnings = sum map { $warn2bits{$_} } split m{,}, $1;
+    } elsif (m/^--package=(.+)$/) {
+        $oppackage = $1;
+        my $err = pkg_name_is_illegal($oppackage);
+        error(g_("illegal package name '%s': %s"), $oppackage, $err) if $err;
+
+        # Exclude self.
+        push @exclude, $1;
     } elsif (m/^-t(.*)$/) {
 	$packagetype = $1;
     } elsif (m/^-v$/) {
@@ -131,17 +146,10 @@ foreach (@ARGV) {
     } elsif (m/^-/) {
 	usageerr(g_("unknown option '%s'"), $_);
     } else {
-	if (exists $exec{$_}) {
-	    # Affect the binary to the most important field
-	    if ($depstrength{$dependencyfield} > $depstrength{$exec{$_}}) {
-		$exec{$_} = $dependencyfield;
-	    }
-	} else {
-	    $exec{$_} = $dependencyfield;
-	}
+        push @execs, [ $_, $dependencyfield ];
     }
 }
-usageerr(g_('need at least one executable')) unless scalar keys %exec;
+usageerr(g_('need at least one executable')) unless scalar @execs;
 
 report_options(debug_level => $debug);
 
@@ -158,6 +166,49 @@ if (-d 'debian') {
 }
 
 my $control = Dpkg::Control::Info->new();
+# Initialize build API level.
+get_build_api($control);
+
+my $default_depfield;
+
+if (defined $oppackage) {
+    my $pkg = $control->get_pkg_by_name($oppackage);
+    if (not defined $pkg) {
+        error(g_('package %s not in control info'), $oppackage);
+    }
+
+    $packagetype //= $pkg->{'Package-Type'} ||
+                     $pkg->get_custom_field('Package-Type');
+
+    # For essential packages we default to Pre-Depends.
+    if (defined $pkg->{Essential} && $pkg->{Essential} eq 'yes') {
+        $default_depfield = 'Pre-Depends';
+    }
+}
+
+$packagetype //= 'deb';
+$default_depfield //= 'Depends';
+
+my %exec;
+foreach my $exec_item (@execs) {
+    my ($path, $depfield) = @{$exec_item};
+
+    $depfield //= $default_depfield;
+
+    if (exists $exec{$path}) {
+        # Affect the binary to the most important field
+        if ($depstrength{$depfield} > $depstrength{$exec{$path}}) {
+            $exec{$path} = $depfield;
+        }
+    } else {
+        $exec{$path} = $depfield;
+    }
+}
+
+foreach my $libdir (@priv_lib_dirs) {
+    Dpkg::Shlibs::add_library_dir($libdir);
+}
+
 my $fields = $control->get_source();
 my $bd_value = deps_concat($fields->{'Build-Depends'}, $fields->{'Build-Depends-Arch'});
 my $build_deps = deps_parse($bd_value, build_dep => 1, reduce_restrictions => 1);
@@ -202,12 +253,13 @@ foreach my $file (keys %exec) {
 	    $global_soname_notfound{$soname} = 1;
 	    my $msg = g_('cannot find library %s needed by %s (ELF ' .
 	                 "format: '%s' abi: '%s'; RPATH: '%s')");
-	    my $exec_abi = unpack 'H*', $obj->{exec_abi};
 	    if (scalar(split_soname($soname))) {
-		errormsg($msg, $soname, $file, $obj->{format}, $exec_abi, join(':', @{$obj->{RPATH}}));
+                errormsg($msg, $soname, $file, $obj->{format}, $obj->{exec_abi},
+                         join(':', @{$obj->{RPATH}}));
 		$error_count++;
 	    } else {
-		warning($msg, $soname, $file, $obj->{format}, $exec_abi, join(':', @{$obj->{RPATH}}));
+                warning($msg, $soname, $file, $obj->{format}, $obj->{exec_abi},
+                        join(':', @{$obj->{RPATH}}));
 	    }
 	    next;
 	}
@@ -330,11 +382,12 @@ foreach my $file (keys %exec) {
         $ignore++ unless scalar split_soname($soname);
         # 3/ when we have been asked to do so
         $ignore++ if $ignore_missing_info;
-        error(g_('no dependency information found for %s ' .
-                 "(used by %s)\n" .
-                 'Hint: check if the library actually comes ' .
-                 'from a package.'), $lib, $file)
-            unless $ignore;
+        if (not $ignore) {
+            errormsg(g_('no dependency information found for %s (used by %s)'),
+                     $lib, $file);
+            hint(g_('check if the library actually comes from a package'));
+            exit 1;
+        }
       }
     }
 
@@ -598,6 +651,7 @@ sub usage {
   -d<dependency-field>     next executable(s) set shlibs:<dependency-field>.")
     . "\n\n" . g_(
 "Options:
+  --package=<package>      generate substvars for <package> (default is unset).
   -l<library-dir>          add directory to private shared library search list.
   -p<varname-prefix>       set <varname-prefix>:* instead of shlibs:*.
   -O[<file>]               write variable settings to stdout (or <file>).
@@ -753,6 +807,7 @@ sub extract_from_shlibs {
     while (<$shlibs_fh>) {
 	s/\s*\n$//;
 	next if m/^\#/;
+        ## no critic (RegularExpressions::ProhibitCaptureWithoutTest)
 	if (!m/$shlibs_re/) {
 	    warning(g_("shared libs info file '%s' line %d: bad line '%s'"),
 	            $shlibfile, $., $_);
@@ -891,10 +946,12 @@ sub my_find_library {
 my %cached_pkgmatch = ();
 
 sub find_packages {
+    my @paths = @_;
+
     my @files;
     my $pkgmatch = {};
 
-    foreach my $path (@_) {
+    foreach my $path (@paths) {
 	if (exists $cached_pkgmatch{$path}) {
 	    $pkgmatch->{$path} = $cached_pkgmatch{$path};
 	} else {
@@ -905,17 +962,16 @@ sub find_packages {
     }
     return $pkgmatch unless scalar(@files);
 
-    my $pid = open(my $dpkg_fh, '-|');
-    syserr(g_('cannot fork for %s'), 'dpkg-query --search') unless defined $pid;
-    if (!$pid) {
-	# Child process running dpkg --search and discarding errors
-	close STDERR;
-	open STDERR, '>', '/dev/null'
-	    or syserr(g_('cannot open file %s'), '/dev/null');
-	$ENV{LC_ALL} = 'C';
-	exec 'dpkg-query', '--search', '--', @files
-	    or syserr(g_('unable to execute %s'), 'dpkg');
-    }
+    # Child process running dpkg --search and discarding errors
+    my $dpkg_fh;
+    my $pid = spawn(
+        exec => [ 'dpkg-query', '--search', '--', @files ],
+        env => {
+            LC_ALL => 'C',
+        },
+        to_pipe => \$dpkg_fh,
+        error_to_file => '/dev/null',
+    );
     while (<$dpkg_fh>) {
 	chomp;
 	if (m/^local diversion |^diversion by/) {
@@ -932,5 +988,7 @@ sub find_packages {
 	}
     }
     close($dpkg_fh);
+    wait_child($pid, nocheck => 1, cmdline => 'dpkg-query --search');
+
     return $pkgmatch;
 }

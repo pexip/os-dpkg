@@ -34,7 +34,7 @@ Symbolfiler innehåller mer finkornig beroendeinformation genom att ange det min
 
 =item debian/*/DEBIAN/symbols
 
-Information om delade bibliotek som skapats av den aktuella byggproceduren som också anropade B<dpkg-shlibdeps>. De genereras av B<dpkg-gensymbols>(1). De används endast om biblioteket finns i paketets byggräd. Filen symbols i det byggträdet går före symbols-filer från andra binärpaket.
+Information om delade bibliotek som skapats av den aktuella byggproceduren som också anropade B<dpkg-shlibdeps>. De genereras av L<dpkg-gensymbols(1)>. De används endast om biblioteket finns i paketets byggräd. Filen symbols i det byggträdet går före symbols-filer från andra binärpaket.
 
 =item %PKGCONFDIR%/symbols/I<package>.symbols.I<arkitektur>
 
@@ -50,7 +50,7 @@ Paketlokal överstyrande beroendeinformation för delade bibliotek. Filerna befi
 
 B<dpkg-shlibs> kommer ihåg den (största) minimala version som behövs av varje bibliotek när den söker genom de symboler som används av alla binärfilerna. När proceduren är avslutad kan den visa det minsta beroende som behövs av alla bibliotek som används (så tillvida informationen i I<symbols>-filerna är korrekt).
 
-Som en säkerhetsåtgärd kan en symbols-fil innehålla metainformationsfältet I<Build-Depends-Package>, varpå B<dpkg-shlibdeps> hämtar vilken minsta version som behövs för paketet ur B<Build-Depends>-fältet och använder denna version om den är högre än den minsta version som beräknats genom att söka genom symbolerna.
+Som en säkerhetsåtgärd kan en symbols-fil innehålla metainformationsfältet B<Build-Depends-Package> eller B<Build-Depends-Packages>, varpå B<dpkg-shlibdeps> hämtar vilken minsta version som behövs för paketet ur B<Build-Depends>-fältet och använder denna version om den är högre än den minsta version som beräknats genom att söka genom symbolerna.
 
 =head2 Shlibs-filer
 
@@ -108,6 +108,16 @@ Flaggan B<-d>I<beroendefält> gäller för samtliga binärer efter flaggan, fram
 
 Om samma katalogpost (eller en uppsättning alternativ) förekommer i mer än ett av de kända beroendefältnamnen B<Pre-Depends>, B<Depends>, B<Recommends>, B<Enhances> eller B<Suggests> så kommer B<dpkg-shlibdeps> att automatiskt ta bort beroendet från samtliga fält förutom det som anger de viktigaste beroendena.
 
+=item B<--package=>I<paket>
+
+Ange paketets namn.
+
+När detta anges kommer paketnamnet används för att ändra förvalen baserade på binärpaketets metadata i F<debian/control>.
+
+Om paketet är B<Essential: yes> är det förvalda beroendefältet B<Pre-Depends>, annars B<Depends>. Den förvalda pakettypen anges från fältet B<Package-Type>. Paketet läggs till uppsättningen över paket som utesluts av B<-x>.
+
+Flaggan stöds sedan dpkg 1.22.7.
+
 =item B<-p>I<variabelnamnsprefix>
 
 Inled substitueringsvariabler med I<variabelnamnsprefix>B<:> i stället för B<shlibs:>. På samma sätt kommer befintliga substitueringsvariabler som inleds med I<variabelnamnsprefix>B<:> (i stället för B<shlibs:>) att tas bort från substitueringsvariabelfilen.
@@ -148,9 +158,31 @@ Ignorera I<paketbyggkatalog> vid sökning efter delade shlibs, symboler och dela
 
 Misslyckas inte om det inte upptäcks någon beroendeinformation för ett delat bibliotek (sedan dpkg 1.14.8). Den här flaggan rekommenderas inte, alla bibliotek bör tillhandahålla beroendeinformation (antingen med shlibs-filer eller med symbols-filer), även om de ännu inte används av andra paket.
 
-=item B<--warnings=>I<värde>
+=item B<--warnings=>[I<value>|I<string>[,...]]
 
-I<Värde> är ett bitfält som anger de varningar som kan ges av B<dpkg-shlibdeps> (sedan dpkg 1.14.17). Bit 0 (värde=1) aktiverar varningen ”symbolen I<sym>, som används av I<binär>, hittades inte i något av biblioteken”, bit 1 (värde=2) aktiverar varningen ”paketet kunde undvika ett onödigt beroende” och bit 2 (värde=4) aktiverar varningen ”I<binär> borde inte vara länkat mot I<bibliotek>”. Standard för I<värde> är 3: de första två varningarna är aktiva som standard, men inte den sista. Sätt I<värde> till 7 om du vill att alla varningar ska vara aktiva.
+Select the set of warnings that can be emitted by B<dpkg-shlibdeps> (since dpkg 1.14.17).
+
+The warnings can be selected from a comma-separated list of symbolic names (since dpkg 1.22.12), or from a I<value> denoting a bit field for these warnings.
+
+=over 
+
+=item symbol-not-found (bit 0, value 1)
+
+Selects the warning “symbol I<sym> used by I<binary> found in none of the libraries”.
+
+Enabled by default.
+
+=item avoidable-dependency (bit 1, value 2)
+
+Selects the warning “package could avoid a useless dependency”.
+
+Enabled by default.
+
+=item useless-linkage (bit 2, value 4)
+
+Select the warning “I<binary> should not be linked against I<library>”.
+
+=back
 
 =item B<--admindir=>I<kat>
 
@@ -169,6 +201,10 @@ Visar version och avslutar.
 =head1 MILJÖVARIABLER
 
 =over 
+
+=item B<DEB_HOST_ARCH>
+
+Anger värdarkitekturen. Detta påverkar de objekt- och symbolfiler som söks efter och deras förvalda söknings-sökvägsnamn.
 
 =item B<DPKG_COLORS>
 
@@ -233,7 +269,7 @@ I<binär>B<).>
 
 Biblioteket som behövs av I<binär> hittades i I<biblioteksfil> av B<dpkg-shlibdeps>, men B<dpkg-shlibdeps> kunde inte hitta någon beroendeinformation för biblioteket. För att hitta beroendet har det försökt koppla biblioteket mot ett Debianpaket med hjälp av B<dpkg -S> I<biblioteksfil>. Därefter såg det i motsvarande shlibs- och symbols-filer i %ADMINDIR%/info/, samt i de olika paketens byggträd (debian/*/DEBIAN/).
 
-Det här felet kan orsakas av felaktiga eller saknade shlibs- eller symbols-filer i bibliotekets paket. Det kan även inträffa om biblioteket byggts i samma källkodspaket och om shlibs-filen ännu inte har skapats (då måste du fixa debian/rules så att det skapar shlibs-filen innan det anropar B<dpkg-shlibdeps>). Felaktig RPATH kan också leda till att biblioteket hittas under ett icke-kanoniskt namn (till exempel: /usr/lib/openoffice.org/../lib/libssl.so.9.8 istället för /usr/lib/libssl.so.0.9.8) som inte associeras till något paket, B<dpkg-shlibdeps> försöker gå runt detta genom att falla tillbaka på ett kanoniskt namn (med B<realpath>(3)), men det fungerar kanske inte alltid. Det är alltid bäst att städa upp RPATH i binären för att undvika problem.
+Det här felet kan orsakas av felaktiga eller saknade shlibs- eller symbols-filer i bibliotekets paket. Det kan även inträffa om biblioteket byggts i samma källkodspaket och om shlibs-filen ännu inte har skapats (då måste du fixa debian/rules så att det skapar shlibs-filen innan det anropar B<dpkg-shlibdeps>). Felaktig RPATH kan också leda till att biblioteket hittas under ett icke-kanoniskt namn (till exempel: /usr/lib/openoffice.org/../lib/libssl.so.9.8 istället för /usr/lib/libssl.so.0.9.8) som inte associeras till något paket, B<dpkg-shlibdeps> försöker gå runt detta genom att falla tillbaka på ett kanoniskt namn (med L<realpath(3)>), men det fungerar kanske inte alltid. Det är alltid bäst att städa upp RPATH i binären för att undvika problem.
 
 Om du anropar B<dpkg-shlibdeps> i pratsamt läge (B<-v>) kommer det ge mycket mer information om var det försökte hitta beroendeinformationen. Det kan vara användbart om du inte förstår varför du får felmeddelandet.
 
@@ -241,7 +277,7 @@ Om du anropar B<dpkg-shlibdeps> i pratsamt läge (B<-v>) kommer det ge mycket me
 
 =head1 SE ÄVEN
 
-B<deb-substvars>(5), B<deb-shlibs>(5), B<deb-symbols>(5), B<dpkg-gensymbols>(1).
+L<deb-substvars(5)>, L<deb-shlibs(5)>, L<deb-symbols(5)>, L<dpkg-gensymbols(1)>.
 
 
 =head1 ÖVERSÄTTNING

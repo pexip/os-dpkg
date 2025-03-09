@@ -16,7 +16,7 @@ If the PO get lost, keeping this translation up-to-date will be harder.
 
 dsc - formato Debian de ficheiro de controle de pacotes fonte
 
-=head1 SINOPSE
+=head1 RESUMO
 
 I<filename>B<.dsc>
 
@@ -26,7 +26,7 @@ Cada pacote fonte Debian é composto de um ficheiro .dsc, o qual contém um núm
 
 Cada campo começa com uma etiqueta, tal como B<Source> ou B<Binary> (insensível a maiúsculas/minúsculas), seguida do símbolo dois pontos, e o corpo do campo (sensível a maiúsculas/minúsculas a menos que declarado o contrário). Os campos são delimitados apenas por etiquetas de campos. Por outras palavras, o texto do campo pode ter várias linhas de comprimento, mas as ferramentas de instalação irão geralmente juntar as linhas quando processam o corpo do campo (excepto no caso de B<Package-List>, B<Files>, B<Checksums-Sha1> e B<Checksums-Sha256> de múltiplos campos, ver abaixo).
 
-Os dados de controle podem estar inclusos numa assinatura OpenPGP ASCII Armored, como especificado em RFC4880.
+Os dados de controle podem estar inclusos numa assinatura OpenPGP ASCII Armored, como especificado em RFC9580.
 
 =head1 CAMPOS
 
@@ -36,7 +36,7 @@ Os dados de controle podem estar inclusos numa assinatura OpenPGP ASCII Armored,
 
 O valor deste campo declara a versão de formato do pacote fonte. O valor do campo é usado por programas que actuam no pacote fonte para interpretar a lista de ficheiros no pacote fonte e determinar como desempacota-los. A sintaxe do valor do campo é uma revisão maior numérica (“0-9”), um ponto (“.”), uma revisão menor numérica (“0-9”), e depois um subtipo opcional após um espaço em branco (“ \t”), o qual é especificado numa palavra alfanumérica em minúsculas (“a-z0-9”) em parêntesis (“()”).  O subtipo é opcional na sintaxe mas pode ser obrigatória para revisões particulares de formato fonte.
 
-Os formatos fonte actualmente suportados pelo B<dpkg> são B<1.0>, B<2.0>, B<3.0 (native)>, B<3.0 (quilt)>, B<3.0 (git)>, B<3.0 (bzr)> e B<3.0 (custom)>. Veja B<dpkg-source>(1) para as suas descrições.
+Os formatos fonte actualmente suportados pelo B<dpkg> são B<1.0>, B<2.0>, B<3.0 (native)>, B<3.0 (quilt)>, B<3.0 (git)>, B<3.0 (bzr)> e B<3.0 (custom)>. Veja L<dpkg-source(1)> para as suas descrições.
 
 =item B<Source:> I<source-name> (necessário)
 
@@ -58,7 +58,7 @@ O valor do campo é geralmente gerado a partir de campos B<Architecture> a parti
 
 =item B<Version:>I< string-de-versão> (obrigatório)
 
-Tipicamente, isto é o número de versão do pacote original seja em que formato o autor do programa usa. Pode também incluir um número de revisão Debian (para pacotes não-nativos). O formato exacto e algoritmo de ordenação estão descritos em B<deb-version>(7).
+Tipicamente, isto é o número de versão do pacote original seja em que formato o autor do programa usa. Pode também incluir um número de revisão Debian (para pacotes não-nativos). O formato exacto e algoritmo de ordenação estão descritos em L<deb-version(7)>.
 
 =item B<Origin:> I<name>
 
@@ -106,7 +106,7 @@ O I<url> da uma interface web para explorar o repositório do Sistema de Control
 
 =item B<Vcs-Svn:> I<url>
 
-Estes campos declaram o I<url> do repositório do Sistema de Controle de Versão usado para manter este pacote. Veja B<deb-src-control>(5) para mais detalhes.
+Estes campos declaram o I<url> do repositório do Sistema de Controle de Versão usado para manter este pacote. Veja L<deb-src-control(5)> para mais detalhes.
 
 =item B<Testsuite:> I<name-list>
 
@@ -116,7 +116,7 @@ Este campo declara que o pacote fonte contem as suites de teste especificadas. O
 
 Este campo declara a união de todas as dependências de todos os testes, separadas por espaços (campos B<Depends> no ficheiro I<debian/tests/control>), com todas as restrições removidas, e dependências OU achatadas (isto é, convertidas para relações E separadas), excepto para binários gerados por este pacote fonte e seus equivalentes de meta-dependência B<@>.
 
-Fundamento: este campo é necessário porque caso contrário, para puderem obter as dependências de teste, cada pacote fonte teria que ser desempacotado.
+B<Fundamento>: este campo é necessário porque caso contrário, para puderem obter as dependências de teste, cada pacote fonte teria que ser desempacotado.
 
 =item B<Build-Depends:> I<package-list>
 
@@ -130,7 +130,7 @@ Fundamento: este campo é necessário porque caso contrário, para puderem obter
 
 =item B<Build-Conflicts-Indep:> I<package-list>
 
-Estes campos declaram relacionamentos entre o pacote fonte e pacotes usados para o construir. Eles são discutidos no manual B<deb-src-control>(5).
+Estes campos declaram relacionamentos entre o pacote fonte e pacotes usados para o construir. Eles são discutidos no manual L<deb-src-control(5)>.
 
 =item B<Package-List:>
 
@@ -142,7 +142,7 @@ O I<package> é o nome do pacote binário.
 
 O I<package-type> é o tipo de pacote binário, normalmente B<deb>, outro valor comum é B<udeb>.
 
-I<section> e I<priority> correspondem aos campos do pacote binário do mesmo nome.
+The I<section> and I<priority> match the binary package fields of the same name, or if omitted default to B<unknown> and B<optional> respectively (since dpkg 1.22.13).
 
 A I<key-value-list> é uma lista is de I<key>B<=>I<value> separados por espaços, a as chaves opcionais actualmente conhecidas são:
 
@@ -168,11 +168,11 @@ Se o pacote binário for essencial,esta chave ir+a conter o valor do campo B<Ess
 
 =back
 
-=item B<Files:> (necessário)
+=item B<Files:> (necessário, fraco)
 
-=item B<Checksums-Sha1:> (necessário)
+=item B<Checksums-Sha1:> (necessário, fraco)
 
-=item B<Checksums-Sha256:> (necessário)
+=item B<Checksums-Sha256:> (necessário, forte)
 
 =item S< >I<checksum> I<size> I<filename>
 
@@ -182,6 +182,8 @@ A primeira linha do campo valor (a parte na mesma linha que tem o campo nome seg
 
 Estes campos listam todos os ficheiros que fazem o pacote fonte. A lista de ficheiros nestes campos tem de corresponder à lista de ficheiros nos outros campos relacionados.
 
+B<Nota>: Os sumários de verificação MD5 e SHA-1são considerados fracos, e nunca devem ser assumidos como suficientes para verificação de segurança.
+
 =back
 
 =head1 BUGS
@@ -190,7 +192,7 @@ O campo B<Format> field conflui o formato para o próprio ficheiro B<.dsc> e o f
 
 =head1 VEJA TAMBÉM
 
-L<deb822(5)>, B<deb-src-control>(5), B<deb-version>(7), B<dpkg-source>(1).
+L<deb822(5)>, L<deb-src-control(5)>, L<deb-version(7)>, L<dpkg-source(1)>.
 
 
 =head1 TRADUÇÃO

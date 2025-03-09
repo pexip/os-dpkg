@@ -22,9 +22,11 @@ B<dpkg-realpath> [I<optie>...] I<padnaam>
 
 =head1 BESCHRIJVING
 
-B<dpkg-realpath> is een hulpmiddel (sinds dpkg 1.20.1) om een padnaam op te zoeken, die rekening houdt met de L<dpkg (1)>-hoofdmap, ofwel impliciet vanuit de omgevingsvariabele B<DPKG_ROOT> of vanuit de commandoregelopties B<--root> of B<--instdir>, en een absolute I<padnaam> terugkeert, relatief ten opzichte van de hoofdmap. De hoofdmap mag niet aan de op te zoeken I<padnaam> voorafgaan.
+B<dpkg-realpath> is een hulpmiddel (sinds dpkg 1.20.1) om een padnaam op te zoeken, die rekening houdt met de L<dpkg(1)>-hoofdmap, ofwel impliciet vanuit de omgevingsvariabele B<DPKG_ROOT> of vanuit de commandoregelopties B<--root> of B<--instdir>, en een absolute I<padnaam> terugkeert, relatief ten opzichte van de hoofdmap. De hoofdmap mag niet aan de op te zoeken I<padnaam> voorafgaan.
 
 Dit is bedoeld om te worden gebruikt door andere B<dpkg>-hulpprogramma's of door scripts van beheerders in plaats van L<realpath(1)> of L<readlink(1)> te gebruiken om conforme padnamen te bekomen, aangezien deze laatste commando's geen dergelijke conformering ondersteunen ten opzichte van een andere hoofdmap dan F</>.
+
+Dit programma werd geïntroduceerd in dpkg 1.20.1.
 
 =head1 OPTIES
 
@@ -61,6 +63,10 @@ Indien dit ingesteld is en de opties B<--instdir> of B<--root> niet opgegeven we
 =item B<DPKG_COLORS>
 
 Stelt de kleurmodus in. Waarden die momenteel gebruikt mogen worden zijn: B<auto> (standaard), B<always> en B<never>.
+
+=item B<DPKG_NLS>
+
+Indien dit ingesteld is, zal het gebruikt worden om te beslissen over het activeren van moedertaalondersteuning, ook gekend als internationaliseringsondersteuning (of i18n) (sinds dpkg 1.22.7). Geldige waarden zijn: B<0> and B<1> (standaard).
 
 =back
 

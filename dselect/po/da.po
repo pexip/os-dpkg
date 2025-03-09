@@ -1,6 +1,7 @@
-# Danish translation dpkg_dselect.
+# Translation of dselect to Danish
 # Copyright (C) 2012 dpkg_dselect & nedenstående oversættere.
-# This file is distributed under the same license as the dpkg_dselect package.
+# This file is distributed under the same license as the dpkg package.
+#
 # Claus Hindsgaul <claus.hindsgaul@gmail.com>, 2002, 2004, 2005, 2006.
 # reviewed by Ole Laursen <olau@hardworking.dk>, 2002.
 # Joe Hansen <joedalton2@yahoo.dk>, 2012, 2014.
@@ -9,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dselect 1.17.22\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2023-05-11 02:03+0000\n"
+"POT-Creation-Date: 2025-03-09 18:59+0100\n"
 "PO-Revision-Date: 2014-11-27 02:33+0200\n"
 "Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
 "Language-Team: Danish <debian-l10n-danish@lists.debian.org>\n"
@@ -56,7 +57,9 @@ msgid "cannot update screen after window resize"
 msgstr ""
 
 #: dselect/baselist.cc
-msgid "failed to allocate colour pair"
+#, fuzzy
+#| msgid "failed to allocate colour pair"
+msgid "cannot allocate color pair"
 msgstr "kunne ikke frigøre farvepar"
 
 #: dselect/baselist.cc
@@ -930,8 +933,8 @@ msgstr ""
 #| "  --expert                   Turn on expert mode.\n"
 #| "  --debug <file> | -D<file>  Turn on debugging, sending output to "
 #| "<file>.\n"
-#| "  --colour | --color screenpart:[foreground],[background][:"
-#| "attr[+attr+...]]\n"
+#| "  --colour | --color screenpart:[foreground],[background]"
+#| "[:attr[+attr+...]]\n"
 #| "                             Configure screen colours.\n"
 #| "\n"
 msgid ""
@@ -1007,15 +1010,21 @@ msgid "screen part"
 msgstr "skærmområde"
 
 #: dselect/main.cc
-msgid "null colour specification"
+#, fuzzy
+#| msgid "null colour specification"
+msgid "missing color specification"
 msgstr "null-farveangivelse"
 
 #: dselect/main.cc
-msgid "colour"
+#, fuzzy
+#| msgid "colour"
+msgid "color"
 msgstr "farve"
 
 #: dselect/main.cc
-msgid "colour attribute"
+#, fuzzy
+#| msgid "colour attribute"
+msgid "color attribute"
 msgstr "farveegenskab"
 
 #: dselect/main.cc
@@ -1264,24 +1273,10 @@ msgid "end of file in summary - missing newline"
 msgstr "slut-på-fil i beskrivelsen - manglende linjeskift"
 
 #: dselect/methparse.cc
-#, c-format
-msgid "unable to open option description file '%.250s'"
-msgstr "kunne ikke åbne tilvalgsbeskrivelsesfilen »%.250s«"
-
-#: dselect/methparse.cc
-#, c-format
-msgid "unable to stat option description file '%.250s'"
-msgstr "kunne ikke finde tilvalgsbeskrivelsesfilen »%.250s«"
-
-#: dselect/methparse.cc
-#, c-format
-msgid "failed to read option description file '%.250s'"
+#, fuzzy, c-format
+#| msgid "failed to read option description file '%.250s'"
+msgid "cannot load option description file '%s'"
 msgstr "kunne ikke læse tilvalgsbeskrivelsesfilen »%.250s«"
-
-#: dselect/methparse.cc
-#, c-format
-msgid "error during read of option description file '%.250s'"
-msgstr "fejl ved læsning af tilvalgsbeskrivelsesfilen »%.250s«"
 
 #: dselect/methparse.cc
 #, c-format
@@ -1730,6 +1725,18 @@ msgstr "%s %s pakker i %s-gruppen"
 #, c-format
 msgid "%-*s %s%s%s;  %s (was: %s).  %s"
 msgstr "%-*s %s%s%s;  %s (var: %s).  %s"
+
+#, c-format
+#~ msgid "unable to open option description file '%.250s'"
+#~ msgstr "kunne ikke åbne tilvalgsbeskrivelsesfilen »%.250s«"
+
+#, c-format
+#~ msgid "unable to stat option description file '%.250s'"
+#~ msgstr "kunne ikke finde tilvalgsbeskrivelsesfilen »%.250s«"
+
+#, c-format
+#~ msgid "error during read of option description file '%.250s'"
+#~ msgstr "fejl ved læsning af tilvalgsbeskrivelsesfilen »%.250s«"
 
 #~ msgid "ioctl(TIOCGWINSZ) failed"
 #~ msgstr "ioctl(TIOCGWINSZ) fejlede"
