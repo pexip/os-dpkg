@@ -88,7 +88,7 @@ Felflaggor:
 
 =back
 
-En versal status- eller felbokstav anger att paketet troligen kommer orsaka allvarliga problem. Se B<dpkg>(1) för information om status och flaggor ovan.
+En versal status- eller felbokstav anger att paketet troligen kommer orsaka allvarliga problem. Se L<dpkg(1)> för information om status och flaggor ovan.
 
 Utdataformatet för den här flaggan kan inte justeras, men varieras automatiskt för att passa terminalbredden. Det är avsett för mänskliga läsare, och är inte enkelt maskinläsbart. Se B<-W> (B<--show>) och B<--showformat> för hur du konfigurerar utdataformatet.
 
@@ -113,7 +113,7 @@ Z<>
   paketet omdirigerar andra till: I<omdirigerat-till>
   omdirigerat av I<paket> till: I<omdirigerat-till>
 
-TIps: När utdata ska tolkas av en maskin är det normalt att sätta lokalen till B<C.UTF-8> för att få reproducerbara resultat.
+B<Tips>: När utdata ska tolkas av en maskin är det normalt att sätta lokalen till B<C.UTF-8> för att få reproducerbara resultat. På några system kan det också vara nödvändigt att justera miljövariabeln B<LANGUAGE> på lämpligt vis om den redan är satt (se L<locale(7>).
 
 Kommandot kommer inte att visa extrafiler som skapas av paketskript, ej heller kommer det att visa alternativ.
 
@@ -129,7 +129,7 @@ Visar den I<styrfil> som installerats på ditt system från I<paketnamn> på sta
 
 Visar sökvägarna till styrfilerna som installerats på ditt system för I<paketnamn> (sedan dpkg 1.15.4). Om I<styrfil> anges visas endast sökvägen för den styrfilen, om den finns.
 
-B<Varning>: kommandot är föråldrat eftersom det ger direkt tillgång till den interna dpkg-databasen, vi ber dig gå över till att istället använda B<--control-list> och B<--control-show> för alla tillfällen där dessa kommandon kan ge samma slutresultat. Så länge det finns åtminstone ett tillfälle där kommandot är nödvändigt (dvs. när man måste ta bort ett skadligt postrm-utvecklarskript), och det inte finns någon bra lösning för det, kommer kommandot inte att tas bort.
+B<Varning>: Kommandot är avråds från eftersom det ger direkt tillgång till den interna dpkg-databasen, vi ber dig gå över till att istället använda B<--control-list> och B<--control-show> för alla tillfällen där dessa kommandon kan ge samma slutresultat. Så länge det finns åtminstone ett tillfälle där kommandot är nödvändigt (dvs. när man måste ta bort ett skadligt postrm-utvecklarskript), och det inte finns någon bra lösning för det, kommer kommandot inte att tas bort.
 
 =item B<-S>, B<--search> I<filnamnssökmönster> ...
 
@@ -155,7 +155,7 @@ eller för lokala omdirigeringar:
 Z<>
   lokal omdirigering från: I<omdirigerad-från>
   lokal omdirigering till: I<omdirigerad-till>
-TIps: När utdata ska tolkas av en maskin är det normalt att sätta lokalen till B<C.UTF-8> för att få reproducerbara resultat.
+B<Tips>: När utdata ska tolkas av en maskin är det normalt att sätta lokalen till B<C.UTF-8> för att få reproducerbara resultat.
 
 =item B<-p>, B<--print-avail> [I<paketnamn>...]
 
@@ -231,6 +231,8 @@ Paketinformation kan läggas in genom att sätta in variabelreferenser till pake
 
 =item B<Description>
 
+=item B<Description-md5> (internt, gäller skal)
+
 =item B<Enhances>
 
 =item B<Protected>
@@ -266,6 +268,12 @@ Paketinformation kan läggas in genom att sätta in variabelreferenser till pake
 =item B<Revision> (föråldrat)
 
 =item B<Section>
+
+=item B<SHA1> (internt, gäller skal)
+
+=item B<SHA256> (internt, gäller skal)
+
+=item B<SHA512> (internt, gäller skal)
 
 =item B<Size> (internt, gäller skal)
 
@@ -382,7 +390,9 @@ Väljer program att köra när nya kommandon startas via ett skal (sedan dpkg 1.
 
 =item B<DPKG_PAGER>
 
-Väljer bläddrarprogram att använda (sedan dpkg 1.19.1),  vilket kommer startas med ”B<$SHELL -c>”. Om B<SHELL> inte har valts kommer ”B<sh>” att användas istället. B<DPKG_PAGER> överstyr miljövariabeln B<PAGER> (sedan dpkg 1.19.2).
+Sets the pager command to use (since dpkg 1.19.1), which will be executed with «B<$SHELL -c>».  If B<SHELL> is not set, «B<%DPKG_DEFAULT_SHELL%>» will be used instead.
+
+The B<DPKG_PAGER> overrides the B<PAGER> environment variable (since dpkg 1.19.2).  If none of the programs pointed by B<DPKG_PAGER> or B<PAGER> are present, the following programs will be tried in order (since dpkg 1.22.12): the default pager B<%DPKG_DEFAULT_PAGER%>, then B<less>, B<more>, and finally B<cat>.
 
 =item B<DPKG_ROOT>
 
@@ -400,6 +410,10 @@ Anger felsökningsmasken (sedan dpkg 1.21.10) från ett oktalt värde. De flaggo
 
 Väljer färgläge (sedan dpkg 1.18.5). För närvarande godtas följande värden: B<auto> (förval), B<always> och B<never>.
 
+=item B<DPKG_NLS>
+
+Om satt, används för att bestämma om lokalt språkstöd ska aktiveras, även känt som internationaliseringsstöd (eller i18n) (sedan dpkg 1.22.7). Tillåtna värden är: B<0> och B<1> (förval).
+
 =back
 
 =head2 Intern miljö
@@ -412,9 +426,13 @@ Definieras av B<dpkg-query> till ”B<-FRSXMQ>”, om det inte redan är satt, n
 
 =back
 
+=head1 SÄKERHET
+
+Frågeoperationer bör aldrig kräva root-behörighet, och delegering av exekvering av dem till icke-privilegierade användare via något kommando föra att få root-behörighet kan ha säkerhetskonsekvenser (såsom utökning av privilegier), till exempel när en siduppdelare körs automatiskt från verktyget.
+
 =head1 SE ÄVEN
 
-B<dpkg>(1).
+L<dpkg(1)>.
 
 
 =head1 ÖVERSÄTTNING

@@ -62,40 +62,31 @@ second argument quoted tightly surrounding the code, like this:
     [], [enable_feature="yes"])
 
   AM_CONDITIONAL([HAVE_SOME_FEATURE],
-    [test "x$ac_cv_have_some_feature" = "xyes" && \
-     test "x$ac_cv_have_some_feature" = "xyes"])
+    [test "$ac_cv_have_some_feature" = "yes" && \
+     test "$ac_cv_have_some_feature" = "yes"])
 
 or the output will get messed up.
 
 
-Dpkg C/C++ coding style 2016-01-29
+Dpkg C/C++ coding style 2024-07-24
 =======================
 
-C language extensions
-~~~~~~~~~~~~~~~~~~~~~
+Standards
+~~~~~~~~~
 
-The code base assumes C89 plus the following C99 extensions:
+The C code base assumes C99, except for the following features:
 
- * Designated initializers.
- * Compound literals.
- * Trailing comma in enum.
- * Variadic macros.
- * Working bool type in <stdbool.h>.
- * Working %j and %z printf modifiers.
- * Magic __func__ variable.
+ - Variable length arrays.
+ - Mixed declaration and code.
 
-Those are checked at build time, and it will abort in case a needed extension
-is not supported.
+The C++ code base assumes C++14.
 
-C++ language extensions
-~~~~~~~~~~~~~~~~~~~~~~~
+The code base assumes a POSIX.1-2008 compatible environment.
 
-The code base assumes C++03 plus the following C++11 extension:
-
- * Null pointer keyword (nullptr).
-
-This is checked at build time, and it will use compatibility code in case the
-needed extension is not supported.
+The required features are checked at build time, and it will either use
+compatibility code in case the needed extensions are not supported and it
+is possible to support them, otherwise it will abort in case a needed one
+cannot be used.
 
 General
 ~~~~~~~
@@ -105,7 +96,7 @@ If in doubt or missing from this file please ask, although files using the
 tab based indentation can be considered canon.
 
   [K] <https://www.freebsd.org/cgi/man.cgi?query=style>
-  [L] <https://www.kernel.org/doc/Documentation/CodingStyle>
+  [L] <https://kernel.org/doc/Documentation/process/coding-style.rst>
 
 The code has a mix of an old coding style being phased out and the new
 style. New files should use the new style, changes to files with the old
@@ -290,6 +281,13 @@ see what operation is being done:
 Dpkg Perl coding style 2019-03-27
 ======================
 
+Perl version
+~~~~~~~~~~~~
+
+We don't want to impose a too-recent Perl version, so only use features
+supported by the Perl version that is currently in Debian oldstable when
+possible. Currently that means Perl 5.32.1.
+
 General
 ~~~~~~~
 
@@ -320,13 +318,6 @@ if ($foo) {
         }
     }
 }
-
-Perl version
-~~~~~~~~~~~~
-
-We don't want to impose a too-recent Perl version, so only use features
-supported by the Perl version that is currently in Debian oldstable when
-possible. Currently that means Perl 5.28.1.
 
 Object methods
 ~~~~~~~~~~~~~~

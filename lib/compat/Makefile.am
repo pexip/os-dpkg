@@ -23,6 +23,7 @@ libcompat_test_la_SOURCES = \
 	strsignal.c \
 	snprintf.c vsnprintf.c \
 	asprintf.c vasprintf.c \
+	getent.c \
 	alphasort.c \
 	scandir.c \
 	unsetenv.c \
@@ -40,10 +41,10 @@ libcompat_la_SOURCES = \
 	# EOL
 
 if !HAVE_GETOPT
-libcompat_la_SOURCES += getopt.c getopt.h
+libcompat_la_SOURCES += getopt.c getopt.h getopt_int.h
 else
 if !HAVE_GETOPT_LONG
-libcompat_la_SOURCES += getopt.c getopt.h
+libcompat_la_SOURCES += getopt.c getopt.h getopt_int.h
 endif
 endif
 
@@ -81,6 +82,14 @@ endif
 
 if !HAVE_ASPRINTF
 libcompat_la_SOURCES += asprintf.c vasprintf.c
+endif
+
+if !HAVE_FGETPWENT
+libcompat_la_SOURCES += getent.c
+else
+if !HAVE_FGETGRENT
+libcompat_la_SOURCES += getent.c
+endif
 endif
 
 if !HAVE_ALPHASORT

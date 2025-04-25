@@ -28,7 +28,7 @@
 
 #include <errno.h>
 #include <limits.h>
-#if HAVE_LOCALE_H
+#ifdef HAVE_LOCALE_H
 #include <locale.h>
 #endif
 #include <ctype.h>
@@ -71,7 +71,7 @@ struct table_t {
   const int num;
 };
 
-static const struct table_t colourtable[]= {
+static const struct table_t colortable[] = {
   {"black",	COLOR_BLACK	},
   {"red",	COLOR_RED	},
   {"green",	COLOR_GREEN	},
@@ -113,7 +113,7 @@ static const struct table_t screenparttable[]= {
   {nullptr, 0},
 };
 
-/* Historical (patriotic?) colours. */
+/* Original colors. */
 struct colordata color[]= {
   /* fore      back            attr */
   {COLOR_WHITE,        COLOR_BLACK,    0			}, // default, not used
@@ -207,8 +207,8 @@ usage(const struct cmdinfo *ci, const char *value)
   fputs("\n", stdout);
 
   printf(_("<color> is:"));
-  for (i=0; colourtable[i].name; i++)
-    printf(" %s", colourtable[i].name);
+  for (i = 0; colortable[i].name; i++)
+    printf(" %s", colortable[i].name);
   fputs("\n", stdout);
 
   printf(_("<attr> is:"));
@@ -267,38 +267,42 @@ extern "C" {
   set_color(const struct cmdinfo*, const char *string)
   {
     char *s;
-    char *colours, *attributes, *attrib, *colourname;
-    int screenpart, aval;
+    char *colors, *attributes;
+    int screenpart;
 
     s = m_strdup(string); // strtok modifies strings, keep string const
     screenpart= findintable(screenparttable, strtok(s, ":"), _("screen part"));
-    colours = strtok(nullptr, ":");
+    colors = strtok(nullptr, ":");
     attributes = strtok(nullptr, ":");
 
-    if ((colours == nullptr || ! strlen(colours)) &&
+    if ((colors == nullptr || ! strlen(colors)) &&
         (attributes == nullptr || ! strlen(attributes))) {
-       ohshit(_("null colour specification"));
+       ohshit(_("missing color specification"));
     }
 
-    if (colours != nullptr && strlen(colours)) {
-      colourname= strtok(colours, ",");
-      if (colourname != nullptr && strlen(colourname)) {
+    if (colors != nullptr && strlen(colors)) {
+      char *colorname;
+
+      colorname = strtok(colors, ",");
+      if (colorname != nullptr && strlen(colorname)) {
         // normalize attributes to prevent confusion
         color[screenpart].attr= A_NORMAL;
-       color[screenpart].fore=findintable(colourtable, colourname, _("colour"));
+        color[screenpart].fore = findintable(colortable, colorname, _("color"));
       }
-      colourname = strtok(nullptr, ",");
-      if (colourname != nullptr && strlen(colourname)) {
+      colorname = strtok(nullptr, ",");
+      if (colorname != nullptr && strlen(colorname)) {
         color[screenpart].attr= A_NORMAL;
-        color[screenpart].back=findintable(colourtable, colourname, _("colour"));
+        color[screenpart].back = findintable(colortable, colorname, _("color"));
       }
     }
 
     if (attributes != nullptr && strlen(attributes)) {
-      for (attrib= strtok(attributes, "+");
+      for (char *attrib = strtok(attributes, "+");
            attrib != nullptr && strlen(attrib);
            attrib = strtok(nullptr, "+")) {
-               aval=findintable(attrtable, attrib, _("colour attribute"));
+               int aval;
+
+               aval = findintable(attrtable, attrib, _("color attribute"));
                if (aval == A_NORMAL) // set to normal
                        color[screenpart].attr= aval;
                else // add to existing attribs
@@ -378,16 +382,16 @@ display_menu_entry(int i, int so)
   const menuentry *me= &menuentries[i];
 
   varbuf buf;
-  buf.fmt(" %c %d. %-11.11s %-80.80s ",
-          so ? '*' : ' ', i,
-          gettext(me->option),
-          gettext(me->menuent));
+  buf.add_fmt(" %c %d. %-11.11s %-80.80s ",
+              so ? '*' : ' ', i,
+              gettext(me->option),
+              gettext(me->menuent));
 
   int x, y DPKG_ATTR_UNUSED;
   getmaxyx(stdscr,y,x);
 
   attrset(so ? A_REVERSE : A_NORMAL);
-  mvaddnstr(i + 2, 0, buf.string(), x - 1);
+  mvaddnstr(i + 2, 0, buf.str(), x - 1);
   attrset(A_NORMAL);
 }
 
@@ -400,11 +404,11 @@ refreshmenu(void)
   getmaxyx(stdscr,y,x);
 
   varbuf buf;
-  buf.fmt(gettext(programdesc), DSELECT, PACKAGE_RELEASE);
+  buf.add_fmt(gettext(programdesc), DSELECT, PACKAGE_RELEASE);
 
   clear();
   attrset(A_BOLD);
-  mvaddnstr(0, 0, buf.string(), x - 1);
+  mvaddnstr(0, 0, buf.str(), x - 1);
 
   attrset(A_NORMAL);
   const struct menuentry *mep; int i;

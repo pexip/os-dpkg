@@ -22,7 +22,7 @@ B<dpkg-statoverride> [I<Option> …] I<Befehl>
 
 =head1 BESCHREIBUNG
 
-„B<Stat-Hinwegsetzungen>“ sind eine Möglichkeit, B<dpkg>(1) mitzuteilen, einen anderen Eigentümer oder Modus für einen Pfad zu verwenden, wenn ein Paket installiert wird (dies kann jedes Dateisystemobjekt sein, das B<dpkg> handhabt, darunter Verzeichnisse, Geräte, usw.). Dies kann dazu verwendet werden, Programme, die normalerweise setuid sind, dazu zu zwingen, ohne setuid-Markierung zu installieren, oder nur von einer bestimmten Gruppe ausführbar zu sein.
+„B<Stat-Hinwegsetzungen>“ sind eine Möglichkeit, L<dpkg(1)> mitzuteilen, einen anderen Eigentümer oder Modus für einen Pfad zu verwenden, wenn ein Paket installiert wird (dies kann jedes Dateisystemobjekt sein, das B<dpkg> handhabt, darunter Verzeichnisse, Geräte, usw.). Dies kann dazu verwendet werden, Programme, die normalerweise setuid sind, dazu zu zwingen, ohne setuid-Markierung zu installieren, oder nur von einer bestimmten Gruppe ausführbar zu sein.
 
 B<dpkg-statoverride> ist ein Hilfswerkzeug, um die Liste der Status-Hinwegsetzungen zu verwalten. Es hat drei grundlegende Funktionen: Hinzufügen, Entfernen und Auflisten von Hinwegsetzungen.
 
@@ -80,17 +80,31 @@ Setzt das Wurzelverzeichnis auf I<Verzeichnis>, wodurch das Installationsverzeic
 
 Erzwingt oder verweigert (B<no-force> und B<refuse> bedeuten das gleiche) bestimmte Sachen (seit Dpkg 1.19.5). I<Sachen> ist eine Kommata-getrennte Liste von Dingen, die im Folgenden beschrieben sind. B<--force-help> zeigt eine Meldung an, die diese beschreibt. Mit (*) markierte Dinge werden standardmäßig erzwungen.
 
-I<Warnung: Diese Optionen sind hauptsächlich für den Einsatz durch Experten gedacht. Der Einsatz ohne komplettes Verständnis der Auswirkungen kann Ihr gesamtes System zerstören.>
+B<Warnung>: Diese Optionen sind hauptsächlich für den Einsatz durch Experten gedacht. Der Einsatz ohne komplettes Verständnis der Auswirkungen kann Ihr gesamtes System zerstören.
 
-B<all>: Schaltet alle „force“-Optionen ein (oder aus).
+=over 4
 
-B<statoverride-add>: Überschreibt eine existierende Status-Hinwegsetzung beim Hinzufügen (seit Dpkg 1.19.5).
+=item B<all>:
 
-B<statoverride-remove>: Ignoriert eine fehlende Status-Hinwegsetzung beim Entfernen (seit Dpkg 1.19.5).
+Schaltet alle „force“-Optionen ein (oder aus).
 
-B<security-mac>(*): Verwendet plattformspezifische „Mandatory Access Control (MAC)“-basierende Sicherheit bei der Installation von Dateien in das Dateisystem (seit Dpkg 1.19.5). Auf Linux-Systemen verwendet die Implementierung SELinux.
+=item B<statoverride-add>:
 
-B<not-root>: Versucht Sachen zu (de)installieren, selbst falls nicht root (seit Dpkg 1.21.8).
+Überschreibt eine existierende Status-Hinwegsetzung beim Hinzufügen (seit Dpkg 1.19.5).
+
+=item B<statoverride-remove>:
+
+Ignoriert eine fehlende Status-Hinwegsetzung beim Entfernen (seit Dpkg 1.19.5).
+
+=item B<security-mac>(*):
+
+Verwendet plattformspezifische „Mandatory Access Control (MAC)“-basierende Sicherheit bei der Installation von Dateien in das Dateisystem (seit Dpkg 1.19.5). Auf Linux-Systemen verwendet die Implementierung SELinux.
+
+=item B<not-root>:
+
+Versucht Sachen zu (de)installieren, selbst falls nicht root (seit Dpkg 1.21.8).
+
+=back
 
 =item B<--force>
 
@@ -148,6 +162,22 @@ Falls gesetzt und keine der Optionen B<--force->I<…> festgelegt wurde, wird si
 
 Setzt den Farbmodus (seit Dpkg 1.18.5). Die derzeit unterstützten Werte sind: B<auto> (Vorgabe), B<always> und B<never>.
 
+=item B<DPKG_NLS>
+
+Falls dies gesetzt ist, wird es zur Entscheidung, ob Native Language Support, auch als Unterstützung für Internationalisierung (oder i18n) bekannt, aktiviert wird (seit Dpkg 1.22.7). Die akzeptierten Werte sind: B<0> und B<1> (Vorgabe).
+
+=item B<DPKG_PATH_PASSWD>
+
+Setzt den Pfadnamen für die F<passwd>-Datei des Systems. Dieser Pfad ist relativ zum Verzeichnis B<--root>. Die Vorgabe ist F</etc/passwd>.
+
+Seit Dpkg 1.22.16.
+
+=item B<DPKG_PATH_GROUP>
+
+Setzt den Pfadnamen für die F<group>-Datei des Systems. Dieser Pfad ist relativ zum Verzeichnis B<--root>. Die Vorgabe ist F</etc/group>.
+
+Seit Dpkg 1.22.16.
+
 =back
 
 =head1 DATEIEN
@@ -164,12 +194,12 @@ B<Hinweis>: B<dpkg-statoverride> erhält die alte Kopie dieser Datei mit der End
 
 =head1 SIEHE AUCH
 
-B<dpkg>(1).
+L<dpkg(1)>.
 
 
 =head1 ÜBERSETZUNG
 
-Die deutsche Übersetzung wurde 2004, 2006-2023 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2025 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

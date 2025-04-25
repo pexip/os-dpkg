@@ -24,7 +24,7 @@ B<dpkg-genbuildinfo> [I<optie>...]
 
 B<dpkg-genbuildinfo> leest informatie uit een uitgepakte en gebouwde Debian broncodeboom en uit de bestanden die het gegenereerd heeft en maakt een Debian controlebestand aan dat de bouwomgeving en de bouwvoorwerpen (een bestand B<.buildinfo>).
 
-Dit commando werd geïntroduceerd in dpkg 1.18.11.
+Dit programma werd geïntroduceerd in dpkg 1.18.11.
 
 =head1 OPTIES
 
@@ -74,7 +74,7 @@ Specificeert waar zich de lijst van bestanden bevindt die door het bouwproces aa
 
 =item B<-F>I<changelog-indeling>
 
-Geeft de indeling van het bestand changelog aan. Zie B<dpkg-parsechangelog>(1) voor informatie over alternatieve indelingen.
+Geeft de indeling van het bestand changelog aan. Zie L<dpkg-parsechangelog(1)> voor informatie over alternatieve indelingen.
 
 =item B<-O>[I<bestandsnaam>]
 
@@ -82,7 +82,7 @@ Het bestand buildinfo op de standaarduitvoer weergeven (of in I<bestandsnaam> al
 
 =item B<-u>I<map-upload-bestanden>
 
-De bestanden die geüpload moeten worden opzoeken in I<map-upload-bestanden> eerder dan in B<..> (B<dpkg-genbuildinfo> moet deze bestanden kunnen vinden, zodat het hun grootte en hun controlesom kan opnemen in het bestand B<.buildinfo>)
+De bestanden die geüpload moeten worden opzoeken in I<map-upload-bestanden> eerder dan in B<..> (B<dpkg-genbuildinfo> moet deze bestanden kunnen vinden, zodat het hun grootte en hun controlegetal kan opnemen in het bestand B<.buildinfo>)
 
 =item B<--always-include-kernel>
 
@@ -124,6 +124,14 @@ De versie tonen en afsluiten.
 
 Deze variabele kan gebruikt worden via de optie B<buildinfo> voor het activeren of deactiveren van verschillende functies die invloed hebben op de informatie die opgenomen wordt in het bestand .buildinfo (sinds dpkg 1.18.19). Deze optie bevat een lijst van onderling door komma's gescheiden functies, die voorafgegaan worden door de bepaling ‘B<+>’ of ‘B<->’, welke aangeven of die functie al dan niet geactiveerd moet worden. De bijzondere functie “B<all>” kan gebruikt worden om alle overige functies te activeren of te deactiveren. De functie “B<path>” regelt of het veld B<Build-Path> onvoorwaardelijk mee opgenomen moet worden.
 
+=item B<DEB_BUILD_ARCH>
+
+Stelt de bouwarchitectuur in. Dit beïnvloedt de waarde van het veld B<build-architecture> en de controle op de cross-compilatiemodus.
+
+=item B<DEB_HOST_ARCH>
+
+Stelt de computerarchitectuur in. Dit beïnvloedt de bestandsnaam die gebruikt wordt voor het bestand .buildinfo en de controle op de cross-compilatiemodus.
+
 =item B<DPKG_COLORS>
 
 Stelt de kleurmodus in (sinds dpkg 1.18.5). Waarden die momenteel gebruikt mogen worden zijn: B<auto> (standaard), B<always> en B<never>.
@@ -146,5 +154,5 @@ De lijst van gegenereerde bestanden. B<dpkg-genbuildinfo> leest hier de gegevens
 
 =head1 ZIE OOK
 
-B<deb-buildinfo>(5).
+L<deb-buildinfo(5)>.
 

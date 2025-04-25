@@ -40,7 +40,7 @@ Setzt die Versionsnummer des zu erstellenden Binärpaketes.
 
 =item B<-V>I<Name>B<=>I<Wert>
 
-Setzt eine Ausgabeersetzungsvariable. Lesen Sie B<deb-substvars>(5) für eine Besprechung der Ausgabeersetzung.
+Setzt eine Ausgabeersetzungsvariable. Lesen Sie L<deb-substvars(5)> für eine Besprechung der Ausgabeersetzung.
 
 =item B<-T>I<Substvars-Datei>
 
@@ -68,7 +68,7 @@ Liest oder schreibt die Liste der hochzuladenden Dateien hierher, statt B<debian
 
 =item B<-F>I<Changelog-Format>
 
-Spezifiziert das Format des Changelogs. Lesen Sie B<dpkg-parsechangelog>(1) für Informationen über alternative Formate.
+Spezifiziert das Format des Changelogs. Lesen Sie L<dpkg-parsechangelog(1)> für Informationen über alternative Formate.
 
 =item B<-p>I<Paket>
 
@@ -104,6 +104,10 @@ Gibt die Version aus und beendet das Programm.
 
 =over 
 
+=item B<DEB_HOST_ARCH>
+
+Setzt die Host-Architektur.
+
 =item B<DPKG_COLORS>
 
 Setzt den Farbmodus (seit Dpkg 1.18.5). Die derzeit unterstützten Werte sind: B<auto> (Vorgabe), B<always> und B<never>.
@@ -130,12 +134,12 @@ Die Liste der erstellten Dateien, die Teil des Uploads sind, der vorbereitet wir
 
 =head1 SIEHE AUCH
 
-B<deb-substvars>(5), B<deb-src-control>(5), B<deb-changelog>(5), B<deb-control>(5).
+L<deb-substvars(5)>, L<deb-src-control(5)>, L<deb-changelog(5)>, L<deb-control(5)>.
 
 
 =head1 ÜBERSETZUNG
 
-Die deutsche Übersetzung wurde 2004, 2006-2023 von Helge Kreutzmann
+Die deutsche Übersetzung wurde 2004, 2006-2025 von Helge Kreutzmann
 <debian@helgefjell.de>, 2007 von Florian Rehnisch <eixman@gmx.de> und
 2008 von Sven Joachim <svenjoac@gmx.de>
 angefertigt. Diese Übersetzung ist Freie Dokumentation; lesen Sie die

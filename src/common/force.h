@@ -22,10 +22,12 @@
 #ifndef DPKG_FORCE_H
 #define DPKG_FORCE_H
 
+#include <stdbool.h>
+
 #include <dpkg/dpkg.h>
 #include <dpkg/options.h>
 
-enum force_flags {
+enum DPKG_ATTR_ENUM_FLAGS force_flags {
 	FORCE_ARCHITECTURE = DPKG_BIT(0),
 	FORCE_BAD_PATH = DPKG_BIT(1),
 	FORCE_BAD_VERIFY = DPKG_BIT(2),

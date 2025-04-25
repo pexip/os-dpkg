@@ -22,10 +22,12 @@
 #include <compat.h>
 
 #include <errno.h>
+#include <limits.h>
 #include <fcntl.h>
 #include <unistd.h>
 
 #include <dpkg/fdio.h>
+#include <dpkg/ehandle.h>
 
 ssize_t
 fd_read(int fd, void *buf, size_t len)
@@ -33,11 +35,14 @@ fd_read(int fd, void *buf, size_t len)
 	ssize_t total = 0;
 	char *ptr = buf;
 
+	if (len > SSIZE_MAX)
+		internerr("len=%zu exceeds SSIZE_MAX=%zd", len, SSIZE_MAX);
+
 	while (len > 0) {
 		ssize_t n;
 
 		n = read(fd, ptr + total, len);
-		if (n == -1) {
+		if (n < 0) {
 			if (errno == EINTR || errno == EAGAIN)
 				continue;
 			return total ? -total : n;
@@ -58,11 +63,14 @@ fd_write(int fd, const void *buf, size_t len)
 	ssize_t total = 0;
 	const char *ptr = buf;
 
+	if (len > SSIZE_MAX)
+		internerr("len=%zu exceeds SSIZE_MAX=%zd", len, SSIZE_MAX);
+
 	while (len > 0) {
 		ssize_t n;
 
 		n = write(fd, ptr + total, len);
-		if (n == -1) {
+		if (n < 0) {
 			if (errno == EINTR || errno == EAGAIN)
 				continue;
 			return total ? -total : n;
@@ -109,7 +117,7 @@ fd_allocate_size(int fd, off_t offset, off_t len)
 		return 0;
 
 #if defined(HAVE_F_PREALLOCATE)
-	/* On Mac OS X. */
+	/* On macOS. */
 	fstore_t fs;
 
 	fd_preallocate_setup(&fs, F_ALLOCATECONTIG, offset, len);

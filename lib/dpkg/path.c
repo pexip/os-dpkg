@@ -28,7 +28,55 @@
 
 #include <dpkg/dpkg.h>
 #include <dpkg/string.h>
+#include <dpkg/strvec.h>
 #include <dpkg/path.h>
+
+/**
+ * Perform lexical canonicalization of a pathname.
+ *
+ * @param path The pathname to canonicalize.
+ *
+ * @return The canonicalized pathname.
+ */
+char *
+path_canonicalize(const char *path)
+{
+	struct strvec *osv, *nsv;
+	size_t o;
+	char *newpath;
+	bool is_absolute = path[0] == '/';
+
+	osv = strvec_split(path, '/', STRVEC_SPLIT_SKIP_DUP_SEP);
+	nsv = strvec_new(0);
+
+	for (o = 0; o < osv->used; o++) {
+		if (strcmp(osv->vec[o], "..") == 0) {
+			/* Go up. */
+			if (is_absolute && nsv->used == 1)
+				continue;
+
+			strvec_drop(nsv);
+		} else if ((strcmp(osv->vec[o], "") == 0 && o > 0) ||
+		           strcmp(osv->vec[o], ".") == 0) {
+			/* Skip part. */
+			continue;
+		} else {
+			/* Move the component over. */
+			strvec_push(nsv, osv->vec[o]);
+			osv->vec[o] = NULL;
+		}
+	}
+
+	/* Make sure we have something to join on. */
+	if (is_absolute && nsv->used == 1)
+		strvec_push(nsv, m_strdup(""));
+
+	newpath = strvec_join(nsv, '/');
+	strvec_free(nsv);
+	strvec_free(osv);
+
+	return newpath;
+}
 
 /**
  * Trim ‘/’ and ‘/.’ from the end of a pathname.
@@ -131,11 +179,11 @@ path_make_temp_template(const char *suffix)
 char *
 path_quote_filename(char *dst, const char *src, size_t n)
 {
-	char *r = dst;
+	char *ret = dst;
 	ssize_t size = (ssize_t)n;
 
 	if (size == 0)
-		return r;
+		return ret;
 
 	while (*src) {
 		if (*src == '\\') {
@@ -157,7 +205,7 @@ path_quote_filename(char *dst, const char *src, size_t n)
 			if (size <= 0)
 				break;
 
-			sprintf(dst, "\\%03o",
+			snprintf(dst, 5, "\\%03o",
 			        *(const unsigned char *)src);
 			dst += 4;
 			src++;
@@ -166,5 +214,5 @@ path_quote_filename(char *dst, const char *src, size_t n)
 
 	*dst = '\0';
 
-	return r;
+	return ret;
 }

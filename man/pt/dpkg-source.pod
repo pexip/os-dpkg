@@ -16,7 +16,7 @@ If the PO get lost, keeping this translation up-to-date will be harder.
 
 dpkg-source - ferramenta de manipulação de pacotes fonte Debian (.dsc)
 
-=head1 SINOPSE
+=head1 RESUMO
 
 B<dpkg-source> [I<option>...] I<command>
 
@@ -44,7 +44,7 @@ Se o pacote fonte usar um formato não-standard (actualmente isto significa todo
 
 Compila um pacote fonte (B<--build> desde dpkg 1.17.14). O primeiro argumento não-opção é tomado como o nome do directório que contém a árvore fonte debianizada (isto é, com um sub-directório debian e talvez alterações aos ficheiro originais). Dependendo do formato do pacote fonte usado para compilar o pacote, podem ser aceites parâmetros adicionais.
 
-B<dpkg-source> irá compilado o pacote fonte com o primeiro formato encontrado nesta lista por esta ordem: o formato indicado com a opção de linha de comando I<--format>, o formato indicado em B<debian/source/format>, “1.0”. O cair para “1.0” está descontinuado e será removido em algum ponto no futuro, você deve sempre documentar o formato de fonte desejado em B<debian/source/format>.Veja a secção B<SOURCE PACKAGE FORMATS> para uma descrição extensiva dos vários formatos de pacote fonte.
+B<dpkg-source> irá compilado o pacote fonte com o primeiro formato encontrado nesta lista por esta ordem: o formato indicado com a opção de linha de comando I<--format>, o formato indicado em B<debian/source/format>, “1.0”. O cair para “1.0” está descontinuado e será removido em algum ponto no futuro, você deve sempre documentar o formato de fonte desejado em B<debian/source/format>.Veja a secção L</SOURCE PACKAGE FORMATS> para uma descrição extensiva dos vários formatos de pacote fonte.
 
 =item B<--print-format> I<directory>
 
@@ -88,7 +88,7 @@ Especifica o ficheiro changelog de onde ler informação. A predefinição é B<
 
 =item B<-F>I<changelog-format>
 
-Especifica o formato do registo de alterações. Veja B<dpkg-parsechangelog>(1) para informação acerca dos formatos alternativos.
+Especifica o formato do registo de alterações. Veja L<dpkg-parsechangelog(1)> para informação acerca dos formatos alternativos.
 
 =item B<--format=>I<value>
 
@@ -96,7 +96,7 @@ Usa o formato fornecido para compilar o pacote fonte (desde dpkg 1.14.17). Sobre
 
 =item B<-V>I<name>B<=>I<value>
 
-Define uma variável de substituição de saída. Veja B<deb-substvars>(5) para uma discussão sobre substituição da saída.
+Define uma variável de substituição de saída. Veja L<deb-substvars(5)> para uma discussão sobre substituição da saída.
 
 =item B<-T>I<substvars-file>
 
@@ -132,13 +132,13 @@ A expressão regular perl especificada irá estender o valor predefinido usado p
 
 =item B<-I>[I<file-pattern>], B<--tar-ignore>[=I<file-pattern>]
 
-Se esta opção for especificada, o padrão será passado à opção B<--exclude> do B<tar>(1) quando este é chamado para gerar um ficheiro .orig.tar ou .tar (B<--tar-ignore> desde dpkg 1.15.6). Por exemplo, B<-I>CVS irá fazer o tar saltar os directórios CVS ao gerar um ficheiro .tar.gz. A opção pode ser repetida várias vezes para listar vários padrões de exclusão.
+Se esta opção for especificada, o padrão será passado à opção B<--exclude> do L<tar(1)> quando este é chamado para gerar um ficheiro .orig.tar ou .tar (B<--tar-ignore> desde dpkg 1.15.6). Por exemplo, B<-I>CVS irá fazer o tar saltar os directórios CVS ao gerar um ficheiro .tar.gz. A opção pode ser repetida várias vezes para listar vários padrões de exclusão.
 
 B<-I> por si próprio adiciona opções B<--exclude> predefinidas que irão filtrar ficheiros de controle e directórios dos sistemas de controlo de revisão mais comuns, ol systems, salvaguarda e permutar ficheiros e directórios de saída de compilação de Libtool.
 
 =back
 
-B<Nota:> Apesar de terem objectivos semelhantes, B<-i> e B<-I> têm muitas diferenças na sintaxe e semântica. B<-i> só pode ser especificado uma vez e e recebe uma expressão regular compatível com perl que é correspondida ao caminho relativo completo de cada ficheiro. B<-I> pode se especificado várias vezes e recebe um padrão de nome de ficheiro com wildcards de shell. O padrão é aplicado ao caminho relativo completo mas também a cada parte do caminho individualmente. A semântica exacta da opção B<--exclude> do tar é um tanto complicada, veja L<https://www.gnu.org/software/tar/manual/tar.html#wildcards> para a documentação completa.
+B<Nota>: Apesar de terem objectivos semelhantes, B<-i> e B<-I> têm muitas diferenças na sintaxe e semântica. B<-i> só pode ser especificado uma vez e e recebe uma expressão regular compatível com perl que é correspondida ao caminho relativo completo de cada ficheiro. B<-I> pode se especificado várias vezes e recebe um padrão de nome de ficheiro com wildcards de shell. O padrão é aplicado ao caminho relativo completo mas também a cada parte do caminho individualmente. A semântica exacta da opção B<--exclude> do tar é um tanto complicada, veja L<https://www.gnu.org/software/tar/manual/tar.html#wildcards> para a documentação completa.
 
 A regex e padrões predefinidos para ambas opções podem ser vistos no resultado do comando B<--help>.
 
@@ -296,7 +296,7 @@ O tarball original principal é extraído primeiro, depois todos os tarballs ori
 
 Todas as patches listadas em B<debian/patches/>I<vendor>B<.series> ou B<debian/patches/series> são então aplicadas, onde I<vendor> será o nome em minúsculas do fornecedor actual, ou B<debian> se não existir um fornecedor definido. Se o ficheiro anterior for usado e o posterior não existir (ou for um link simbólico), então o posterior é substituído por um link simbólico para o antigo. Isto destina-se a simplificar a utilização de B<quilt> para gerir o conjunto de patches. Ficheiros de séries especificas-de-fornecedor destinam-se a tornar possível a criação de séries de múltiplos ramos de desenvolvimento baseados no fornecedor, num modo declarativo, dando preferência a codificação-aberta deste manuseamento em B<debian/rules>. Isto é particularmente útil quando a fonte precisa de receber uma patch condicionalmente porque os ficheiros afectados não possuem suporte a oclusão condicional embutido. Note no entanto que enquanto B<dpkg-source> analisa correctamente ficheiros de séries com opções explícitas usadas para aplicar patch a aplicação (armazenada em cada linha antes do nome de ficheiro de patch e um ou mais espaços), ele ignora essas opções e espera sempre que as patches possam ser aplicadas com a opção B<-p1> ou B<patch>. Irá portanto emitir um aviso quando encontra tais opções, e é provável que a compilação falhe.
 
-Note que B<lintian>(1) irá emitir avisos incondicionais quando usa séries de fornecedor devido a regulamento controverso específico de Debian, o qual não deve afectar nenhuma utilização externa; para silenciar isto, o perfil lintian do dpkg pode ser usado ao passar «B<--profile dpkg>» a B<lintian>(1).
+Note que L<lintian(1)> irá emitir avisos incondicionais quando usa séries de fornecedor devido a regulamento controverso específico de Debian, o qual não deve afectar nenhuma utilização externa; para silenciar isto, o perfil lintian do dpkg pode ser usado ao passar «B<--profile dpkg>» a L<lintian(1)>.
 
 O carimbo temporal de todos os ficheiros com patch é reposto para a hora da extração do pacote fonte (isto evita inclinações do carimbo temporal que levam a problemas quando aplica patch a ficheiros auto-gerados).
 
@@ -316,7 +316,7 @@ O directório debian actualizado e a lista de binários modificados são então 
 
 O diff gerado automaticamente não inclui alterações em ficheiros específicos de VCS assim como em muitos ficheiro temporários (veja valor predefinido associado à opção B<-i> no resultado de B<--help>). Em particular, o directório B<.pc> usado por B<quilt> é ignorado durante a geração da patch automática.
 
-B<Nota:> B<dpkg-source> B<--before-build> (e B<--build>) irão assegurar que todas as patches listadas no ficheiro series são aplicadas para que uma compilação do pacote tenha sempre todas as patches aplicadas. Faz isto ao encontrar patches não aplicadas (elas estão listadas no ficheiro B<series> mas não em B<.pc/applied-patches>), e se a primeira patch nesse conjunto puder ser aplicada sem erros, irá aplica-las todas. A opção B<--no-preparation> pode ser usada para desactivar este comportamento.
+B<Nota>: B<dpkg-source> B<--before-build> (e B<--build>) irão assegurar que todas as patches listadas no ficheiro series são aplicadas para que uma compilação do pacote tenha sempre todas as patches aplicadas. Faz isto ao encontrar patches não aplicadas (elas estão listadas no ficheiro B<series> mas não em B<.pc/applied-patches>), e se a primeira patch nesse conjunto puder ser aplicada sem erros, irá aplica-las todas. A opção B<--no-preparation> pode ser usada para desactivar este comportamento.
 
 B<Gravar alterações>
 
@@ -324,7 +324,7 @@ B<Gravar alterações>
 
 =item B<--commit> [I<directory>] [I<patch-name>] [I<patch-file>]
 
-Gera uma patch correspondente às alterações locais que não são geridas pelo sistema de patch B<quilt> e integra-a no sistema de patch sob o nome I<patch-name>. se o nome está em falta, será perguntado interactivamente. Se I<patch-file> for fornecido, é usado como uma patch correspondente às alterações locais a integrar. Uma vez integrada, é lançado um editor para que você possa editar a meta-informação no cabeçalho da patch.
+Gera uma patch correspondente às alterações locais que não são geridas pelo sistema de patch B<quilt> e integra-a no sistema de patch sob o nome I<patch-name>. se o nome está em falta, será perguntado interactivamente. Se I<patch-file> for fornecido, é usado como uma patch correspondente às alterações locais a integrar. Uma vez integrada, é lançado um editor (o primeiro encontrado de B<sensible-editor>, C<$VISUAL>, C<$EDITOR>, B<vi>) para que você possa editar a meta-informação no cabeçalho da patch.
 
 Passar I<patch-file> é principalmente útil após uma falha de compilação que pré-gerou este ficheiro, e por esse motivo o ficheiro fornecido é removido após integração. Note também que as alterações contidas no ficheiro patch têm de já estar aplicadas na árvore e que os ficheiros modificados pela patch não podem ter alterações suplementares por gravar.
 
@@ -424,7 +424,7 @@ B<Building>
 
 Antes de avançar-mos, são feitas algumas verificações para assegurar que não temos nenhumas alterações não ignoradas por submeter.
 
-B<git-bundle>(1) é usado para gerar um bolo do repositório git. Por predefinição, todos os ramos e etiquetas no repositório são incluídos no bolo.
+L<git-bundle(1)> é usado para gerar um bolo do repositório git. Por predefinição, todos os ramos e etiquetas no repositório são incluídos no bolo.
 
 B<Opções de compilação>
 
@@ -432,7 +432,7 @@ B<Opções de compilação>
 
 =item B<--git-ref=>I<ref>
 
-Permite especificar um ref de git para incluir no bolo do git. O uso desactiva o comportamento predefinido de incluir todos os ramos e etiquetas. Pode ser especificado várias vezes. O I<ref> pode ser o nome de um ramo ou etiqueta a incluir. Também pode ser qualquer parâmetro que possa ser passado ao B<git-rev-list>(1). Por exemplo, para incluir apenas o ramo main, use B<--git-ref=>main. Para incluir todos as etiquetas e ramos, excepto para o ramo privado, use B<--git-ref=>--all B<--git-ref=>^private
+Permite especificar um ref de git para incluir no bolo do git. O uso desactiva o comportamento predefinido de incluir todos os ramos e etiquetas. Pode ser especificado várias vezes. O I<ref> pode ser o nome de um ramo ou etiqueta a incluir. Também pode ser qualquer parâmetro que possa ser passado ao L<git-rev-list(1)>. Por exemplo, para incluir apenas o ramo main, use B<--git-ref=>main. Para incluir todos as etiquetas e ramos, excepto para o ramo privado, use B<--git-ref=>--all B<--git-ref=>^private
 
 =item B<--git-depth=>I<number>
 
@@ -496,7 +496,9 @@ Se definida, será usada para decidir se deve activar o Suporte a Linguagem Nati
 
 =item B<SOURCE_DATE_EPOCH>
 
-Se definido, será usado como marca temporal (em segundos desde a época) para engatar o mtime nas entradas do ficheiro B<tar>(5).
+Se definido, será usado como marca temporal (em segundos desde a época) para engatar o mtime nas entradas do ficheiro L<tar(5)>.
+
+Desde dpkg 1.18.11.
 
 =item B<VISUAL>
 
@@ -542,7 +544,7 @@ Cada opção deve ser posta numa linha separada. AS linhas vazias e linhas come�
  # ignore changes on config.{sub,guess}
  extend-diff-ignore = "(^|/)(config.sub|config.guess)$"
 
-B<Nota:> As opções B<format> não são aceites neste ficheiro, em vez disso você deve usar B<debian/source/format>.
+B<Nota>: As opções B<format> não são aceites neste ficheiro, em vez disso você deve usar B<debian/source/format>.
 
 =head2 debian/source/local-options
 
@@ -560,13 +562,19 @@ Texto de formato livre que é colocado no topo da patch automática gerada em fo
 
 Este ficheiro lista todas as patches que têm de ser aplicadas (na ordem dada) no topo do pacote fonte do autor original. Os espaços iniciais e finais são retirados. O I<vendor> será o nome em minúsculas do fornecedor actual, ou B<debian> se não existir um fornecedor definido. Se o ficheiro series especifico-do-fornecedor não existir, será usado o ficheiro series sem-fornecedor. As linha começadas com ‘B<#>’ são comentários e são retiradas. Linhas vazias são ignoradas. As linhas restantes começam com um nome de ficheiro patch (relativo ao directório B<debian/patches/>) até ap primeiro caractere de espaço ou ao fim da linha. Opções B<quilt> opcionais podem seguir até ao fim da linha ou ao primeiro ‘B<#>’ precedido por um ou mais espaços (o que marca o começo de um comentário até ao fim da linha).
 
+=head1 SEGURANÇA
+
+Examinar pacotes fonte não-confiáveis ou extraí-los para directórios estagiários deve ser considerado um limite à segurança, e qualquer violação desse limite derivando dessas operações deve ser considerada uma vulnerabilidade na segurança. Mas manusear pacotes fonte não-confiáveis não deve ser feito com facilitismos, pois a área de superfície inclui qualquer comando de compressão suportado, comandos para lidar com formatos de dados específicos e os próprios ficheiros de controle. Executar essas operações sobre dados não-confiáveis como root é fortemente desaconselhado.
+
+A compilação de pacotes fonte só deve ser executada sobre dados de confiança.
+
 =head1 BUGS
 
 O ponto no qual cada sobreposição de campo ocorre comparado com certas definições de campos de saídas standard é bastante confuso.
 
 =head1 VEJA TAMBÉM
 
-B<deb-src-control>(5), B<deb-changelog>(5), B<deb-substvars>(5), B<dsc>(5).
+L<deb-src-control(5)>, L<deb-changelog(5)>, L<deb-substvars(5)>, L<dsc(5)>.
 
 
 =head1 TRADUÇÃO

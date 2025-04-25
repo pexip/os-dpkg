@@ -16,7 +16,7 @@ If the PO get lost, keeping this translation up-to-date will be harder.
 
 dpkg-shlibdeps - gera dependências substvar de biblioteca partilhada
 
-=head1 SINOPSE
+=head1 RESUMO
 
 B<dpkg-shlibdeps> [I<option>...] [B<-e>] I<executable> [I<option>...]
 
@@ -34,7 +34,7 @@ Ficheiros Symbols contêm informação de dependências afinada ao fornecerem a 
 
 =item debian/*/DEBIAN/symbols
 
-Informação de biblioteca partilhada gerada pelo actual processo de compilação que também invocou B<dpkg-shlibdeps>. São gerados por B<dpkg-gensymbols>(1). São apenas usados se a biblioteca for encontrada na árvore de compilação do pacote. O ficheiro de símbolos nessa árvore de compilação toma precedência sobre ficheiros de símbolos de outros pacotes binários.
+Informação de biblioteca partilhada gerada pelo actual processo de compilação que também invocou B<dpkg-shlibdeps>. São gerados por L<dpkg-gensymbols(1)>. São apenas usados se a biblioteca for encontrada na árvore de compilação do pacote. O ficheiro de símbolos nessa árvore de compilação toma precedência sobre ficheiros de símbolos de outros pacotes binários.
 
 =item %PKGCONFDIR%/symbols/I<package>.symbols.I<arch>
 
@@ -50,7 +50,7 @@ Informação de dependências de bibliotecas partilhadas fornecidas pelo pacote.
 
 Enquanto sonda os símbolos usados por todos os binários, o B<dpkg-shlibdeps> lembra-se da versão mínima (mais alta) necessária para cada biblioteca. No final do processo, é capaz de escrever a dependência mínima para cada biblioteca usada (desde que a informação dos ficheiros I<symbols> esteja exacta).
 
-Como medida de salva-guarda, um ficheiro de símbolos pode fornecer um campo de meta-informação B<Build-Depends-Package> e B<dpkg-shlibdeps> irá extrair a versão mínima requerida pelo pacote correspondente no campo B<Build-Depends> e usa esta versão se for maior que a versão mínima computada pela sondagem dos símbolos.
+Como medida de salva-guarda, um ficheiro de símbolos pode fornecer um campo de meta-informação B<Build-Depends-Package> ou B<Build-Depends-Packages> e B<dpkg-shlibdeps> irá extrair a versão mínima requerida pelo pacote correspondente no campo B<Build-Depends> e usa esta versão se for maior que a versão mínima computada pela sondagem dos símbolos.
 
 =head2 Ficheiros shlibs
 
@@ -98,7 +98,7 @@ Inclui as dependências apropriadas para as bibliotecas partilhadas requeridas p
 
 Adiciona I<directory> ao inicio da lista de directórios a pesquisar por bibliotecas partilhadas privadas (desde dpkg 1.17.0). Esta opção pode ser usada várias vezes.
 
-B<Nota:> Use esta opção em vez de definir B<LD_LIBRARY_PATH>, pois essa variável de ambiente é usado para controlar o vinculador de tempo-de-execução e abusar dela para definir caminhos de bibliotecas partilhadas durante a compilação pode ser problemático quando, por exemplo, se faz compilações cruzadas.
+B<Nota>: Use esta opção em vez de definir B<LD_LIBRARY_PATH>, pois essa variável de ambiente é usado para controlar o vinculador de tempo-de-execução e abusar dela para definir caminhos de bibliotecas partilhadas durante a compilação pode ser problemático quando, por exemplo, se faz compilações cruzadas.
 
 =item B<-d>I<dependency-field>
 
@@ -107,6 +107,16 @@ Todas as dependências a serem adicionadas ao campo de dependências do ficheiro
 A opção B<-d>I<dependency-field> produz efeito para todos os executáveis após a opção, até ao próximo B<-d>I<dependency-field>. A predefinição de I<dependency-field> é B<Depends>.
 
 Se a mesma entrada de dependência (ou conjunto de alternativas) aparecer em mais do que um dos nomes de campos de dependência reconhecida B<Pre-Depends>, B<Depends>, B<Recommends>, B<Enhances> ou B<Suggests> então B<dpkg-shlibdeps> irá remover automaticamente a dependência de todos os campos excepto daquele que representa as dependências mais importantes.
+
+=item B<--package=>I<pacote>
+
+Define o nome do pacote.
+
+Quando usado, este nome de pacote será usado para mudar a predefinição baseada nos metadados de pacote binário em F<debian/control>.
+
+Se o pacote for B<Essential: yes>, então o campo de dependência predefinido é B<Pre-Depends>, caso contrário B<Depends>.  O tipo de pacote predefinido é definido a partir do campo B<Package-Type>.  O pacote é adicionado ao conjunto de pacotes excluídos por B<-x>.
+
+Opção suportada desde dpkg 1.22.7.
 
 =item B<-p>I<varname-prefix>
 
@@ -148,9 +158,31 @@ Ignora I<package-build-dir> quando procurar por shlibs, symbols, e ficheiros de 
 
 Não falha se a informação de dependência não pode ser encontrada para uma biblioteca partilhada (desde dpkg 1.14.8). A utilização desta opção é desencorajada, todas as bibliotecas devem fornecer informação de dependências (seja com ficheiros shlibs, ou com ficheiros symbols) mesmo se ainda não forem usadas por outros pacotes.
 
-=item B<--warnings=>I<value>
+=item B<--warnings=>[I<value>|I<string>[,...]]
 
-I<value> é um campo de bit que define o conjunto de avisos que podem ser emitidos pelo B<dpkg-shlibdeps> (desde dpkg 1.14.17).  Bit 0 (valor=1) activa o aviso “symbol I<sym> usado por I<binary> encontrado em nenhuma das bibliotecas, bit 1 (valor=2) activa o aviso “pacote podia evitar uma dependência inútil” e bit 2 (valor=4) activa o aviso “I<binary> não deveria estar em link contra I<library>”. O I<value> predefinido é 3: os dois primeiros avisos estão activos por predefinição, o último não está. Defina I<value> para 7 se deseja ter todos os avisos activos.
+Select the set of warnings that can be emitted by B<dpkg-shlibdeps> (since dpkg 1.14.17).
+
+The warnings can be selected from a comma-separated list of symbolic names (since dpkg 1.22.12), or from a I<value> denoting a bit field for these warnings.
+
+=over 
+
+=item symbol-not-found (bit 0, value 1)
+
+Selects the warning “symbol I<sym> used by I<binary> found in none of the libraries”.
+
+Enabled by default.
+
+=item avoidable-dependency (bit 1, value 2)
+
+Selects the warning “package could avoid a useless dependency”.
+
+Enabled by default.
+
+=item useless-linkage (bit 2, value 4)
+
+Select the warning “I<binary> should not be linked against I<library>”.
+
+=back
 
 =item B<--admindir=>I<dir>
 
@@ -169,6 +201,10 @@ Mostra a versão e termina.
 =head1 AMBIENTE
 
 =over 
+
+=item B<DEB_HOST_ARCH>
+
+Define a arquitectura da máquina anfitriã.  Isto afecta os ficheiros de objectos e símbolos a procurar e os seus nomes de caminho de busca predefinidos.
 
 =item B<DPKG_COLORS>
 
@@ -232,7 +268,7 @@ I<binary>B<).>
 
 A biblioteca necessária pelo I<binary> foi encontrada pelo B<dpkg-shlibdeps> em I<library-file> mas B<dpkg-shlibdeps> não foi capaz de encontrar nenhuma informação de dependência para essa biblioteca.  Para encontrar a dependência, tentou mapear a biblioteca a um pacote Debian com a ajuda de B<dpkg -S> I<library-file>. Depois verificou os ficheiros shlibs e symbols correspondentes em %ADMINDIR%/info/, e nas várias árvores de compilação de pacotes (debian/*/DEBIAN/).
 
-Esta falha pode ser causada por um ficheiro shlibs ou symbols mau ou em falta no pacote da biblioteca. Também pode acontecer se a biblioteca for compilada dentro do mesmo pacote fonte e se os ficheiros shlibs ainda não foram criados (que neste caso você tem de corrigir debian/rules para criar o shlibs antes de chamar B<dpkg-shlibdeps>). Uma má RPATH também pode levar a que a biblioteca seja encontrada sob um nome não-canónico (exemplo: /usr/lib/openoffice.org/../lib/libssl.so.0.9.8 em vez de /usr/lib/libssl.so.0.9.8) que não está associado a nenhum pacote, o B<dpkg-shlibdeps> tenta contornar isto ao tentar descer para um nome canónico (usando B<realpath>(3)) mas pode nem sempre funcionar. É sempre melhor limpar a RPATH do binário para evitar problemas.
+Esta falha pode ser causada por um ficheiro shlibs ou symbols mau ou em falta no pacote da biblioteca. Também pode acontecer se a biblioteca for compilada dentro do mesmo pacote fonte e se os ficheiros shlibs ainda não foram criados (que neste caso você tem de corrigir debian/rules para criar o shlibs antes de chamar B<dpkg-shlibdeps>). Uma má RPATH também pode levar a que a biblioteca seja encontrada sob um nome não-canónico (exemplo: /usr/lib/openoffice.org/../lib/libssl.so.0.9.8 em vez de /usr/lib/libssl.so.0.9.8) que não está associado a nenhum pacote, o B<dpkg-shlibdeps> tenta contornar isto ao tentar descer para um nome canónico (usando L<realpath(3)>) mas pode nem sempre funcionar. É sempre melhor limpar a RPATH do binário para evitar problemas.
 
 Chamar o B<dpkg-shlibdeps> em modo detalhado (B<-v>) irá providenciar muito mais informação acerca de onde ele tentou encontrar a informação de dependência. Isto pode ser útil se você não perceber porquê está a dar-lhe este erro.
 
@@ -240,7 +276,7 @@ Chamar o B<dpkg-shlibdeps> em modo detalhado (B<-v>) irá providenciar muito mai
 
 =head1 VEJA TAMBÉM
 
-B<deb-substvars>(5), B<deb-shlibs>(5), B<deb-symbols>(5), B<dpkg-gensymbols>(1).
+L<deb-substvars(5)>, L<deb-shlibs(5)>, L<deb-symbols(5)>, L<dpkg-gensymbols(1)>.
 
 
 =head1 TRADUÇÃO

@@ -43,12 +43,12 @@ my %options = (
     architecture => 1,
 );
 
-sub version()
+sub version
 {
     printf(g_("Debian %s version %s.\n"), $Dpkg::PROGNAME, $Dpkg::PROGVERSION);
 }
 
-sub usage()
+sub usage
 {
     printf(g_("Usage: %s [<option>...] <file>...\n"), $Dpkg::PROGNAME);
 
@@ -67,7 +67,7 @@ according to the 'underscores convention'.
 "));
 }
 
-sub fileexists($)
+sub fileexists
 {
     my $filename = shift;
 
@@ -79,7 +79,7 @@ sub fileexists($)
     }
 }
 
-sub filesame($$)
+sub filesame
 {
     my ($a, $b) = @_;
     my @sta = stat($a);
@@ -89,21 +89,21 @@ sub filesame($$)
     return (@sta and @stb and $sta[0] == $stb[0] and $sta[1] == $stb[1]);
 }
 
-sub getfields($)
+sub getfields
 {
     my $filename = shift;
 
     # Read the fields
     open(my $cdata_fh, '-|', 'dpkg-deb', '-f', '--', $filename)
         or syserr(g_('cannot open %s'), $filename);
-    my $fields = Dpkg::Control->new(type => CTRL_PKG_DEB);
+    my $fields = Dpkg::Control->new(type => CTRL_DEB);
     $fields->parse($cdata_fh, sprintf(g_('binary control file %s'), $filename));
     close($cdata_fh);
 
     return $fields;
 }
 
-sub getarch($$)
+sub getarch
 {
     my ($filename, $fields) = @_;
 
@@ -116,7 +116,7 @@ sub getarch($$)
     return $arch;
 }
 
-sub getname($$$)
+sub getname
 {
     my ($filename, $fields, $arch) = @_;
 
@@ -138,7 +138,7 @@ sub getname($$$)
     return $name;
 }
 
-sub getdir($$$)
+sub getdir
 {
     my ($filename, $fields, $arch) = @_;
     my $dir;
@@ -165,7 +165,7 @@ sub getdir($$$)
     return $dir;
 }
 
-sub move($)
+sub move
 {
     my $filename = shift;
 

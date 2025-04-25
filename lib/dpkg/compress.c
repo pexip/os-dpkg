@@ -42,6 +42,7 @@
 #define DPKG_ZSTD_MAX_LEVEL 22
 #define ZSTD_CLEVEL_DEFAULT 3
 #endif
+#define DPKG_ZSTD_CLEVEL_DEFAULT ZSTD_CLEVEL_DEFAULT
 #ifdef WITH_LIBBZ2
 #include <bzlib.h>
 #endif
@@ -65,10 +66,11 @@ static void
 fd_fd_filter(struct command *cmd, int fd_in, int fd_out, const char *delenv[])
 {
 	pid_t pid;
-	int i;
 
 	pid = subproc_fork();
 	if (pid == 0) {
+		int i;
+
 		if (fd_in != 0) {
 			m_dup2(fd_in, 0);
 			close(fd_in);
@@ -1287,7 +1289,7 @@ compress_zstd(struct compress_params *params, int fd_in, int fd_out,
 static const struct compressor compressor_zstd = {
 	.name = "zstd",
 	.extension = ".zst",
-	.default_level = ZSTD_CLEVEL_DEFAULT,
+	.default_level = DPKG_ZSTD_CLEVEL_DEFAULT,
 	.fixup_params = fixup_none_params,
 	.compress = compress_zstd,
 	.decompress = decompress_zstd,
@@ -1421,7 +1423,7 @@ decompress_filter(struct compress_params *params, int fd_in, int fd_out,
 	struct varbuf desc = VARBUF_INIT;
 
 	va_start(args, desc_fmt);
-	varbuf_vprintf(&desc, desc_fmt, args);
+	varbuf_add_vfmt(&desc, desc_fmt, args);
 	va_end(args);
 
 	compressor(params->type)->decompress(params, fd_in, fd_out, desc.buf);
@@ -1437,7 +1439,7 @@ compress_filter(struct compress_params *params, int fd_in, int fd_out,
 	struct varbuf desc = VARBUF_INIT;
 
 	va_start(args, desc_fmt);
-	varbuf_vprintf(&desc, desc_fmt, args);
+	varbuf_add_vfmt(&desc, desc_fmt, args);
 	va_end(args);
 
 	compressor(params->type)->compress(params, fd_in, fd_out, desc.buf);

@@ -23,9 +23,11 @@
 #ifndef LIBDPKG_PARSEDUMP_H
 #define LIBDPKG_PARSEDUMP_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include <dpkg/error.h>
+#include <dpkg/dpkg-db.h>
 
 DPKG_BEGIN_DECLS
 
@@ -118,7 +120,9 @@ freadfunction f_architecture;
 freadfunction f_trigpend, f_trigaw;
 freadfunction f_archives;
 
-enum fwriteflags {
+enum DPKG_ATTR_ENUM_FLAGS fwriteflags {
+	/** No flags. */
+	fw_none			= 0,
 	/** Print field header and trailing newline. */
 	fw_printheader		= DPKG_BIT(0),
 };
@@ -156,6 +160,10 @@ void parse_error(struct parsedb_state *ps, const char *fmt, ...)
 	DPKG_ATTR_NORET DPKG_ATTR_PRINTF(2);
 void parse_warn(struct parsedb_state *ps, const char *fmt, ...)
 	DPKG_ATTR_PRINTF(2);
+void
+parse_lax_problem(struct parsedb_state *ps, enum parsedbflags flags_lax,
+                  const char *fmt, ...)
+	DPKG_ATTR_PRINTF(3);
 void
 parse_problem(struct parsedb_state *ps, const char *fmt, ...)
 	DPKG_ATTR_PRINTF(2);

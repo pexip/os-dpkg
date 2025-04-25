@@ -50,16 +50,26 @@ B<Checksums-Sha256>,
 see below).
 
 The control data might be enclosed in an OpenPGP ASCII Armored signature,
-as specified in RFC4880.
+as specified in RFC9580.
 
 The name of the B<.buildinfo> file will depend on the type of build and
-will be as specific as necessary but not more;
-for a build that includes B<any> the name will be
-I<source-name>B<_>I<binary-version>B<_>I<arch>B<.buildinfo>,
-or otherwise for a build that includes B<all> the name will be
-I<source-name>B<_>I<binary-version>B<_>B<all.buildinfo>,
-or otherwise for a build that includes B<source> the name will be
-I<source-name>B<_>I<source-version>B<_>B<source.buildinfo>.
+will be as specific as necessary but not more; the name will be:
+
+=over
+
+=item I<source-name>B<_>I<binary-version>B<_>I<arch>B<.buildinfo>
+
+for a build that includes B<any>
+
+=item I<source-name>B<_>I<binary-version>B<_>B<all.buildinfo>
+
+otherwise for a build that includes B<all>
+
+=item I<source-name>B<_>I<source-version>B<_>B<source.buildinfo>
+
+otherwise for a build that includes B<source>
+
+=back
 
 =head1 FIELDS
 
@@ -104,7 +114,7 @@ Typically, this is the original package's version number in whatever form
 the program's author uses.
 It may also include a Debian revision number (for non-native packages).
 The exact format and sorting algorithm are described in
-B<deb-version>(7).
+L<deb-version(7)>.
 
 =item B<Binary-Only-Changes:>
 
@@ -117,11 +127,11 @@ single full stop (‘.’) and all lines are indented by one space
 character.
 The exact content depends on the changelog format.
 
-=item B<Checksums-Md5:> (required)
+=item B<Checksums-Md5:> (required, weak)
 
-=item B<Checksums-Sha1:> (required)
+=item B<Checksums-Sha1:> (required, weak)
 
-=item B<Checksums-Sha256:> (required)
+=item B<Checksums-Sha256:> (required, strong)
 
 =item S< >I<checksum> I<size> I<filename>
 
@@ -130,6 +140,9 @@ for each one.
 These fields have the same syntax and differ only in the checksum algorithm
 used: MD5 for B<Checksums-Md5>, SHA-1 for B<Checksums-Sha1> and
 SHA-256 for B<Checksums-Sha256>.
+
+B<Note>: The MD5 and SHA-1 checksums are considered weak,
+and should never be assumed to be sufficient for secure verification.
 
 The first line of the field value (the part on the same line as the field
 name followed by a colon) is always empty.
@@ -151,7 +164,7 @@ Common architectures are B<amd64>, B<armel>, B<i386>, etc.
 =item B<Build-Date:> I<build-date>
 
 The date the package was built.
-It must be in the same format as the date in a B<deb-changelog>(5)
+It must be in the same format as the date in a L<deb-changelog(5)>
 entry.
 
 =item B<Build-Kernel-Version:> I<build-kernel-version>
@@ -181,19 +194,6 @@ current build has been tainted (since dpkg 1.19.5).
 On Debian and derivatives the following reason tags can be emitted:
 
 =over
-
-=item B<merged-usr-via-aliased-dirs>
-
-The system has a merged I</usr> via aliased directories (previously known
-as B<merged-usr-via-symlinks>).
-This will confuse B<dpkg-query>, B<dpkg-statoverride>,
-B<dpkg-trigger>, B<update-alternatives> and any other tool using
-pathnames as keys into their databases, as it creates filesystem aliasing
-problems, and messes with the understanding of the filesystem that
-B<dpkg> has recorded in its database.
-For build systems that hardcode pathnames to specific binaries or libraries
-on the resulting artifacts, it can also produce packages that will be
-incompatible with non-/usr-merged filesystems.
 
 =item B<usr-local-has-configs>
 
@@ -254,6 +254,6 @@ backslashes escaped (‘\\’).
 =head1 SEE ALSO
 
 L<deb822(5)>,
-B<deb-changes>(5),
-B<deb-version>(7),
-B<dpkg-genbuildinfo>(1).
+L<deb-changes(5)>,
+L<deb-version(7)>,
+L<dpkg-genbuildinfo(1)>.

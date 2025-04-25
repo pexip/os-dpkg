@@ -26,7 +26,7 @@
 #include <sys/wait.h>
 
 #include <limits.h>
-#if HAVE_LOCALE_H
+#ifdef HAVE_LOCALE_H
 #include <locale.h>
 #endif
 #include <errno.h>
@@ -45,7 +45,7 @@
 
 #include "dpkg-deb.h"
 
-const char *showformat = "${Package}\t${Version}\n";
+const char *opt_showformat = "${Package}\t${Version}\n";
 
 static int
 printversion(const char *const *argv)
@@ -102,15 +102,16 @@ usage(const char *const *argv)
 "      --showformat=<format>        Use alternative format for --show.\n"
 "      --deb-format=<format>        Select archive format.\n"
 "                                     Allowed values: 0.939000, 2.0 (default).\n"
-"      --nocheck                    Suppress control file check (build bad\n"
-"                                     packages).\n"
+"      --no-check                   Suppress all checks (build bad packages).\n"
+"      --nocheck                    Alias for --no-check.\n"
 "      --root-owner-group           Forces the owner and groups to root.\n"
 "      --threads-max=<threads>      Use at most <threads> with compressor.\n"
 "      --[no-]uniform-compression   Use the compression params on all members.\n"
-"  -z#                              Set the compression level when building.\n"
-"  -Z<type>                         Set the compression type used when building.\n"
+"  -Z, --compression=<compressor>   Set build compression type.\n"
 "                                     Allowed types: gzip, xz, zstd, none.\n"
-"  -S<strategy>                     Set the compression strategy when building.\n"
+"  -z, --compression-level=<level>  Set build compression level.\n"
+"  -S, --compression-strategy=<name>\n"
+"                                   Set build compression strategy.\n"
 "                                     Allowed values: none; extreme (xz);\n"
 "                                     filtered, huffman, rle, fixed (gzip).\n"
 "\n"));
@@ -139,8 +140,8 @@ static const char printforhelp[] =
   N_("Type dpkg-deb --help for help about manipulating *.deb files;\n"
      "Type dpkg --help for help about installing and deinstalling packages.");
 
-int debugflag = 0;
-int nocheckflag = 0;
+int opt_debug = 0;
+int opt_check = 1;
 int opt_verbose = 0;
 int opt_root_owner_group = 0;
 int opt_uniform_compression = 1;
@@ -163,8 +164,15 @@ set_deb_format(const struct cmdinfo *cip, const char *value)
     badusage(_("unknown deb format version: %s"), value);
 }
 
+struct compress_params compress_params_deb0 = {
+  .type = COMPRESSOR_TYPE_GZIP,
+  .strategy = COMPRESSOR_STRATEGY_NONE,
+  .level = -1,
+  .threads_max = -1,
+};
+
 struct compress_params compress_params = {
-  .type = DPKG_DEB_DEFAULT_COMPRESSOR,
+  .type = DEB_DEFAULT_COMPRESSOR,
   .strategy = COMPRESSOR_STRATEGY_NONE,
   .level = -1,
   .threads_max = -1,
@@ -256,17 +264,18 @@ static const struct cmdinfo cmdinfos[]= {
   ACTION("version",       0,   0, printversion),
 
   { "deb-format",    0,   1, NULL,           NULL,         set_deb_format   },
-  { "debug",         'D', 0, &debugflag,     NULL,         NULL,          1 },
+  { "debug",         'D', 0, &opt_debug,     NULL,         NULL,          1 },
   { "verbose",       'v', 0, &opt_verbose,   NULL,         NULL,          1 },
-  { "nocheck",       0,   0, &nocheckflag,   NULL,         NULL,          1 },
+  { "nocheck",       0,   0, &opt_check,     NULL,         NULL,          0 },
+  { "no-check",      0,   0, &opt_check,     NULL,         NULL,          0 },
   { "root-owner-group",    0, 0, &opt_root_owner_group,    NULL, NULL,    1 },
   { "threads-max",   0,   1, NULL,           NULL,         set_threads_max  },
   { "uniform-compression", 0, 0, &opt_uniform_compression, NULL, NULL,    1 },
   { "no-uniform-compression", 0, 0, &opt_uniform_compression, NULL, NULL, 0 },
-  { NULL,            'z', 1, NULL,           NULL,         set_compress_level },
-  { NULL,            'Z', 1, NULL,           NULL,         set_compress_type  },
-  { NULL,            'S', 1, NULL,           NULL,         set_compress_strategy },
-  { "showformat",    0,   1, NULL,           &showformat,  NULL             },
+  { "compression",           'Z', 1, NULL,   NULL,         set_compress_type  },
+  { "compression-level",     'z', 1, NULL,   NULL,         set_compress_level },
+  { "compression-strategy",  'S', 1, NULL,   NULL,         set_compress_strategy },
+  { "showformat",    0,   1, NULL,           &opt_showformat,  NULL         },
   {  NULL,           0,   0, NULL,           NULL,         NULL             }
 };
 
@@ -290,6 +299,13 @@ int main(int argc, const char *const *argv) {
   dpkg_options_parse(&argv, cmdinfos, printforhelp);
 
   if (!cipaction) badusage(_("need an action option"));
+
+  if (!opt_uniform_compression && deb_format.major == 0)
+    badusage(_("unsupported deb format '%d.%d' with non-uniform compression"),
+             deb_format.major, deb_format.minor);
+
+  if (deb_format.major == 0)
+    compress_params = compress_params_deb0;
 
   if (!compressor_check_params(&compress_params, &err))
     badusage(_("invalid compressor parameters: %s"), err.str);

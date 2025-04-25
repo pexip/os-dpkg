@@ -45,7 +45,7 @@ use Dpkg::Control::Tests;
 use Dpkg::Control::Fields;
 use Dpkg::Substvars;
 use Dpkg::Version;
-use Dpkg::Vars;
+use Dpkg::Package;
 use Dpkg::Changelog::Parse;
 use Dpkg::Source::Format;
 use Dpkg::Source::Package qw(get_default_diff_ignore_regex
@@ -270,26 +270,26 @@ if ($options{opmode} =~ /^(build|print-format|(before|after)-build|commit)$/) {
     my $src_fields = $control->get_source();
     error(g_("%s doesn't contain any information about the source package"),
           $controlfile) unless defined $src_fields;
-    my $src_sect = $src_fields->{'Section'} || 'unknown';
-    my $src_prio = $src_fields->{'Priority'} || 'unknown';
-    foreach (keys %{$src_fields}) {
-	my $v = $src_fields->{$_};
-	if (m/^Source$/i) {
-	    set_source_package($v);
-	    $fields->{$_} = $v;
-	} elsif (m/^Uploaders$/i) {
-	    ($fields->{$_} = $v) =~ s/\s*[\r\n]\s*/ /g; # Merge in a single-line
-	} elsif (m/^Build-(?:Depends|Conflicts)(?:-Arch|-Indep)?$/i) {
+    foreach my $f (keys %{$src_fields}) {
+        my $v = $src_fields->{$f};
+
+        if ($f eq 'Source') {
+            set_source_name($v);
+            $fields->{$f} = $v;
+        } elsif ($f eq 'Uploaders') {
+            # Merge in a single-line.
+            ($fields->{$f} = $v) =~ s/\s*[\r\n]\s*/ /g;
+        } elsif (any { $f eq $_ } field_list_src_dep()) {
 	    my $dep;
-	    my $type = field_get_dep_type($_);
+            my $type = field_get_dep_type($f);
 	    $dep = deps_parse($v, build_dep => 1, union => $type eq 'union');
-	    error(g_('cannot parse %s field'), $_) unless defined $dep;
+            error(g_('cannot parse %s field'), $f) unless defined $dep;
 	    my $facts = Dpkg::Deps::KnownFacts->new();
 	    $dep->simplify_deps($facts);
 	    $dep->sort() if $type eq 'union';
-	    $fields->{$_} = $dep->output();
+            $fields->{$f} = $dep->output();
 	} else {
-            field_transfer_single($src_fields, $fields);
+            field_transfer_single($src_fields, $fields, $f);
 	}
     }
 
@@ -297,17 +297,18 @@ if ($options{opmode} =~ /^(build|print-format|(before|after)-build|commit)$/) {
     my @pkglist;
     foreach my $pkg ($control->get_packages()) {
 	my $p = $pkg->{'Package'};
-	my $sect = $pkg->{'Section'} || $src_sect;
-	my $prio = $pkg->{'Priority'} || $src_prio;
-	my $type = $pkg->{'Package-Type'} ||
+
+        my %pkg_prop;
+        foreach my $f (qw(Section Priority)) {
+            $pkg_prop{lc $f} = $pkg->{$f} || $src_fields->{$f} ||
+                               field_get_default_value($f);
+        }
+        $pkg_prop{type} = $pkg->{'Package-Type'} ||
             $pkg->get_custom_field('Package-Type') || 'deb';
-        my $arch = $pkg->{'Architecture'};
+
+        $pkg_prop{arch} = join ',', split ' ', $pkg->{'Architecture'};
+
         my $profile = $pkg->{'Build-Profiles'};
-
-        my $pkg_summary = sprintf('%s %s %s %s', $p, $type, $sect, $prio);
-
-        $pkg_summary .= ' arch=' . join ',', split ' ', $arch;
-
         if (defined $profile) {
             # Instead of splitting twice and then joining twice, we just do
             # simple string replacements:
@@ -318,20 +319,29 @@ if ($options{opmode} =~ /^(build|print-format|(before|after)-build|commit)$/) {
             $profile =~ s/>\s+</+/g;
             # Join their elements with a comma (AND)
             $profile =~ s/\s+/,/g;
-            $pkg_summary .= " profile=$profile";
+
+            $pkg_prop{profile} = $profile;
         }
-        if (defined $pkg->{'Protected'} and $pkg->{'Protected'} eq 'yes') {
-            $pkg_summary .= ' protected=yes';
-        }
-        if (defined $pkg->{'Essential'} and $pkg->{'Essential'} eq 'yes') {
-            $pkg_summary .= ' essential=yes';
+        # Handle optional boolean fields.
+        foreach my $f (qw(Protected Essential)) {
+            if (defined $pkg->{$f} and $pkg->{$f} eq 'yes') {
+                $pkg_prop{lc $f} = 'yes';
+            }
         }
 
+        # Generate the package list properties.
+        my $pkg_summary = join ' ', $p, @pkg_prop{qw(type section priority)};
+        foreach my $prop (qw(arch profile protected essential)) {
+            next unless exists $pkg_prop{$prop};
+            $pkg_summary .= " $prop=$pkg_prop{$prop}";
+        }
         push @pkglist, $pkg_summary;
+
 	push @binarypackages, $p;
-	foreach (keys %{$pkg}) {
-	    my $v = $pkg->{$_};
-            if (m/^Architecture$/) {
+        foreach my $f (keys %{$pkg}) {
+            my $v = $pkg->{$f};
+
+            if ($f eq 'Architecture') {
                 # Gather all binary architectures in one set. 'any' and 'all'
                 # are special-cased as they need to be the only ones in the
                 # current stanza if present.
@@ -349,10 +359,10 @@ if ($options{opmode} =~ /^(build|print-format|(before|after)-build|commit)$/) {
                         push(@sourcearch, $a) unless $archadded{$a}++;
                     }
                 }
-            } elsif (m/^(?:Homepage|Description)$/) {
+            } elsif (any { $f eq $_ } qw(Homepage Description)) {
                 # Do not overwrite the same field from the source entry
             } else {
-                field_transfer_single($pkg, $fields);
+                field_transfer_single($pkg, $fields, $f);
             }
 	}
     }
@@ -385,23 +395,23 @@ if ($options{opmode} =~ /^(build|print-format|(before|after)-build|commit)$/) {
     set_testsuite_fields($fields, @binarypackages);
 
     # Scan fields of dpkg-parsechangelog
-    foreach (keys %{$changelog}) {
-        my $v = $changelog->{$_};
+    foreach my $f (keys %{$changelog}) {
+        my $v = $changelog->{$f};
 
-	if (m/^Source$/) {
-	    set_source_package($v);
-	    $fields->{$_} = $v;
-	} elsif (m/^Version$/) {
+        if ($f eq 'Source') {
+            set_source_name($v);
+            $fields->{$f} = $v;
+        } elsif ($f eq 'Version') {
 	    my ($ok, $error) = version_check($v);
             error($error) unless $ok;
-	    $fields->{$_} = $v;
-	} elsif (m/^Binary-Only$/) {
+            $fields->{$f} = $v;
+        } elsif ($f eq 'Binary-Only') {
 	    error(g_('building source for a binary-only release'))
 	        if $v eq 'yes' and $options{opmode} eq 'build';
-	} elsif (m/^Maintainer$/i) {
+        } elsif ($f eq 'Maintainer') {
             # Do not replace the field coming from the source entry
 	} else {
-            field_transfer_single($changelog, $fields);
+            field_transfer_single($changelog, $fields, $f);
 	}
     }
 
@@ -437,7 +447,7 @@ if ($options{opmode} =~ /^(build|print-format|(before|after)-build|commit)$/) {
 
     # Write the .dsc
     my $dscname = $srcpkg->get_basename(1) . '.dsc';
-    info(g_('building %s in %s'), get_source_package(), $dscname);
+    info(g_('building %s in %s'), get_source_name(), $dscname);
     $srcpkg->write_dsc(filename => $dscname,
 		       remove => \%remove,
 		       override => \%override,
@@ -466,8 +476,7 @@ if ($options{opmode} =~ /^(build|print-format|(before|after)-build|commit)$/) {
     $srcpkg->parse_cmdline_options(@cmdline_options);
 
     # Decide where to unpack
-    my $newdirectory = $srcpkg->get_basename();
-    $newdirectory =~ s/_/-/g;
+    my $newdirectory = $srcpkg->get_basedirname();
     if (@ARGV) {
 	$newdirectory = File::Spec->catdir(shift(@ARGV));
 	if (-e $newdirectory) {
@@ -479,12 +488,10 @@ if ($options{opmode} =~ /^(build|print-format|(before|after)-build|commit)$/) {
     unless ($options{no_check}) {
         if ($srcpkg->is_signed()) {
             $srcpkg->check_signature();
+        } elsif ($options{require_valid_signature}) {
+            error(g_("%s doesn't contain a valid OpenPGP signature"), $dsc);
         } else {
-            if ($options{require_valid_signature}) {
-                error(g_("%s doesn't contain a valid OpenPGP signature"), $dsc);
-            } else {
-                warning(g_('extracting unsigned source package (%s)'), $dsc);
-            }
+            warning(g_('extracting unsigned source package (%s)'), $dsc);
         }
         $srcpkg->check_checksums();
     }
@@ -512,7 +519,7 @@ sub set_testsuite_fields
 
         set_testsuite_triggers_field($tests, $fields, @binarypackages);
     } elsif ($testsuite{autopkgtest}) {
-        warning(g_('%s field contains value %s, but no tests control file %s'),
+        warning(g_("%s field contains value '%s', but no tests control file %s"),
                 'Testsuite', 'autopkgtest', 'debian/tests/control');
         delete $testsuite{autopkgtest};
     }

@@ -37,16 +37,19 @@ host architecture for package building.
 
 The build architecture is always determined by either the B<DEB_BUILD_ARCH>
 variable if set (and B<--force> not being specified) or by an external call to
-B<dpkg>(1), and cannot be set at the command line.
+L<dpkg(1)>, and cannot be set at the command line.
 
 You can specify the host architecture by providing one or both of the options
 B<--host-arch> and B<--host-type>, otherwise the B<DEB_HOST_ARCH> variable
-is used if set (and B<--force> not being specified). The default is
-determined by an external call to B<gcc>(1),
+is used if set (and B<--force> not being specified).
+The default is
+determined by an external call to L<gcc(1)>,
 or the same as the build architecture if B<CC> or gcc are both not
-available. One out of B<--host-arch> and B<--host-type> is
+available.
+One out of B<--host-arch> and B<--host-type> is
 sufficient, the value of the
-other will be set to a usable default. Indeed, it is often better to only
+other will be set to a usable default.
+Indeed, it is often better to only
 specify one, because B<dpkg-architecture> will warn you if your choice
 does not match the default.
 
@@ -57,7 +60,8 @@ does not match the default.
 =item B<-l>, B<--list>
 
 Print the environment variables, one each line, in the format
-I<VARIABLE=value>. This is the default action.
+I<VARIABLE=value>.
+This is the default action.
 
 =item B<-e>, B<--equal> I<architecture>
 
@@ -81,7 +85,8 @@ Print the value of a single variable.
 
 =item B<-s>, B<--print-set>
 
-Print an export command. This can be used to set the environment variables
+Print an export command.
+This can be used to set the environment variables
 using the POSIX shell or make B<eval>, depending on the output format.
 
 =item B<-u>, B<--print-unset>
@@ -92,6 +97,9 @@ Print a similar command to B<--print-set> but to unset all variables.
 
 Execute a I<command-string> in an environment which has all variables
 set to the determined value.
+
+If the I<command-string> contains shell metacharacters, then it will be
+invoked through the system bourne shell.
 
 =item B<-L>, B<--list-known>
 
@@ -138,12 +146,14 @@ the specified architecture wildcard (since dpkg 1.17.14).
 =item B<-B>, B<--match-bits> I<architecture-bits>
 
 Restrict the architectures listed by B<--list-known> to ones with the
-specified CPU bits (since dpkg 1.17.14). Either B<32> or B<64>.
+specified CPU bits (since dpkg 1.17.14).
+Either B<32> or B<64>.
 
 =item B<-E>, B<--match-endian> I<architecture-endianness>
 
 Restrict the architectures listed by B<--list-known> to ones with the
-specified endianness (since dpkg 1.17.14). Either B<little> or B<big>.
+specified endianness (since dpkg 1.17.14).
+Either B<little> or B<big>.
 
 =item B<--print-format> I<format>
 
@@ -154,9 +164,10 @@ Sets the output format for B<--print-set> and B<--print-unset>
 
 Values set by existing environment variables with the same name as used by
 the scripts are honored (i.e. used by B<dpkg-architecture>), except if
-this force flag is present. This allows the user
+this force flag is present.
+This allows the user
 to override a value even when the call to B<dpkg-architecture> is buried
-in some other script (for example B<dpkg-buildpackage>(1)).
+in some other script (for example L<dpkg-buildpackage(1)>).
 
 =back
 
@@ -177,12 +188,15 @@ The machine the package is built for.
 The machine the compiler is building for, or the emulator will run code for.
 This is only needed when building a cross-toolchain (or emulator), one that
 will be built on the build architecture, to be run on the host architecture,
-and to build (or run emulated) code for the target architecture.
+and that itself will build (or run emulated) code for the target architecture.
 
 =item Debian architecture
 
-The Debian architecture string, which specifies the binary tree in the
-FTP archive. Examples: i386, sparc, hurd-i386.
+The Debian architecture string,
+used in binary packages,
+which specifies the binary tree in a package repository.
+
+Examples: i386, sparc, hurd-i386.
 
 =item Debian architecture tuple
 
@@ -191,6 +205,7 @@ components spelled out.
 This differs with Debian architectures in that at least the I<cpu>
 component does not embed the I<abi>.
 The current tuple has the form I<abi>-I<libc>-I<os>-I<cpu>.
+
 Examples: base-gnu-linux-amd64, eabihf-musl-linux-arm.
 
 =item Debian architecture wildcard
@@ -218,7 +233,14 @@ musl-any-any.
 =item GNU system type
 
 An architecture specification string consisting of two parts separated by
-a hyphen: cpu and system.
+a hyphen: CPU and system.
+
+The CPU part never contains a hyphen,
+while the system part might itself contain a hyphen to separate a kernel
+from its general ABI,
+where the general ABI might contain both runtime (such as libc) and
+executable ABI specifiers joined without a hyphen.
+
 Examples: i586-linux-gnu, sparc-linux-gnu, i686-gnu, x86_64-netbsd.
 
 =item multiarch triplet
@@ -228,6 +250,7 @@ This triplet does not change even when the baseline ISA gets bumped,
 so that the resulting paths are stable over time.
 The only current difference with the GNU system type is that the CPU part
 for i386 based systems is always i386.
+
 Examples: i386-linux-gnu, x86_64-linux-gnu.
 Example paths: /lib/powerpc64le-linux-gnu/, /usr/lib/i386-kfreebsd-gnu/.
 
@@ -244,6 +267,10 @@ section for a description of the naming scheme):
 =item B<DEB_BUILD_ARCH>
 
 The Debian architecture of the build machine.
+
+B<Note>: If you are not building tools that need to run during the build,
+these are probably not the variables you are looking for.
+Please see L</TERMS> section for the meanings of these terms.
 
 =item B<DEB_BUILD_ARCH_ABI>
 
@@ -335,6 +362,10 @@ paths (since dpkg 1.16.0).
 
 The Debian architecture of the target machine (since dpkg 1.17.14).
 
+B<Note>: If you are not building cross-toolchains (or emulators),
+these are probably not the variables you are looking for.
+Please see L</TERMS> section for the meanings of these terms.
+
 =item B<DEB_TARGET_ARCH_ABI>
 
 The Debian ABI name of the target machine (since dpkg 1.18.11).
@@ -383,7 +414,8 @@ paths (since dpkg 1.17.14).
 =head2 Architecture tables
 
 All these files have to be present for B<dpkg-architecture> to
-work. Their location can be overridden at runtime with the environment
+work.
+Their location can be overridden at runtime with the environment
 variable B<DPKG_DATADIR>.
 These tables contain a format B<Version> pseudo-field on their first
 line to mark their format, so that parsers can check if they understand
@@ -428,7 +460,8 @@ B<dpkg-architecture> outputs (since dpkg 1.16.1).
 =head1 EXAMPLES
 
 B<dpkg-buildpackage> accepts the B<-a> option and passes it to
-B<dpkg-architecture>. Other examples:
+B<dpkg-architecture>.
+Other examples:
 
 =over
 
@@ -443,9 +476,9 @@ architecture:
 
 =over
 
- dpkg-architecture -elinux-alpha
+ dpkg-architecture -elinux-arm64
 
- dpkg-architecture -amips -elinux-mips
+ dpkg-architecture -ariscv64 -elinux-riscv64
 
 =back
 
@@ -455,17 +488,20 @@ Check if the current or specified host architecture is a Linux system:
 
  dpkg-architecture -ilinux-any
 
- dpkg-architecture -ai386 -ilinux-any
+ dpkg-architecture -aamd64 -ilinux-any
 
 =back
 
 =head2 Usage in debian/rules
 
 The environment variables set by B<dpkg-architecture> are passed to
-I<debian/rules> as make variables (see make documentation). However,
+I<debian/rules> as make variables (see make documentation).
+However,
 you should not rely on them, as this breaks manual invocation of the
-script. Instead, you should always initialize them using
-B<dpkg-architecture> with the B<-q> option. Here are some examples,
+script.
+Instead, you should always initialize them using
+B<dpkg-architecture> with the B<-q> option.
+Here are some examples,
 which also show how you can improve the cross compilation support in your
 package:
 
@@ -493,7 +529,7 @@ Doing something only for a specific architecture:
 
  DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 
- ifeq ($(DEB_HOST_ARCH),alpha)
+ ifeq ($(DEB_HOST_ARCH),arm64)
    [...]
  endif
 
@@ -509,7 +545,7 @@ set all the variables that B<dpkg-architecture> can provide:
 
  include %PKGDATADIR%/architecture.mk
 
- ifeq ($(DEB_HOST_ARCH),alpha)
+ ifeq ($(DEB_HOST_ARCH),arm64)
    [...]
  endif
 
@@ -548,4 +584,4 @@ All long command and option names available only since dpkg 1.17.17.
 
 =head1 SEE ALSO
 
-B<dpkg-buildpackage>(1).
+L<dpkg-buildpackage(1)>.

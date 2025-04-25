@@ -127,9 +127,7 @@ pkg_parse_field(struct parsedb_state *ps, struct field_state *fs,
       parse_error(ps,
                   _("duplicate value for '%s' field"), fip->name);
 
-    varbuf_reset(&fs->value);
-    varbuf_add_buf(&fs->value, fs->valuestart, fs->valuelen);
-    varbuf_end_str(&fs->value);
+    varbuf_set_buf(&fs->value, fs->valuestart, fs->valuelen);
 
     fip->rcall(pkg_obj->pkg, pkg_obj->pkgbin, ps, fs->value.buf, fip);
   } else {
@@ -394,13 +392,12 @@ parse_find_pkg_slot(struct parsedb_state *ps,
                     struct pkginfo *new_pkg, struct pkgbin *new_pkgbin)
 {
   struct pkgset *db_set;
-  struct pkginfo *db_pkg;
 
   db_set = parse_find_set_slot(ps, new_pkg, new_pkgbin);
 
   if (ps->type == pdb_file_available) {
     /* If there's a single package installed and the new package is not
-     * “Multi-Arch: same”, then we preserve the previous behaviour of
+     * “Multi-Arch: same”, then we preserve the previous behavior of
      * possible architecture switch, for example from native to all. */
     if (pkgset_installed_instances(db_set) == 1 &&
         new_pkgbin->multiarch != PKG_MULTIARCH_SAME)
@@ -432,6 +429,8 @@ parse_find_pkg_slot(struct parsedb_state *ps,
     /* If we are doing an update, from the log or a new package, then
      * handle cross-grades. */
     if (pkgset_installed_instances(db_set) == 1) {
+      struct pkginfo *db_pkg;
+
       db_pkg = pkg_hash_get_singleton(db_set);
 
       if (db_pkg->installed.multiarch == PKG_MULTIARCH_SAME &&
@@ -556,7 +555,7 @@ parsedb_open(const char *filename, enum parsedbflags flags)
     return parsedb_new(filename, STDIN_FILENO, flags);
 
   fd = open(filename, O_RDONLY);
-  if (fd == -1 && !(errno == ENOENT && (flags & pdb_allow_empty)))
+  if (fd < 0 && !(errno == ENOENT && (flags & pdb_allow_empty)))
     ohshite(_("failed to open package info file '%.255s' for reading"),
             filename);
 
@@ -578,7 +577,7 @@ parsedb_load(struct parsedb_state *ps)
   if (ps->fd < 0 && (ps->flags & pdb_allow_empty))
       return;
 
-  if (fstat(ps->fd, &st) == -1)
+  if (fstat(ps->fd, &st) < 0)
     ohshite(_("can't stat package info file '%.255s'"), ps->filename);
 
   if (S_ISFIFO(st.st_mode)) {
@@ -590,7 +589,6 @@ parsedb_load(struct parsedb_state *ps)
     if (size < 0)
       ohshit(_("reading package info file '%s': %s"), ps->filename, err.str);
 
-    varbuf_end_str(&buf);
 
     ps->dataptr = varbuf_detach(&buf);
     ps->endptr = ps->dataptr + size;
@@ -619,7 +617,7 @@ bool
 parse_stanza(struct parsedb_state *ps, struct field_state *fs,
              parse_field_func *parse_field, void *parse_obj)
 {
-  int c;
+  int c = '\0';
 
   /* Skip adjacent new lines. */
   while (!parse_at_eof(ps)) {
@@ -686,14 +684,10 @@ parse_stanza(struct parsedb_state *ps, struct field_state *fs,
     fs->valuestart = ps->dataptr - 1;
     for (;;) {
       if (c == '\n' || c == MSDOS_EOF_CHAR) {
-        if (blank_line) {
-          if (ps->flags & pdb_lax_stanza_parser)
-            parse_warn(ps, _("blank line in value of field '%.*s'"),
-                       fs->fieldlen, fs->fieldstart);
-          else
-            parse_error(ps, _("blank line in value of field '%.*s'"),
-                        fs->fieldlen, fs->fieldstart);
-        }
+        if (blank_line)
+          parse_lax_problem(ps, pdb_lax_stanza_parser,
+                            _("blank line in value of field '%.*s'"),
+                            fs->fieldlen, fs->fieldstart);
         ps->lno++;
 
         if (parse_at_eof(ps))
@@ -897,11 +891,10 @@ void copy_dependency_links(struct pkginfo *pkg,
     for (dop= dyp->list; dop; dop= dop->next) {
       if (dop->rev_prev)
         dop->rev_prev->rev_next = dop->rev_next;
+      else if (available)
+        dop->ed->depended.available = dop->rev_next;
       else
-        if (available)
-          dop->ed->depended.available = dop->rev_next;
-        else
-          dop->ed->depended.installed = dop->rev_next;
+        dop->ed->depended.installed = dop->rev_next;
       if (dop->rev_next)
         dop->rev_next->rev_prev = dop->rev_prev;
     }

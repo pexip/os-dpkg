@@ -39,7 +39,7 @@ l10n			New or updated translations and bugs affecting
 			  translation. Include the language code in the tag,
 			  e.g. [INTL:cy_GB].
 doc			Documentation bugs, including --help, program output
-			  and manpages.
+			  and manual pages.
 
 Program tags
 ============
@@ -49,14 +49,15 @@ usertag			description
 
 dpkg
 dpkg-architecture
+dpkg-buildapi
 dpkg-buildflags
 dpkg-buildpackage
+dpkg-buildtree
 dpkg-checkbuilddeps
 dpkg-db-backup
 dpkg-deb
 dpkg-distaddfile
 dpkg-divert
-dpkg-fsys-usrunmess
 dpkg-genbuildinfo
 dpkg-genchanges
 dpkg-gencontrol
@@ -110,13 +111,14 @@ usercategory dpkg-program [hidden]
   + dpkg-realpath [tag=dpkg-realpath]
   + dpkg-maintscript-helper [tag=dpkg-maintscript-helper]
   + dpkg-db-backup [tag=dpkg-db-backup]
-  + dpkg-fsys-usrunmess [tag=dpkg-fsys-usrunmess]
   + update-alternatives [tag=u-a]
   + start-stop-daemon [tag=s-s-d]
   + libdpkg [package=libdpkg-dev]
   + dpkg-architecture [tag=dpkg-architecture]
+  + dpkg-buildapi [tag=dpkg-buildapi]
   + dpkg-buildflags [tag=dpkg-buildflags]
   + dpkg-buildpackage [tag=dpkg-buildpackage]
+  + dpkg-buildtree [tag=dpkg-buildtree]
   + dpkg-checkbuilddeps [tag=dpkg-checkbuilddeps]
   + dpkg-distaddfile [tag=dpkg-distaddfile]
   + dpkg-genbuildinfo [tag=dpkg-genbuildinfo]

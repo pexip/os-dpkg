@@ -77,12 +77,20 @@ struct arbitraryfield {
   const char *value;
 };
 
+enum DPKG_ATTR_ENUM_FLAGS conffile_flags {
+  /** No flags. */
+  CONFFILE_NONE			= 0,
+  /** The conffile is not shipped anymore in the new package. */
+  CONFFILE_OBSOLETE		= DPKG_BIT(0),
+  /** The conffile is marked to be removed during package upgrade. */
+  CONFFILE_REMOVE_ON_UPGRADE	= DPKG_BIT(1),
+};
+
 struct conffile {
   struct conffile *next;
   const char *name;
   const char *hash;
-  bool obsolete;
-  bool remove_on_upgrade;
+  enum conffile_flags flags;
 };
 
 struct archivedetails {
@@ -263,7 +271,9 @@ char *dpkg_db_get_path(const char *pathpart);
 
 /*** from dbmodify.c ***/
 
-enum modstatdb_rw {
+enum DPKG_ATTR_ENUM_FLAGS modstatdb_rw {
+  msdbrw_unset			= -1,
+
   /* Those marked with «return» are possible returns from modstatdb_open(). */
   msdbrw_readonly,			/* «return» */
   msdbrw_needsuperuserlockonly,		/* «return» */
@@ -274,7 +284,7 @@ enum modstatdb_rw {
   /* Now some optional flags (starting at bit 8): */
   msdbrw_available_readonly	= DPKG_BIT(8),
   msdbrw_available_write	= DPKG_BIT(9),
-  msdbrw_available_mask		= 0xff00,
+  msdbrw_available_mask		= 0x0300,
 };
 
 void modstatdb_init(void);
@@ -330,7 +340,7 @@ pkg_hash_report(FILE *);
 
 /*** from parse.c ***/
 
-enum parsedbflags {
+enum DPKG_ATTR_ENUM_FLAGS parsedbflags {
   /** Parse a single control stanza. */
   pdb_single_stanza		= DPKG_BIT(0),
   /** Store in ‘available’ in-core structures, not ‘status’. */
@@ -459,7 +469,9 @@ void
 write_stanza(FILE *, const char *,
              const struct pkginfo *, const struct pkgbin *);
 
-enum writedb_flags {
+enum DPKG_ATTR_ENUM_FLAGS writedb_flags {
+  /** No flags. */
+  wdb_none			= 0,
   /** Dump ‘available’ in-core structures, not ‘status’. */
   wdb_dump_available		= DPKG_BIT(0),
   /** Must sync the written file. */

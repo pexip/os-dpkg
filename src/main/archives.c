@@ -89,6 +89,8 @@ tar_pool_alloc(size_t size)
     tar_pool_init = true;
   }
 
+  /* cppcheck-suppress[nullPointerArithmetic]:
+   * False positive, imported module. */
   return obstack_alloc(&tar_pool, size);
 }
 
@@ -108,6 +110,8 @@ static void
 tar_pool_release(void)
 {
   if (tar_pool_init) {
+    /* cppcheck-suppress[nullPointerArithmetic,pointerLessThanZero]:
+     * False positive, imported module. */
     obstack_free(&tar_pool, NULL);
     tar_pool_init = false;
   }
@@ -153,7 +157,6 @@ filesavespackage(struct fsys_namenode_list *file,
                  struct pkginfo *pkgbeinginstalled)
 {
   struct fsys_node_pkgs_iter *iter;
-  struct pkgset *divpkgset;
   struct pkginfo *thirdpkg;
 
   debug(dbg_eachfiledetail, "filesavespackage file '%s' package %s",
@@ -164,6 +167,8 @@ filesavespackage(struct fsys_namenode_list *file,
    * we're installing then they're not actually the same file, so
    * we can't disappear the package - it is saved by this file. */
   if (file->namenode->divert && file->namenode->divert->useinstead) {
+    struct pkgset *divpkgset;
+
     divpkgset = file->namenode->divert->pkgset;
     if (divpkgset == pkgtobesaved->set || divpkgset == pkgbeinginstalled->set) {
       debug(dbg_eachfiledetail,"filesavespackage ... diverted -- save!");
@@ -194,10 +199,10 @@ filesavespackage(struct fsys_namenode_list *file,
         thirdpkg->set == pkgtobesaved->set)
       continue;
 
-    /* If !fileslistvalid then we've already disappeared this one, so
-     * we shouldn't try to make it take over this shared directory. */
     debug(dbg_eachfiledetail,"filesavespackage ...  is 3rd package");
 
+    /* If !files_list_valid then we have already disappeared this one,
+     * so we should not try to make it take over this shared directory. */
     if (!thirdpkg->files_list_valid) {
       debug(dbg_eachfiledetail, "process_archive ... already disappeared!");
       continue;
@@ -235,7 +240,7 @@ md5hash_prev_conffile(struct pkginfo *pkg, char *oldhash, const char *oldname,
                              &otherpkg->configversion) != 0)
       continue;
     for (conff = otherpkg->installed.conffiles; conff; conff = conff->next) {
-      if (conff->obsolete || conff->remove_on_upgrade)
+      if (conffile_is_disappearing(conff))
         continue;
       if (strcmp(conff->name, namenode->name) == 0)
         break;
@@ -268,12 +273,12 @@ int
 tarfileread(struct tar_archive *tar, char *buf, int len)
 {
   struct tarcontext *tc = (struct tarcontext *)tar->ctx;
-  int r;
+  int n;
 
-  r = fd_read(tc->backendpipe, buf, len);
-  if (r < 0)
+  n = fd_read(tc->backendpipe, buf, len);
+  if (n < 0)
     ohshite(_("error reading from dpkg-deb pipe"));
-  return r;
+  return n;
 }
 
 static void
@@ -297,11 +302,10 @@ tarobject_skip_entry(struct tarcontext *tc, struct tar_entry *ti)
    * file data and set it to oblivion. */
   if (ti->type == TAR_FILETYPE_FILE) {
     struct dpkg_error err;
-    char fnamebuf[256];
 
     if (fd_skip(tc->backendpipe, ti->size, &err) < 0)
       ohshit(_("cannot skip file '%.255s' (replaced or excluded?) from pipe: %s"),
-             path_quote_filename(fnamebuf, ti->name, 256), err.str);
+             ti->name, err.str);
     tarobject_skip_padding(tc, ti);
   }
 }
@@ -354,8 +358,6 @@ tarobject_extract(struct tarcontext *tc, struct tar_entry *te,
 
   struct dpkg_error err;
   struct fsys_namenode *linknode;
-  char fnamebuf[256];
-  char fnamenewbuf[256];
   char *newhash;
   int rc;
 
@@ -379,8 +381,7 @@ tarobject_extract(struct tarcontext *tc, struct tar_entry *te,
     newhash = nfmalloc(MD5HASHLEN + 1);
     if (fd_fd_copy_and_md5(tc->backendpipe, fd, newhash, te->size, &err) < 0)
       ohshit(_("cannot copy extracted data for '%.255s' to '%.255s': %s"),
-             path_quote_filename(fnamebuf, te->name, 256),
-             path_quote_filename(fnamenewbuf, fnamenewvb.buf, 256), err.str);
+             te->name, fnamenewvb.buf, err.str);
     namenode->newhash = newhash;
     debug(dbg_eachfiledetail, "tarobject file digest=%s", namenode->newhash);
 
@@ -424,14 +425,12 @@ tarobject_extract(struct tarcontext *tc, struct tar_entry *te,
     debug(dbg_eachfiledetail, "tarobject blockdev");
     break;
   case TAR_FILETYPE_HARDLINK:
-    varbuf_reset(&hardlinkfn);
-    varbuf_add_str(&hardlinkfn, dpkg_fsys_get_dir());
-    linknode = fsys_hash_find_node(te->linkname, 0);
+    varbuf_set_str(&hardlinkfn, dpkg_fsys_get_dir());
+    linknode = fsys_hash_find_node(te->linkname, FHFF_NONE);
     varbuf_add_str(&hardlinkfn,
                    namenodetouse(linknode, tc->pkg, &tc->pkg->available)->name);
     if (linknode->flags & (FNNF_DEFERRED_RENAME | FNNF_NEW_CONFF))
       varbuf_add_str(&hardlinkfn, DPKGNEWEXT);
-    varbuf_end_str(&hardlinkfn);
     if (link(hardlinkfn.buf, path))
       ohshite(_("error creating hard link '%.255s'"), te->name);
     namenode->newhash = linknode->newhash;
@@ -460,13 +459,12 @@ tarobject_hash(struct tarcontext *tc, struct tar_entry *te,
 {
   if (te->type == TAR_FILETYPE_FILE) {
     struct dpkg_error err;
-    char fnamebuf[256];
     char *newhash;
 
     newhash = nfmalloc(MD5HASHLEN + 1);
     if (fd_md5(tc->backendpipe, newhash, te->size, &err) < 0)
       ohshit(_("cannot compute MD5 digest for file '%.255s' in tar archive: %s"),
-             path_quote_filename(fnamebuf, te->name, 256), err.str);
+             te->name, err.str);
     tarobject_skip_padding(tc, te);
 
     namenode->newhash = newhash;
@@ -474,7 +472,7 @@ tarobject_hash(struct tarcontext *tc, struct tar_entry *te,
   } else if (te->type == TAR_FILETYPE_HARDLINK) {
     struct fsys_namenode *linknode;
 
-    linknode = fsys_hash_find_node(te->linkname, 0);
+    linknode = fsys_hash_find_node(te->linkname, FHFF_NONE);
     namenode->newhash = linknode->newhash;
     debug(dbg_eachfiledetail, "tarobject hardlink digest=%s", namenode->newhash);
   }
@@ -535,8 +533,9 @@ tarobject_matches(struct tarcontext *tc,
                   const char *fn_new, struct tar_entry *te,
                   struct fsys_namenode *namenode)
 {
-  char *linkname;
+  struct varbuf linkname = VARBUF_INIT;
   ssize_t linksize;
+  bool linkmatch;
 
   debug(dbg_eachfiledetail, "tarobject matches on-disk object?");
 
@@ -549,8 +548,7 @@ tarobject_matches(struct tarcontext *tc,
      * remain real symlinks where we can compare the target. */
     if (!S_ISLNK(stab->st_mode))
       break;
-    linkname = m_malloc(stab->st_size + 1);
-    linksize = readlink(fn_old, linkname, stab->st_size + 1);
+    linksize = file_readlink(fn_old, &linkname, stab->st_size);
     if (linksize < 0)
       ohshite(_("unable to read link '%.255s'"), fn_old);
     else if (linksize > stab->st_size)
@@ -559,13 +557,10 @@ tarobject_matches(struct tarcontext *tc,
     else if (linksize < stab->st_size)
       warning(_("symbolic link '%.250s' size has changed from %jd to %zd"),
              fn_old, (intmax_t)stab->st_size, linksize);
-    linkname[linksize] = '\0';
-    if (strcmp(linkname, te->linkname) == 0) {
-      free(linkname);
+    linkmatch = strcmp(linkname.buf, te->linkname) == 0;
+    varbuf_destroy(&linkname);
+    if (linkmatch)
       return;
-    } else {
-      free(linkname);
-    }
     break;
   case TAR_FILETYPE_CHARDEV:
     if (S_ISCHR(stab->st_mode) && stab->st_rdev == te->dev)
@@ -602,17 +597,14 @@ tarobject_matches(struct tarcontext *tc,
 void setupfnamevbs(const char *filename) {
   varbuf_rollback(&fname_state);
   varbuf_add_str(&fnamevb, filename);
-  varbuf_end_str(&fnamevb);
 
   varbuf_rollback(&fnametmp_state);
   varbuf_add_str(&fnametmpvb, filename);
   varbuf_add_str(&fnametmpvb, DPKGTEMPEXT);
-  varbuf_end_str(&fnametmpvb);
 
   varbuf_rollback(&fnamenew_state);
   varbuf_add_str(&fnamenewvb, filename);
   varbuf_add_str(&fnamenewvb, DPKGNEWEXT);
-  varbuf_end_str(&fnamenewvb);
 
   debug(dbg_eachfiledetail, "setupvnamevbs main='%s' tmp='%s' new='%s'",
         fnamevb.buf, fnametmpvb.buf, fnamenewvb.buf);
@@ -624,7 +616,6 @@ linktosameexistingdir(const struct tar_entry *ti, const char *fname,
 {
   struct stat oldstab, newstab;
   int statr;
-  const char *lastslash;
 
   statr= stat(fname, &oldstab);
   if (statr) {
@@ -637,17 +628,17 @@ linktosameexistingdir(const struct tar_entry *ti, const char *fname,
     return false;
 
   /* But is it to the same dir? */
-  varbuf_reset(symlinkfn);
   if (ti->linkname[0] == '/') {
-    varbuf_add_str(symlinkfn, dpkg_fsys_get_dir());
+    varbuf_set_str(symlinkfn, dpkg_fsys_get_dir());
   } else {
+    const char *lastslash;
+
     lastslash= strrchr(fname, '/');
     if (lastslash == NULL)
       internerr("tar entry filename '%s' does not contain '/'", fname);
-    varbuf_add_buf(symlinkfn, fname, (lastslash - fname) + 1);
+    varbuf_set_buf(symlinkfn, fname, (lastslash - fname) + 1);
   }
   varbuf_add_str(symlinkfn, ti->linkname);
-  varbuf_end_str(symlinkfn);
 
   statr= stat(symlinkfn->buf, &newstab);
   if (statr) {
@@ -677,7 +668,6 @@ tarobject(struct tar_archive *tar, struct tar_entry *ti)
   bool refcounting;
   char oldhash[MD5HASHLEN + 1];
   int statr;
-  ssize_t r;
   struct stat stab, stabtmp;
   struct file_stat nodestat;
   struct fsys_namenode_list *nifd, **oldnifd;
@@ -690,7 +680,7 @@ tarobject(struct tar_archive *tar, struct tar_entry *ti)
   if (strchr(ti->name, '\n'))
     ohshit(_("newline not allowed in archive object name '%.255s'"), ti->name);
 
-  namenode = fsys_hash_find_node(ti->name, 0);
+  namenode = fsys_hash_find_node(ti->name, FHFF_NONE);
 
   if (namenode->flags & FNNF_RM_CONFF_ON_UPGRADE)
     ohshit(_("conffile '%s' marked for removal on upgrade, shipped in package"),
@@ -765,6 +755,15 @@ tarobject(struct tar_archive *tar, struct tar_entry *ti)
      * backup/restore operation and were rudely interrupted.
      * So, we see if we have .dpkg-tmp, and if so we restore it. */
     if (rename(fnametmpvb.buf,fnamevb.buf)) {
+      /* Trying to remove a directory or a file on a read-only filesystem,
+       * even if non-existent, always returns EROFS. */
+      if (errno == EROFS) {
+        /* If the file does not exist the access() function will remap the
+         * EROFS into an ENOENT, otherwise restore EROFS to fail with that. */
+        if (access(fnametmpvb.buf, F_OK) == 0)
+          errno = EROFS;
+      }
+
       if (errno != ENOENT && errno != ENOTDIR)
         ohshite(_("unable to clean up mess surrounding '%.255s' before "
                   "installing another version"), ti->name);
@@ -888,7 +887,7 @@ tarobject(struct tar_archive *tar, struct tar_entry *ti)
         for (conff = otherpkg->installed.conffiles;
              conff;
              conff = conff->next) {
-          if (!conff->obsolete)
+          if (!(conff->flags & CONFFILE_OBSOLETE))
             continue;
           if (strcmp(conff->name, nifd->namenode->name) == 0)
             break;
@@ -919,14 +918,14 @@ tarobject(struct tar_archive *tar, struct tar_entry *ti)
         if (!statr && S_ISDIR(stab.st_mode)) {
           forcibleerr(FORCE_OVERWRITE_DIR,
                       _("trying to overwrite directory '%.250s' "
-                        "in package %.250s %.250s with nondirectory"),
+                        "in package %.250s (%.250s) with nondirectory"),
                       nifd->namenode->name, pkg_name(otherpkg, pnaw_nonambig),
                       versiondescribe(&otherpkg->installed.version,
                                       vdew_nonambig));
         } else {
           forcibleerr(FORCE_OVERWRITE,
                       _("trying to overwrite '%.250s', "
-                        "which is also in package %.250s %.250s"),
+                        "which is also in package %.250s (%.250s)"),
                       nifd->namenode->name, pkg_name(otherpkg, pnaw_nonambig),
                       versiondescribe(&otherpkg->installed.version,
                                       vdew_nonambig));
@@ -1037,24 +1036,21 @@ tarobject(struct tar_archive *tar, struct tar_entry *ti)
         ohshite(_("unable to move aside '%.255s' to install new version"),
                 ti->name);
     } else if (S_ISLNK(stab.st_mode)) {
+      ssize_t linksize;
       int rc;
 
       /* We can't make a symlink with two hardlinks, so we'll have to
        * copy it. (Pretend that making a copy of a symlink is the same
        * as linking to it.) */
-      varbuf_reset(&symlinkfn);
-      varbuf_grow(&symlinkfn, stab.st_size + 1);
-      r = readlink(fnamevb.buf, symlinkfn.buf, symlinkfn.size);
-      if (r < 0)
+      linksize = file_readlink(fnamevb.buf, &symlinkfn, stab.st_size);
+      if (linksize < 0)
         ohshite(_("unable to read link '%.255s'"), ti->name);
-      else if (r > stab.st_size)
+      else if (linksize > stab.st_size)
         ohshit(_("symbolic link '%.250s' size has changed from %jd to %zd"),
-               fnamevb.buf, (intmax_t)stab.st_size, r);
-      else if (r < stab.st_size)
+               fnamevb.buf, (intmax_t)stab.st_size, linksize);
+      else if (linksize < stab.st_size)
         warning(_("symbolic link '%.250s' size has changed from %jd to %zd"),
-               fnamevb.buf, (intmax_t)stab.st_size, r);
-      varbuf_trunc(&symlinkfn, r);
-      varbuf_end_str(&symlinkfn);
+               fnamevb.buf, (intmax_t)stab.st_size, linksize);
       if (symlink(symlinkfn.buf,fnametmpvb.buf))
         ohshite(_("unable to make backup symlink for '%.255s'"), ti->name);
       rc = lchown(fnametmpvb.buf, stab.st_uid, stab.st_gid);
@@ -1321,7 +1317,6 @@ void check_breaks(struct dependency *dep, struct pkginfo *pkg,
     return;
   }
 
-  varbuf_end_str(&why);
 
   if (fixbydeconf && f_autodeconf) {
     ensure_package_clientdata(fixbydeconf);
@@ -1335,7 +1330,7 @@ void check_breaks(struct dependency *dep, struct pkginfo *pkg,
            pkg_name(fixbydeconf, pnaw_nonambig),
            pkgbin_name(pkg, &pkg->available, pnaw_nonambig));
 
-    ok = try_deconfigure_can(fixbydeconf, dep->list, pkg, why.buf);
+    ok = try_deconfigure_can(fixbydeconf, dep->list, pkg, varbuf_str(&why));
     if (ok == 1) {
       notice(_("yes, will deconfigure %s (broken by %s)"),
              pkg_name(fixbydeconf, pnaw_nonambig),
@@ -1343,7 +1338,8 @@ void check_breaks(struct dependency *dep, struct pkginfo *pkg,
     }
   } else {
     notice(_("regarding %s containing %s:\n%s"), pfilename,
-           pkgbin_name(pkg, &pkg->available, pnaw_nonambig), why.buf);
+           pkgbin_name(pkg, &pkg->available, pnaw_nonambig),
+           varbuf_str(&why));
     ok= 0;
   }
   varbuf_destroy(&why);
@@ -1414,8 +1410,7 @@ void check_conflict(struct dependency *dep, struct pkginfo *pkg,
             continue;
           if (depisok(pdep->up, &removalwhy, NULL, NULL, false))
             continue;
-          varbuf_end_str(&removalwhy);
-          if (!try_remove_can(pdep,fixbyrm,removalwhy.buf))
+          if (!try_remove_can(pdep, fixbyrm, varbuf_str(&removalwhy)))
             break;
         }
         if (!pdep) {
@@ -1431,11 +1426,10 @@ void check_conflict(struct dependency *dep, struct pkginfo *pkg,
                 continue;
               if (depisok(pdep->up, &removalwhy, NULL, NULL, false))
                 continue;
-              varbuf_end_str(&removalwhy);
               notice(_("may have trouble removing %s, as it provides %s ..."),
                      pkg_name(fixbyrm, pnaw_nonambig),
                      providecheck->list->ed->name);
-              if (!try_remove_can(pdep,fixbyrm,removalwhy.buf))
+              if (!try_remove_can(pdep, fixbyrm, varbuf_str(&removalwhy)))
                 goto break_from_both_loops_at_once;
             }
           }
@@ -1469,9 +1463,9 @@ void check_conflict(struct dependency *dep, struct pkginfo *pkg,
       fixbyrm->clientdata->istobe = PKG_ISTOBE_NORMAL;
     }
   }
-  varbuf_end_str(&conflictwhy);
   notice(_("regarding %s containing %s:\n%s"), pfilename,
-         pkgbin_name(pkg, &pkg->available, pnaw_nonambig), conflictwhy.buf);
+         pkgbin_name(pkg, &pkg->available, pnaw_nonambig),
+         varbuf_str(&conflictwhy));
   if (!force_conflicts(dep->list))
     ohshit(_("conflicting packages - not installing %.250s"),
            pkgbin_name(pkg, &pkg->available, pnaw_nonambig));
@@ -1504,7 +1498,7 @@ archivefiles(const char *const *argv)
 
   trigproc_install_hooks();
 
-  if (f_noact)
+  if (!f_act)
     msdbflags = msdbrw_readonly;
   else if (cipaction->arg_int == act_avail)
     msdbflags = msdbrw_readonly | msdbrw_available_write;
@@ -1541,7 +1535,7 @@ archivefiles(const char *const *argv)
 
         /* Check if it looks like a .deb file. */
         nodename = treenode_get_pathname(node);
-        if (strcmp(nodename + strlen(nodename) - 4, ".deb") != 0)
+        if (strcmp(nodename + strlen(nodename) - 4, DEBEXT) != 0)
           continue;
 
         arglist = m_realloc(arglist, sizeof(char *) * (nfiles + 2));
@@ -1579,13 +1573,9 @@ archivefiles(const char *const *argv)
 
   /* Initialize fname variables contents. */
 
-  varbuf_reset(&fnamevb);
-  varbuf_reset(&fnametmpvb);
-  varbuf_reset(&fnamenewvb);
-
-  varbuf_add_str(&fnamevb, dpkg_fsys_get_dir());
-  varbuf_add_str(&fnametmpvb, dpkg_fsys_get_dir());
-  varbuf_add_str(&fnamenewvb, dpkg_fsys_get_dir());
+  varbuf_set_str(&fnamevb, dpkg_fsys_get_dir());
+  varbuf_set_str(&fnametmpvb, dpkg_fsys_get_dir());
+  varbuf_set_str(&fnamenewvb, dpkg_fsys_get_dir());
 
   varbuf_snapshot(&fnamevb, &fname_state);
   varbuf_snapshot(&fnametmpvb, &fnametmp_state);
@@ -1678,26 +1668,24 @@ wanttoinstall(struct pkginfo *pkg)
   } else if (rc == 0) {
     /* Same version fully installed. */
     if (f_skipsame && pkg->available.arch == pkg->installed.arch) {
-      notice(_("version %.250s of %.250s already installed, skipping"),
-             versiondescribe(&pkg->installed.version, vdew_nonambig),
-             pkg_name(pkg, pnaw_nonambig));
-      return false;
-    } else {
-      return true;
-    }
-  } else {
-    if (in_force(FORCE_DOWNGRADE)) {
-      warning(_("downgrading %.250s from %.250s to %.250s"),
-              pkg_name(pkg, pnaw_nonambig),
-              versiondescribe(&pkg->installed.version, vdew_nonambig),
-              versiondescribe(&pkg->available.version, vdew_nonambig));
-      return true;
-    } else {
-      notice(_("will not downgrade %.250s from %.250s to %.250s, skipping"),
+      notice(_("package %.250s (%.250s) with same version already installed, skipping"),
              pkg_name(pkg, pnaw_nonambig),
-             versiondescribe(&pkg->installed.version, vdew_nonambig),
-             versiondescribe(&pkg->available.version, vdew_nonambig));
+             versiondescribe(&pkg->installed.version, vdew_nonambig));
       return false;
+    } else {
+      return true;
     }
+  } else if (in_force(FORCE_DOWNGRADE)) {
+    warning(_("downgrading %.250s (%.250s) to (%.250s)"),
+            pkg_name(pkg, pnaw_nonambig),
+            versiondescribe(&pkg->installed.version, vdew_nonambig),
+            versiondescribe(&pkg->available.version, vdew_nonambig));
+    return true;
+  } else {
+    notice(_("will not downgrade %.250s (%.250s) to (%.250s), skipping"),
+           pkg_name(pkg, pnaw_nonambig),
+           versiondescribe(&pkg->installed.version, vdew_nonambig),
+           versiondescribe(&pkg->available.version, vdew_nonambig));
+    return false;
   }
 }

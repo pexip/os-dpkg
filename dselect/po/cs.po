@@ -1,17 +1,18 @@
-# Czech translation for dpkg.
+# Translation of dselect to Czech
+# This file is distributed under the same license as the dpkg package.
 #
 # Petr Cech <cech@debian.org>, 1999, 2000, 2001.
-# Miroslav Kure <kurem@debian.cz>, 2004-2023.
+# Miroslav Kure <kurem@debian.cz>, 2004-2024.
 #
 # Thanks go to:
 # Milan Zamazal <pdm@debian.org>
 # Vladimir Michl <Vladimir.Michl@seznam.cz>
 msgid ""
 msgstr ""
-"Project-Id-Version: dselect 1.17.0\n"
+"Project-Id-Version: dselect 1.22.11\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2023-05-11 02:03+0000\n"
-"PO-Revision-Date: 2023-01-26 13:52+0100\n"
+"POT-Creation-Date: 2025-03-09 18:59+0100\n"
+"PO-Revision-Date: 2024-11-04 12:21+0100\n"
 "Last-Translator: Miroslav Kure <kurem@debian.cz>\n"
 "Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
 "Language: cs\n"
@@ -56,8 +57,8 @@ msgid "cannot update screen after window resize"
 msgstr "nelze aktualizovat obrazovku po změně velikosti okna"
 
 #: dselect/baselist.cc
-msgid "failed to allocate colour pair"
-msgstr "nepovedlo se alokovat pár barev"
+msgid "cannot allocate color pair"
+msgstr "nelze alokovat barevný pár"
 
 #: dselect/baselist.cc
 msgid "failed to create title window"
@@ -882,15 +883,15 @@ msgid "screen part"
 msgstr "část obrazovky"
 
 #: dselect/main.cc
-msgid "null colour specification"
-msgstr "zadání prázdné barvy"
+msgid "missing color specification"
+msgstr "chybí zadání barvy"
 
 #: dselect/main.cc
-msgid "colour"
+msgid "color"
 msgstr "barva"
 
 #: dselect/main.cc
-msgid "colour attribute"
+msgid "color attribute"
 msgstr "atribut barvy"
 
 #: dselect/main.cc
@@ -1130,24 +1131,10 @@ msgid "end of file in summary - missing newline"
 msgstr "konec souboru v přehledu - chybí nový řádek"
 
 #: dselect/methparse.cc
-#, c-format
-msgid "unable to open option description file '%.250s'"
-msgstr "nelze otevřít soubor s popisy „%.250s“"
-
-#: dselect/methparse.cc
-#, c-format
-msgid "unable to stat option description file '%.250s'"
-msgstr "nelze detekovat popisný soubor voleb „%.250s“"
-
-#: dselect/methparse.cc
-#, c-format
-msgid "failed to read option description file '%.250s'"
+#, fuzzy, c-format
+#| msgid "failed to read option description file '%.250s'"
+msgid "cannot load option description file '%s'"
 msgstr "nebylo možno přečíst popisný soubor voleb „%.250s“"
-
-#: dselect/methparse.cc
-#, c-format
-msgid "error during read of option description file '%.250s'"
-msgstr "chyba při čtení popisného souboru voleb „%.250s“"
 
 #: dselect/methparse.cc
 #, c-format
@@ -1589,6 +1576,18 @@ msgstr "%s %s balíky v sekci %s"
 #, c-format
 msgid "%-*s %s%s%s;  %s (was: %s).  %s"
 msgstr "%-*s %s%s%s; %s (bylo: %s). %s"
+
+#, c-format
+#~ msgid "unable to open option description file '%.250s'"
+#~ msgstr "nelze otevřít soubor s popisy „%.250s“"
+
+#, c-format
+#~ msgid "unable to stat option description file '%.250s'"
+#~ msgstr "nelze detekovat popisný soubor voleb „%.250s“"
+
+#, c-format
+#~ msgid "error during read of option description file '%.250s'"
+#~ msgstr "chyba při čtení popisného souboru voleb „%.250s“"
 
 #~ msgid "ioctl(TIOCGWINSZ) failed"
 #~ msgstr "ioctl(TIOCGWINSZ) selhalo"

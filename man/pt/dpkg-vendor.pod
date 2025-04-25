@@ -16,13 +16,21 @@ If the PO get lost, keeping this translation up-to-date will be harder.
 
 dpkg-vendor - recolhe informação acerca dos fornecedores da distribuição
 
-=head1 SINOPSE
+=head1 RESUMO
 
 B<dpkg-vendor> [I<option>...] I<command>
 
 =head1 DESCRIÇÃO
 
 B<dpkg-vendor> é uma ferramenta para inquirir informação acerca dos fornecedores listados em B<%PKGCONFDIR%/origins>. B<%PKGCONFDIR%/origins/default> contém informação acerca do fornecedor actual.
+
+The origin files provide metadata about specific vendors, such as their URL or where to file bug reports, and are usually used both to determine the behavior of tools and resulting contents during package builds targeting a specific vendor, and to describe the provenance of packages.
+
+Packages can explicitly declare their vendor by including an B<Origin> field, otherwise the vendor for a package without such field is assumed to be the one pointed to by the F<default> origin symbolic link.
+
+The F<default> symbolic link is also used to denote the origin of the current installation managed by B<dpkg>, be that a full distribution or an overlay on top of an existing base system that contains either no packaging system or a native one.
+
+Este programa foi introduzido no dpkg 1.15.1.
 
 =head1 COMANDOS
 
@@ -78,9 +86,21 @@ Se definida, será usada para decidir se deve activar o Suporte a Linguagem Nati
 
 =back
 
+=head1 FICHEIROS
+
+=head2 Suporte a empacotamento
+
+=over 
+
+=item B<%PKGDATADIR%/vendor.mk>
+
+Makefile snippet that sets the current vendor and its parent into variables, and provides make macros to check for derivatives (since dpkg 1.16.1).
+
+=back
+
 =head1 VEJA TAMBÉM
 
-B<deb-origin>(5).
+L<deb-origin(5)>.
 
 
 =head1 TRADUÇÃO

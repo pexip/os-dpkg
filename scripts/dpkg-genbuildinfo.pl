@@ -116,7 +116,11 @@ sub parse_status {
         }
 
         if (/^Provides: (.*)$/m) {
-            my $provides = deps_parse($1, reduce_arch => 1, union => 1);
+            my $provides = deps_parse($1,
+                reduce_arch => 1,
+                virtual => 1,
+                union => 1,
+            );
 
             next if not defined $provides;
 
@@ -142,9 +146,9 @@ sub parse_status {
 }
 
 sub append_deps {
-    my $pkgs = shift;
+    my ($pkgs, @deps) = @_;
 
-    foreach my $dep_str (@_) {
+    foreach my $dep_str (@deps) {
         next unless $dep_str;
 
         my $deps = deps_parse($dep_str, reduce_restrictions => 1,
@@ -154,8 +158,10 @@ sub append_deps {
         # We add every sub-dependencies as we cannot know which package in
         # an OR dependency has been effectively used.
         deps_iterate($deps, sub {
+            my $pkg = shift;
+
             push @{$pkgs},
-                $_[0]->{package} . (defined $_[0]->{archqual} ? ':' . $_[0]->{archqual} : '');
+                $pkg->{package} . (defined $pkg->{archqual} ? ':' . $pkg->{archqual} : '');
             1
         });
     }
@@ -418,14 +424,14 @@ my $fields = Dpkg::Control->new(type => CTRL_FILE_BUILDINFO);
 my $dist = Dpkg::Dist::Files->new();
 
 # Retrieve info from the current changelog entry.
-my %options = (file => $changelogfile);
-$options{changelogformat} = $changelogformat if $changelogformat;
-my $changelog = changelog_parse(%options);
+my %changelog_opts = (file => $changelogfile);
+$changelog_opts{changelogformat} = $changelogformat if $changelogformat;
+my $changelog = changelog_parse(%changelog_opts);
 
 # Retrieve info from the former changelog entry to handle binNMUs.
-$options{count} = 1;
-$options{offset} = 1;
-my $prev_changelog = changelog_parse(%options);
+$changelog_opts{count} = 1;
+$changelog_opts{offset} = 1;
+my $prev_changelog = changelog_parse(%changelog_opts);
 
 my $sourceversion = Dpkg::Version->new($changelog->{'Binary-Only'} ?
                     $prev_changelog->{'Version'} : $changelog->{'Version'});
@@ -498,7 +504,9 @@ $fields->{'Build-Architecture'} = get_build_arch();
 $fields->{'Build-Date'} = get_build_date();
 
 if ($use_feature{kernel}) {
-    my (undef, undef, $kern_rel, $kern_ver, undef) = POSIX::uname();
+    my ($kern_rel, $kern_ver);
+
+    ((undef) x 2, $kern_rel, $kern_ver, undef) = POSIX::uname();
     $fields->{'Build-Kernel-Version'} = "$kern_rel $kern_ver";
 }
 
@@ -550,8 +558,10 @@ if ($stdout) {
 if ($stdout) {
     $fields->output(\*STDOUT);
 } else {
-    my $section = $control->get_source->{'Section'} || '-';
-    my $priority = $control->get_source->{'Priority'} || '-';
+    my %fileprop;
+    foreach my $f (qw(Section Priority)) {
+        $fileprop{lc $f} = $control->get_source->{$f} || field_get_default_value($f);
+    }
 
     # Obtain a lock on debian/control to avoid simultaneous updates
     # of debian/files when parallel building is in use
@@ -577,7 +587,7 @@ if ($stdout) {
         }
     }
 
-    $dist->add_file($buildinfo, $section, $priority);
+    $dist->add_file($buildinfo, @fileprop{qw(section priority)});
     $dist->save("$fileslistfile.new");
 
     rename "$fileslistfile.new", $fileslistfile
@@ -591,5 +601,3 @@ if ($stdout) {
     rename "$outputfile.new", $outputfile
         or syserr(g_("cannot install output buildinfo file '%s'"), $outputfile);
 }
-
-1;

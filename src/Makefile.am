@@ -27,6 +27,7 @@ bin_PROGRAMS = \
 	dpkg-deb \
 	dpkg-divert \
 	dpkg-query \
+	dpkg-realpath \
 	dpkg-split \
 	dpkg-statoverride \
 	dpkg-trigger \
@@ -34,17 +35,17 @@ bin_PROGRAMS = \
 
 bin_SCRIPTS = \
 	dpkg-maintscript-helper \
-	dpkg-realpath \
 	# EOL
 
 pkglibexec_SCRIPTS = \
 	dpkg-db-backup \
+	dpkg-db-keeper \
 	# EOL
 
 EXTRA_DIST += \
 	dpkg-db-backup.sh \
+	dpkg-db-keeper.sh \
 	dpkg-maintscript-helper.sh \
-	dpkg-realpath.sh \
 	# EOL
 
 CLEANFILES += \
@@ -96,14 +97,6 @@ dpkg_deb_SOURCES = \
 	deb/main.c \
 	# EOL
 
-dpkg_deb_LDADD = \
-	$(LDADD) \
-	$(Z_LIBS) \
-	$(LZMA_LIBS) \
-	$(ZSTD_LIBS) \
-	$(BZ2_LIBS) \
-	# EOL
-
 dpkg_divert_SOURCES = \
 	divert/main.c \
 	# EOL
@@ -111,6 +104,10 @@ dpkg_divert_SOURCES = \
 dpkg_query_SOURCES = \
 	common/actions.h \
 	query/main.c \
+	# EOL
+
+dpkg_realpath_SOURCES = \
+	realpath/main.c \
 	# EOL
 
 dpkg_split_SOURCES = \
@@ -140,6 +137,9 @@ dpkg_trigger_SOURCES = \
 	trigger/main.c \
 	# EOL
 
+dist_bashcompletions_DATA = \
+	# EOL
+
 SUFFIXES =
 
 include $(top_srcdir)/build-aux/subst.am
@@ -162,6 +162,7 @@ TESTSUITE_AT += $(srcdir)/at/deb-split.at
 TESTSUITE_AT += $(srcdir)/at/realpath.at
 TESTSUITE_AT += $(srcdir)/at/divert.at
 TESTSUITE_AT += $(srcdir)/at/chdir.at
+TESTSUITE_AT += $(srcdir)/at/dpkg-arch.at
 EXTRA_DIST += $(TESTSUITE_AT)
 
 TESTSUITE = $(srcdir)/at/testsuite

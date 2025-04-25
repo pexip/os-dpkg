@@ -13,12 +13,26 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package Test::Dpkg;
+=encoding utf8
+
+=head1 NAME
+
+Test::Dpkg - helpers for test scripts for the dpkg suite
+
+=head1 DESCRIPTION
+
+This module provides helper functions to ease implementing test scripts
+for the dpkg suite of tools.
+
+B<Note>: This is a private module, its API can change at any time.
+
+=cut
+
+package Test::Dpkg 0.00;
 
 use strict;
 use warnings;
 
-our $VERSION = '0.00';
 our @EXPORT_OK = qw(
     all_po_files
     all_perl_files
@@ -183,20 +197,91 @@ sub test_needs_command
     }
 }
 
+my @openpgp_backends = (
+    {
+        backend => 'gpg',
+        cmd => 'gpg-sq',
+        cmdv => 'gpgv-sq',
+    },
+    {
+        backend => 'gpg',
+        cmd => 'gpg',
+        cmdv => 'gpgv',
+    },
+    {
+        backend => 'sq',
+        cmd => 'sq',
+        cmdv => 'none',
+    },
+    {
+        backend => 'sop',
+        cmd => 'sop',
+        cmdv => 'sopv',
+    },
+    {
+        backend => 'sop',
+        cmd => 'sqop',
+        cmdv => 'sqopv',
+    },
+    {
+        backend => 'sop',
+        cmd => 'rsop',
+        cmdv => 'rsopv',
+    },
+    {
+        backend => 'sop',
+        cmd => 'gosop',
+    },
+    {
+        backend => 'sop',
+        cmd => 'pgpainless-cli',
+    },
+);
+
 sub test_needs_openpgp_backend
 {
-    my @backends = qw(
-        gpg
-        sq
-        sqop
-        pgpainless-cli
-    );
-    my @cmds = grep { can_run($_) } @backends;
-    if (@cmds == 0) {
-        plan skip_all => "requires >= 1 openpgp command: @backends";
+    my @have_backends;
+    foreach my $backend (@openpgp_backends) {
+        my $name = $backend->{backend};
+        my $cmd = $backend->{cmd};
+        my $cmdv = $backend->{cmdv};
+
+        my $have_cmd = $cmd eq 'none' ? 0 : can_run($cmd);
+        my $have_cmdv = $cmdv // q() eq 'none' ? 0 : can_run($cmdv);
+
+        next unless ($have_cmd || $have_cmdv);
+
+        my $have_backend = {
+            backend => $name,
+        };
+        $have_backend->{cmd} = $cmd if $have_cmd;
+        $have_backend->{cmdv} = $cmdv if $have_cmdv;
+
+        push @have_backends, $have_backend;
+
+        if ($have_cmd && $have_cmdv) {
+            push @have_backends, {
+                backend => $name,
+                cmd => $cmd,
+                cmdv => 'none',
+            };
+            push @have_backends, {
+                backend => $name,
+                cmd => 'none',
+                cmdv => $cmdv,
+            };
+        }
+    }
+    if (@have_backends == 0) {
+        my @cmds = grep {
+            $_ ne 'none'
+        } map {
+            ( $_->{cmd}, $_->{cmdv} )
+        } @openpgp_backends;
+        plan skip_all => "requires >= 1 openpgp command: @cmds";
     }
 
-    return @cmds;
+    return @have_backends;
 }
 
 sub test_needs_srcdir_switch
@@ -223,5 +308,13 @@ sub test_neutralize_checksums
 
     rename $filenamenew, $filename or die "cannot rename $filenamenew to $filename";
 }
+
+=head1 CHANGES
+
+=head2 Version 0.xx
+
+This is a private module.
+
+=cut
 
 1;

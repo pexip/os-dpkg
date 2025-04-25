@@ -11,39 +11,15 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib \
 	# EOL
 
-CLEANFILES = \
-	org.dpkg.pkexec.update-alternatives.policy \
-	# EOL
-
-EXTRA_DIST = \
-	README.alternatives \
-	update-alternatives.polkit.in \
-	$(test_scripts) \
-	# EOL
-
-pkexecdir = $(datadir)/polkit-1/actions
-pkexec_DATA =
-
+sbin_PROGRAMS =
 bin_PROGRAMS =
+dist_bashcompletions_DATA =
+polkitactions_DATA =
+EXTRA_DIST =
+CLEANFILES =
 
 if BUILD_UPDATE_ALTERNATIVES
-pkexec_DATA += org.dpkg.pkexec.update-alternatives.policy
 bin_PROGRAMS += update-alternatives
-endif
-
-do_polkit_subst = $(SED) \
-	-e 's,[@]bindir[@],$(bindir),g' \
-	# EOL
-
-org.dpkg.pkexec.update-alternatives.policy: update-alternatives.polkit.in Makefile
-	@test -d `dirname $@` || $(MKDIR_P) `dirname $@`
-	$(AM_V_GEN) GETTEXTDATADIR="$(top_srcdir)/po" \
-	  $(MSGFMT) --xml --template $< -d $(top_srcdir)/po -o - \
-	  | $(do_polkit_subst) >$@
-
-update_alternatives_SOURCES = \
-	update-alternatives.c \
-	# EOL
 
 update_alternatives_CPPFLAGS = \
 	-DALT_TMP_EXT=\".dpkg-tmp\" \
@@ -52,12 +28,40 @@ update_alternatives_CPPFLAGS = \
 	$(AM_CPPFLAGS) \
 	# EOL
 
+update_alternatives_SOURCES = \
+	update-alternatives.c \
+	# EOL
+
 update_alternatives_LDADD = \
 	../lib/compat/libcompat.la \
 	$(LIBINTL) \
 	# EOL
 
-sbin_PROGRAMS =
+dist_bashcompletions_DATA +=
+
+polkitactions_DATA += org.dpkg.pkexec.update-alternatives.policy
+endif
+
+subst_polkit_rules = "\
+	s{[@]bindir[@]}{$(bindir)}g; \
+	"
+
+subst_polkit_filter = $(PERL) -p -e $(subst_polkit_rules)
+
+org.dpkg.pkexec.update-alternatives.policy: update-alternatives.polkit.in Makefile
+	@test -d `dirname $@` || $(MKDIR_P) `dirname $@`
+	$(AM_V_GEN) GETTEXTDATADIR="$(top_srcdir)/po" \
+	  $(MSGFMT) --xml --template $< -d $(top_srcdir)/po -o - \
+	  | $(subst_polkit_filter) >$@
+
+EXTRA_DIST += \
+	README.alternatives \
+	update-alternatives.polkit.in \
+	# EOL
+
+CLEANFILES += \
+	org.dpkg.pkexec.update-alternatives.policy \
+	# EOL
 
 if BUILD_START_STOP_DAEMON
 sbin_PROGRAMS += start-stop-daemon
@@ -72,6 +76,8 @@ start_stop_daemon_LDADD = \
 	$(PS_LIBS) \
 	$(KVM_LIBS) \
 	# EOL
+
+dist_bashcompletions_DATA +=
 endif
 
 install-data-local:
@@ -94,6 +100,10 @@ TEST_ENV_VARS = \
 test_tmpdir = t.tmp
 test_scripts = \
 	t/update_alternatives.t \
+	# EOL
+
+EXTRA_DIST += \
+	$(test_scripts) \
 	# EOL
 
 include $(top_srcdir)/build-aux/tap.am

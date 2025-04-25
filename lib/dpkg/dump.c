@@ -390,9 +390,9 @@ w_conffiles(struct varbuf *vb,
     varbuf_add_str(vb, i->name);
     varbuf_add_char(vb, ' ');
     varbuf_add_str(vb, i->hash);
-    if (i->obsolete)
+    if (i->flags & CONFFILE_OBSOLETE)
       varbuf_add_str(vb, " obsolete");
-    if (i->remove_on_upgrade)
+    if (i->flags & CONFFILE_REMOVE_ON_UPGRADE)
       varbuf_add_str(vb, " remove-on-upgrade");
   }
   if (flags&fw_printheader)
@@ -484,9 +484,8 @@ write_stanza(FILE *file, const char *filename,
   struct varbuf vb = VARBUF_INIT;
 
   varbuf_stanza(&vb, pkg, pkgbin);
-  varbuf_end_str(&vb);
 
-  if (fputs(vb.buf, file) < 0)
+  if (fputs(varbuf_str(&vb), file) < 0)
     ohshite(_("failed to write details of '%.50s' to '%.250s'"),
             pkgbin_name_const(pkg, pkgbin, pnaw_nonambig), filename);
 
@@ -499,8 +498,6 @@ writedb_stanzas(FILE *fp, const char *filename, enum writedb_flags flags)
   static char writebuf[8192];
 
   struct pkg_array array;
-  struct pkginfo *pkg;
-  struct pkgbin *pkgbin;
   const char *which;
   struct varbuf vb = VARBUF_INIT;
   int i;
@@ -514,6 +511,9 @@ writedb_stanzas(FILE *fp, const char *filename, enum writedb_flags flags)
   pkg_array_sort(&array, pkg_sorter_by_nonambig_name_arch);
 
   for (i = 0; i < array.n_pkgs; i++) {
+    struct pkginfo *pkg;
+    struct pkgbin *pkgbin;
+
     pkg = array.pkgs[i];
     pkgbin = (flags & wdb_dump_available) ? &pkg->available : &pkg->installed;
 
@@ -523,8 +523,7 @@ writedb_stanzas(FILE *fp, const char *filename, enum writedb_flags flags)
 
     varbuf_stanza(&vb, pkg, pkgbin);
     varbuf_add_char(&vb, '\n');
-    varbuf_end_str(&vb);
-    if (fputs(vb.buf, fp) < 0)
+    if (fputs(varbuf_str(&vb), fp) < 0)
       ohshite(_("failed to write %s database stanza about '%s' to '%s'"),
               which, pkgbin_name(pkg, pkgbin, pnaw_nonambig), filename);
     varbuf_reset(&vb);

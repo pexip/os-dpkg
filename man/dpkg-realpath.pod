@@ -39,6 +39,8 @@ scripts instead of using L<realpath(1)> or L<readlink(1)> to canonicalize
 pathnames, as these latter commands do not support canonicalization
 relative to a different root than F</>.
 
+This program was introduced in dpkg 1.20.1.
+
 =head1 OPTIONS
 
 =over
@@ -79,6 +81,12 @@ specified, it will be used as the filesystem root directory.
 
 Sets the color mode.
 The currently accepted values are: B<auto> (default), B<always> and B<never>.
+
+=item B<DPKG_NLS>
+
+If set, it will be used to decide whether to activate Native Language Support,
+also known as internationalization (or i18n) support (since dpkg 1.22.7).
+The accepted values are: B<0> and B<1> (default).
 
 =back
 

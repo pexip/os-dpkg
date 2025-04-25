@@ -4,7 +4,7 @@
 #
 # Copyright © 1996 Ian Jackson
 # Copyright © 2000 Wichert Akkerman
-# Copyright © 2006-2010, 2012-2015 Guillem Jover <guillem@debian.org>
+# Copyright © 2006-2024 Guillem Jover <guillem@debian.org>
 # Copyright © 2007 Frank Lichtenheld
 #
 # This program is free software; you can redistribute it and/or modify
@@ -23,8 +23,7 @@
 use strict;
 use warnings;
 
-use File::Temp qw(tempdir);
-use File::Basename;
+use File::Path qw(remove_tree);
 use File::Copy;
 use File::Glob qw(bsd_glob GLOB_TILDE GLOB_NOCHECK);
 use POSIX qw(:sys_wait_h);
@@ -35,6 +34,7 @@ use Dpkg::ErrorHandling;
 use Dpkg::BuildTypes;
 use Dpkg::BuildOptions;
 use Dpkg::BuildProfiles qw(set_build_profiles);
+use Dpkg::BuildDriver;
 use Dpkg::Conf;
 use Dpkg::Compression;
 use Dpkg::Checksums;
@@ -63,7 +63,7 @@ later for copying conditions. There is NO warranty.
 
 sub usage {
     printf g_(
-'Usage: %s [<option>...]')
+'Usage: %s [<option>...] [--] [<filename.dsc>|<directory>]')
     . "\n\n" . g_(
 'Options:
       --build=<type>[,...]    specify the build <type>: full, source, binary,
@@ -103,8 +103,8 @@ sub usage {
                               command to check the .changes file (no default).
       --check-option=<opt>    pass <opt> to check <command>.
       --hook-<name>=<command> set <command> as the hook <name>, known hooks:
-                                init preclean source build binary buildinfo
-                                changes postclean check sign done
+                                preinit init preclean source build binary
+                                buildinfo changes postclean check sign done
       --buildinfo-file=<file> set the .buildinfo filename to generate.
       --buildinfo-option=<opt>
                               pass option <opt> to dpkg-genbuildinfo.
@@ -172,7 +172,10 @@ my $parallel;
 my $parallel_force = 0;
 my $checkbuilddep = 1;
 my $check_builtin_builddep = 1;
+my $source;
+my $source_from_dsc = 0;
 my @source_opts;
+my $srcdir;
 my $check_command = $ENV{DEB_CHECK_COMMAND};
 my @check_opts;
 my $signpause;
@@ -201,14 +204,19 @@ my $buildinfo_file;
 my @buildinfo_opts;
 my $changes_file;
 my @changes_opts;
-my %target_legacy_root = map { $_ => 1 } qw(
-    clean binary binary-arch binary-indep
-);
-my %target_official =  map { $_ => 1 } qw(
-    clean build build-arch build-indep binary binary-arch binary-indep
-);
 my @hook_names = qw(
-    init preclean source build binary buildinfo changes postclean check sign done
+    preinit
+    init
+    preclean
+    source
+    build
+    binary
+    buildinfo
+    changes
+    postclean
+    check
+    sign
+    done
 );
 my %hook;
 $hook{$_} = undef foreach @hook_names;
@@ -402,8 +410,14 @@ while (@ARGV) {
     } elsif (/^-R(.*)$/ or /^--rules-file=(.*)$/) {
 	my $arg = $1;
 	@debian_rules = split ' ', $arg;
-    } else {
+    } elsif ($_ eq '--') {
+        $source = shift @ARGV;
+        last;
+    } elsif (/^-/) {
 	usageerr(g_('unknown option or argument %s'), $_);
+    } else {
+        $source = $_;
+        last;
     }
 }
 
@@ -448,6 +462,12 @@ if (not defined $parallel and not $build_opts->has('parallel')) {
     $parallel = 'auto';
 }
 
+#
+# Prepare the environment.
+#
+
+run_hook('preinit');
+
 if (defined $parallel) {
     if ($parallel eq 'auto') {
         # Most Unices.
@@ -474,12 +494,53 @@ if ($build_opts->has('terse')) {
 
 set_build_profiles(@build_profiles) if @build_profiles;
 
+# Handle specified source trees.
+if (defined $source) {
+    if (-d $source) {
+        chdir $source
+            or syserr(g_('cannot change directory to %s'), $source);
+    } elsif (-f $source) {
+        require Dpkg::Source::Package;
+
+        if (build_has_any(BUILD_SOURCE)) {
+            error(g_('building source package would overwrite input source %s'),
+                  $source);
+        }
+
+        if ($source =~ m{/}) {
+            error(g_('source package %s is expected in the current directory'),
+                  $source);
+        }
+
+        my $srcpkg = Dpkg::Source::Package->new(
+            filename => $source,
+            options => {
+                no_check => 0,
+                no_overwrite_dir => 1,
+                require_valid_signature => 0,
+                require_strong_checksums => 0,
+            },
+        );
+        $srcdir = $srcpkg->get_basedirname();
+
+        if (-e $srcdir) {
+            error(g_('source directory %s exists already, aborting'), $srcdir);
+        }
+
+        info(g_('extracting source package %s'), $source);
+
+        run_cmd('dpkg-source', @source_opts, '--extract', $source);
+
+        chdir $srcdir
+            or syserr(g_('cannot change directory to %s'), $srcdir);
+
+        # Track whether we extracted the source from a specified .dsc.
+        $source_from_dsc = 1;
+    }
+}
+
 my $changelog = changelog_parse();
 my $ctrl = Dpkg::Control::Info->new();
-
-# Check whether we are doing some kind of rootless build, and sanity check
-# the fields values.
-my %rules_requires_root = parse_rules_requires_root($ctrl->get_source());
 
 my $pkg = mustsetvar($changelog->{source}, g_('source package'));
 my $version = mustsetvar($changelog->{version}, g_('source version'));
@@ -582,16 +643,21 @@ if ($sanitize_env) {
     run_vendor_hook('sanitize-environment');
 }
 
+my $build_driver = Dpkg::BuildDriver->new(
+    ctrl => $ctrl,
+    debian_rules => \@debian_rules,
+    root_cmd => \@rootcommand,
+    as_root => $call_target_as_root,
+    rrr_override => $rrr_override,
+);
+
 #
 # Preparation of environment stops here
 #
 
-run_hook('init', 1);
+run_hook('init');
 
-if (not -x 'debian/rules') {
-    warning(g_('debian/rules is not executable; fixing that'));
-    chmod(0755, 'debian/rules'); # No checks of failures, non fatal
-}
+$build_driver->pre_check();
 
 if (scalar @call_target == 0) {
     run_cmd('dpkg-source', @source_opts, '--before-build', '.');
@@ -609,24 +675,31 @@ if ($checkbuilddep) {
     if (not WIFEXITED($?)) {
         subprocerr('dpkg-checkbuilddeps');
     } elsif (WEXITSTATUS($?)) {
-	warning(g_('build dependencies/conflicts unsatisfied; aborting'));
-	warning(g_('(Use -d flag to override.)'));
+        errormsg(g_('build dependencies/conflicts unsatisfied; aborting'));
+        hint(g_('satisfy build dependencies with your package manager frontend'));
 	exit 3;
     }
 }
 
 foreach my $call_target (@call_target) {
-    run_rules_cond_root($call_target);
+    $build_driver->run_task($call_target);
 }
 exit 0 if scalar @call_target;
 
-run_hook('preclean', $preclean);
+run_hook('preclean', {
+    enabled => $preclean,
+});
 
 if ($preclean) {
-    run_rules_cond_root('clean');
+    $build_driver->run_task('clean');
 }
 
-run_hook('source', build_has_any(BUILD_SOURCE));
+run_hook('source', {
+    enabled => build_has_any(BUILD_SOURCE),
+    env => {
+        DPKG_BUILDPACKAGE_HOOK_SOURCE_OPTIONS => join(' ', @source_opts),
+    },
+});
 
 if (build_has_any(BUILD_SOURCE)) {
     warning(g_('building a source package without cleaning up as you asked; ' .
@@ -634,34 +707,53 @@ if (build_has_any(BUILD_SOURCE)) {
     run_cmd('dpkg-source', @source_opts, '-b', '.');
 }
 
-run_hook('build', build_has_any(BUILD_BINARY));
-
 my $build_types = get_build_options_from_type();
 
-if (build_has_any(BUILD_BINARY)) {
-    # XXX Use some heuristics to decide whether to use build-{arch,indep}
-    # targets. This is a temporary measure to not break too many packages
-    # on a flag day.
-    build_target_fallback($ctrl);
+my $need_buildtask = $build_driver->need_build_task($buildtarget, $binarytarget);
 
-    # If we are building rootless, there is no need to call the build target
-    # independently as non-root.
-    run_cmd(@debian_rules, $buildtarget) if rules_requires_root($binarytarget);
-    run_hook('binary', 1);
-    run_rules_cond_root($binarytarget);
+run_hook('build', {
+    enabled => build_has_any(BUILD_BINARY) && $need_buildtask,
+    env => {
+        DPKG_BUILDPACKAGE_HOOK_BUILD_TARGET => $buildtarget,
+    },
+});
+
+# If we are building rootless, there is no need to call the build target
+# independently as non-root.
+if (build_has_any(BUILD_BINARY) && $need_buildtask) {
+    $build_driver->run_build_task($buildtarget, $binarytarget);
 }
 
-run_hook('buildinfo', 1);
+if (build_has_any(BUILD_BINARY)) {
+    run_hook('binary', {
+        env => {
+            DPKG_BUILDPACKAGE_HOOK_BINARY_TARGET => $binarytarget,
+        },
+    });
+    $build_driver->run_task($binarytarget);
+}
 
 $buildinfo_file //= "../$pva.buildinfo";
 
-push @buildinfo_opts, "--build=$build_types" if build_has_none(BUILD_DEFAULT);
+if (build_has_none(BUILD_DEFAULT) || $source_from_dsc) {
+    my $buildinfo_buildtypes = $build_types;
+
+    # We can now let dpkg-genbuildinfo know that we can include the .dsc
+    # in the .buildinfo file as we handled it ourselves, and what we are
+    # building matches either the source we built or extracted it from.
+    $buildinfo_buildtypes .= ',source' if $source_from_dsc;
+
+    push @buildinfo_opts, "--build=$buildinfo_buildtypes";
+}
 push @buildinfo_opts, "--admindir=$admindir" if $admindir;
 push @buildinfo_opts, "-O$buildinfo_file" if $buildinfo_file;
 
+run_hook('buildinfo', {
+    env => {
+        DPKG_BUILDPACKAGE_HOOK_BUILDINFO_OPTIONS => join(' ', @buildinfo_opts),
+    },
+});
 run_cmd('dpkg-genbuildinfo', @buildinfo_opts);
-
-run_hook('changes', 1);
 
 $changes_file //= "../$pva.changes";
 
@@ -674,20 +766,32 @@ push @changes_opts, "-O$changes_file";
 
 my $changes = Dpkg::Control->new(type => CTRL_FILE_CHANGES);
 
+run_hook('changes', {
+    env => {
+        DPKG_BUILDPACKAGE_HOOK_CHANGES_OPTIONS => join(' ', @changes_opts),
+    },
+});
 run_cmd('dpkg-genchanges', @changes_opts);
 $changes->load($changes_file);
 
-run_hook('postclean', $postclean);
+run_hook('postclean', {
+    enabled => $postclean,
+});
 
 if ($postclean) {
-    run_rules_cond_root('clean');
+    $build_driver->run_task('clean');
 }
 
 run_cmd('dpkg-source', @source_opts, '--after-build', '.');
 
 info(describe_build($changes->{'Files'}));
 
-run_hook('check', $check_command);
+run_hook('check', {
+    enabled => $check_command,
+    env => {
+        DPKG_BUILDPACKAGE_HOOK_CHECK_OPTIONS => join(' ', @check_opts),
+    },
+});
 
 if ($check_command) {
     run_cmd($check_command, @check_opts, $changes_file);
@@ -698,7 +802,9 @@ if ($signpause && ($signsource || $signbuildinfo || $signchanges)) {
     getc();
 }
 
-run_hook('sign', $signsource || $signbuildinfo || $signchanges);
+run_hook('sign', {
+    enabled => $signsource || $signbuildinfo || $signchanges,
+});
 
 if ($signsource) {
     signfile("$pv.dsc");
@@ -737,7 +843,14 @@ if (not $signreleased) {
     warning(g_('not signing UNRELEASED build; use --force-sign to override'));
 }
 
-run_hook('done', 1);
+if ($source_from_dsc) {
+    info(g_('removing extracted source directory %s'), $srcdir);
+    chdir '..'
+        or syserr(g_('cannot change directory to %s'), '..');
+    remove_tree($srcdir);
+}
+
+run_hook('done');
 
 sub mustsetvar {
     my ($var, $text) = @_;
@@ -749,113 +862,17 @@ sub mustsetvar {
     return $var;
 }
 
-sub setup_rootcommand {
-    if ($< == 0) {
-        warning(g_('using a gain-root-command while being root')) if @rootcommand;
-    } else {
-        push @rootcommand, 'fakeroot' unless @rootcommand;
-    }
-
-    if (@rootcommand and not find_command($rootcommand[0])) {
-        if ($rootcommand[0] eq 'fakeroot' and $< != 0) {
-            error(g_("fakeroot not found, either install the fakeroot\n" .
-                     'package, specify a command with the -r option, ' .
-                     'or run this as root'));
-        } else {
-            error(g_("gain-root-command '%s' not found"), $rootcommand[0]);
-        }
-    }
-}
-
-sub parse_rules_requires_root {
-    my $ctrl = shift;
-
-    my %rrr;
-    my $rrr;
-    my $keywords_base;
-    my $keywords_impl;
-
-    $rrr = $rrr_override // $ctrl->{'Rules-Requires-Root'} // 'binary-targets';
-
-    foreach my $keyword (split ' ', $rrr) {
-        if ($keyword =~ m{/}) {
-            if ($keyword =~ m{^dpkg/target/(.*)$}p and $target_official{$1}) {
-                error(g_('disallowed target in %s field keyword "%s"'),
-                      'Rules-Requires-Root', $keyword);
-            } elsif ($keyword ne 'dpkg/target-subcommand') {
-                error(g_('%s field keyword "%s" is unknown in dpkg namespace'),
-                      'Rules-Requires-Root', $keyword);
-            }
-            $keywords_impl++;
-        } else {
-            if ($keyword ne lc $keyword and
-                (lc $keyword eq 'no' or lc $keyword eq 'binary-targets')) {
-                error(g_('%s field keyword "%s" is uppercase; use "%s" instead'),
-                      'Rules-Requires-Root', $keyword, lc $keyword);
-            } elsif (lc $keyword eq 'yes') {
-                error(g_('%s field keyword "%s" is invalid; use "%s" instead'),
-                      'Rules-Requires-Root', $keyword, 'binary-targets');
-            } elsif ($keyword ne 'no' and $keyword ne 'binary-targets') {
-                warning(g_('%s field keyword "%s" is unknown'),
-                        'Rules-Requires-Root', $keyword);
-            }
-            $keywords_base++;
-        }
-
-        if ($rrr{$keyword}++) {
-            error(g_('field %s contains duplicate keyword "%s"'),
-                        'Rules-Requires-Root', $keyword);
-        }
-    }
-
-    if ($call_target_as_root or not exists $rrr{no}) {
-        setup_rootcommand();
-    }
-
-    # Notify the children we do support R³.
-    $ENV{DEB_RULES_REQUIRES_ROOT} = join ' ', sort keys %rrr;
-
-    if ($keywords_base > 1 or $keywords_base and $keywords_impl) {
-        error(g_('%s field contains both global and implementation specific keywords'),
-              'Rules-Requires-Root');
-    } elsif ($keywords_impl) {
-        # Set only on <implementations-keywords>.
-        $ENV{DEB_GAIN_ROOT_CMD} = join ' ', @rootcommand;
-    } else {
-        # We should not provide the variable otherwise.
-        delete $ENV{DEB_GAIN_ROOT_CMD};
-    }
-
-    return %rrr;
-}
-
 sub run_cmd {
-    printcmd(@_);
-    system @_ and subprocerr("@_");
-}
+    my @cmd = @_;
 
-sub rules_requires_root {
-    my $target = shift;
-
-    return 1 if $call_target_as_root;
-    return 1 if $rules_requires_root{"dpkg/target/$target"};
-    return 1 if $rules_requires_root{'binary-targets'} and $target_legacy_root{$target};
-    return 0;
-}
-
-sub run_rules_cond_root {
-    my $target = shift;
-
-    my @cmd;
-    push @cmd, @rootcommand if rules_requires_root($target);
-    push @cmd, @debian_rules, $target;
-
-    run_cmd(@cmd);
+    printcmd(@cmd);
+    system @cmd and subprocerr("@cmd");
 }
 
 sub run_hook {
-    my ($name, $enabled) = @_;
+    my ($name, $opts) = @_;
     my $cmd = $hook{$name};
+    $opts->{enabled} //= 1;
 
     return if not $cmd;
 
@@ -863,11 +880,11 @@ sub run_hook {
 
     my %hook_vars = (
         '%' => '%',
-        'a' => $enabled ? 1 : 0,
-        'p' => $pkg,
-        'v' => $version,
-        's' => $sversion,
-        'u' => $uversion,
+        'a' => $opts->{enabled} ? 1 : 0,
+        'p' => $pkg // q{},
+        'v' => $version // q{},
+        's' => $sversion // q{},
+        'u' => $uversion // q{},
     );
 
     my $subst_hook_var = sub {
@@ -882,6 +899,11 @@ sub run_hook {
     };
 
     $cmd =~ s/\%(.)/$subst_hook_var->($1)/eg;
+
+    $opts->{env}{DPKG_BUILDPACKAGE_HOOK_NAME} = $name;
+
+    # Set any environment variables for this hook invocation.
+    local @ENV{keys %{$opts->{env}}} = values %{$opts->{env}};
 
     run_cmd($cmd);
 }
@@ -913,24 +935,16 @@ sub signkey_validate {
 
 sub signfile {
     my $file = shift;
+    my $signfile = "../$file";
 
     printcmd("signfile $file");
 
-    my $signdir = tempdir('dpkg-sign.XXXXXXXX', CLEANUP => 1);
-    my $signfile = "$signdir/$file";
-
-    # Make sure the file to sign ends with a newline.
-    copy("../$file", $signfile);
-    open my $signfh, '>>', $signfile or syserr(g_('cannot open %s'), $signfile);
-    print { $signfh } "\n";
-    close $signfh or syserr(g_('cannot close %s'), $signfile);
-
     my $status = $openpgp->inline_sign($signfile, "$signfile.asc", $signkey);
     if ($status == OPENPGP_OK) {
-        move("$signfile.asc", "../$file")
-            or syserror(g_('cannot move %s to %s'), "$signfile.asc", "../$file");
+        move("$signfile.asc", $signfile)
+            or syserror(g_('cannot move %s to %s'), "$signfile.asc", $signfile);
     } else {
-        error(g_('failed to sign %s file: %s'), $file,
+        error(g_('failed to sign %s file: %s'), $signfile,
               openpgp_errorcode_to_string($status));
     }
 
@@ -966,46 +980,5 @@ sub describe_build {
         return g_('binary and diff upload (original source NOT included)');
     } else {
         return g_('full upload (original source is included)');
-    }
-}
-
-sub build_target_fallback {
-    my $ctrl = shift;
-
-    # If we are building rootless, there is no need to call the build target
-    # independently as non-root.
-    return if not rules_requires_root($binarytarget);
-
-    return if $buildtarget eq 'build';
-    return if scalar @debian_rules != 1;
-
-    # Check if we are building both arch:all and arch:any packages, in which
-    # case we now require working build-indep and build-arch targets.
-    my $pkg_arch = 0;
-
-    foreach my $bin ($ctrl->get_packages()) {
-        if ($bin->{Architecture} eq 'all') {
-            $pkg_arch |= BUILD_ARCH_INDEP;
-        } else {
-            $pkg_arch |= BUILD_ARCH_DEP;
-        }
-    }
-
-    return if $pkg_arch == BUILD_BINARY;
-
-    # Check if the build-{arch,indep} targets are supported. If not, fallback
-    # to build.
-    my $pid = spawn(exec => [ $Dpkg::PROGMAKE, '-f', @debian_rules, '-qn', $buildtarget ],
-                    from_file => '/dev/null', to_file => '/dev/null',
-                    error_to_file => '/dev/null');
-    my $cmdline = "make -f @debian_rules -qn $buildtarget";
-    wait_child($pid, nocheck => 1, cmdline => $cmdline);
-    my $exitcode = WEXITSTATUS($?);
-    subprocerr($cmdline) unless WIFEXITED($?);
-    if ($exitcode == 2) {
-        warning(g_("%s must be updated to support the 'build-arch' and " .
-                   "'build-indep' targets (at least '%s' seems to be " .
-                   'missing)'), "@debian_rules", $buildtarget);
-        $buildtarget = 'build';
     }
 }

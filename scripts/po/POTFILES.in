@@ -1,8 +1,10 @@
 # This is the list of all source files with translatable strings.
 
 scripts/dpkg-architecture.pl
+scripts/dpkg-buildapi.pl
 scripts/dpkg-buildflags.pl
 scripts/dpkg-buildpackage.pl
+scripts/dpkg-buildtree.pl
 scripts/dpkg-checkbuilddeps.pl
 scripts/dpkg-distaddfile.pl
 scripts/dpkg-genbuildinfo.pl
@@ -19,13 +21,18 @@ scripts/dpkg-source.pl
 scripts/dpkg-vendor.pl
 scripts/Dpkg.pm
 scripts/Dpkg/Arch.pm
+scripts/Dpkg/Archive/Ar.pm
+scripts/Dpkg/Build/Info.pm
+scripts/Dpkg/BuildAPI.pm
+scripts/Dpkg/BuildDriver.pm
+scripts/Dpkg/BuildDriver/DebianRules.pm
 scripts/Dpkg/BuildEnv.pm
 scripts/Dpkg/BuildFlags.pm
 scripts/Dpkg/BuildInfo.pm
 scripts/Dpkg/BuildOptions.pm
 scripts/Dpkg/BuildProfiles.pm
+scripts/Dpkg/BuildTree.pm
 scripts/Dpkg/BuildTypes.pm
-scripts/Dpkg/Build/Info.pm
 scripts/Dpkg/Changelog.pm
 scripts/Dpkg/Changelog/Debian.pm
 scripts/Dpkg/Changelog/Entry.pm
@@ -42,6 +49,7 @@ scripts/Dpkg/Control/Fields.pm
 scripts/Dpkg/Control/FieldsCore.pm
 scripts/Dpkg/Control/Hash.pm
 scripts/Dpkg/Control/HashCore.pm
+scripts/Dpkg/Control/HashCore/Tie.pm
 scripts/Dpkg/Control/Info.pm
 scripts/Dpkg/Control/Tests.pm
 scripts/Dpkg/Control/Tests/Entry.pm
@@ -64,17 +72,24 @@ scripts/Dpkg/Index.pm
 scripts/Dpkg/Interface/Storable.pm
 scripts/Dpkg/Lock.pm
 scripts/Dpkg/OpenPGP.pm
+scripts/Dpkg/OpenPGP/Backend.pm
+scripts/Dpkg/OpenPGP/Backend/GnuPG.pm
+scripts/Dpkg/OpenPGP/Backend/SOP.pm
+scripts/Dpkg/OpenPGP/Backend/Sequoia.pm
 scripts/Dpkg/OpenPGP/ErrorCodes.pm
+scripts/Dpkg/OpenPGP/KeyHandle.pm
 scripts/Dpkg/Package.pm
 scripts/Dpkg/Path.pm
 scripts/Dpkg/Shlibs.pm
 scripts/Dpkg/Shlibs/Cppfilt.pm
 scripts/Dpkg/Shlibs/Objdump.pm
+scripts/Dpkg/Shlibs/Objdump/Object.pm
 scripts/Dpkg/Shlibs/Symbol.pm
 scripts/Dpkg/Shlibs/SymbolFile.pm
 scripts/Dpkg/Source/Archive.pm
-scripts/Dpkg/Source/Functions.pm
 scripts/Dpkg/Source/BinaryFiles.pm
+scripts/Dpkg/Source/Format.pm
+scripts/Dpkg/Source/Functions.pm
 scripts/Dpkg/Source/Package.pm
 scripts/Dpkg/Source/Package/V1.pm
 scripts/Dpkg/Source/Package/V2.pm
@@ -86,9 +101,9 @@ scripts/Dpkg/Source/Package/V3/Quilt.pm
 scripts/Dpkg/Source/Patch.pm
 scripts/Dpkg/Source/Quilt.pm
 scripts/Dpkg/Substvars.pm
-scripts/Dpkg/Vars.pm
 scripts/Dpkg/Vendor.pm
 scripts/Dpkg/Vendor/Debian.pm
 scripts/Dpkg/Vendor/Default.pm
+scripts/Dpkg/Vendor/Devuan.pm
 scripts/Dpkg/Vendor/Ubuntu.pm
 scripts/Dpkg/Version.pm
