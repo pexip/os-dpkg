@@ -55,7 +55,7 @@ Build-Depends:
 # Needed for code coverage reports.
  lcov <pkg.dpkg.code-coverage>,
  libdevel-cover-perl <pkg.dpkg.code-coverage>,
-XS-Pexip-Upstream: http://deb.debian.org/debian/ bookworm
+XS-Pexip-Upstream: http://deb.debian.org/debian/ trixie
 
 Package: dpkg
 Architecture: any
