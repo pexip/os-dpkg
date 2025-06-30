@@ -594,11 +594,11 @@ Configuratiebestand dat gebruikersafhankelijk is.
 
 =item B<%PKGDATADIR%/buildflags.mk>
 
-Makefile snippet that loads (and optionally export) all flags supported by B<dpkg-buildflags> into variables (since dpkg 1.16.1).
+Makefile-fragment dat alle vlaggen die door B<dpkg-buildflags> ondersteund worden, laadt in variabelen (en optioneel exporteert) (sinds dpkg 1.16.1).
 
 =item B<%PKGDATADIR%/buildtools.mk>
 
-Makefile snippet that sets suitable host and build tools (and optionally export them) into variables (since dpkg 1.19.0).
+Makefile-fragment dat geschikte host- en bouwgereedschappen instelt in variabelen (en deze optioneel exporteert) (sinds dpkg 1.19.0).
 
 =back
 

@@ -619,75 +619,77 @@ at_help_all="1;deb-format.at:1;dpkg-deb options;dpkg-deb command-line;
 6;deb-format.at:608;dpkg-deb .deb format 2.x (bzip2);dpkg-deb deb;
 7;deb-format.at:636;dpkg-deb .deb format 2.x (lzma);dpkg-deb deb;
 8;deb-content.at:1;dpkg-deb .deb conffiles;dpkg-deb deb conffiles;
-9;deb-fields.at:1;dpkg-deb .deb fields;dpkg-deb deb fields;
-10;deb-split.at:1;dpkg-split options;dpkg-split command-line;
-11;deb-split.at:9;dpkg-split .deb format;dpkg-split deb-split;
-12;realpath.at:1;dpkg-realpath options;dpkg-realpath command-line;
-13;realpath.at:9;dpkg-realpath path resolving;dpkg-realpath canonicalize;
-14;divert.at:1;dpkg-divert options;dpkg-divert command-line;
-15;divert.at:83;dpkg-divert query (empty db);dpkg-divert query;
-16;divert.at:94;dpkg-divert query (list);dpkg-divert query;
-17;divert.at:134;dpkg-divert query (listpackage + truename);dpkg-divert query;
-18;divert.at:160;dpkg-divert add (local rename);dpkg-divert add;
-19;divert.at:178;dpkg-divert add (local no-rename);dpkg-divert add;
-20;divert.at:196;dpkg-divert add (rename quiet);dpkg-divert add;
-21;divert.at:213;dpkg-divert add (test rename quiet);dpkg-divert add;
-22;divert.at:226;dpkg-divert add (rename missing quiet);dpkg-divert add;
-23;divert.at:243;dpkg-divert add (local rename quiet);dpkg-divert add;
-24;divert.at:260;dpkg-divert add (package rename quiet);dpkg-divert add;
-25;divert.at:274;dpkg-divert add (rename self-link);dpkg-divert add;
-26;divert.at:292;dpkg-divert add (rename other-file);dpkg-divert add;
-27;divert.at:305;dpkg-divert add (rename missing dir);dpkg-divert add;
-28;divert.at:319;dpkg-divert add (rename read-only dir);dpkg-divert fsys;
-29;divert.at:343;dpkg-divert add (rename no-access dir);dpkg-divert fsys;
-30;divert.at:367;dpkg-divert add second diversion;dpkg-divert add;
-31;divert.at:401;dpkg-divert add third diversion;dpkg-divert add;
-32;divert.at:420;dpkg-divert add (file owned by --package);dpkg-divert add;
-33;divert.at:447;dpkg-divert remove (missing);dpkg-divert remove;
-34;divert.at:459;dpkg-divert remove (divert-to);dpkg-divert remove;
-35;divert.at:494;dpkg-divert remove (plain);dpkg-divert remove;
-36;divert.at:517;dpkg-divert remove (by-package);dpkg-divert remove;
-37;divert.at:539;dpkg-divert remove (test);dpkg-divert remove;
-38;divert.at:564;dpkg-divert db (no-access);dpkg-divert db;
-39;divert.at:580;dpkg-divert db (truncated);dpkg-divert db;
-40;divert.at:598;dpkg-divert db (read-only dir);dpkg-divert db;
-41;divert.at:613;dpkg-divert db (disk full);dpkg-divert db;
-42;divert.at:628;dpkg-divert db (pathname is dir);dpkg-divert db;
-43;chdir.at:5;dpkg chdir opts normalize;dpkg command-line chdir;
-44;chdir.at:5;dpkg chdir opts;dpkg command-line chdir;
-45;chdir.at:5;dpkg chdir env;dpkg command-line chdir;
-46;chdir.at:5;dpkg chdir env+opt admindir;dpkg command-line chdir;
-47;chdir.at:5;dpkg chdir env+opt root;dpkg command-line chdir;
-48;chdir.at:5;dpkg chdir env+opt root+admindir;dpkg command-line chdir;
-49;chdir.at:5;dpkg-divert chdir opts normalize;dpkg-divert command-line chdir;
-50;chdir.at:5;dpkg-divert chdir opts;dpkg-divert command-line chdir;
-51;chdir.at:5;dpkg-divert chdir env;dpkg-divert command-line chdir;
-52;chdir.at:5;dpkg-divert chdir env+opt admindir;dpkg-divert command-line chdir;
-53;chdir.at:5;dpkg-divert chdir env+opt root;dpkg-divert command-line chdir;
-54;chdir.at:5;dpkg-divert chdir env+opt root+admindir;dpkg-divert command-line chdir;
-55;chdir.at:5;dpkg-statoverride chdir opts normalize;dpkg-statoverride command-line chdir;
-56;chdir.at:5;dpkg-statoverride chdir opts;dpkg-statoverride command-line chdir;
-57;chdir.at:5;dpkg-statoverride chdir env;dpkg-statoverride command-line chdir;
-58;chdir.at:5;dpkg-statoverride chdir env+opt admindir;dpkg-statoverride command-line chdir;
-59;chdir.at:5;dpkg-statoverride chdir env+opt root;dpkg-statoverride command-line chdir;
-60;chdir.at:5;dpkg-statoverride chdir env+opt root+admindir;dpkg-statoverride command-line chdir;
-61;chdir.at:349;dpkg-split chdir opts;dpkg-split command-line chdir;
-62;chdir.at:349;dpkg-split chdir env;dpkg-split command-line chdir;
-63;chdir.at:349;dpkg-split chdir env+opt admindir;dpkg-split command-line chdir;
-64;chdir.at:349;dpkg-split chdir env+opt root;dpkg-split command-line chdir;
-65;chdir.at:349;dpkg-split chdir env+opt root+admindir;dpkg-split command-line chdir;
-66;chdir.at:349;dpkg-query chdir opts;dpkg-query command-line chdir;
-67;chdir.at:349;dpkg-query chdir env;dpkg-query command-line chdir;
-68;chdir.at:349;dpkg-query chdir env+opt admindir;dpkg-query command-line chdir;
-69;chdir.at:349;dpkg-query chdir env+opt root;dpkg-query command-line chdir;
-70;chdir.at:349;dpkg-query chdir env+opt root+admindir;dpkg-query command-line chdir;
-71;chdir.at:349;dpkg-trigger chdir opts;dpkg-trigger command-line chdir;
-72;chdir.at:349;dpkg-trigger chdir env;dpkg-trigger command-line chdir;
-73;chdir.at:349;dpkg-trigger chdir env+opt admindir;dpkg-trigger command-line chdir;
-74;chdir.at:349;dpkg-trigger chdir env+opt root;dpkg-trigger command-line chdir;
-75;chdir.at:349;dpkg-trigger chdir env+opt root+admindir;dpkg-trigger command-line chdir;
-76;dpkg-arch.at:5;dpkg native architecture support;dpkg native arch;
-77;dpkg-arch.at:18;dpkg foreign architecture support;dpkg foreign arch;
+9;deb-content.at:131;dpkg-deb .deb extraction cleanup;dpkg-deb deb extraction;
+10;deb-fields.at:1;dpkg-deb .deb fields;dpkg-deb deb fields;
+11;deb-split.at:1;dpkg-split options;dpkg-split command-line;
+12;deb-split.at:9;dpkg-split .deb format;dpkg-split deb-split;
+13;realpath.at:1;dpkg-realpath options;dpkg-realpath command-line;
+14;realpath.at:9;dpkg-realpath path resolving;dpkg-realpath canonicalize;
+15;divert.at:1;dpkg-divert options;dpkg-divert command-line;
+16;divert.at:83;dpkg-divert query (empty db);dpkg-divert query;
+17;divert.at:94;dpkg-divert query (list);dpkg-divert query;
+18;divert.at:134;dpkg-divert query (listpackage + truename);dpkg-divert query;
+19;divert.at:160;dpkg-divert add (local rename);dpkg-divert add;
+20;divert.at:178;dpkg-divert add (local no-rename);dpkg-divert add;
+21;divert.at:196;dpkg-divert add (rename quiet);dpkg-divert add;
+22;divert.at:213;dpkg-divert add (test rename quiet);dpkg-divert add;
+23;divert.at:226;dpkg-divert add (rename missing quiet);dpkg-divert add;
+24;divert.at:243;dpkg-divert add (local rename quiet);dpkg-divert add;
+25;divert.at:260;dpkg-divert add (package rename quiet);dpkg-divert add;
+26;divert.at:274;dpkg-divert add (rename self-link);dpkg-divert add;
+27;divert.at:292;dpkg-divert add (rename other-file);dpkg-divert add;
+28;divert.at:305;dpkg-divert add (rename missing dir);dpkg-divert add;
+29;divert.at:319;dpkg-divert add (rename read-only dir);dpkg-divert fsys;
+30;divert.at:343;dpkg-divert add (rename no-access dir);dpkg-divert fsys;
+31;divert.at:367;dpkg-divert add second diversion;dpkg-divert add;
+32;divert.at:401;dpkg-divert add third diversion;dpkg-divert add;
+33;divert.at:420;dpkg-divert add (file owned by --package);dpkg-divert add;
+34;divert.at:447;dpkg-divert remove (missing);dpkg-divert remove;
+35;divert.at:459;dpkg-divert remove (divert-to);dpkg-divert remove;
+36;divert.at:494;dpkg-divert remove (plain);dpkg-divert remove;
+37;divert.at:517;dpkg-divert remove (by-package);dpkg-divert remove;
+38;divert.at:539;dpkg-divert remove (test);dpkg-divert remove;
+39;divert.at:564;dpkg-divert db (no-access);dpkg-divert db;
+40;divert.at:580;dpkg-divert db (truncated);dpkg-divert db;
+41;divert.at:598;dpkg-divert db (read-only dir);dpkg-divert db;
+42;divert.at:613;dpkg-divert db (disk full);dpkg-divert db;
+43;divert.at:628;dpkg-divert db (pathname is dir);dpkg-divert db;
+44;trigger.at:6;dpkg trigger no-act;dpkg trigger;
+45;chdir.at:5;dpkg chdir opts normalize;dpkg command-line chdir;
+46;chdir.at:5;dpkg chdir opts;dpkg command-line chdir;
+47;chdir.at:5;dpkg chdir env;dpkg command-line chdir;
+48;chdir.at:5;dpkg chdir env+opt admindir;dpkg command-line chdir;
+49;chdir.at:5;dpkg chdir env+opt root;dpkg command-line chdir;
+50;chdir.at:5;dpkg chdir env+opt root+admindir;dpkg command-line chdir;
+51;chdir.at:5;dpkg-divert chdir opts normalize;dpkg-divert command-line chdir;
+52;chdir.at:5;dpkg-divert chdir opts;dpkg-divert command-line chdir;
+53;chdir.at:5;dpkg-divert chdir env;dpkg-divert command-line chdir;
+54;chdir.at:5;dpkg-divert chdir env+opt admindir;dpkg-divert command-line chdir;
+55;chdir.at:5;dpkg-divert chdir env+opt root;dpkg-divert command-line chdir;
+56;chdir.at:5;dpkg-divert chdir env+opt root+admindir;dpkg-divert command-line chdir;
+57;chdir.at:5;dpkg-statoverride chdir opts normalize;dpkg-statoverride command-line chdir;
+58;chdir.at:5;dpkg-statoverride chdir opts;dpkg-statoverride command-line chdir;
+59;chdir.at:5;dpkg-statoverride chdir env;dpkg-statoverride command-line chdir;
+60;chdir.at:5;dpkg-statoverride chdir env+opt admindir;dpkg-statoverride command-line chdir;
+61;chdir.at:5;dpkg-statoverride chdir env+opt root;dpkg-statoverride command-line chdir;
+62;chdir.at:5;dpkg-statoverride chdir env+opt root+admindir;dpkg-statoverride command-line chdir;
+63;chdir.at:349;dpkg-split chdir opts;dpkg-split command-line chdir;
+64;chdir.at:349;dpkg-split chdir env;dpkg-split command-line chdir;
+65;chdir.at:349;dpkg-split chdir env+opt admindir;dpkg-split command-line chdir;
+66;chdir.at:349;dpkg-split chdir env+opt root;dpkg-split command-line chdir;
+67;chdir.at:349;dpkg-split chdir env+opt root+admindir;dpkg-split command-line chdir;
+68;chdir.at:349;dpkg-query chdir opts;dpkg-query command-line chdir;
+69;chdir.at:349;dpkg-query chdir env;dpkg-query command-line chdir;
+70;chdir.at:349;dpkg-query chdir env+opt admindir;dpkg-query command-line chdir;
+71;chdir.at:349;dpkg-query chdir env+opt root;dpkg-query command-line chdir;
+72;chdir.at:349;dpkg-query chdir env+opt root+admindir;dpkg-query command-line chdir;
+73;chdir.at:349;dpkg-trigger chdir opts;dpkg-trigger command-line chdir;
+74;chdir.at:349;dpkg-trigger chdir env;dpkg-trigger command-line chdir;
+75;chdir.at:349;dpkg-trigger chdir env+opt admindir;dpkg-trigger command-line chdir;
+76;chdir.at:349;dpkg-trigger chdir env+opt root;dpkg-trigger command-line chdir;
+77;chdir.at:349;dpkg-trigger chdir env+opt root+admindir;dpkg-trigger command-line chdir;
+78;dpkg-arch.at:5;dpkg native architecture support;dpkg native arch;
+79;dpkg-arch.at:18;dpkg foreign architecture support;dpkg foreign arch;
 "
 # List of the all the test groups.
 at_groups_all=`printf "%s\n" "$at_help_all" | sed 's/;.*//'`
@@ -701,7 +703,7 @@ at_fn_validate_ranges ()
   for at_grp
   do
     eval at_value=\$$at_grp
-    if test $at_value -lt 1 || test $at_value -gt 77; then
+    if test $at_value -lt 1 || test $at_value -gt 79; then
       printf "%s\n" "invalid test group: $at_value" >&2
       exit 1
     fi
@@ -720,6 +722,7 @@ at_tested='"dpkg-deb"
 "dpkg-split"
 "dpkg-realpath"
 "dpkg-divert"
+"dpkg-trigger"
 "dpkg"'
 
 
@@ -1006,7 +1009,7 @@ fi
 # List of tests.
 if $at_list_p; then
   cat <<_ATEOF || at_write_fail=1
-dpkg 1.22.18 test suite: dpkg tools functional test suite test groups:
+dpkg 1.22.21 test suite: dpkg tools functional test suite test groups:
 
  NUM: FILE-NAME:LINE     TEST-GROUP-NAME
       KEYWORDS
@@ -1047,7 +1050,7 @@ _ATEOF
   exit $at_write_fail
 fi
 if $at_version_p; then
-  printf "%s\n" "$as_me (dpkg 1.22.18)" &&
+  printf "%s\n" "$as_me (dpkg 1.22.21)" &&
   cat <<\_ATEOF || at_write_fail=1
 
 Copyright (C) 2023 Free Software Foundation, Inc.
@@ -1068,20 +1071,23 @@ esac
 # Category starts at test group 1.
 at_banner_text_1="Binary .deb packages"
 # Banner 2. testsuite.at:11
-# Category starts at test group 10.
+# Category starts at test group 11.
 at_banner_text_2="Split .deb packages"
 # Banner 3. testsuite.at:15
-# Category starts at test group 12.
+# Category starts at test group 13.
 at_banner_text_3="Resolve pathnames"
 # Banner 4. testsuite.at:19
-# Category starts at test group 14.
+# Category starts at test group 15.
 at_banner_text_4="Diversions"
 # Banner 5. testsuite.at:23
-# Category starts at test group 43.
-at_banner_text_5="Change directory options"
-# Banner 6. testsuite.at:25
-# Category starts at test group 76.
-at_banner_text_6="Architecture support"
+# Category starts at test group 44.
+at_banner_text_5="Triggers"
+# Banner 6. testsuite.at:27
+# Category starts at test group 45.
+at_banner_text_6="Change directory options"
+# Banner 7. testsuite.at:29
+# Category starts at test group 78.
+at_banner_text_7="Architecture support"
 
 # Take any -C into account.
 if $at_change_dir ; then
@@ -1247,11 +1253,11 @@ exec 5>>"$at_suite_log"
 
 # Banners and logs.
 printf "%s\n" "## ---------------------------------------------------------- ##
-## dpkg 1.22.18 test suite: dpkg tools functional test suite. ##
+## dpkg 1.22.21 test suite: dpkg tools functional test suite. ##
 ## ---------------------------------------------------------- ##"
 {
   printf "%s\n" "## ---------------------------------------------------------- ##
-## dpkg 1.22.18 test suite: dpkg tools functional test suite. ##
+## dpkg 1.22.21 test suite: dpkg tools functional test suite. ##
 ## ---------------------------------------------------------- ##"
   echo
 
@@ -2111,7 +2117,7 @@ _ASBOX
   printf "%s\n" "Please send $at_msg and all information you think might help:
 
    To: <debian-dpkg@lists.debian.org>
-   Subject: [dpkg 1.22.18] $as_me: $at_msg1$at_msg2
+   Subject: [dpkg 1.22.21] $as_me: $at_msg1$at_msg2
 
 You may investigate any problem if you feel able to do so, in which
 case the test suite provides a good starting point.  Its output may
@@ -4807,11 +4813,128 @@ $at_traceon; }
 read at_status <"$at_status_file"
 #AT_STOP_8
 #AT_START_9
-at_fn_group_banner 9 'deb-fields.at:1' \
-  "dpkg-deb .deb fields" "                           " 1
+at_fn_group_banner 9 'deb-content.at:131' \
+  "dpkg-deb .deb extraction cleanup" "               " 1
 at_xfail=no
 (
   printf "%s\n" "9. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+
+
+  mkdir -p 'pkg-ctrl-dir-perms/DEBIAN'
+
+  cat >'pkg-ctrl-dir-perms/DEBIAN/control' <<CTRL_TEMPL
+Package: pkg-ctrl-dir-perms
+Version: 0.0-1
+Section: test
+Priority: extra
+Maintainer: Dpkg Developers <debian-dpkg@lists.debian.org>
+Architecture: all
+Description: test package
+CTRL_TEMPL
+
+
+{ set +x
+printf "%s\n" "$at_srcdir/deb-content.at:135:
+dpkg-deb --root-owner-group -Znone -b pkg-ctrl-dir-perms
+
+    \"\$top_srcdir/build-aux/run-script\" scripts/dpkg-ar.pl  --extract pkg-ctrl-dir-perms.deb
+
+dpkg-deb -R pkg-ctrl-dir-perms.deb pkg-ctrl-dir-perms-bad
+mkdir -p pkg-ctrl-dir-perms-bad/DEBIAN/rx-subdir/inner
+touch pkg-ctrl-dir-perms-bad/DEBIAN/rx-subdir/inner/file
+chmod 0555 pkg-ctrl-dir-perms-bad/DEBIAN
+chmod 0555 pkg-ctrl-dir-perms-bad/DEBIAN/rx-subdir
+chmod 0555 pkg-ctrl-dir-perms-bad/DEBIAN/rx-subdir/inner
+\$TAR cf control.tar --format=gnu --sort=name --mtime @0 --clamp-mtime --owner root:0 --group root:0 -C pkg-ctrl-dir-perms-bad/DEBIAN .
+
+    \"\$top_srcdir/build-aux/run-script\" scripts/dpkg-ar.pl  --create pkg-ctrl-dir-perms.deb debian-binary control.tar data.tar
+
+"
+at_fn_check_prepare_notrace 'an embedded newline' "deb-content.at:135"
+( $at_check_trace;
+dpkg-deb --root-owner-group -Znone -b pkg-ctrl-dir-perms
+
+    "$top_srcdir/build-aux/run-script" scripts/dpkg-ar.pl  --extract pkg-ctrl-dir-perms.deb
+
+dpkg-deb -R pkg-ctrl-dir-perms.deb pkg-ctrl-dir-perms-bad
+mkdir -p pkg-ctrl-dir-perms-bad/DEBIAN/rx-subdir/inner
+touch pkg-ctrl-dir-perms-bad/DEBIAN/rx-subdir/inner/file
+chmod 0555 pkg-ctrl-dir-perms-bad/DEBIAN
+chmod 0555 pkg-ctrl-dir-perms-bad/DEBIAN/rx-subdir
+chmod 0555 pkg-ctrl-dir-perms-bad/DEBIAN/rx-subdir/inner
+$TAR cf control.tar --format=gnu --sort=name --mtime @0 --clamp-mtime --owner root:0 --group root:0 -C pkg-ctrl-dir-perms-bad/DEBIAN .
+
+    "$top_srcdir/build-aux/run-script" scripts/dpkg-ar.pl  --create pkg-ctrl-dir-perms.deb debian-binary control.tar data.tar
+
+
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+echo >>"$at_stdout"; printf "%s\n" "dpkg-deb: building package 'pkg-ctrl-dir-perms' in 'pkg-ctrl-dir-perms.deb'.
+" | \
+  $at_diff - "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/deb-content.at:135"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+printf "%s\n" "$at_srcdir/deb-content.at:148:
+dpkg-deb --ctrl-tarfile pkg-ctrl-dir-perms.deb | \$TAR tvf -
+"
+at_fn_check_prepare_notrace 'an embedded newline' "deb-content.at:148"
+( $at_check_trace;
+dpkg-deb --ctrl-tarfile pkg-ctrl-dir-perms.deb | $TAR tvf -
+
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+echo >>"$at_stdout"; printf "%s\n" "dr-xr-xr-x root/root         0 1970-01-01 00:00 ./
+-rw-r--r-- root/root       176 1970-01-01 00:00 ./control
+dr-xr-xr-x root/root         0 1970-01-01 00:00 ./rx-subdir/
+dr-xr-xr-x root/root         0 1970-01-01 00:00 ./rx-subdir/inner/
+-rw-r--r-- root/root         0 1970-01-01 00:00 ./rx-subdir/inner/file
+" | \
+  $at_diff - "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/deb-content.at:148"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+# Check that we can cleanup the temporarily extracted control.tar member.
+{ set +x
+printf "%s\n" "$at_srcdir/deb-content.at:157:
+dpkg-deb -I pkg-ctrl-dir-perms.deb
+"
+at_fn_check_prepare_notrace 'an embedded newline' "deb-content.at:157"
+( $at_check_trace;
+dpkg-deb -I pkg-ctrl-dir-perms.deb
+
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/deb-content.at:157"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_9
+#AT_START_10
+at_fn_group_banner 10 'deb-fields.at:1' \
+  "dpkg-deb .deb fields" "                           " 1
+at_xfail=no
+(
+  printf "%s\n" "10. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -4979,13 +5102,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_9
-#AT_START_10
-at_fn_group_banner 10 'deb-split.at:1' \
+#AT_STOP_10
+#AT_START_11
+at_fn_group_banner 11 'deb-split.at:1' \
   "dpkg-split options" "                             " 2
 at_xfail=no
 (
-  printf "%s\n" "10. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "11. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -5021,13 +5144,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_10
-#AT_START_11
-at_fn_group_banner 11 'deb-split.at:9' \
+#AT_STOP_11
+#AT_START_12
+at_fn_group_banner 12 'deb-split.at:9' \
   "dpkg-split .deb format" "                         " 2
 at_xfail=no
 (
-  printf "%s\n" "11. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "12. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -5572,13 +5695,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_11
-#AT_START_12
-at_fn_group_banner 12 'realpath.at:1' \
+#AT_STOP_12
+#AT_START_13
+at_fn_group_banner 13 'realpath.at:1' \
   "dpkg-realpath options" "                          " 3
 at_xfail=no
 (
-  printf "%s\n" "12. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "13. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -5614,13 +5737,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_12
-#AT_START_13
-at_fn_group_banner 13 'realpath.at:9' \
+#AT_STOP_13
+#AT_START_14
+at_fn_group_banner 14 'realpath.at:9' \
   "dpkg-realpath path resolving" "                   " 3
 at_xfail=no
 (
-  printf "%s\n" "13. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "14. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -6009,13 +6132,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_13
-#AT_START_14
-at_fn_group_banner 14 'divert.at:1' \
+#AT_STOP_14
+#AT_START_15
+at_fn_group_banner 15 'divert.at:1' \
   "dpkg-divert options" "                            " 4
 at_xfail=no
 (
-  printf "%s\n" "14. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "15. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -6661,13 +6784,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_14
-#AT_START_15
-at_fn_group_banner 15 'divert.at:83' \
+#AT_STOP_15
+#AT_START_16
+at_fn_group_banner 16 'divert.at:83' \
   "dpkg-divert query (empty db)" "                   " 4
 at_xfail=no
 (
-  printf "%s\n" "15. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "16. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -6723,13 +6846,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_15
-#AT_START_16
-at_fn_group_banner 16 'divert.at:94' \
+#AT_STOP_16
+#AT_START_17
+at_fn_group_banner 17 'divert.at:94' \
   "dpkg-divert query (list)" "                       " 4
 at_xfail=no
 (
-  printf "%s\n" "16. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "17. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -6931,13 +7054,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_16
-#AT_START_17
-at_fn_group_banner 17 'divert.at:134' \
+#AT_STOP_17
+#AT_START_18
+at_fn_group_banner 18 'divert.at:134' \
   "dpkg-divert query (listpackage + truename)" "     " 4
 at_xfail=no
 (
-  printf "%s\n" "17. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "18. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -7051,13 +7174,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_17
-#AT_START_18
-at_fn_group_banner 18 'divert.at:160' \
+#AT_STOP_18
+#AT_START_19
+at_fn_group_banner 19 'divert.at:160' \
   "dpkg-divert add (local rename)" "                 " 4
 at_xfail=no
 (
-  printf "%s\n" "18. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "19. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -7156,13 +7279,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_18
-#AT_START_19
-at_fn_group_banner 19 'divert.at:178' \
+#AT_STOP_19
+#AT_START_20
+at_fn_group_banner 20 'divert.at:178' \
   "dpkg-divert add (local no-rename)" "              " 4
 at_xfail=no
 (
-  printf "%s\n" "19. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "20. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -7261,13 +7384,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_19
-#AT_START_20
-at_fn_group_banner 20 'divert.at:196' \
+#AT_STOP_20
+#AT_START_21
+at_fn_group_banner 21 'divert.at:196' \
   "dpkg-divert add (rename quiet)" "                 " 4
 at_xfail=no
 (
-  printf "%s\n" "20. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "21. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -7353,13 +7476,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_20
-#AT_START_21
-at_fn_group_banner 21 'divert.at:213' \
+#AT_STOP_21
+#AT_START_22
+at_fn_group_banner 22 'divert.at:213' \
   "dpkg-divert add (test rename quiet)" "            " 4
 at_xfail=no
 (
-  printf "%s\n" "21. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "22. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -7436,13 +7559,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_21
-#AT_START_22
-at_fn_group_banner 22 'divert.at:226' \
+#AT_STOP_22
+#AT_START_23
+at_fn_group_banner 23 'divert.at:226' \
   "dpkg-divert add (rename missing quiet)" "         " 4
 at_xfail=no
 (
-  printf "%s\n" "22. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "23. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -7527,13 +7650,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_22
-#AT_START_23
-at_fn_group_banner 23 'divert.at:243' \
+#AT_STOP_23
+#AT_START_24
+at_fn_group_banner 24 'divert.at:243' \
   "dpkg-divert add (local rename quiet)" "           " 4
 at_xfail=no
 (
-  printf "%s\n" "23. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "24. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -7619,13 +7742,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_23
-#AT_START_24
-at_fn_group_banner 24 'divert.at:260' \
+#AT_STOP_24
+#AT_START_25
+at_fn_group_banner 25 'divert.at:260' \
   "dpkg-divert add (package rename quiet)" "         " 4
 at_xfail=no
 (
-  printf "%s\n" "24. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "25. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -7677,13 +7800,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_24
-#AT_START_25
-at_fn_group_banner 25 'divert.at:274' \
+#AT_STOP_25
+#AT_START_26
+at_fn_group_banner 26 'divert.at:274' \
   "dpkg-divert add (rename self-link)" "             " 4
 at_xfail=no
 (
-  printf "%s\n" "25. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "26. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -7772,13 +7895,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_25
-#AT_START_26
-at_fn_group_banner 26 'divert.at:292' \
+#AT_STOP_26
+#AT_START_27
+at_fn_group_banner 27 'divert.at:292' \
   "dpkg-divert add (rename other-file)" "            " 4
 at_xfail=no
 (
-  printf "%s\n" "26. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "27. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -7842,13 +7965,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_26
-#AT_START_27
-at_fn_group_banner 27 'divert.at:305' \
+#AT_STOP_27
+#AT_START_28
+at_fn_group_banner 28 'divert.at:305' \
   "dpkg-divert add (rename missing dir)" "           " 4
 at_xfail=no
 (
-  printf "%s\n" "27. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "28. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -7900,13 +8023,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_27
-#AT_START_28
-at_fn_group_banner 28 'divert.at:319' \
+#AT_STOP_28
+#AT_START_29
+at_fn_group_banner 29 'divert.at:319' \
   "dpkg-divert add (rename read-only dir)" "         " 4
 at_xfail=no
 (
-  printf "%s\n" "28. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "29. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -8011,13 +8134,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_28
-#AT_START_29
-at_fn_group_banner 29 'divert.at:343' \
+#AT_STOP_29
+#AT_START_30
+at_fn_group_banner 30 'divert.at:343' \
   "dpkg-divert add (rename no-access dir)" "         " 4
 at_xfail=no
 (
-  printf "%s\n" "29. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "30. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -8118,13 +8241,13 @@ rmdir dpkginst/testdir/nadir
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_29
-#AT_START_30
-at_fn_group_banner 30 'divert.at:367' \
+#AT_STOP_30
+#AT_START_31
+at_fn_group_banner 31 'divert.at:367' \
   "dpkg-divert add second diversion" "               " 4
 at_xfail=no
 (
-  printf "%s\n" "30. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "31. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -8359,13 +8482,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_30
-#AT_START_31
-at_fn_group_banner 31 'divert.at:401' \
+#AT_STOP_31
+#AT_START_32
+at_fn_group_banner 32 'divert.at:401' \
   "dpkg-divert add third diversion" "                " 4
 at_xfail=no
 (
-  printf "%s\n" "31. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "32. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -8490,13 +8613,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_31
-#AT_START_32
-at_fn_group_banner 32 'divert.at:420' \
+#AT_STOP_32
+#AT_START_33
+at_fn_group_banner 33 'divert.at:420' \
   "dpkg-divert add (file owned by --package)" "      " 4
 at_xfail=no
 (
-  printf "%s\n" "32. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "33. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -8604,13 +8727,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_32
-#AT_START_33
-at_fn_group_banner 33 'divert.at:447' \
+#AT_STOP_33
+#AT_START_34
+at_fn_group_banner 34 'divert.at:447' \
   "dpkg-divert remove (missing)" "                   " 4
 at_xfail=no
 (
-  printf "%s\n" "33. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "34. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -8667,13 +8790,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_33
-#AT_START_34
-at_fn_group_banner 34 'divert.at:459' \
+#AT_STOP_34
+#AT_START_35
+at_fn_group_banner 35 'divert.at:459' \
   "dpkg-divert remove (divert-to)" "                 " 4
 at_xfail=no
 (
-  printf "%s\n" "34. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "35. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -8863,13 +8986,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_34
-#AT_START_35
-at_fn_group_banner 35 'divert.at:494' \
+#AT_STOP_35
+#AT_START_36
+at_fn_group_banner 36 'divert.at:494' \
   "dpkg-divert remove (plain)" "                     " 4
 at_xfail=no
 (
-  printf "%s\n" "35. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "36. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -8978,13 +9101,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_35
-#AT_START_36
-at_fn_group_banner 36 'divert.at:517' \
+#AT_STOP_36
+#AT_START_37
+at_fn_group_banner 37 'divert.at:517' \
   "dpkg-divert remove (by-package)" "                " 4
 at_xfail=no
 (
-  printf "%s\n" "36. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "37. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -9080,13 +9203,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_36
-#AT_START_37
-at_fn_group_banner 37 'divert.at:539' \
+#AT_STOP_37
+#AT_START_38
+at_fn_group_banner 38 'divert.at:539' \
   "dpkg-divert remove (test)" "                      " 4
 at_xfail=no
 (
-  printf "%s\n" "37. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "38. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -9256,13 +9379,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_37
-#AT_START_38
-at_fn_group_banner 38 'divert.at:564' \
+#AT_STOP_38
+#AT_START_39
+at_fn_group_banner 39 'divert.at:564' \
   "dpkg-divert db (no-access)" "                     " 4
 at_xfail=no
 (
-  printf "%s\n" "38. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "39. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -9317,13 +9440,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_38
-#AT_START_39
-at_fn_group_banner 39 'divert.at:580' \
+#AT_STOP_39
+#AT_START_40
+at_fn_group_banner 40 'divert.at:580' \
   "dpkg-divert db (truncated)" "                     " 4
 at_xfail=no
 (
-  printf "%s\n" "39. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "40. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -9407,13 +9530,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_39
-#AT_START_40
-at_fn_group_banner 40 'divert.at:598' \
+#AT_STOP_40
+#AT_START_41
+at_fn_group_banner 41 'divert.at:598' \
   "dpkg-divert db (read-only dir)" "                 " 4
 at_xfail=no
 (
-  printf "%s\n" "40. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "41. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -9479,13 +9602,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_40
-#AT_START_41
-at_fn_group_banner 41 'divert.at:613' \
+#AT_STOP_41
+#AT_START_42
+at_fn_group_banner 42 'divert.at:613' \
   "dpkg-divert db (disk full)" "                     " 4
 at_xfail=no
 (
-  printf "%s\n" "41. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "42. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -9549,13 +9672,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_41
-#AT_START_42
-at_fn_group_banner 42 'divert.at:628' \
+#AT_STOP_42
+#AT_START_43
+at_fn_group_banner 43 'divert.at:628' \
   "dpkg-divert db (pathname is dir)" "               " 4
 at_xfail=no
 (
-  printf "%s\n" "42. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "43. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -9613,13 +9736,103 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_42
-#AT_START_43
-at_fn_group_banner 43 'chdir.at:5' \
-  "dpkg chdir opts normalize" "                      " 5
+#AT_STOP_43
+#AT_START_44
+at_fn_group_banner 44 'trigger.at:6' \
+  "dpkg trigger no-act" "                            " 5
 at_xfail=no
 (
-  printf "%s\n" "43. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "44. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+cat >ref-deferred <<'_ATEOF'
+synthetic-trigger synthetic-package
+_ATEOF
+
+
+
+  mkdir -p "dpkgdb/triggers"
+  : >dpkgdb/triggers/Lock
+
+
+  mkdir -p "dpkgdb/triggers"
+  : >dpkgdb/triggers/Unincorp
+
+
+{ set +x
+printf "%s\n" "$at_srcdir/trigger.at:15:   dpkg-trigger   --admindir=dpkgdb   --by-package synthetic-package synthetic-trigger"
+at_fn_check_prepare_trace "trigger.at:15"
+( $at_check_trace;   dpkg-trigger   --admindir=dpkgdb   --by-package synthetic-package synthetic-trigger
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/trigger.at:15"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+  cp "ref-deferred" expout
+  { set +x
+printf "%s\n" "$at_srcdir/trigger.at:16: cat \"dpkgdb/triggers/Unincorp\""
+at_fn_check_prepare_trace "trigger.at:16"
+( $at_check_trace; cat "dpkgdb/triggers/Unincorp"
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/trigger.at:16"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+
+# Check whether we are really doing nothing.
+{ set +x
+printf "%s\n" "$at_srcdir/trigger.at:19:   dpkg-trigger   --admindir=dpkgdb   --by-package synthetic-package --no-act synthetic-trigger"
+at_fn_check_prepare_trace "trigger.at:19"
+( $at_check_trace;   dpkg-trigger   --admindir=dpkgdb   --by-package synthetic-package --no-act synthetic-trigger
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/trigger.at:19"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+  cp "ref-deferred" expout
+  { set +x
+printf "%s\n" "$at_srcdir/trigger.at:20: cat \"dpkgdb/triggers/Unincorp\""
+at_fn_check_prepare_trace "trigger.at:20"
+( $at_check_trace; cat "dpkgdb/triggers/Unincorp"
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/trigger.at:20"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_44
+#AT_START_45
+at_fn_group_banner 45 'chdir.at:5' \
+  "dpkg chdir opts normalize" "                      " 6
+at_xfail=no
+(
+  printf "%s\n" "45. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -9663,13 +9876,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_43
-#AT_START_44
-at_fn_group_banner 44 'chdir.at:5' \
-  "dpkg chdir opts" "                                " 5
+#AT_STOP_45
+#AT_START_46
+at_fn_group_banner 46 'chdir.at:5' \
+  "dpkg chdir opts" "                                " 6
 at_xfail=no
 (
-  printf "%s\n" "44. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "46. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -9847,13 +10060,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_44
-#AT_START_45
-at_fn_group_banner 45 'chdir.at:5' \
-  "dpkg chdir env" "                                 " 5
+#AT_STOP_46
+#AT_START_47
+at_fn_group_banner 47 'chdir.at:5' \
+  "dpkg chdir env" "                                 " 6
 at_xfail=no
 (
-  printf "%s\n" "45. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "47. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -9917,13 +10130,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_45
-#AT_START_46
-at_fn_group_banner 46 'chdir.at:5' \
-  "dpkg chdir env+opt admindir" "                    " 5
+#AT_STOP_47
+#AT_START_48
+at_fn_group_banner 48 'chdir.at:5' \
+  "dpkg chdir env+opt admindir" "                    " 6
 at_xfail=no
 (
-  printf "%s\n" "46. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "48. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -10123,13 +10336,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_46
-#AT_START_47
-at_fn_group_banner 47 'chdir.at:5' \
-  "dpkg chdir env+opt root" "                        " 5
+#AT_STOP_48
+#AT_START_49
+at_fn_group_banner 49 'chdir.at:5' \
+  "dpkg chdir env+opt root" "                        " 6
 at_xfail=no
 (
-  printf "%s\n" "47. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "49. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -10329,13 +10542,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_47
-#AT_START_48
-at_fn_group_banner 48 'chdir.at:5' \
-  "dpkg chdir env+opt root+admindir" "               " 5
+#AT_STOP_49
+#AT_START_50
+at_fn_group_banner 50 'chdir.at:5' \
+  "dpkg chdir env+opt root+admindir" "               " 6
 at_xfail=no
 (
-  printf "%s\n" "48. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "50. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -10535,13 +10748,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_48
-#AT_START_49
-at_fn_group_banner 49 'chdir.at:5' \
-  "dpkg-divert chdir opts normalize" "               " 5
+#AT_STOP_50
+#AT_START_51
+at_fn_group_banner 51 'chdir.at:5' \
+  "dpkg-divert chdir opts normalize" "               " 6
 at_xfail=no
 (
-  printf "%s\n" "49. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "51. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -10585,13 +10798,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_49
-#AT_START_50
-at_fn_group_banner 50 'chdir.at:5' \
-  "dpkg-divert chdir opts" "                         " 5
+#AT_STOP_51
+#AT_START_52
+at_fn_group_banner 52 'chdir.at:5' \
+  "dpkg-divert chdir opts" "                         " 6
 at_xfail=no
 (
-  printf "%s\n" "50. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "52. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -10769,13 +10982,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_50
-#AT_START_51
-at_fn_group_banner 51 'chdir.at:5' \
-  "dpkg-divert chdir env" "                          " 5
+#AT_STOP_52
+#AT_START_53
+at_fn_group_banner 53 'chdir.at:5' \
+  "dpkg-divert chdir env" "                          " 6
 at_xfail=no
 (
-  printf "%s\n" "51. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "53. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -10839,13 +11052,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_51
-#AT_START_52
-at_fn_group_banner 52 'chdir.at:5' \
-  "dpkg-divert chdir env+opt admindir" "             " 5
+#AT_STOP_53
+#AT_START_54
+at_fn_group_banner 54 'chdir.at:5' \
+  "dpkg-divert chdir env+opt admindir" "             " 6
 at_xfail=no
 (
-  printf "%s\n" "52. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "54. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -11045,13 +11258,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_52
-#AT_START_53
-at_fn_group_banner 53 'chdir.at:5' \
-  "dpkg-divert chdir env+opt root" "                 " 5
+#AT_STOP_54
+#AT_START_55
+at_fn_group_banner 55 'chdir.at:5' \
+  "dpkg-divert chdir env+opt root" "                 " 6
 at_xfail=no
 (
-  printf "%s\n" "53. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "55. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -11251,13 +11464,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_53
-#AT_START_54
-at_fn_group_banner 54 'chdir.at:5' \
-  "dpkg-divert chdir env+opt root+admindir" "        " 5
+#AT_STOP_55
+#AT_START_56
+at_fn_group_banner 56 'chdir.at:5' \
+  "dpkg-divert chdir env+opt root+admindir" "        " 6
 at_xfail=no
 (
-  printf "%s\n" "54. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "56. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -11457,13 +11670,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_54
-#AT_START_55
-at_fn_group_banner 55 'chdir.at:5' \
-  "dpkg-statoverride chdir opts normalize" "         " 5
+#AT_STOP_56
+#AT_START_57
+at_fn_group_banner 57 'chdir.at:5' \
+  "dpkg-statoverride chdir opts normalize" "         " 6
 at_xfail=no
 (
-  printf "%s\n" "55. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "57. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -11507,13 +11720,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_55
-#AT_START_56
-at_fn_group_banner 56 'chdir.at:5' \
-  "dpkg-statoverride chdir opts" "                   " 5
+#AT_STOP_57
+#AT_START_58
+at_fn_group_banner 58 'chdir.at:5' \
+  "dpkg-statoverride chdir opts" "                   " 6
 at_xfail=no
 (
-  printf "%s\n" "56. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "58. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -11691,13 +11904,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_56
-#AT_START_57
-at_fn_group_banner 57 'chdir.at:5' \
-  "dpkg-statoverride chdir env" "                    " 5
+#AT_STOP_58
+#AT_START_59
+at_fn_group_banner 59 'chdir.at:5' \
+  "dpkg-statoverride chdir env" "                    " 6
 at_xfail=no
 (
-  printf "%s\n" "57. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "59. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -11761,13 +11974,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_57
-#AT_START_58
-at_fn_group_banner 58 'chdir.at:5' \
-  "dpkg-statoverride chdir env+opt admindir" "       " 5
+#AT_STOP_59
+#AT_START_60
+at_fn_group_banner 60 'chdir.at:5' \
+  "dpkg-statoverride chdir env+opt admindir" "       " 6
 at_xfail=no
 (
-  printf "%s\n" "58. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "60. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -11967,13 +12180,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_58
-#AT_START_59
-at_fn_group_banner 59 'chdir.at:5' \
-  "dpkg-statoverride chdir env+opt root" "           " 5
+#AT_STOP_60
+#AT_START_61
+at_fn_group_banner 61 'chdir.at:5' \
+  "dpkg-statoverride chdir env+opt root" "           " 6
 at_xfail=no
 (
-  printf "%s\n" "59. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "61. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -12173,13 +12386,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_59
-#AT_START_60
-at_fn_group_banner 60 'chdir.at:5' \
-  "dpkg-statoverride chdir env+opt root+admindir" "  " 5
+#AT_STOP_61
+#AT_START_62
+at_fn_group_banner 62 'chdir.at:5' \
+  "dpkg-statoverride chdir env+opt root+admindir" "  " 6
 at_xfail=no
 (
-  printf "%s\n" "60. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "62. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -12379,13 +12592,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_60
-#AT_START_61
-at_fn_group_banner 61 'chdir.at:349' \
-  "dpkg-split chdir opts" "                          " 5
+#AT_STOP_62
+#AT_START_63
+at_fn_group_banner 63 'chdir.at:349' \
+  "dpkg-split chdir opts" "                          " 6
 at_xfail=no
 (
-  printf "%s\n" "61. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "63. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -12461,13 +12674,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_61
-#AT_START_62
-at_fn_group_banner 62 'chdir.at:349' \
-  "dpkg-split chdir env" "                           " 5
+#AT_STOP_63
+#AT_START_64
+at_fn_group_banner 64 'chdir.at:349' \
+  "dpkg-split chdir env" "                           " 6
 at_xfail=no
 (
-  printf "%s\n" "62. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "64. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -12533,13 +12746,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_62
-#AT_START_63
-at_fn_group_banner 63 'chdir.at:349' \
-  "dpkg-split chdir env+opt admindir" "              " 5
+#AT_STOP_64
+#AT_START_65
+at_fn_group_banner 65 'chdir.at:349' \
+  "dpkg-split chdir env+opt admindir" "              " 6
 at_xfail=no
 (
-  printf "%s\n" "63. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "65. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -12620,187 +12833,187 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_63
-#AT_START_64
-at_fn_group_banner 64 'chdir.at:349' \
-  "dpkg-split chdir env+opt root" "                  " 5
-at_xfail=no
-(
-  printf "%s\n" "64. $at_setup_line: testing $at_desc ..."
-  $at_traceon
-
-
-
-  DPKG_ROOT=
-  DPKG_ADMINDIR=
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
-     DPKG_DEBUG=1 dpkg-split --version --root=/rootdir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env \
-     DPKG_DEBUG=1 dpkg-split --version --root=/rootdir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
-     DPKG_DEBUG=1 dpkg-split --version --admindir=/admindir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env \
-     DPKG_DEBUG=1 dpkg-split --version --admindir=/admindir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_env admindir=/admindir_opt
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
-     DPKG_DEBUG=1 dpkg-split --version --root=/rootdir_opt --admindir=/admindir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env \
-     DPKG_DEBUG=1 dpkg-split --version --root=/rootdir_opt --admindir=/admindir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/admindir_opt
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
-     DPKG_DEBUG=1 dpkg-split --version --admindir=/admindir_opt --root=/rootdir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env \
-     DPKG_DEBUG=1 dpkg-split --version --admindir=/admindir_opt --root=/rootdir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-
-    set +x
-  $at_times_p && times >"$at_times_file"
-) 5>&1 2>&1 7>&- | eval $at_tee_pipe
-read at_status <"$at_status_file"
-#AT_STOP_64
-#AT_START_65
-at_fn_group_banner 65 'chdir.at:349' \
-  "dpkg-split chdir env+opt root+admindir" "         " 5
-at_xfail=no
-(
-  printf "%s\n" "65. $at_setup_line: testing $at_desc ..."
-  $at_traceon
-
-
-
-  DPKG_ROOT=
-  DPKG_ADMINDIR=
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
-     DPKG_DEBUG=1 dpkg-split --version --root=/rootdir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
-     DPKG_DEBUG=1 dpkg-split --version --root=/rootdir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
-     DPKG_DEBUG=1 dpkg-split --version --admindir=/admindir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
-     DPKG_DEBUG=1 dpkg-split --version --admindir=/admindir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_env admindir=/admindir_opt
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
-     DPKG_DEBUG=1 dpkg-split --version --root=/rootdir_opt --admindir=/admindir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
-     DPKG_DEBUG=1 dpkg-split --version --root=/rootdir_opt --admindir=/admindir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/admindir_opt
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
-     DPKG_DEBUG=1 dpkg-split --version --admindir=/admindir_opt --root=/rootdir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
-     DPKG_DEBUG=1 dpkg-split --version --admindir=/admindir_opt --root=/rootdir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-
-    set +x
-  $at_times_p && times >"$at_times_file"
-) 5>&1 2>&1 7>&- | eval $at_tee_pipe
-read at_status <"$at_status_file"
 #AT_STOP_65
 #AT_START_66
 at_fn_group_banner 66 'chdir.at:349' \
-  "dpkg-query chdir opts" "                          " 5
+  "dpkg-split chdir env+opt root" "                  " 6
 at_xfail=no
 (
   printf "%s\n" "66. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+  DPKG_ROOT=
+  DPKG_ADMINDIR=
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
+     DPKG_DEBUG=1 dpkg-split --version --root=/rootdir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env \
+     DPKG_DEBUG=1 dpkg-split --version --root=/rootdir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
+     DPKG_DEBUG=1 dpkg-split --version --admindir=/admindir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env \
+     DPKG_DEBUG=1 dpkg-split --version --admindir=/admindir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_env admindir=/admindir_opt
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
+     DPKG_DEBUG=1 dpkg-split --version --root=/rootdir_opt --admindir=/admindir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env \
+     DPKG_DEBUG=1 dpkg-split --version --root=/rootdir_opt --admindir=/admindir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/admindir_opt
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
+     DPKG_DEBUG=1 dpkg-split --version --admindir=/admindir_opt --root=/rootdir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env \
+     DPKG_DEBUG=1 dpkg-split --version --admindir=/admindir_opt --root=/rootdir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+    set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_66
+#AT_START_67
+at_fn_group_banner 67 'chdir.at:349' \
+  "dpkg-split chdir env+opt root+admindir" "         " 6
+at_xfail=no
+(
+  printf "%s\n" "67. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+  DPKG_ROOT=
+  DPKG_ADMINDIR=
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
+     DPKG_DEBUG=1 dpkg-split --version --root=/rootdir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
+     DPKG_DEBUG=1 dpkg-split --version --root=/rootdir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
+     DPKG_DEBUG=1 dpkg-split --version --admindir=/admindir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
+     DPKG_DEBUG=1 dpkg-split --version --admindir=/admindir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_env admindir=/admindir_opt
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
+     DPKG_DEBUG=1 dpkg-split --version --root=/rootdir_opt --admindir=/admindir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
+     DPKG_DEBUG=1 dpkg-split --version --root=/rootdir_opt --admindir=/admindir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/admindir_opt
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
+     DPKG_DEBUG=1 dpkg-split --version --admindir=/admindir_opt --root=/rootdir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
+     DPKG_DEBUG=1 dpkg-split --version --admindir=/admindir_opt --root=/rootdir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+    set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_67
+#AT_START_68
+at_fn_group_banner 68 'chdir.at:349' \
+  "dpkg-query chdir opts" "                          " 6
+at_xfail=no
+(
+  printf "%s\n" "68. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -12876,13 +13089,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_66
-#AT_START_67
-at_fn_group_banner 67 'chdir.at:349' \
-  "dpkg-query chdir env" "                           " 5
+#AT_STOP_68
+#AT_START_69
+at_fn_group_banner 69 'chdir.at:349' \
+  "dpkg-query chdir env" "                           " 6
 at_xfail=no
 (
-  printf "%s\n" "67. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "69. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -12948,13 +13161,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_67
-#AT_START_68
-at_fn_group_banner 68 'chdir.at:349' \
-  "dpkg-query chdir env+opt admindir" "              " 5
+#AT_STOP_69
+#AT_START_70
+at_fn_group_banner 70 'chdir.at:349' \
+  "dpkg-query chdir env+opt admindir" "              " 6
 at_xfail=no
 (
-  printf "%s\n" "68. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "70. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -13035,187 +13248,187 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_68
-#AT_START_69
-at_fn_group_banner 69 'chdir.at:349' \
-  "dpkg-query chdir env+opt root" "                  " 5
-at_xfail=no
-(
-  printf "%s\n" "69. $at_setup_line: testing $at_desc ..."
-  $at_traceon
-
-
-
-  DPKG_ROOT=
-  DPKG_ADMINDIR=
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
-     DPKG_DEBUG=1 dpkg-query --version --root=/rootdir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env \
-     DPKG_DEBUG=1 dpkg-query --version --root=/rootdir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
-     DPKG_DEBUG=1 dpkg-query --version --admindir=/admindir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env \
-     DPKG_DEBUG=1 dpkg-query --version --admindir=/admindir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_env admindir=/admindir_opt
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
-     DPKG_DEBUG=1 dpkg-query --version --root=/rootdir_opt --admindir=/admindir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env \
-     DPKG_DEBUG=1 dpkg-query --version --root=/rootdir_opt --admindir=/admindir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/admindir_opt
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
-     DPKG_DEBUG=1 dpkg-query --version --admindir=/admindir_opt --root=/rootdir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env \
-     DPKG_DEBUG=1 dpkg-query --version --admindir=/admindir_opt --root=/rootdir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-
-    set +x
-  $at_times_p && times >"$at_times_file"
-) 5>&1 2>&1 7>&- | eval $at_tee_pipe
-read at_status <"$at_status_file"
-#AT_STOP_69
-#AT_START_70
-at_fn_group_banner 70 'chdir.at:349' \
-  "dpkg-query chdir env+opt root+admindir" "         " 5
-at_xfail=no
-(
-  printf "%s\n" "70. $at_setup_line: testing $at_desc ..."
-  $at_traceon
-
-
-
-  DPKG_ROOT=
-  DPKG_ADMINDIR=
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
-     DPKG_DEBUG=1 dpkg-query --version --root=/rootdir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
-     DPKG_DEBUG=1 dpkg-query --version --root=/rootdir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
-     DPKG_DEBUG=1 dpkg-query --version --admindir=/admindir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
-     DPKG_DEBUG=1 dpkg-query --version --admindir=/admindir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_env admindir=/admindir_opt
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
-     DPKG_DEBUG=1 dpkg-query --version --root=/rootdir_opt --admindir=/admindir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
-     DPKG_DEBUG=1 dpkg-query --version --root=/rootdir_opt --admindir=/admindir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/admindir_opt
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
-     DPKG_DEBUG=1 dpkg-query --version --admindir=/admindir_opt --root=/rootdir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
-     DPKG_DEBUG=1 dpkg-query --version --admindir=/admindir_opt --root=/rootdir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-
-    set +x
-  $at_times_p && times >"$at_times_file"
-) 5>&1 2>&1 7>&- | eval $at_tee_pipe
-read at_status <"$at_status_file"
 #AT_STOP_70
 #AT_START_71
 at_fn_group_banner 71 'chdir.at:349' \
-  "dpkg-trigger chdir opts" "                        " 5
+  "dpkg-query chdir env+opt root" "                  " 6
 at_xfail=no
 (
   printf "%s\n" "71. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+  DPKG_ROOT=
+  DPKG_ADMINDIR=
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
+     DPKG_DEBUG=1 dpkg-query --version --root=/rootdir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env \
+     DPKG_DEBUG=1 dpkg-query --version --root=/rootdir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
+     DPKG_DEBUG=1 dpkg-query --version --admindir=/admindir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env \
+     DPKG_DEBUG=1 dpkg-query --version --admindir=/admindir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_env admindir=/admindir_opt
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
+     DPKG_DEBUG=1 dpkg-query --version --root=/rootdir_opt --admindir=/admindir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env \
+     DPKG_DEBUG=1 dpkg-query --version --root=/rootdir_opt --admindir=/admindir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/admindir_opt
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
+     DPKG_DEBUG=1 dpkg-query --version --admindir=/admindir_opt --root=/rootdir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env \
+     DPKG_DEBUG=1 dpkg-query --version --admindir=/admindir_opt --root=/rootdir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+    set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_71
+#AT_START_72
+at_fn_group_banner 72 'chdir.at:349' \
+  "dpkg-query chdir env+opt root+admindir" "         " 6
+at_xfail=no
+(
+  printf "%s\n" "72. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+  DPKG_ROOT=
+  DPKG_ADMINDIR=
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
+     DPKG_DEBUG=1 dpkg-query --version --root=/rootdir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
+     DPKG_DEBUG=1 dpkg-query --version --root=/rootdir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
+     DPKG_DEBUG=1 dpkg-query --version --admindir=/admindir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
+     DPKG_DEBUG=1 dpkg-query --version --admindir=/admindir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_env admindir=/admindir_opt
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
+     DPKG_DEBUG=1 dpkg-query --version --root=/rootdir_opt --admindir=/admindir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
+     DPKG_DEBUG=1 dpkg-query --version --root=/rootdir_opt --admindir=/admindir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/admindir_opt
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
+     DPKG_DEBUG=1 dpkg-query --version --admindir=/admindir_opt --root=/rootdir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
+     DPKG_DEBUG=1 dpkg-query --version --admindir=/admindir_opt --root=/rootdir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+    set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_72
+#AT_START_73
+at_fn_group_banner 73 'chdir.at:349' \
+  "dpkg-trigger chdir opts" "                        " 6
+at_xfail=no
+(
+  printf "%s\n" "73. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -13291,13 +13504,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_71
-#AT_START_72
-at_fn_group_banner 72 'chdir.at:349' \
-  "dpkg-trigger chdir env" "                         " 5
+#AT_STOP_73
+#AT_START_74
+at_fn_group_banner 74 'chdir.at:349' \
+  "dpkg-trigger chdir env" "                         " 6
 at_xfail=no
 (
-  printf "%s\n" "72. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "74. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -13363,13 +13576,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_72
-#AT_START_73
-at_fn_group_banner 73 'chdir.at:349' \
-  "dpkg-trigger chdir env+opt admindir" "            " 5
+#AT_STOP_74
+#AT_START_75
+at_fn_group_banner 75 'chdir.at:349' \
+  "dpkg-trigger chdir env+opt admindir" "            " 6
 at_xfail=no
 (
-  printf "%s\n" "73. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "75. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -13450,187 +13663,187 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_73
-#AT_START_74
-at_fn_group_banner 74 'chdir.at:349' \
-  "dpkg-trigger chdir env+opt root" "                " 5
-at_xfail=no
-(
-  printf "%s\n" "74. $at_setup_line: testing $at_desc ..."
-  $at_traceon
-
-
-
-  DPKG_ROOT=
-  DPKG_ADMINDIR=
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
-     DPKG_DEBUG=1 dpkg-trigger --version --root=/rootdir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env \
-     DPKG_DEBUG=1 dpkg-trigger --version --root=/rootdir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
-     DPKG_DEBUG=1 dpkg-trigger --version --admindir=/admindir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env \
-     DPKG_DEBUG=1 dpkg-trigger --version --admindir=/admindir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_env admindir=/admindir_opt
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
-     DPKG_DEBUG=1 dpkg-trigger --version --root=/rootdir_opt --admindir=/admindir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env \
-     DPKG_DEBUG=1 dpkg-trigger --version --root=/rootdir_opt --admindir=/admindir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/admindir_opt
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
-     DPKG_DEBUG=1 dpkg-trigger --version --admindir=/admindir_opt --root=/rootdir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env \
-     DPKG_DEBUG=1 dpkg-trigger --version --admindir=/admindir_opt --root=/rootdir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-
-    set +x
-  $at_times_p && times >"$at_times_file"
-) 5>&1 2>&1 7>&- | eval $at_tee_pipe
-read at_status <"$at_status_file"
-#AT_STOP_74
-#AT_START_75
-at_fn_group_banner 75 'chdir.at:349' \
-  "dpkg-trigger chdir env+opt root+admindir" "       " 5
-at_xfail=no
-(
-  printf "%s\n" "75. $at_setup_line: testing $at_desc ..."
-  $at_traceon
-
-
-
-  DPKG_ROOT=
-  DPKG_ADMINDIR=
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
-     DPKG_DEBUG=1 dpkg-trigger --version --root=/rootdir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
-     DPKG_DEBUG=1 dpkg-trigger --version --root=/rootdir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
-     DPKG_DEBUG=1 dpkg-trigger --version --admindir=/admindir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
-     DPKG_DEBUG=1 dpkg-trigger --version --admindir=/admindir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_env admindir=/admindir_opt
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
-     DPKG_DEBUG=1 dpkg-trigger --version --root=/rootdir_opt --admindir=/admindir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
-     DPKG_DEBUG=1 dpkg-trigger --version --root=/rootdir_opt --admindir=/admindir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/admindir_opt
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-  { set +x
-printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
-     DPKG_DEBUG=1 dpkg-trigger --version --admindir=/admindir_opt --root=/rootdir_opt"
-at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
-( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
-     DPKG_DEBUG=1 dpkg-trigger --version --admindir=/admindir_opt --root=/rootdir_opt
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
-" | \
-  $at_diff - "$at_stderr" || at_failed=:
-echo stdout:; cat "$at_stdout"
-at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-
-    set +x
-  $at_times_p && times >"$at_times_file"
-) 5>&1 2>&1 7>&- | eval $at_tee_pipe
-read at_status <"$at_status_file"
 #AT_STOP_75
 #AT_START_76
-at_fn_group_banner 76 'dpkg-arch.at:5' \
-  "dpkg native architecture support" "               " 6
+at_fn_group_banner 76 'chdir.at:349' \
+  "dpkg-trigger chdir env+opt root" "                " 6
 at_xfail=no
 (
   printf "%s\n" "76. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+  DPKG_ROOT=
+  DPKG_ADMINDIR=
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
+     DPKG_DEBUG=1 dpkg-trigger --version --root=/rootdir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env \
+     DPKG_DEBUG=1 dpkg-trigger --version --root=/rootdir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
+     DPKG_DEBUG=1 dpkg-trigger --version --admindir=/admindir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env \
+     DPKG_DEBUG=1 dpkg-trigger --version --admindir=/admindir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_env admindir=/admindir_opt
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
+     DPKG_DEBUG=1 dpkg-trigger --version --root=/rootdir_opt --admindir=/admindir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env \
+     DPKG_DEBUG=1 dpkg-trigger --version --root=/rootdir_opt --admindir=/admindir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/admindir_opt
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env \\
+     DPKG_DEBUG=1 dpkg-trigger --version --admindir=/admindir_opt --root=/rootdir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env \
+     DPKG_DEBUG=1 dpkg-trigger --version --admindir=/admindir_opt --root=/rootdir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+    set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_76
+#AT_START_77
+at_fn_group_banner 77 'chdir.at:349' \
+  "dpkg-trigger chdir env+opt root+admindir" "       " 6
+at_xfail=no
+(
+  printf "%s\n" "77. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+  DPKG_ROOT=
+  DPKG_ADMINDIR=
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
+     DPKG_DEBUG=1 dpkg-trigger --version --root=/rootdir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
+     DPKG_DEBUG=1 dpkg-trigger --version --root=/rootdir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
+     DPKG_DEBUG=1 dpkg-trigger --version --admindir=/admindir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
+     DPKG_DEBUG=1 dpkg-trigger --version --admindir=/admindir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_env admindir=/admindir_opt
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
+     DPKG_DEBUG=1 dpkg-trigger --version --root=/rootdir_opt --admindir=/admindir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
+     DPKG_DEBUG=1 dpkg-trigger --version --root=/rootdir_opt --admindir=/admindir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/admindir_opt
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+  { set +x
+printf "%s\n" "$at_srcdir/chdir.at:349: DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \\
+     DPKG_DEBUG=1 dpkg-trigger --version --admindir=/admindir_opt --root=/rootdir_opt"
+at_fn_check_prepare_notrace 'an embedded newline' "chdir.at:349"
+( $at_check_trace; DPKG_ROOT=/rootdir_env DPKG_ADMINDIR=/admindir_env \
+     DPKG_DEBUG=1 dpkg-trigger --version --admindir=/admindir_opt --root=/rootdir_opt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+echo >>"$at_stderr"; printf "%s\n" "D000001: root=/rootdir_opt admindir=/rootdir_opt$DEFAULT_ADMINDIR
+" | \
+  $at_diff - "$at_stderr" || at_failed=:
+echo stdout:; cat "$at_stdout"
+at_fn_check_status 0 $at_status "$at_srcdir/chdir.at:349"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+    set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_77
+#AT_START_78
+at_fn_group_banner 78 'dpkg-arch.at:5' \
+  "dpkg native architecture support" "               " 7
+at_xfail=no
+(
+  printf "%s\n" "78. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -13682,13 +13895,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_76
-#AT_START_77
-at_fn_group_banner 77 'dpkg-arch.at:18' \
-  "dpkg foreign architecture support" "              " 6
+#AT_STOP_78
+#AT_START_79
+at_fn_group_banner 79 'dpkg-arch.at:18' \
+  "dpkg foreign architecture support" "              " 7
 at_xfail=no
 (
-  printf "%s\n" "77. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "79. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -13742,4 +13955,4 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_77
+#AT_STOP_79

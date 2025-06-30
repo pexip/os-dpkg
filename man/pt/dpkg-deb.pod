@@ -38,13 +38,13 @@ Para a maioria dos comandos que recebem uma entrada de argumento de arquivo, o a
 
 Cria um arquivo debian para a árvore de sistema de ficheiros armazenada em I<binary-directory>. I<binary-directory> tem de ter um sub-directório B<DEBIAN>, o qual contém os ficheiros de informação de controlo tais como o próprio ficheiro control. Este directório I<não> irá aparecer no arquivo de sistema de ficheiros do pacote binários, mas em vez disso os ficheiros nele serão postos na área de informação de controlo do pacote binário.
 
-Unless you specify B<--no-check>, B<dpkg-deb> will read B<DEBIAN/control> and parse it.  It will check the file for syntax errors and other problems, and display the name of the binary package being built.  B<dpkg-deb> will also check the permissions of the maintainer scripts and other files found in the B<DEBIAN> control information directory.
+A menos que você especifique B<--no-check>, B<dpkg-deb> irá ler B<DEBIAN/control> e analisa-lo. Irá verificar o ficheiro por erros de sintaxe e outros problemas, e mostrar o nome do pacote binário a ser compilado. B<dpkg-deb> irá também verificar as permissões dos scripts do maintainer e outros ficheiros encontrados no directório de informação de controlo B<DEBIAN>.
 
 Se não for especificado nenhum I<archive> então o B<dpkg-deb> irá escrever o pacote no ficheiro I<binary-directory>B<.deb>.
 
 Se o arquivo a ser criado já existir, ele será sobrescrito.
 
-If the second argument is a directory then B<dpkg-deb> will write to the file I<directory>B</>I<package>B<_>I<version>B<_>I<arch>B<.deb.> When a target directory is specified, rather than a file, the B<--no-check> option may not be used (since B<dpkg-deb> needs to read and parse the package control file to determine which filename to use).
+Se o segundo argumento for um directório então B<dpkg-deb> irá escrever para o ficheiro I<directory>B</>I<package>B<_>I<version>B<_>I<arch>B<.deb.> Quando é especificado um directório alvo, em vez de um ficheiro, a opção B<--no-check> pode não ser usada (pois B<dpkg-deb> precisa de ler e analisar o ficheiro de controle do pacote para determinar qual o nome de ficheiro a suar).
 
 =item B<-I>, B<--info> I<archive> [I<control-file-name>...]
 
@@ -166,11 +166,11 @@ O formato de arquivo antigo é menos facilmente analisado por ferramentas não-D
 
 Inibe as verificações usuais de B<dpkg-deb --build> no conteúdo proposto de um arquivo. Deste modo, você pode compilar qualquer arquivo que queira, não interessa o quanto estragado.
 
-Option supported since dpkg 1.22.12.
+Opção suportada desde dpkg 1.22.12.
 
 =item B<--nocheck>
 
-This is an alias for B<--no-check>.
+Este é um nome alternativo para B<--no-check>.
 
 =item B<-v>, B<--verbose>
 
@@ -228,15 +228,15 @@ Se definida, será usada para decidir se deve activar o Suporte a Linguagem Nati
 
 =item B<DPKG_PATH_PASSWD>
 
-Sets the pathname for the system F<passwd> file.  This path is relative to the B<--root> directory.  The default is F</etc/passwd>.
+Define o nome-de-caminho para o ficheiro F<passwd> do sistema.  Este caminho é relativo ao directório B<--root>.  A predefinição é F</etc/passwd>.
 
-Since dpkg 1.22.16.
+Desde dpkg 1.22.16.
 
 =item B<DPKG_PATH_GROUP>
 
-Sets the pathname for the system F<group> file.  This path is relative to the B<--root> directory.  The default is F</etc/group>.
+Define o nome-de-caminho para o ficheiro F<group> do sistema.  Este caminho é relativo ao directório B<--root>.  A predefinição é F</etc/group>.
 
-Since dpkg 1.22.16.
+Desde dpkg 1.22.16.
 
 =item B<TMPDIR>
 

@@ -76,7 +76,7 @@ Se definida, será usada para decidir se deve activar o Suporte a Linguagem Nati
 
 =item B<%PKGDATADIR%/buildapi.mk>
 
-Makefile snippet that parses the build API level into a variable.
+Trecho do Makefile que analisa o nível API de compilação numa variável.
 
 =back
 

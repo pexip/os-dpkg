@@ -76,7 +76,7 @@ Om satt, används för att bestämma om lokalt språkstöd ska aktiveras, även 
 
 =item B<%PKGDATADIR%/buildapi.mk>
 
-Makefile snippet that parses the build API level into a variable.
+Makefil-klipp som tolkar bygg-API-nivån till en variabel.
 
 =back
 

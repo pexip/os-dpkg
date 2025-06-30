@@ -1,3 +1,71 @@
+dpkg (1.22.21) unstable; urgency=medium
+
+  [ Guillem Jover ]
+  * dpkg-deb: Fix cleanup for control member with restricted directories.
+    Fixes CVE-2025-6297. Reported by zhutyra on HackerOne.
+  * Perl modules:
+    - Dpkg::BuildDriver::DebianRules: Fix uninitialized Perl variables.
+      Closes: #1107971
+    - Dpkg::BuildDriver::DebianRules: Fix R³ dpkg/target/<target> values
+      handling.
+    - Dpkg::BuildTree: Fix needs_root() for R³ with implementation specific
+      keywords. See #1107971.
+  * Code internals:
+    - libdpkg: Do not segfault when adding triggers in no-act mode.
+      Closes: #1108192
+
+ -- Guillem Jover <guillem@debian.org>  Tue, 01 Jul 2025 01:32:04 +0200
+
+dpkg (1.22.20) unstable; urgency=medium
+
+  [ Guillem Jover ]
+  * Perl modules:
+    - Dpkg::OpenPGP::Backend::Sequoia: Do not run sq/sqv to verify with no
+      keyrings. Closes: #1106148
+    - Dpkg::OpenPGP::Backend::Sequoia: Run sq in stateless mode for
+      verification. Suggested by Neal H. Walfield <neal@sequoia-pgp.org>.
+  * Localization:
+    - Update Catalan translations.
+    - Update German scripts translation.
+      Thanks to Helge Kreutzmann <debian@helgefjell.de>.
+    - Update Portuguese scripts translation.
+    - Update Swedish scripts translation.
+
+ -- Guillem Jover <guillem@debian.org>  Wed, 04 Jun 2025 02:12:28 +0200
+
+dpkg (1.22.19) unstable; urgency=medium
+
+  [ Guillem Jover ]
+  * Perl modules:
+    - Dpkg::Vendor::Debian: Add tag2upload OpenPGP keyring to package-keyrings.
+    - Dpkg::Vendor::PureOS: Add new vendor module.
+      Thanks to Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>.
+    - Test::Dpkg: Fix OpenPGP backend commands detection.
+    - Dpkg::OpenPGP::Backend::Sequoia: Add sqv support for verification.
+  * Code internals:
+    - libcompat: Handle allocation failures in fgetpwent() and fgetgrent().
+      Based on a patch by Simon Richter <sjr@debian.org>.
+  * Packaging:
+    - Document OpenPGP implementation dependencies.
+      Prompted by Paul Gevers <elbrus@debian.org>.
+  * Localization:
+    - Update Brazilian Portuguese programs translation.
+      Thanks to Paulo Henrique de Lima Santana <phls@debian.org>.
+      Closes: #1100999
+    - Update Dutch translations.
+      Thanks to Frans Spiesschaert <Frans.Spiesschaert@yucom.be>.
+      Closes: #1101574, #1101582, #1101583
+    - Update Portuguese translations.
+      Thanks to Américo Monteiro <a_monteiro@gmx.com>.
+      Closes: #1100064, #1105126
+    - Update Romanian translations.
+      Thanks to Remus-Gabriel Chelu <remusgabriel.chelu@disroot.org>.
+      Closes: #1101549, #1101550
+    - Update Swedish translations.
+      Thanks to Peter Krefting <peter@softwolves.pp.se>. Closes: #1100068
+
+ -- Guillem Jover <guillem@debian.org>  Mon, 19 May 2025 00:00:44 +0200
+
 dpkg (1.22.18) unstable; urgency=medium
 
   [ Guillem Jover ]

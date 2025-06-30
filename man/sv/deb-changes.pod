@@ -106,7 +106,7 @@ Det här flerradiga fältet innehåller en lista över filer tillsammans med md5
 
 Första raden i fältvärdet (delen av på samma rad som fältnamnet följt av kolon) är alltid tom. Innehållet i fältet anges som fortsättningsrader, en rad per fil. Varje rad består av blankstegsavdelade fält som beskriver filen: md5-summan, filstorleken, filsektionen, filprioriteten och filnamnet.
 
-If the section or priority are omitted from the package, these default to B<unknown> and B<optional> respectively (since dpkg 1.22.13).
+Om sektion och prioritet utelämnas från paketet sätts de till förvalet B<unknown> respektive B<optional> (sedan dpkg 1.22.13).
 
 Det här fälten visar alla filer insändningen består av. Listan över filer i fältet måste motsvara listan över filer i de andra relaterade B<Checksums>-fälten.
 

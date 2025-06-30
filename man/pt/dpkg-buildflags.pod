@@ -593,11 +593,11 @@ Ficheiro de configuração do utilizador.
 
 =item B<%PKGDATADIR%/buildflags.mk>
 
-Makefile snippet that loads (and optionally export) all flags supported by B<dpkg-buildflags> into variables (since dpkg 1.16.1).
+Trecho do Makefile que carrega (e opcionalmente exporta) todas as bandeiras suportadas pelo B<dpkg-buildflags> em variáveis (desde dpkg 1.16.1).
 
 =item B<%PKGDATADIR%/buildtools.mk>
 
-Makefile snippet that sets suitable host and build tools (and optionally export them) into variables (since dpkg 1.19.0).
+Trecho do Makefile que define anfitrião apropriado e ferramentas de compilação (e opcionalmente exporta-las) em variáveis (desde dpkg 1.19.0).
 
 =back
 

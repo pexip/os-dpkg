@@ -76,7 +76,7 @@ Indien dit ingesteld is, zal het gebruikt worden om te beslissen over het active
 
 =item B<%PKGDATADIR%/buildapi.mk>
 
-Makefile snippet that parses the build API level into a variable.
+Makefile-fragment dat het bouw-API-niveau ontleedt en in een variabele plaatst.
 
 =back
 

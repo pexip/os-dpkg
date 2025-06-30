@@ -1,3 +1,753 @@
+commit d72b038fd2113cb62972e4071db03dd1388394d8
+Author: Guillem Jover <guillem@debian.org>
+Date:   Tue Jul 1 01:34:37 2025 +0200
+
+    Release 1.22.21
+
+ debian/changelog | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
+
+commit 6895685708cbfd2fd084e4a98a116992b8ecae0b
+Author: Guillem Jover <guillem@debian.org>
+Date:   Tue Jul 1 01:32:04 2025 +0200
+
+    po: Regenerate .pot files and merge .po files with them
+
+ dselect/po/bs.po        |  2 +-
+ dselect/po/ca.po        |  2 +-
+ dselect/po/cs.po        |  2 +-
+ dselect/po/da.po        |  2 +-
+ dselect/po/de.po        |  2 +-
+ dselect/po/dselect.pot  |  4 ++--
+ dselect/po/el.po        |  2 +-
+ dselect/po/es.po        |  2 +-
+ dselect/po/et.po        |  2 +-
+ dselect/po/eu.po        |  2 +-
+ dselect/po/fr.po        |  2 +-
+ dselect/po/gl.po        |  2 +-
+ dselect/po/hu.po        |  2 +-
+ dselect/po/id.po        |  2 +-
+ dselect/po/it.po        |  2 +-
+ dselect/po/ja.po        |  2 +-
+ dselect/po/ko.po        |  2 +-
+ dselect/po/nb.po        |  2 +-
+ dselect/po/nl.po        |  2 +-
+ dselect/po/nn.po        |  2 +-
+ dselect/po/pl.po        |  2 +-
+ dselect/po/pt.po        |  2 +-
+ dselect/po/pt_BR.po     |  2 +-
+ dselect/po/ro.po        |  2 +-
+ dselect/po/ru.po        |  2 +-
+ dselect/po/sk.po        |  2 +-
+ dselect/po/sv.po        |  2 +-
+ dselect/po/tl.po        |  2 +-
+ dselect/po/vi.po        |  2 +-
+ dselect/po/zh_CN.po     |  2 +-
+ dselect/po/zh_TW.po     |  2 +-
+ man/po/dpkg-man.pot     |  4 ++--
+ po/ast.po               | 12 ++++++------
+ po/bs.po                | 12 ++++++------
+ po/ca.po                | 12 ++++++------
+ po/cs.po                | 12 ++++++------
+ po/da.po                | 12 ++++++------
+ po/de.po                | 12 ++++++------
+ po/dpkg.pot             | 14 +++++++-------
+ po/dz.po                | 12 ++++++------
+ po/el.po                | 12 ++++++------
+ po/eo.po                | 12 ++++++------
+ po/es.po                | 12 ++++++------
+ po/et.po                | 12 ++++++------
+ po/eu.po                | 12 ++++++------
+ po/fr.po                | 12 ++++++------
+ po/gl.po                | 12 ++++++------
+ po/hu.po                | 12 ++++++------
+ po/id.po                | 12 ++++++------
+ po/it.po                | 12 ++++++------
+ po/ja.po                | 12 ++++++------
+ po/km.po                | 12 ++++++------
+ po/ko.po                | 12 ++++++------
+ po/ku.po                | 12 ++++++------
+ po/lt.po                | 12 ++++++------
+ po/mr.po                | 12 ++++++------
+ po/nb.po                | 12 ++++++------
+ po/ne.po                | 12 ++++++------
+ po/nl.po                | 12 ++++++------
+ po/nn.po                | 12 ++++++------
+ po/oc.po                | 12 ++++++------
+ po/pa.po                | 12 ++++++------
+ po/pl.po                | 12 ++++++------
+ po/pt.po                | 12 ++++++------
+ po/pt_BR.po             | 12 ++++++------
+ po/ro.po                | 12 ++++++------
+ po/ru.po                | 12 ++++++------
+ po/sk.po                | 12 ++++++------
+ po/sv.po                | 12 ++++++------
+ po/th.po                | 12 ++++++------
+ po/tl.po                | 12 ++++++------
+ po/tr.po                | 12 ++++++------
+ po/vi.po                | 12 ++++++------
+ po/zh_CN.po             | 12 ++++++------
+ po/zh_TW.po             | 12 ++++++------
+ scripts/po/ca.po        |  2 +-
+ scripts/po/de.po        |  2 +-
+ scripts/po/dpkg-dev.pot |  4 ++--
+ scripts/po/es.po        |  2 +-
+ scripts/po/fr.po        |  2 +-
+ scripts/po/nl.po        |  2 +-
+ scripts/po/pl.po        |  2 +-
+ scripts/po/pt.po        |  2 +-
+ scripts/po/ru.po        |  2 +-
+ scripts/po/sv.po        |  2 +-
+ 85 files changed, 304 insertions(+), 304 deletions(-)
+
+commit 98c623c8d6814ae46a3b30ca22e584c77d47d86b
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sat Jun 7 14:17:07 2025 +0200
+
+    dpkg-deb: Fix cleanup for control member with restricted directories
+    
+    When extracting a control member into a temporary directory, which is
+    documented as being a safe operation even on untrusted data, the code
+    in charge of the temporary directory cleanup does not sanitize the
+    directory permissions, which is then unable to perform the «rm -rf»
+    when running as a non-root user, leaving temporary files behind.
+    
+    Given automated and repeated execution of dpkg-deb commands on
+    adversarial .deb packages or with well compressible files, placed
+    inside a directory with permissions not allowing removal by a non-root
+    user, this can end up with a DoS scenario due to causing disk quota
+    exhaustion or disk full conditions.
+    
+    This is considered a minor issue, given the required conditions to
+    trigger a problem with it, but an issue non the less given the
+    documented security guarantees of the command. This has been an
+    issue since the initial commit introducing dpkg-deb in C.
+    
+    We use an existing string for the error message to avoid new strings
+    needing translation for stable branches, which make the error message
+    less descriptive than what would be ideal. This will be improved in
+    git HEAD.
+    
+    Reported-by: zhutyra on HackerOne
+    Fixes: CVE-2025-6297
+    Stable-Candidate: 1.20.x 1.21.x 1.22.x
+    (cherry picked from commit ed6bbd445dd8800308c67236ba35d08004c98e82)
+    (cherry picked from commit 02ad0532bd490cbc95b344f670e622a38eecfbf6)
+    (cherry picked from commit d8a76551e22abe76eefd7fef5c7f51f4118eb40e)
+
+ src/at/deb-content.at | 32 ++++++++++++++++++++++++++++++++
+ src/deb/info.c        | 20 ++++++++++++++++++++
+ 2 files changed, 52 insertions(+)
+
+commit 897285ae3246309be39dbfeb343bfd4f23f82d10
+Author: Guillem Jover <guillem@debian.org>
+Date:   Mon Jun 23 19:18:43 2025 +0200
+
+    libdpkg: Do not segfault when adding triggers in no-act mode
+    
+    When we activate a trigger by calling the dpkg-trigger command with
+    deferred triggers in place in no-act mode, the code was not opening
+    the deferred triggers file for writing, but continued with the
+    processing, and then the subsequent attempt to write into it caused
+    a segmentation fault.
+    
+    The root problem is that in no-act mode, we should not even attempt
+    to write anything. So we make the print into the file conditional on
+    whether the file handle is not-NULL.
+    
+    Closes: #1108192
+    Stable-Candidate: 1.20.x 1.21.x 1.22.x
+    (cherry picked from commit b7389d6fef8d27e1cabc76b3035db0d575d26b31)
+
+ lib/dpkg/trigdeferred.c |  3 +++
+ src/Makefile.am         |  1 +
+ src/at/local.at         |  6 ++++++
+ src/at/testsuite.at     |  4 ++++
+ src/at/trigger.at       | 22 ++++++++++++++++++++++
+ 5 files changed, 36 insertions(+)
+
+commit 435c1c34bc53ffd0f96b0a63c580bbcccb25f29e
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sun Jun 22 17:04:40 2025 +0200
+
+    Dpkg::BuildTree: Fix needs_root() for R³ with implementation specific keywords
+    
+    The «dpkg-buildtree is-rootless» action was implemented on top of
+    existing logic used by the dpkg Perl modules, but those were only
+    concerned about dpkg specific keywords in R³.
+    
+    According to the specification, any implementation specific keyword
+    implies that some form of root is necessary. And given that
+    «dpkg-buildtree is-rootless» is now being used for example by sbuild to
+    decide whether to install fakeroot, giving a wrong result can result in
+    build failures.
+    
+    Ref: #1107971
+    Fixes: commit 1a06485a77983e2471ec761a0f9bf02a921a8761
+    Stable-Candidate: 1.22.x
+    (cherry picked from commit bdf018b3448d9977e9dc1920d2a07ae5ccb23d04)
+
+ scripts/Dpkg/BuildTree.pm                                |  3 ++-
+ scripts/Makefile.am                                      |  5 +++++
+ scripts/t/dpkg_buildtree.t                               | 16 +++++++++++++---
+ .../src-rrr-dpkg-target-binary/debian/control            |  5 +++++
+ .../src-rrr-dpkg-target-custom/debian/control            |  5 +++++
+ .../src-rrr-dpkg-target-subcommand/debian/control        |  5 +++++
+ .../src-rrr-dpkg-unknown-keyword/debian/control          |  5 +++++
+ .../src-rrr-impl-specific-keyword/debian/control         |  5 +++++
+ 8 files changed, 45 insertions(+), 4 deletions(-)
+
+commit aff87e743ac1a6acfd260bf040ddcc68cdf1bbef
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sun Jun 22 17:03:42 2025 +0200
+
+    Dpkg::BuildDriver::DebianRules: Fix R³ dpkg/target/<target> values handling
+    
+    The if branch validating the dpkg/target/<target> was only checking
+    whether the value was a bogus official target, otherwise it was falling
+    through to the next check which considered any non dpkg/target-subcommand
+    value to be unknown, catching the valid dpkg/target/<target> values and
+    emitting an error as if they were invalid.
+    
+    Stable-Candidate: 1.20.x 1.21.x 1.22.x
+    (cherry picked from commit 1c6651ca90c3981bf8a417a33f61eaf25244181d)
+
+ scripts/Dpkg/BuildDriver/DebianRules.pm | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+commit 983153966d8b81a5396afd9b0597d19014cabcde
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sun Jun 22 17:02:54 2025 +0200
+
+    Dpkg::BuildDriver::DebianRules: Fix uninitialized Perl variables
+    
+    This causes Perl warnings due to the uninitialized variables, when using
+    implementation specific keyword namespaces in the Rules-Requires-Root
+    field, such as the «debhelper/upstream-make-install» listed in the
+    specification.
+    
+    Closes: #1107971
+    Stable-Candidate: 1.20.x 1.21.x 1.22.x
+    (cherry picked from commit 1cccf86adaefc2dabd8b3efc8afb100238b352c1)
+
+ scripts/Dpkg/BuildDriver/DebianRules.pm | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit a9afb152df4c51f5050b35784a6a940a9a447357
+Author: Guillem Jover <guillem@debian.org>
+Date:   Tue Jul 1 01:07:17 2025 +0200
+
+    Bump version to 1.22.21
+
+ debian/changelog | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+commit 8243233fc5173110798cbc22711fb4675a356d02
+Author: Guillem Jover <guillem@debian.org>
+Date:   Wed Jun 4 02:14:02 2025 +0200
+
+    Release 1.22.20
+
+ debian/changelog | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
+
+commit 08247f1060dd4268f36b0f723f89c0615c37a799
+Author: Guillem Jover <guillem@debian.org>
+Date:   Wed Jun 4 02:12:28 2025 +0200
+
+    po: Regenerate .pot files and merge .po files with them
+
+ dselect/po/bs.po        | 2 +-
+ dselect/po/ca.po        | 2 +-
+ dselect/po/cs.po        | 2 +-
+ dselect/po/da.po        | 2 +-
+ dselect/po/de.po        | 2 +-
+ dselect/po/dselect.pot  | 4 ++--
+ dselect/po/el.po        | 2 +-
+ dselect/po/es.po        | 2 +-
+ dselect/po/et.po        | 2 +-
+ dselect/po/eu.po        | 2 +-
+ dselect/po/fr.po        | 2 +-
+ dselect/po/gl.po        | 2 +-
+ dselect/po/hu.po        | 2 +-
+ dselect/po/id.po        | 2 +-
+ dselect/po/it.po        | 2 +-
+ dselect/po/ja.po        | 2 +-
+ dselect/po/ko.po        | 2 +-
+ dselect/po/nb.po        | 2 +-
+ dselect/po/nl.po        | 2 +-
+ dselect/po/nn.po        | 2 +-
+ dselect/po/pl.po        | 2 +-
+ dselect/po/pt.po        | 2 +-
+ dselect/po/pt_BR.po     | 2 +-
+ dselect/po/ro.po        | 2 +-
+ dselect/po/ru.po        | 2 +-
+ dselect/po/sk.po        | 2 +-
+ dselect/po/sv.po        | 2 +-
+ dselect/po/tl.po        | 2 +-
+ dselect/po/vi.po        | 2 +-
+ dselect/po/zh_CN.po     | 2 +-
+ dselect/po/zh_TW.po     | 2 +-
+ man/po/dpkg-man.pot     | 4 ++--
+ po/ast.po               | 2 +-
+ po/bs.po                | 2 +-
+ po/ca.po                | 2 +-
+ po/cs.po                | 2 +-
+ po/da.po                | 2 +-
+ po/de.po                | 2 +-
+ po/dpkg.pot             | 4 ++--
+ po/dz.po                | 2 +-
+ po/el.po                | 2 +-
+ po/eo.po                | 2 +-
+ po/es.po                | 2 +-
+ po/et.po                | 2 +-
+ po/eu.po                | 2 +-
+ po/fr.po                | 2 +-
+ po/gl.po                | 2 +-
+ po/hu.po                | 2 +-
+ po/id.po                | 2 +-
+ po/it.po                | 2 +-
+ po/ja.po                | 2 +-
+ po/km.po                | 2 +-
+ po/ko.po                | 2 +-
+ po/ku.po                | 2 +-
+ po/lt.po                | 2 +-
+ po/mr.po                | 2 +-
+ po/nb.po                | 2 +-
+ po/ne.po                | 2 +-
+ po/nl.po                | 2 +-
+ po/nn.po                | 2 +-
+ po/oc.po                | 2 +-
+ po/pa.po                | 2 +-
+ po/pl.po                | 2 +-
+ po/pt.po                | 2 +-
+ po/pt_BR.po             | 2 +-
+ po/ro.po                | 2 +-
+ po/ru.po                | 2 +-
+ po/sk.po                | 2 +-
+ po/sv.po                | 2 +-
+ po/th.po                | 2 +-
+ po/tl.po                | 2 +-
+ po/tr.po                | 2 +-
+ po/vi.po                | 2 +-
+ po/zh_CN.po             | 2 +-
+ po/zh_TW.po             | 2 +-
+ scripts/po/ca.po        | 2 +-
+ scripts/po/de.po        | 2 +-
+ scripts/po/dpkg-dev.pot | 4 ++--
+ scripts/po/es.po        | 2 +-
+ scripts/po/fr.po        | 2 +-
+ scripts/po/nl.po        | 2 +-
+ scripts/po/pl.po        | 2 +-
+ scripts/po/pt.po        | 2 +-
+ scripts/po/ru.po        | 2 +-
+ scripts/po/sv.po        | 2 +-
+ 85 files changed, 89 insertions(+), 89 deletions(-)
+
+commit 974591cc12fdc7ef18591cd8122fcf384bc33b0e
+Author: Guillem Jover <guillem@debian.org>
+Date:   Wed Jun 4 01:28:19 2025 +0200
+
+    po: Update Swedish scripts translation
+    
+    This restores the translation to the previous 100% coverage, after a
+    last minute commit was added for a derivative.
+    
+    (cherry picked from commit 5140ed1c6396350ea26f1a9593cb1443304141fd)
+
+ scripts/po/sv.po | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+commit 7f89aacc22853c2bf09b2694e04ca14d236e0113
+Author: Guillem Jover <guillem@debian.org>
+Date:   Wed Jun 4 01:27:43 2025 +0200
+
+    po: Update Portuguese scripts translation
+    
+    This restores the translation to the previous 100% coverage, after a
+    last minute commit was added for a derivative.
+    
+    (cherry picked from commit 56319665113a0cf33c61288620d5408a1e7f6821)
+
+ scripts/po/pt.po | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+commit 8c7d3a83726058d0d9da55549201e0f1ca15dcd4
+Author: Guillem Jover <guillem@debian.org>
+Date:   Wed Jun 4 00:54:58 2025 +0200
+
+    po: Update Catalan translations
+    
+    (cherry picked from commit fc7f1c3bfae24ec6ccc64b88ef75e3176f55ddcc)
+
+ dselect/po/ca.po |   7 ++--
+ po/ca.po         | 122 +++++++++++++++++++------------------------------------
+ scripts/po/ca.po |  87 ++++++++++++++++-----------------------
+ 3 files changed, 79 insertions(+), 137 deletions(-)
+
+commit c3b62f2d1a50757c713a95c4497f4eeb27a409f0
+Author: Helge Kreutzmann <debian@helgefjell.de>
+Date:   Wed May 21 19:12:15 2025 +0200
+
+    po: Update German scripts translation
+    
+    (cherry picked from commit 06e920a1c89e9d5d40034f1d3f56a06e5cb8f06a)
+
+ scripts/po/de.po | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
+
+commit c34cec5c57d4b74972538894f65de192b73e8943
+Author: Guillem Jover <guillem@debian.org>
+Date:   Wed May 21 09:56:07 2025 +0200
+
+    Dpkg::OpenPGP::Backend::Sequoia: Run sq in stateless mode for verification
+    
+    For verification and for every other OpenPGP command we always run in
+    stateless mode, by for example creating a temporary home directory to
+    avoid the tools (such as GnuPG), to use any implicit keyrings that we
+    have not explicitly passed.
+    
+    But for sq we have not been doing that, which changes this specific
+    backend command semantics compared to the others.
+    
+    Explicitly pass «--home=none» to enable stateless mode.
+    
+    Suggested-by: Neal H. Walfield <neal@sequoia-pgp.org>
+    Stable-Candidate: 1.22.x
+    (cherry picked from commit 3ba0bd72d906c4bc56b7b86e63bc20198eababb1)
+
+ scripts/Dpkg/OpenPGP/Backend/Sequoia.pm | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+commit cdf3ac27cddf4657d62ca165b0f157b46e5a6298
+Author: Guillem Jover <guillem@debian.org>
+Date:   Wed May 21 09:50:56 2025 +0200
+
+    Dpkg::OpenPGP::Backend::Sequoia: Do not run sq/sqv to verify with no keyrings
+    
+    Both sq and sqv support expect a keyring to be able to verify the
+    signatures, and produce rather confusing and alarming diagnostics,
+    which by default are emitted as warnings.
+    
+    In case we have no keyrings to pass (because they are not present on
+    disk for example), skip the commands invocation, and return an error
+    to the effect that no valid signatures could be found. In the future
+    we should instead print the keyrings that we are using and the ones we
+    are skipping, and print a specific error message for this condition,
+    to make the error condition more clear, but for now this is the minimal
+    change that gives a less confusing UI.
+    
+    Closes: #1106148
+    Stable-Candidate: 1.22.x
+    (cherry picked from commit 6efc85c783b7a1b3aa4f18bb3a9be5faa2989dea)
+
+ scripts/Dpkg/OpenPGP/Backend/Sequoia.pm | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit 02d198aeece75f930187ff8f31079b285ebd8a88
+Author: Guillem Jover <guillem@debian.org>
+Date:   Mon May 19 00:42:14 2025 +0200
+
+    Bump version to 1.22.20
+
+ debian/changelog | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+commit 8d2fd28d0862254e0eb52977cdb8abd19f5c2d4c
+Author: Guillem Jover <guillem@debian.org>
+Date:   Mon May 19 00:05:16 2025 +0200
+
+    Release 1.22.19
+
+ debian/changelog | 33 ++++++++++++++++++++++++++++++---
+ 1 file changed, 30 insertions(+), 3 deletions(-)
+
+commit 386ae8ea10f5f1acd85de3f262605afb12840eb4
+Author: Guillem Jover <guillem@debian.org>
+Date:   Mon May 19 00:00:43 2025 +0200
+
+    po: Regenerate .pot files and merge .po files with them
+
+ dselect/po/bs.po        |  2 +-
+ dselect/po/ca.po        |  2 +-
+ dselect/po/cs.po        |  2 +-
+ dselect/po/da.po        |  2 +-
+ dselect/po/de.po        |  2 +-
+ dselect/po/dselect.pot  |  4 ++--
+ dselect/po/el.po        |  2 +-
+ dselect/po/es.po        |  2 +-
+ dselect/po/et.po        |  2 +-
+ dselect/po/eu.po        |  2 +-
+ dselect/po/fr.po        |  2 +-
+ dselect/po/gl.po        |  2 +-
+ dselect/po/hu.po        |  2 +-
+ dselect/po/id.po        |  2 +-
+ dselect/po/it.po        |  2 +-
+ dselect/po/ja.po        |  2 +-
+ dselect/po/ko.po        |  2 +-
+ dselect/po/nb.po        |  2 +-
+ dselect/po/nl.po        |  2 +-
+ dselect/po/nn.po        |  2 +-
+ dselect/po/pl.po        |  2 +-
+ dselect/po/pt.po        |  2 +-
+ dselect/po/pt_BR.po     |  2 +-
+ dselect/po/ro.po        |  2 +-
+ dselect/po/ru.po        |  2 +-
+ dselect/po/sk.po        |  2 +-
+ dselect/po/sv.po        |  2 +-
+ dselect/po/tl.po        |  2 +-
+ dselect/po/vi.po        |  2 +-
+ dselect/po/zh_CN.po     |  2 +-
+ dselect/po/zh_TW.po     |  2 +-
+ man/po/dpkg-man.pot     |  4 ++--
+ po/ast.po               |  2 +-
+ po/bs.po                |  2 +-
+ po/ca.po                |  2 +-
+ po/cs.po                |  2 +-
+ po/da.po                |  2 +-
+ po/de.po                |  2 +-
+ po/dpkg.pot             |  4 ++--
+ po/dz.po                |  2 +-
+ po/el.po                |  2 +-
+ po/eo.po                |  2 +-
+ po/es.po                |  2 +-
+ po/et.po                |  2 +-
+ po/eu.po                |  2 +-
+ po/fr.po                |  2 +-
+ po/gl.po                |  2 +-
+ po/hu.po                |  2 +-
+ po/id.po                |  2 +-
+ po/it.po                |  2 +-
+ po/ja.po                |  2 +-
+ po/km.po                |  2 +-
+ po/ko.po                |  2 +-
+ po/ku.po                |  2 +-
+ po/lt.po                |  2 +-
+ po/mr.po                |  2 +-
+ po/nb.po                |  2 +-
+ po/ne.po                |  2 +-
+ po/nl.po                |  2 +-
+ po/nn.po                |  2 +-
+ po/oc.po                |  2 +-
+ po/pa.po                |  2 +-
+ po/pl.po                |  2 +-
+ po/pt.po                |  2 +-
+ po/pt_BR.po             |  2 +-
+ po/ro.po                |  2 +-
+ po/ru.po                |  2 +-
+ po/sk.po                |  2 +-
+ po/sv.po                | 10 +++++-----
+ po/th.po                |  2 +-
+ po/tl.po                |  2 +-
+ po/tr.po                |  2 +-
+ po/vi.po                |  2 +-
+ po/zh_CN.po             |  2 +-
+ po/zh_TW.po             |  2 +-
+ scripts/po/ca.po        | 14 +++++++++++++-
+ scripts/po/de.po        | 14 +++++++++++++-
+ scripts/po/dpkg-dev.pot | 10 ++++++++--
+ scripts/po/es.po        | 14 +++++++++++++-
+ scripts/po/fr.po        | 14 +++++++++++++-
+ scripts/po/nl.po        | 14 +++++++++++++-
+ scripts/po/pl.po        | 13 ++++++++++++-
+ scripts/po/pt.po        | 14 +++++++++++++-
+ scripts/po/ru.po        | 14 +++++++++++++-
+ scripts/po/sv.po        | 46 +++++++++++++++++++++++++++++-----------------
+ 85 files changed, 222 insertions(+), 109 deletions(-)
+
+commit f089a3c89956e5a1ff2b96361c4e0201c27d598b
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sun May 18 23:33:30 2025 +0200
+
+    debian: Document OpenPGP implementation dependencies
+    
+    Clarify that the ones are for full implementations, and the others are
+    for at least verification-only implementations.
+    
+    Prompted-by: Paul Gevers <elbrus@debian.org>
+
+ debian/control | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+commit 37bec03dc8ec79e8adcf05c13975faabe8f44b1c
+Author: Guillem Jover <guillem@debian.org>
+Date:   Mon Oct 14 04:31:22 2024 +0200
+
+    Dpkg::OpenPGP::Backend::Sequoia: Add sqv support for verification
+    
+    This adds support for the verification-only command from Sequoia-PGP,
+    which is the one currently used by apt to perform OpenPGP verification,
+    so that we can get back for example to source package verification with
+    dpkg-source in minimal installations.
+    
+    This is possible due to the new sqv 1.3.0 API changes, which makes it
+    somewhat more compatible with «sq verify», in addition to supporting
+    inline-verify style signatures, which is required for the artifacts
+    that we need to handle.
+
+ debian/control                          |  9 +++++--
+ scripts/Dpkg/OpenPGP/Backend/Sequoia.pm | 46 ++++++++++++++++++++++++++++-----
+ scripts/Test/Dpkg.pm                    |  2 +-
+ 3 files changed, 48 insertions(+), 9 deletions(-)
+
+commit f1533b552a14d60be1e02ec978c385f278e8b434
+Author: Guillem Jover <guillem@debian.org>
+Date:   Mon Mar 31 15:35:11 2025 +0000
+
+    Test::Dpkg: Fix OpenPGP backend commands detection
+    
+    We were not properly checking the backends as they could end up being
+    undefined and thus the checks would fail, thus not testing all the
+    expected combinations.
+
+ scripts/Test/Dpkg.pm | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+commit 301d53a993d73fb92534539d8157f3c74f804a25
+Author: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+Date:   Wed Apr 16 03:51:33 2025 +0200
+
+    Dpkg::Vendor::PureOS: Add new vendor module
+    
+    [guillem@debian.org:
+     - Add file to POTFILES.in.
+     - Add stopword to t/pod-spell.t. ]
+    
+    Signed-off-by: Guillem Jover <guillem@debian.org>
+
+ scripts/Dpkg/Vendor/PureOS.pm | 84 +++++++++++++++++++++++++++++++++++++++++++
+ scripts/Makefile.am           |  1 +
+ scripts/po/POTFILES.in        |  1 +
+ t/pod-spell.t                 |  1 +
+ 4 files changed, 87 insertions(+)
+
+commit 6e9917da2297714ce7ff194f7fc739d6d8ba68f0
+Author: Guillem Jover <guillem@debian.org>
+Date:   Mon May 5 01:55:26 2025 +0200
+
+    Dpkg::Vendor::Debian: Add tag2upload OpenPGP keyring to package-keyrings
+    
+    This keyring is part of the dgit infrastructure integration, and new
+    source packages will be signed by certificates from this keyring.
+
+ debian/control                | 2 ++
+ scripts/Dpkg/Vendor/Debian.pm | 1 +
+ 2 files changed, 3 insertions(+)
+
+commit 936c32b9308be7674384b55d4766634586668f8c
+Author: Américo Monteiro <a_monteiro@gmx.com>
+Date:   Sun May 18 23:26:58 2025 +0200
+
+    po: Update Portuguese scripts translations
+    
+    Closes: #1105126
+    Signed-off-by: Guillem Jover <guillem@debian.org>
+
+ scripts/po/pt.po | 470 ++++++++++++++++---------------------------------------
+ 1 file changed, 139 insertions(+), 331 deletions(-)
+
+commit 6d2008502a10248dc0f3b10f6604c7f3b2138b69
+Author: Guillem Jover <guillem@debian.org>
+Date:   Thu Apr 24 12:44:41 2025 +0200
+
+    libcompat: Handle allocation failures in fgetpwent() and fgetgrent()
+    
+    If we fail the allocation while parsing a field, we need to return NULL
+    with errno set to ENOMEM (which should have been done by realloc()).
+    
+    Based-on-patch-by: Simon Richter <sjr@debian.org>
+
+ lib/compat/getent.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+commit 9df57b5305295cd571bc5ebbf90d9ab4d9244221
+Author: Frans Spiesschaert <Frans.Spiesschaert@yucom.be>
+Date:   Wed Apr 16 04:04:28 2025 +0200
+
+    po: Update Dutch translations
+    
+    Closes: #1101574, #1101582, #1101583
+    Signed-off-by: Guillem Jover <guillem@debian.org>
+
+ dselect/po/nl.po |  25 +++--------
+ man/po/nl.po     | 130 +++++++++++++++++++------------------------------------
+ po/nl.po         | 107 +++++++++++++++------------------------------
+ 3 files changed, 87 insertions(+), 175 deletions(-)
+
+commit 93bbd66881f83f524995e9eaf1667867fabe3c00
+Author: Remus-Gabriel Chelu <remusgabriel.chelu@disroot.org>
+Date:   Wed Apr 16 04:01:26 2025 +0200
+
+    po: Update Romanian translations
+    
+    Closes: #1101549, #1101550
+    Signed-off-by: Guillem Jover <guillem@debian.org>
+
+ dselect/po/ro.po |  15 ++++----
+ po/ro.po         | 108 ++++++++++++++++++++-----------------------------------
+ 2 files changed, 45 insertions(+), 78 deletions(-)
+
+commit 0282d274de5c2426d313706f2aa733179ec98310
+Author: Paulo Henrique de Lima Santana <phls@debian.org>
+Date:   Wed Apr 16 03:55:41 2025 +0200
+
+    po: Update Brazilian Portuguese programs translation
+    
+    Closes: #1100999
+    Signed-off-by: Guillem Jover <guillem@debian.org>
+
+ po/pt_BR.po | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
+
+commit 369d227866bff440664b2f6f9feb16dab8985705
+Author: Guillem Jover <guillem@debian.org>
+Date:   Thu Apr 24 13:08:20 2025 +0200
+
+    po: Remove stray previous msgid from Portuguese man pages translation
+    
+    Fixes: commit 0d46da4f60c7c0b0466de14625c844ea4f9c524f
+    Changelog: silent
+
+ man/po/pt.po | 274 +++++++++--------------------------------------------------
+ 1 file changed, 39 insertions(+), 235 deletions(-)
+
+commit e0b338251141e7af236783b5422b09c90fa49861
+Author: Peter Krefting <peter@softwolves.pp.se>
+Date:   Mon Mar 10 22:53:14 2025 +0100
+
+    po: Update Swedish translations
+    
+    Closes: #1100068
+    Signed-off-by: Peter Krefting <peter@softwolves.pp.se>
+    Signed-off-by: Guillem Jover <guillem@debian.org>
+
+ dselect/po/sv.po |   27 +-
+ man/po/sv.po     | 1206 +++++++++++++++++-------------------------------------
+ po/sv.po         |  111 ++---
+ scripts/po/sv.po |  157 ++-----
+ 4 files changed, 464 insertions(+), 1037 deletions(-)
+
+commit 0d46da4f60c7c0b0466de14625c844ea4f9c524f
+Author: Américo Monteiro <a_monteiro@gmx.com>
+Date:   Wed Mar 19 11:05:48 2025 +0100
+
+    po: Update Portuguese man pages translation
+    
+    Closes: #1100064
+    Signed-off-by: Guillem Jover <guillem@debian.org>
+
+ man/po/pt.po | 298 +++++++++++++++++++++++++++++++++--------------------------
+ 1 file changed, 167 insertions(+), 131 deletions(-)
+
+commit cbc069f9a292bf15900a57140a6aa0db2fc7292d
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sun Mar 9 19:17:33 2025 +0100
+
+    Bump version to 1.22.19
+
+ debian/changelog | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
 commit 0d1bb5dcac1f2efb59308514c396c42653fcea01
 Author: Guillem Jover <guillem@debian.org>
 Date:   Sun Mar 9 19:01:08 2025 +0100

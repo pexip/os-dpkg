@@ -262,7 +262,7 @@ Não verifica dependências de compilação embutidas e conflitos (desde dpkg 1.
 
 =item B<--rules-requires-root>
 
-Do not honor the B<Rules-Requires-Root> field, falling back to its legacy default value B<binary-targets> (since dpkg 1.19.1).
+Não respeita o campo B<Rules-Requires-Root>, caindo para o seu valor de predefinição antigo B<binary-targets> (desde dpkg 1.19.1).
 
 =item B<-nc>, B<--no-pre-clean>
 
@@ -514,7 +514,7 @@ Se definido, será usado como o comando para verificar o ficheiro B<.changes> (d
 
 =item B<DEB_SIGN_KEYID>
 
-If set, it will be used to sign the B<.changes>, B<.buildinfo> and B<.dsc> files (since dpkg 1.17.2).  Overridden by the B<--sign-keyid> option.
+Se definido, será usado para assinar os ficheiros B<.changes>, B<.buildinfo> e B<.dsc> (desde dpkg 1.17.2). Sobreposto pela opção B<--sign-keyid>.
 
 =item B<DEB_SIGN_KEYFILE>
 

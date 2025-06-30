@@ -391,9 +391,9 @@ Define o programa a executar quando multiplica um comando via shell (desde dpkg 
 
 =item B<DPKG_PAGER>
 
-Sets the pager command to use (since dpkg 1.19.1), which will be executed with «B<$SHELL -c>».  If B<SHELL> is not set, «B<%DPKG_DEFAULT_SHELL%>» will be used instead.
+Define o comando paginador a usar (desde dpkg 1.19.1), o qual ir+a ser executado com «B<$SHELL -c>».  Se B<SHELL> não estiver definido, irá ser usado «B<%DPKG_DEFAULT_SHELL%>» em vez dele.
 
-The B<DPKG_PAGER> overrides the B<PAGER> environment variable (since dpkg 1.19.2).  If none of the programs pointed by B<DPKG_PAGER> or B<PAGER> are present, the following programs will be tried in order (since dpkg 1.22.12): the default pager B<%DPKG_DEFAULT_PAGER%>, then B<less>, B<more>, and finally B<cat>.
+O B<DPKG_PAGER> sobrepõe a variável der ambiente B<PAGER> (desde dpkg 1.19.2).  Se nenhum dos programas apontados por B<DPKG_PAGER> ou B<PAGER> estiverem presentes, os seguintes programas serão tentados por ordem (desde dpkg 1.22.12): o paginador predefinido B<%DPKG_DEFAULT_PAGER%>, depois B<less>, B<more>, e finalmente B<cat>.
 
 =item B<DPKG_ROOT>
 

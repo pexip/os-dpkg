@@ -24,11 +24,11 @@ B<dpkg-vendor> [I<option>...] I<command>
 
 B<dpkg-vendor> é uma ferramenta para inquirir informação acerca dos fornecedores listados em B<%PKGCONFDIR%/origins>. B<%PKGCONFDIR%/origins/default> contém informação acerca do fornecedor actual.
 
-The origin files provide metadata about specific vendors, such as their URL or where to file bug reports, and are usually used both to determine the behavior of tools and resulting contents during package builds targeting a specific vendor, and to describe the provenance of packages.
+Os ficheiros origin fornecem metadados acerca de fornecedores específicos, tais coo o seu URL ou onde preencher relatórios de bug, e são geralmente usados tanto para determinar o comportamento de ferramentas e conteúdos resultantes durante compilações do pacote que visam um fornecedor específico, como para descrever a proveniência dos pacotes.
 
-Packages can explicitly declare their vendor by including an B<Origin> field, otherwise the vendor for a package without such field is assumed to be the one pointed to by the F<default> origin symbolic link.
+Os pacotes podem explicitamente especificar o seu fornecedor ao incluir um campo B<Origin>, caso contrário o fornecedor para um pacote que não tenha tal campo é assumido que seja aquele apontado pelo link simbólico F<predefinido> origin.
 
-The F<default> symbolic link is also used to denote the origin of the current installation managed by B<dpkg>, be that a full distribution or an overlay on top of an existing base system that contains either no packaging system or a native one.
+O link simbólico F<default> é também usado para denotar a origem da instalação actual gerida pelo B<dpkg>, seja uma distribuição completa ou uma sobreposição no topo de um sistema base existente que contém ou nenhum sistema de empacotamento ou um nativo.
 
 Este programa foi introduzido no dpkg 1.15.1.
 
@@ -94,7 +94,7 @@ Se definida, será usada para decidir se deve activar o Suporte a Linguagem Nati
 
 =item B<%PKGDATADIR%/vendor.mk>
 
-Makefile snippet that sets the current vendor and its parent into variables, and provides make macros to check for derivatives (since dpkg 1.16.1).
+Fragmento do Makefile que define o fornecedor actual e o seu pai em variáveis, e fornece macros do make para verificar por derivativos (desde dpkg 1.16.1).
 
 =back
 
