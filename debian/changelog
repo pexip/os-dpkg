@@ -1,3 +1,9 @@
+dpkg (1.22.21+pexip25u1) pexip-trixie; urgency=medium
+
+  * New upstream release
+
+ -- Mark Hymers <mark.hymers@pexip.com>  Thu, 31 Jul 2025 13:17:46 +0100
+
 dpkg (1.22.21) unstable; urgency=medium
 
   [ Guillem Jover ]
