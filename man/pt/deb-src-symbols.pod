@@ -66,7 +66,7 @@ Estas bandeiras permitem-nos restringir o conjunto de arquitecturas onde o símb
 
 Quando opera no modo predefinido não-modelo, entre os símbolos específicos de arquitectura, apenas aqueles que correspondem à arquitectura da máquina anfitriã actual são escritos no ficheiro de símbolos. Pelo contrário, quando se opera em modo de modelo, todos os símbolos específicos-de-arquitectura (incluindo aqueles de arquitecturas alienígenas) são sempre escritos no ficheiro de símbolos.
 
-The format of I<architecture-list> is the same as the one used in the B<Build-Depends> field of I<debian/control> (except the enclosing square brackets []).  For example, the first symbol from the list below will be considered only on arm64, any-amd64 and riscv64 architectures, the second only on linux architectures, while the third one anywhere except on armel.
+O formato de I<architecture-list> é o mesmo que o usado no campo B<Build-Depends> de I<debian/control> (excepto nos parêntesis rectos []). Por exemplo, o primeiro símbolo da lista em baixo será considerado apenas nas arquitecturas arm64, any-amd64 e riscv64, o segundo apenas em arquitecturas de linux, enquanto o terceiro em todas excepto em armel.
 
   (arch=arm64 any-amd64 riscv64)arch_specific_symbol@Base 1.0
   (arch=linux-any)linux_specific_symbol@Base 1.0

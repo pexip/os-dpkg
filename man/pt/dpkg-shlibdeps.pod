@@ -160,27 +160,27 @@ Não falha se a informação de dependência não pode ser encontrada para uma b
 
 =item B<--warnings=>[I<value>|I<string>[,...]]
 
-Select the set of warnings that can be emitted by B<dpkg-shlibdeps> (since dpkg 1.14.17).
+Seleciona o conjunto de avisos que podem ser emitidos por B<dpkg-shlibdeps> (desde dpkg 1.14.17).
 
-The warnings can be selected from a comma-separated list of symbolic names (since dpkg 1.22.12), or from a I<value> denoting a bit field for these warnings.
+Os avisos pode ser selecionados de uma lista de nomes simbólicos separados por vírgulas (desde dpkg 1.22.12), ou de um I<value> denotando um campo de bit para esses avisos.
 
 =over 
 
 =item symbol-not-found (bit 0, value 1)
 
-Selects the warning “symbol I<sym> used by I<binary> found in none of the libraries”.
+Seleciona o aviso “symbol I<sym> usado pelo I<binary> não encontrado em nenhuma das bibliotecas”.
 
-Enabled by default.
+Activo por predefinição.
 
 =item avoidable-dependency (bit 1, value 2)
 
-Selects the warning “package could avoid a useless dependency”.
+Seleciona o aviso “pacote podia evitar uma dependência inútil”.
 
-Enabled by default.
+Activo por predefinição.
 
 =item useless-linkage (bit 2, value 4)
 
-Select the warning “I<binary> should not be linked against I<library>”.
+Seleciona o aviso “I<binary> não devia estar vinculado contra I<library>”.
 
 =back
 

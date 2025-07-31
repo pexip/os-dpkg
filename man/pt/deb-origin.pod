@@ -22,9 +22,9 @@ B<%PKGCONFDIR%/origins/>I<filename>
 
 =head1 DESCRIÇÃO
 
-The files in B<%PKGCONFDIR%/origins> can provide information about various vendors that are providing Debian packages.  These files are usually used both to determine the behavior of tools and resulting contents during package builds targeting a specific vendor, and to describe the provenance of packages.
+Os ficheiros em B<%PKGCONFDIR%/origins> podem fornecer informação sobre vários fornecedores que estão a providenciar pacotes Debian.  Estes ficheiros são geralmente usados tanto para determinar o comportamento de ferramentas e conteúdos resultantes durante as compilações do pacote que visam um fornecedor específico, e para descrever a proveniência dos pacotes.
 
-Packages can explicitly declare their vendor by including an B<Origin> field, otherwise the vendor for a package without such field is assumed to be the one pointed to by the F<default> origin symbolic link.
+Os pacotes podem explicitamente especificar o seu fornecedor ao incluir um campo B<Origin>, caso contrário o fornecedor para um pacote que não tenha tal campo é assumido que seja aquele apontado pelo link simbólico F<predefinido> origin.
 
 Eles contêm um número de campos, ou comentários quando a linha começa com ‘B<#>’. Cada campo começa com uma etiqueta, tal como B<Vendor> ou B<Parent>, seguida de dois pontos e o corpo do campo. Os campos são delimitados apenas por etiquetas de campos. Por outras palavras, o texto de um campo pode ter várias linhas de comprimento. mas as ferramentas irão juntar as linhas quando processarem o corpo do campo.
 

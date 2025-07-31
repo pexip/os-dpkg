@@ -38,13 +38,13 @@ För de flesta kommandon som tar ett indataarkiv som argument kan arkivet läsas
 
 Skapar ett Debianarkiv från filsystemsträdet som lagras i I<binärkatalog>. I<binärkatalog> måste innehålla underkatalogen B<DEBIAN>, vilken innehåller styrinformationsfiler såsom själv styrfilen control. Katalogen kommer I<inte> att visas i binärpaketets filsystemsarkiv, utan istället kommer filerna läggas i binärpaketets styrinformationsområde.
 
-Unless you specify B<--no-check>, B<dpkg-deb> will read B<DEBIAN/control> and parse it.  It will check the file for syntax errors and other problems, and display the name of the binary package being built.  B<dpkg-deb> will also check the permissions of the maintainer scripts and other files found in the B<DEBIAN> control information directory.
+Såvida du inte anger B<--no-check> kommer dpkg-deb att läsa B<DEBIAN/control> och tolka den. Den kommer leta efter syntaxfel och andra problem i filen, och visa namnet på det binärpaket som byggs. B<dpkg-deb> kommer även att kontrollera behörigheten på paketskripten och andra filer som hittas i styrinformationskatalogen B<DEBIAN>.
 
 Om inget I<arkiv> anges kommer B<dpkg-deb> skriva paketet till filen I<binärkatalog>B<.deb>.
 
 Om arkivet som ska skapas redan finns kommer det skrivas över.
 
-If the second argument is a directory then B<dpkg-deb> will write to the file I<directory>B</>I<package>B<_>I<version>B<_>I<arch>B<.deb.> When a target directory is specified, rather than a file, the B<--no-check> option may not be used (since B<dpkg-deb> needs to read and parse the package control file to determine which filename to use).
+Om den andra argumentet är en katalog kommer B<dpkg-deb> skriva till filen I<directory>B</>I<paket>B<_>I<version>B<_>I<arkitektur>B<.deb.> När en målkatalog anges, istället för en fil, kan inte flaggan B<--no-check> användas (eftersom B<dpkg-deb> måste läsa och tolka paketets styrfil control för att ta reda på vilket filnamn som ska användas).
 
 =item B<-I>, B<--info> I<arkiv> [I<control-filnamn> ...]
 
@@ -166,11 +166,11 @@ Det gamla arkivformatet är mer svårtolkat av icke-Debianverktyg och är nu utg
 
 Förhindrar B<dpkg-deb --build s> normala tester på det föreslagna innehållet i arkivet. Du kan bygga vilket arkiv du än vill, oavsett hur trasigt, på det här sätt.
 
-Option supported since dpkg 1.22.12.
+Flaggan stöds sedan dpkg 1.22.12.
 
 =item B<--nocheck>
 
-This is an alias for B<--no-check>.
+Detta är ett alias för B<--no-check>.
 
 =item B<-v>, B<--verbose>
 
@@ -228,15 +228,15 @@ Om satt, används för att bestämma om lokalt språkstöd ska aktiveras, även 
 
 =item B<DPKG_PATH_PASSWD>
 
-Sets the pathname for the system F<passwd> file.  This path is relative to the B<--root> directory.  The default is F</etc/passwd>.
+Anger sökvägsnamnet för systemets F<passwd>-fil. Sökvägen är relativ till katalogen som angavs med B<--root>. Förval är F</etc/passwd>.
 
-Since dpkg 1.22.16.
+Sedan dpkg 1.22.16.
 
 =item B<DPKG_PATH_GROUP>
 
-Sets the pathname for the system F<group> file.  This path is relative to the B<--root> directory.  The default is F</etc/group>.
+Anger sökvägsnamnet för systemets F<group>-fil. Sökvägen är relativ till katalogen som angavs med B<--root>. Förval är F</etc/group>.
 
-Since dpkg 1.22.16.
+Sedan dpkg 1.22.16.
 
 =item B<TMPDIR>
 

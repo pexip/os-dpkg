@@ -142,7 +142,7 @@ O I<package> é o nome do pacote binário.
 
 O I<package-type> é o tipo de pacote binário, normalmente B<deb>, outro valor comum é B<udeb>.
 
-The I<section> and I<priority> match the binary package fields of the same name, or if omitted default to B<unknown> and B<optional> respectively (since dpkg 1.22.13).
+I<section> e I<priority> correspondem aos campos do pacote binário do mesmo nome, ou se omitidos são predefinidos para B<unknown> e B<optional> respetivamente (desde dpkg 1.22.13).
 
 A I<key-value-list> é uma lista is de I<key>B<=>I<value> separados por espaços, a as chaves opcionais actualmente conhecidas são:
 

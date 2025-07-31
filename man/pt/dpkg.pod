@@ -906,9 +906,9 @@ O programa que o B<dpkg> irá executar quando iniciar uma nova shell interactiva
 
 =item B<DPKG_PAGER>
 
-The program B<dpkg> will execute when running a pager, which will be executed with «B<$SHELL -c>», for example when displaying the conffile differences.  If B<SHELL> is not set, «B<%DPKG_DEFAULT_SHELL%>» will be used instead.
+O programa que o B<dpkg> irá executar quando correr um paginador, o qual será executado com «B<$SHELL -c>», por exemplo quando mostrar as diferenças do conffile. Se B<SHELL> não estiver definida, será usado «B<%DPKG_DEFAULT_SHELL%>» em vez deste.
 
-The B<DPKG_PAGER> overrides the B<PAGER> environment variable (since dpkg 1.19.2).  If none of the programs pointed by B<DPKG_PAGER> or B<PAGER> are present, the following programs will be tried in order (since dpkg 1.22.12): the default pager B<%DPKG_DEFAULT_PAGER%>, then B<less>, B<more>, and finally B<cat>.
+O B<DPKG_PAGER> sobrepõe a variável der ambiente B<PAGER> (desde dpkg 1.19.2).  Se nenhum dos programas apontados por B<DPKG_PAGER> ou B<PAGER> estiverem presentes, os seguintes programas serão tentados por ordem (desde dpkg 1.22.12): o paginador predefinido B<%DPKG_DEFAULT_PAGER%>, depois B<less>, B<more>, e finalmente B<cat>.
 
 =item B<DPKG_COLORS>
 
@@ -936,15 +936,15 @@ Definido pelo frontend de gestão de pacotes para notificar o dpkg que não deve
 
 =item B<DPKG_PATH_PASSWD>
 
-Sets the pathname for the system F<passwd> file.  This path is relative to the B<--root> directory.  The default is F</etc/passwd>.
+Define o nome-de-caminho para o ficheiro F<passwd> do sistema.  Este caminho é relativo ao directório B<--root>.  A predefinição é F</etc/passwd>.
 
-Since dpkg 1.22.16.
+Desde dpkg 1.22.16.
 
 =item B<DPKG_PATH_GROUP>
 
-Sets the pathname for the system F<group> file.  This path is relative to the B<--root> directory.  The default is F</etc/group>.
+Define o nome-de-caminho para o ficheiro F<group> do sistema.  Este caminho é relativo ao directório B<--root>.  A predefinição é F</etc/group>.
 
-Since dpkg 1.22.16.
+Desde dpkg 1.22.16.
 
 =back
 

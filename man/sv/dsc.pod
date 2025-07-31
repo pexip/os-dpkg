@@ -142,7 +142,7 @@ I<paket> är namnet på binärpaketet.
 
 I<pakettyp> är typen på det binära paketet, vanligtvis B<deb>, ett annat vanligt värde är B<udeb>.
 
-The I<section> and I<priority> match the binary package fields of the same name, or if omitted default to B<unknown> and B<optional> respectively (since dpkg 1.22.13).
+I<sektion> och I<prioritet> motsvarar fälten med samma namn i binärpaketet, eller sätts till förvaren B<unknown> respektive B<optional> om de utelämnas (sedan dpkg 1.22.13).
 
 I<nyckel-värde-lista> är en blankstegsavdelad lista på formen I<nyckel>B<=>I<värde>, och de för närvarande kända valfria nycklarna är:
 

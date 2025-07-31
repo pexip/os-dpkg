@@ -106,7 +106,7 @@ Este campo multi-linha contem uma lista de ficheiros com um md5sum, tamanho, sec
 
 A primeira linha do campo valor (a parte na mesma linha que tem o campo nome seguido de dois pontos) é sempre vazia. O conteúdo do campo é expressado como linhas de continuação, uma linha por ficheiro. Cada linha consiste de entradas separadas por espaços que descrevem o ficheiro: o md5sum, o tamanho do ficheiro, a secção do ficheiro, a prioridade do ficheiro, e o nome do ficheiro.
 
-If the section or priority are omitted from the package, these default to B<unknown> and B<optional> respectively (since dpkg 1.22.13).
+Se a secção ou prioridade forem omitidos do pacote, estes usam por predefinição B<unknown> e B<optional> respetivamente (desde dpkg 1.22.13).
 
 Este campo lista todos os ficheiros que fizeram o envio. A lista de ficheiros neste campo tem de corresponder à lista de ficheiros nos outros campos B<Checksums> relacionados.
 

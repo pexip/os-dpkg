@@ -158,29 +158,29 @@ Ignorera I<paketbyggkatalog> vid sökning efter delade shlibs, symboler och dela
 
 Misslyckas inte om det inte upptäcks någon beroendeinformation för ett delat bibliotek (sedan dpkg 1.14.8). Den här flaggan rekommenderas inte, alla bibliotek bör tillhandahålla beroendeinformation (antingen med shlibs-filer eller med symbols-filer), även om de ännu inte används av andra paket.
 
-=item B<--warnings=>[I<value>|I<string>[,...]]
+=item B<--warnings=>I<värde>|I<sträng>[,...]
 
-Select the set of warnings that can be emitted by B<dpkg-shlibdeps> (since dpkg 1.14.17).
+Väljer den uppsättning varningar som kan matas ut av B<dpkg-shlibdeps> (sedan dpkg 1.14.17).
 
-The warnings can be selected from a comma-separated list of symbolic names (since dpkg 1.22.12), or from a I<value> denoting a bit field for these warnings.
+Varningarna kan väljas för en kommaavdelad lista med symboliska namn (sedan dpkg 1.22.12) eller från ett I<värde> som anger ett bitfält för dessa varningar.
 
 =over 
 
-=item symbol-not-found (bit 0, value 1)
+=item symbol-not-found (bit 0, värde 1)
 
-Selects the warning “symbol I<sym> used by I<binary> found in none of the libraries”.
+Väljer varningen ”symbolen I<sym>, som används av I<binär>, hittades inte i något av biblioteken”.
 
-Enabled by default.
+Aktiverad som förval.
 
-=item avoidable-dependency (bit 1, value 2)
+=item avoidable-dependency (bit 1, värde 2)
 
-Selects the warning “package could avoid a useless dependency”.
+Väljer varningen ”paketet kunde undvika ett onödigt beroende”.
 
-Enabled by default.
+Aktiverad som förval.
 
-=item useless-linkage (bit 2, value 4)
+=item useless-linkage (bit 2, värde 4)
 
-Select the warning “I<binary> should not be linked against I<library>”.
+Väljer varningen ”I<binär> borde inte vara länkat mot I<bibliotek>”.
 
 =back
 

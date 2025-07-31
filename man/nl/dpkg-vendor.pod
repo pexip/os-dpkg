@@ -94,7 +94,7 @@ Indien dit ingesteld is, zal het gebruikt worden om te beslissen over het active
 
 =item B<%PKGDATADIR%/vendor.mk>
 
-Makefile snippet that sets the current vendor and its parent into variables, and provides make macros to check for derivatives (since dpkg 1.16.1).
+Makefile-fragment dat de huidige leverancier en de bovenliggende leverancier instelt in variabelen en make-macro's biedt om te controleren op afgeleiden (sinds dpkg 1.16.1).
 
 =back
 

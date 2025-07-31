@@ -262,7 +262,7 @@ Kontrollera inte inbyggda byggberoenden och -konflikter (sedan dpkg 1.18.2). Det
 
 =item B<--rules-requires-root>
 
-Do not honor the B<Rules-Requires-Root> field, falling back to its legacy default value B<binary-targets> (since dpkg 1.19.1).
+Följ inte fältet B<Rules-Requires-Root>, fall tillbaka på dess gamla förval B<binary-targets> (sedan dpkg 1.19.1).
 
 =item B<-nc>, B<--no-pre-clean>
 
@@ -514,7 +514,7 @@ Om satt, används som kommandot för att kontrollera B<.changes>-filen (sedan dp
 
 =item B<DEB_SIGN_KEYID>
 
-If set, it will be used to sign the B<.changes>, B<.buildinfo> and B<.dsc> files (since dpkg 1.17.2).  Overridden by the B<--sign-keyid> option.
+Används för att signera filerna B<.changes>, B<.buildinfo> och B<.dsc>-filerna om satt (sedan dpkg 1.17.2). Överstyrs av flaggan B<--sign-keyid>.
 
 =item B<DEB_SIGN_KEYFILE>
 

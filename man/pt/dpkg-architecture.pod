@@ -132,19 +132,19 @@ A máquina para onde o pacote é compilado.
 
 =item máquina destino (alvo)
 
-The machine the compiler is building for, or the emulator will run code for.  This is only needed when building a cross-toolchain (or emulator), one that will be built on the build architecture, to be run on the host architecture, and that itself will build (or run emulated) code for the target architecture.
+A maquina para a qual o compilador foi construído, ou o que emulador que irá correr código para. Isto é apenas necessário quando se compila ferramenta-corrente-cruzada (ou emulador), uma que será compilada sobre a arquitectura de compilação, para ser corrida na arquitectura anfitriã, e que ela própria irá compilar código (ou correr emulado) para a arquitectura alvo.
 
 =item Arquitectura Debian
 
-The Debian architecture string, used in binary packages, which specifies the binary tree in a package repository.
+A string de arquitectura Debian, usada em pacotes binário, a qual especifica a árvore binária num repositório de pacotes.
 
-Examples: i386, sparc, hurd-i386.
+Exemplos: i386, sparc, hurd-i386.
 
 =item Tuple de arquitectura Debian
 
-A Debian architecture tuple is the fully qualified architecture with all its components spelled out.  This differs with Debian architectures in that at least the I<cpu> component does not embed the I<abi>.  The current tuple has the form I<abi>-I<libc>-I<os>-I<cpu>.
+Um tuple de arquitectura Debian é a arquitectura totalmente qualificada com todos os seus componentes soletrados. Isto difere das arquitecturas Debian em que pelo menos o componente I<cpu> não trás embutido o I<abi>. O tuple actual tem o formato I<abi>-I<libc>-I<os>-I<cpu>.
 
-Examples: base-gnu-linux-amd64, eabihf-musl-linux-arm.
+Exemplos: base-gnu-linux-amd64, eabihf-musl-linux-arm.
 
 =item Wildcard de arquitectura Debian
 
@@ -164,23 +164,23 @@ Exemplos: linux-any, any-i386, hurd-any, eabi-any-any-arm, musl-any-any.
 
 =item Tipo de sistema GNU
 
-An architecture specification string consisting of two parts separated by a hyphen: CPU and system.
+Uma string de especificação de arquitectura consiste de duas partes separadas por um hífen: CPU e sistema.
 
-The CPU part never contains a hyphen, while the system part might itself contain a hyphen to separate a kernel from its general ABI, where the general ABI might contain both runtime (such as libc) and executable ABI specifiers joined without a hyphen.
+A parte da CPU nunca contém um hífen, enquanto a parte do sistema pode ela própria conter um hífen para separar um kernel da sua ABI geral, onde a ABI geral pode conter ambos especificadores de tempo-de-execução (como a libc) e ABI executável juntos sem um hífen.
 
-Examples: i586-linux-gnu, sparc-linux-gnu, i686-gnu, x86_64-netbsd.
+Exemplos: i586-linux-gnu, sparc-linux-gnu, i686-gnu, x86_64-netbsd.
 
 =item multiarch triplet
 
-The clarified GNU system type, used for filesystem paths.  This triplet does not change even when the baseline ISA gets bumped, so that the resulting paths are stable over time.  The only current difference with the GNU system type is that the CPU part for i386 based systems is always i386.
+O tipo de sistema GNU clarificado, usado para caminhos do sistema de ficheiros. Este triplet não altera mesmo quando a linha base ISA entra em colisão, para que os caminhos resultantes fiquem estáveis com o tempo. A única diferença actual com o tipo de sistema GNU é que a parte de CPU para os sistemas baseados em i386 é sempre i386.
 
-Examples: i386-linux-gnu, x86_64-linux-gnu.  Example paths: /lib/powerpc64le-linux-gnu/, /usr/lib/i386-kfreebsd-gnu/.
+Exemplos: i386-linux-gnu, x86_64-linux-gnu.  Caminhos exemplo: /lib/powerpc64le-linux-gnu/, /usr/lib/i386-kfreebsd-gnu/.
 
 =back
 
 =head1 VARIÁVEIS
 
-As seguintes variáveis são lidas a partir do ambiente (a menos que B<--force> seja especificado) e definidas por B<dpkg-architecture> (veja a secção B<TERMS> para uma descrição do esquema de nomeação):
+As seguintes variáveis são lidas a partir do ambiente (a menos que B<--force> seja especificado) e definidas por B<dpkg-architecture> (veja a secção B<TERMOS> para uma descrição do esquema de nomeação):
 
 =over 
 
@@ -188,7 +188,7 @@ As seguintes variáveis são lidas a partir do ambiente (a menos que B<--force> 
 
 A arquitectura Debian da máquina de compilação.
 
-B<Note>: If you are not building tools that need to run during the build, these are probably not the variables you are looking for.  Please see L</TERMS> section for the meanings of these terms.
+B<Nota>: Se você não está a compilar ferramentas que precisam correr durante a compilação, estas não são provavelmente as variáveis que você procura. Por favor veja a secção L</TERMOS> para o significado destes termos.
 
 =item B<DEB_BUILD_ARCH_ABI>
 
@@ -278,7 +278,7 @@ O tipo de sistema GNU clarificado da máquina anfitriã, usado para caminhos do 
 
 A arquitectura Debian da máquina de destino (desde dpkg 1.17.14).
 
-B<Note>: If you are not building cross-toolchains (or emulators), these are probably not the variables you are looking for.  Please see L</TERMS> section for the meanings of these terms.
+B<Nota>: Se você não está a compilar ferramentas-corrente-cruzada (ou emuladores), estas não são provavelmente as variáveis que você procura. Por favor veja a secção L</TERMOS> para o significado destes termos.
 
 =item B<DEB_TARGET_ARCH_ABI>
 

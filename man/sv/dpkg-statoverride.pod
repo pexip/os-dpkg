@@ -168,15 +168,15 @@ Om satt, används för att bestämma om lokalt språkstöd ska aktiveras, även 
 
 =item B<DPKG_PATH_PASSWD>
 
-Sets the pathname for the system F<passwd> file.  This path is relative to the B<--root> directory.  The default is F</etc/passwd>.
+Anger sökvägsnamnet för systemets F<passwd>-fil. Sökvägen är relativ till katalogen som angavs med B<--root>. Förval är F</etc/passwd>.
 
-Since dpkg 1.22.16.
+Sedan dpkg 1.22.16.
 
 =item B<DPKG_PATH_GROUP>
 
-Sets the pathname for the system F<group> file.  This path is relative to the B<--root> directory.  The default is F</etc/group>.
+Anger sökvägsnamnet för systemets F<group>-fil. Sökvägen är relativ till katalogen som angavs med B<--root>. Förval är F</etc/group>.
 
-Since dpkg 1.22.16.
+Sedan dpkg 1.22.16.
 
 =back
 

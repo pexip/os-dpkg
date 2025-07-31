@@ -906,9 +906,9 @@ Programmet B<dpkg> kommer att exekveras när ett nytt skal startas, eller när e
 
 =item B<DPKG_PAGER>
 
-The program B<dpkg> will execute when running a pager, which will be executed with «B<$SHELL -c>», for example when displaying the conffile differences.  If B<SHELL> is not set, «B<%DPKG_DEFAULT_SHELL%>» will be used instead.
+Programmet B<dpkg> kommer att köra när en bläddrare körs, vilken kommer att köras med ”B<$SHELL -c>”, till exempel när skillnader i konffiler ska visas. Om B<SHELL> inte är satt kommer ”B<%DPKG_DEFAULT_SHELL%>” att användas istället.
 
-The B<DPKG_PAGER> overrides the B<PAGER> environment variable (since dpkg 1.19.2).  If none of the programs pointed by B<DPKG_PAGER> or B<PAGER> are present, the following programs will be tried in order (since dpkg 1.22.12): the default pager B<%DPKG_DEFAULT_PAGER%>, then B<less>, B<more>, and finally B<cat>.
+B<DPKG_PAGER> överstyr miljövariabeln B<PAGER> (sedan dpkg 1.19.2). Om inget av programmen som pekas på av B<DPKG_PAGER> eller B<PAGER> finns kommer följande program att försöka användas, i ordning (sedan dpkg 1.22.12): standardbläddraren B<%DPKG_DEFAULT_PAGER>, så B<less>, B<more>, och slutligen B<cat>.
 
 =item B<DPKG_COLORS>
 
@@ -936,15 +936,15 @@ Ställer in ett pakethanterarskal att meddela dpkg att det inte ska ta skal-lås
 
 =item B<DPKG_PATH_PASSWD>
 
-Sets the pathname for the system F<passwd> file.  This path is relative to the B<--root> directory.  The default is F</etc/passwd>.
+Anger sökvägsnamnet för systemets F<passwd>-fil. Sökvägen är relativ till katalogen som angavs med B<--root>. Förval är F</etc/passwd>.
 
-Since dpkg 1.22.16.
+Sedan dpkg 1.22.16.
 
 =item B<DPKG_PATH_GROUP>
 
-Sets the pathname for the system F<group> file.  This path is relative to the B<--root> directory.  The default is F</etc/group>.
+Anger sökvägsnamnet för systemets F<group>-fil. Sökvägen är relativ till katalogen som angavs med B<--root>. Förval är F</etc/group>.
 
-Since dpkg 1.22.16.
+Sedan dpkg 1.22.16.
 
 =back
 
