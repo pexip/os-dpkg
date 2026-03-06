@@ -1,3 +1,223 @@
+commit 58e5927f9f2103e94574d92edbd93e41ab93384a
+Author: Guillem Jover <guillem@debian.org>
+Date:   Fri Mar 6 04:02:20 2026 +0100
+
+    Release 1.22.22
+
+ debian/changelog | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
+
+commit c92a8edeedda5d726d60eb1d9b521e2082ef6e13
+Author: Guillem Jover <guillem@debian.org>
+Date:   Fri Mar 6 04:01:23 2026 +0100
+
+    po: Regenerate .pot files and merge .po files with them
+
+ dselect/po/bs.po        | 2 +-
+ dselect/po/ca.po        | 2 +-
+ dselect/po/cs.po        | 2 +-
+ dselect/po/da.po        | 2 +-
+ dselect/po/de.po        | 2 +-
+ dselect/po/dselect.pot  | 4 ++--
+ dselect/po/el.po        | 2 +-
+ dselect/po/es.po        | 2 +-
+ dselect/po/et.po        | 2 +-
+ dselect/po/eu.po        | 2 +-
+ dselect/po/fr.po        | 2 +-
+ dselect/po/gl.po        | 2 +-
+ dselect/po/hu.po        | 2 +-
+ dselect/po/id.po        | 2 +-
+ dselect/po/it.po        | 2 +-
+ dselect/po/ja.po        | 2 +-
+ dselect/po/ko.po        | 2 +-
+ dselect/po/nb.po        | 2 +-
+ dselect/po/nl.po        | 2 +-
+ dselect/po/nn.po        | 2 +-
+ dselect/po/pl.po        | 2 +-
+ dselect/po/pt.po        | 2 +-
+ dselect/po/pt_BR.po     | 2 +-
+ dselect/po/ro.po        | 2 +-
+ dselect/po/ru.po        | 2 +-
+ dselect/po/sk.po        | 2 +-
+ dselect/po/sv.po        | 2 +-
+ dselect/po/tl.po        | 2 +-
+ dselect/po/vi.po        | 2 +-
+ dselect/po/zh_CN.po     | 2 +-
+ dselect/po/zh_TW.po     | 2 +-
+ man/po/dpkg-man.pot     | 4 ++--
+ po/ast.po               | 2 +-
+ po/bs.po                | 2 +-
+ po/ca.po                | 2 +-
+ po/cs.po                | 2 +-
+ po/da.po                | 2 +-
+ po/de.po                | 2 +-
+ po/dpkg.pot             | 4 ++--
+ po/dz.po                | 2 +-
+ po/el.po                | 2 +-
+ po/eo.po                | 2 +-
+ po/es.po                | 2 +-
+ po/et.po                | 2 +-
+ po/eu.po                | 2 +-
+ po/fr.po                | 2 +-
+ po/gl.po                | 2 +-
+ po/hu.po                | 2 +-
+ po/id.po                | 2 +-
+ po/it.po                | 2 +-
+ po/ja.po                | 2 +-
+ po/km.po                | 2 +-
+ po/ko.po                | 2 +-
+ po/ku.po                | 2 +-
+ po/lt.po                | 2 +-
+ po/mr.po                | 2 +-
+ po/nb.po                | 2 +-
+ po/ne.po                | 2 +-
+ po/nl.po                | 2 +-
+ po/nn.po                | 2 +-
+ po/oc.po                | 2 +-
+ po/pa.po                | 2 +-
+ po/pl.po                | 2 +-
+ po/pt.po                | 2 +-
+ po/pt_BR.po             | 2 +-
+ po/ro.po                | 2 +-
+ po/ru.po                | 2 +-
+ po/sk.po                | 2 +-
+ po/sv.po                | 2 +-
+ po/th.po                | 2 +-
+ po/tl.po                | 2 +-
+ po/tr.po                | 2 +-
+ po/vi.po                | 2 +-
+ po/zh_CN.po             | 2 +-
+ po/zh_TW.po             | 2 +-
+ scripts/po/ca.po        | 2 +-
+ scripts/po/de.po        | 2 +-
+ scripts/po/dpkg-dev.pot | 4 ++--
+ scripts/po/es.po        | 2 +-
+ scripts/po/fr.po        | 2 +-
+ scripts/po/nl.po        | 2 +-
+ scripts/po/pl.po        | 2 +-
+ scripts/po/pt.po        | 2 +-
+ scripts/po/ru.po        | 2 +-
+ scripts/po/sv.po        | 2 +-
+ 85 files changed, 89 insertions(+), 89 deletions(-)
+
+commit f53a8d4f48d379fd5873988a0aa57ceb7a7f40f6
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sat Feb 7 00:57:55 2026 +0100
+
+    libdpkg: Terminate zstd decompression when we have no more data
+    
+    We should be checking whether the input buffer is zero-sized, and then
+    mark the stream as finished. Otherwise the zstd implementation does not
+    detect that as an end of stream situation and we get stuck in an
+    infinite loop spinning the CPU. This means the decompression process
+    in dpkg-deb does not terminate, so no EPIPE gets generated and the
+    other processes that are part of the unpacking do not stop either.
+    
+    Reported-by: Yashashree Gund <yash_gund@live.com>
+    Fixes: commit 2c2f7066bd8c3209762762fa6905fa567b08ca5a
+    Fixes: CVE-2026-2219
+    Closes: #1129722
+    Stable-Candidate: 1.21.x 1.22.x
+    (cherry picked from commit 6610297a62c0780dd0e80b0e302ef64fdcc9d313)
+
+ lib/dpkg/compress.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+commit ff4a3b8478cd09a1d6f640530949fc57048b05fe
+Author: Guillem Jover <guillem@debian.org>
+Date:   Fri Jan 30 02:52:20 2026 +0100
+
+    Dpkg::OpenPGP::Backend::GnuPG: Add missing Dpkg::Gettext import
+    
+    Fixes: commit 0274e3d358022ddd270c6c40a048a27d8f6b4eb8
+    Closes: #1128406
+    Stable-Candidate: 1.22.x
+    (cherry picked from commit 1d84728514f09a8c74cd1bdbc147f29864c4a85a)
+
+ scripts/Dpkg/OpenPGP/Backend/GnuPG.pm | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit be609a49aa96eafa3960d2911d60bba71f379ca8
+Author: Guillem Jover <guillem@debian.org>
+Date:   Thu Jan 29 00:43:26 2026 +0100
+
+    dpkg-query: Fix segfault with empty -S argument
+    
+    Fixes: https://bugs.launchpad.net/bugs/2092676
+    Stable-Candidate: 1.22.x
+    (cherry picked from commit 02641e1df280be77909b21850e1728e1a770fb34)
+
+ src/query/main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 70a5c915b6cd6cd7c8d15d86c74cd289e2b6f822
+Author: Guillem Jover <guillem@debian.org>
+Date:   Mon Dec 8 01:23:23 2025 +0100
+
+    Dpkg::Shlibs::Objdump::Object: Add support for "Version References" symbols
+    
+    New binutils can emit dependencies on specific versions via the
+    DT_VERNEED tags in the .gnu.version_r section. But these dependencies
+    are not exposed in the Dynamic Symbol Table.
+    
+    Inject those dependencies as if they were normal undefined symbols into
+    the object metadata.
+    
+    [guillem@debian.org: Do not use sub signatures. ]
+    
+    Closes: #1122107
+    Stable-Candidate: 1.22.x
+    (cherry picked from commit 47516cd128aa2ff5d2dcc222dd7c7f8582b69d3f)
+
+ scripts/Dpkg/Shlibs/Objdump/Object.pm | 38 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
+
+commit 83b0962eb4ecfaa0e6233537967706008ae19289
+Author: Guillem Jover <guillem@debian.org>
+Date:   Wed Aug 20 13:06:37 2025 +0200
+
+    Dpkg::OpenPGP: Do not run verify with no keyrings
+    
+    The verification method makes little sense without keyrings as then we'd
+    not be able to verify the signatures.
+    
+    We implemented this specifically for Sequoia, and not for GnuPG as that
+    backend does not error out if it does not get a keyring, but the SOP
+    backend has the same problem, so let's unify the behavior for all
+    backends (in case users load them explicitly) and their parents which is
+    the expected interface for those methods.
+    
+    [guillem@debian.org:
+     - Use OPENPGP_NO_SIG instead of OPENPGP_MISSING_KEYRING. ]
+    
+    Closes: #1111617
+    Stable-Candidate: 1.22.x
+    (cherry picked from commit 1eae71c1c7217e89d3316b86fac18306ddeeb958)
+
+ scripts/Dpkg/OpenPGP.pm               | 5 +++++
+ scripts/Dpkg/OpenPGP/Backend.pm       | 2 ++
+ scripts/Dpkg/OpenPGP/Backend/GnuPG.pm | 4 ++++
+ scripts/Dpkg/OpenPGP/Backend/SOP.pm   | 4 ++++
+ 4 files changed, 15 insertions(+)
+
+commit 9257c684863d81f123cfa009118f5efb958a4a9b
+Author: Guillem Jover <guillem@debian.org>
+Date:   Sat Jul 5 19:08:29 2025 +0200
+
+    build: Build gitlab CI images for trixie instead of sid
+
+ .gitlab-ci.yml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 7680e3670606232f896d40937a41d19535750bd1
+Author: Guillem Jover <guillem@debian.org>
+Date:   Fri Mar 6 03:49:19 2026 +0100
+
+    Bump version to 1.22.22
+
+ debian/changelog | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
 commit d72b038fd2113cb62972e4071db03dd1388394d8
 Author: Guillem Jover <guillem@debian.org>
 Date:   Tue Jul 1 01:34:37 2025 +0200
@@ -5108,6 +5328,9 @@ Date:   Mon Jul 29 00:29:16 2024 +0200
     test: Fix coding style in perl test cases
     
     Remove spurious spaces around parenthesis in function calls.
+
+Notes:
+    Blame-Ignore: yes
 
  scripts/t/Dpkg_Changelog.t      |  10 +-
  scripts/t/Dpkg_Shlibs.t         | 627 +++++++++++++++++++++++++++-------------
@@ -12881,6 +13104,9 @@ Date:   Thu Jul 6 23:39:08 2023 +0200
 
     libdpkg: Fix coding style for varbuf module
 
+Notes:
+    Blame-Ignore: yes
+
  lib/dpkg/varbuf.c | 191 ++++++++++++++++++++++++++++--------------------------
  1 file changed, 99 insertions(+), 92 deletions(-)
 
@@ -15910,6 +16136,9 @@ Date:   Wed Mar 15 23:48:49 2023 +0100
 
     Dpkg::Changelog::Parse: Fix indentation of copyright and license notice
 
+Notes:
+    Blame-Ignore: yes
+
  scripts/Dpkg/Changelog/Parse.pm | 22 +++++++++++-----------
  1 file changed, 11 insertions(+), 11 deletions(-)
 
@@ -18106,6 +18335,9 @@ Date:   Thu Jan 5 12:08:36 2023 +0100
     
     Changelog: internal
 
+Notes:
+    Blame-Ignore: yes
+
  scripts/dpkg-genbuildinfo.pl | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
@@ -18919,6 +19151,9 @@ Date:   Wed Dec 28 01:25:37 2022 +0100
     
     Changelog: internal
 
+Notes:
+    Blame-Ignore: yes
+
  dselect/methods/Dselect/Ftp.pm | 26 ++++++++++++++------------
  scripts/Dpkg/Shlibs/Cppfilt.pm |  8 ++++++--
  scripts/Dpkg/Source/Archive.pm | 16 ++++++++++------
@@ -18935,6 +19170,9 @@ Date:   Tue Dec 27 23:57:51 2022 +0100
     scripts: Fix indentation
     
     Changelog: internal
+
+Notes:
+    Blame-Ignore: yes
 
  scripts/Dpkg/Compression.pm            |  2 +-
  scripts/Dpkg/Compression/FileHandle.pm |  4 ++--
@@ -19674,6 +19912,9 @@ Date:   Tue Dec 13 03:26:13 2022 +0100
 
     build: Fix m4 files coding style
 
+Notes:
+    Blame-Ignore: yes
+
  m4/dpkg-funcs.m4 | 20 ++++++++++++--------
  m4/dpkg-libs.m4  | 14 +++++++-------
  2 files changed, 19 insertions(+), 15 deletions(-)
@@ -19827,6 +20068,9 @@ Date:   Wed Dec 7 16:25:28 2022 +0100
     dpkg-architecture: Fix indentation
     
     Changelog: internal
+
+Notes:
+    Blame-Ignore: yes
 
  scripts/dpkg-architecture.pl | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -35226,6 +35470,9 @@ Date:   Sat May 2 23:15:42 2020 +0200
 
     Reformat shell code to follow the coding style
 
+Notes:
+    Blame-Ignore: yes
+
  debian/changelog                   |    1 +
  debian/dpkg.cron.daily             |   50 +-
  debian/dpkg.postrm                 |   38 +-
@@ -37785,6 +38032,9 @@ Author: Guillem Jover <guillem@debian.org>
 Date:   Tue Mar 2 00:24:44 2010 +0100
 
     t/200_Dpkg_Shlibs: Reformat for coding style conformance
+
+Notes:
+    Blame-Ignore: yes
 
  debian/changelog                   |   1 +
  scripts/t/Dpkg_Shlibs/patterns.cpp | 128 +++++++++++++++++--------------------
@@ -47394,6 +47644,9 @@ Author: Guillem Jover <guillem@debian.org>
 Date:   Sun Apr 1 03:23:10 2018 +0200
 
     dpkg-checkbuilddeps: Fix indentation
+
+Notes:
+    Blame-Ignore: yes
 
  scripts/dpkg-checkbuilddeps.pl | 69 +++++++++++++++++++++---------------------
  1 file changed, 34 insertions(+), 35 deletions(-)
@@ -58314,6 +58567,9 @@ Date:   Sun Oct 9 17:37:23 2016 +0200
 
     build: Use two space indentation for shell code
 
+Notes:
+    Blame-Ignore: yes
+
  Makefile.am                 | 16 +++++++-------
  dselect/Makefile.am         |  8 +++----
  dselect/methods/Makefile.am |  4 ++--
@@ -58489,6 +58745,9 @@ Date:   Sun Aug 28 18:59:03 2016 +0200
     instead of shell constructs. Quote all autoconf macro arguments.
     
     Add a new section to coding-style.txt describing M4sh/Autoconf.
+
+Notes:
+    Blame-Ignore: yes
 
  configure.ac         | 128 ++++++++++++++++++++++++--------------
  debian/changelog     |   2 +
@@ -65242,6 +65501,9 @@ Date:   Mon Sep 14 03:48:48 2015 +0200
 
     t: Fix coding style
 
+Notes:
+    Blame-Ignore: yes
+
  src/t/dpkg_divert.t | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
@@ -70712,6 +70974,9 @@ Author: Guillem Jover <guillem@debian.org>
 Date:   Tue Jan 27 18:05:36 2015 +0100
 
     dpkg: Fix indentation
+
+Notes:
+    Blame-Ignore: yes
 
  src/unpack.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -92337,6 +92602,9 @@ Date:   Wed Jul 18 17:19:26 2012 +0200
     
     The new file was accidentally introduced with old-style indentation.
 
+Notes:
+    Blame-Ignore: yes
+
  src/filesdb-hash.c | 43 ++++++++++++++++++++++---------------------
  1 file changed, 22 insertions(+), 21 deletions(-)
 
@@ -108963,6 +109231,9 @@ Date:   Mon Feb 21 16:32:57 2011 +0100
 
     Fix bad indentation in various parts of the code
 
+Notes:
+    Blame-Ignore: yes
+
  lib/dpkg/dbmodify.c | 6 +++---
  src/archives.c      | 6 +++---
  2 files changed, 6 insertions(+), 6 deletions(-)
@@ -121526,6 +121797,9 @@ Date:   Tue Jun 29 07:12:39 2010 +0200
 
     dpkg-split: Fix indentation for the rest of split.c
 
+Notes:
+    Blame-Ignore: yes
+
  dpkg-split/split.c | 56 ++++++++++++++++++++++++++++--------------------------
  1 file changed, 29 insertions(+), 27 deletions(-)
 
@@ -128370,6 +128644,9 @@ Date:   Fri Jan 22 13:52:58 2010 +0100
 
     libdpkg: Fix indentation in compress.c
 
+Notes:
+    Blame-Ignore: yes
+
  lib/dpkg/compress.c | 102 ++++++++++++++++++++++++++--------------------------
  1 file changed, 51 insertions(+), 51 deletions(-)
 
@@ -129293,6 +129570,9 @@ Date:   Tue Jan 5 02:03:28 2010 +0200
     
     Signed-off-by: Modestas Vainius <modax@debian.org>
     Signed-off-by: Raphaël Hertzog <hertzog@debian.org>
+
+Notes:
+    Blame-Ignore: yes
 
  scripts/Dpkg/Shlibs/SymbolFile.pm | 22 +++++++++++-----------
  1 file changed, 11 insertions(+), 11 deletions(-)
@@ -134932,6 +135212,9 @@ Date:   Fri Sep 25 04:40:56 2009 +0200
     quotes, but do not change strings marked for translation if no other
     change was needed. Fix placement of braces and boolean operators. Fix
     formatting of comments.
+
+Notes:
+    Blame-Ignore: yes
 
  lib/dpkg/showpkg.c        | 229 +++++++++++-----------
  lib/dpkg/subproc.c        |   6 +-
