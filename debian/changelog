@@ -1,3 +1,10 @@
+dpkg (1.22.22+pexip25u2) pexip-trixie; urgency=medium
+
+  * Apply fix to dpkg verify routine to handle remove-on-upgrade
+    conffiles.
+
+ -- Mark Hymers <mark.hymers@pexip.com>  Wed, 22 Jul 2026 11:24:17 +0100
+
 dpkg (1.22.22+pexip25u1) pexip-trixie; urgency=medium
 
   * New upstream release
